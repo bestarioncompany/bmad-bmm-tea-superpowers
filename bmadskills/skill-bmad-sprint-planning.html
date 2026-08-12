@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprint Planning — Guide</title>
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.65;
+    font-size: 0.9375rem;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: .5;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "masthead masthead" "toc article";
+    max-width: 1340px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Masthead ─────────────────────────────────── */
+  header.masthead {
+    grid-area: masthead;
+    border-bottom: 2px solid var(--rule);
+    padding: 28px 40px 24px;
+    background: var(--paper-warm);
+  }
+  .masthead-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-mute);
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title {
+    font-family: Georgia, 'Palatino Linotype', Palatino, serif;
+    font-size: clamp(1.8rem, 4vw, 2.9rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  h1.title em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px;
+  }
+  dl.meta-grid dd {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 12px; font-weight: 700; color: var(--ink);
+  }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc {
+    grid-area: toc;
+    border-right: 1px solid var(--rule);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .toc-section-label {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute);
+    padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px;
+  }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading {
+    font-family: Georgia, 'Palatino Linotype', Palatino, serif;
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-weight: 700; letter-spacing: -0.02em; color: var(--ink);
+    margin-bottom: 20px; line-height: 1.15;
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  }
+  h2.agent-heading .marker {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--paper); background: var(--ink); padding: 3px 10px;
+    white-space: nowrap; flex-shrink: 0; align-self: center;
+  }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+
+  h3.skill-heading {
+    font-family: Georgia, 'Palatino Linotype', Palatino, serif;
+    font-size: 1.35rem; font-weight: 700; color: var(--ink);
+    margin: 44px 0 16px; letter-spacing: -0.015em;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  h3.skill-heading .code-name {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper);
+    padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap;
+  }
+  h3.skill-heading .code-tag {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper);
+    padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px;
+  }
+
+  h4.step-heading {
+    font-family: Georgia, 'Palatino Linotype', Palatino, serif;
+    font-size: 1.05rem; font-weight: 700; color: var(--ink);
+    margin: 28px 0 10px; letter-spacing: -0.005em;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h4.step-heading::before {
+    content: ''; display: inline-block; width: 6px; height: 6px;
+    background: var(--accent); flex-shrink: 0; transform: rotate(45deg);
+  }
+
+  h5 {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em;
+    color: var(--accent); margin: 24px 0 8px;
+  }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2);
+    padding: 1px 5px; color: var(--ink-soft); border-radius: 1px;
+  }
+  pre {
+    background: var(--code-bg); color: var(--code-fg);
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 0.82rem; padding: 16px 20px; margin: 12px 0 20px;
+    overflow-x: auto; border: 1px solid var(--rule); line-height: 1.7;
+  }
+  pre code { background: none; border: none; padding: 0; color: var(--code-fg); font-size: 1em; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block {
+    border: 1px solid var(--rule); background: var(--paper);
+    margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr;
+  }
+  dl.persona-block dt {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute);
+    padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18);
+    border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top;
+  }
+  dl.persona-block dd {
+    font-size: 0.875rem; padding: 9px 14px;
+    border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5;
+  }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 10px 16px; border-bottom: 1px solid var(--rule);
+    background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px;
+  }
+  .data-callout .data-head .data-label {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700;
+  }
+  .data-callout .data-head .data-source {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 10px; color: var(--paper); opacity: 0.7;
+  }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th {
+    text-align: left; padding: 8px 12px;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em;
+    color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm);
+  }
+  .data-callout td {
+    padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink);
+  }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 160px;
+  }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px;
+  }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--accent); margin-bottom: 6px;
+  }
+  .module-card .card-name {
+    font-family: Georgia, 'Palatino Linotype', Palatino, serif;
+    font-size: 1.1rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px;
+  }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li {
+    padding: 3px 0 3px 14px; position: relative;
+    font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12);
+  }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer {
+    margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2);
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute);
+  }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em;
+    color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px;
+  }
+
+  /* ── Inline list ──────────────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Checklist ────────────────────────────────── */
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li {
+    padding: 6px 0 6px 24px; position: relative; font-size: 0.875rem;
+    color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.5;
+  }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before {
+    content: '□'; position: absolute; left: 0;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 12px; color: var(--ink-mute);
+  }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after {
+    content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+    background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px;
+  }
+
+  /* ── Status State Machine — distinctive visual ─ */
+  .state-machine-section {
+    margin: 24px 0 32px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .state-machine-section .sm-header {
+    background: var(--ink); color: var(--paper);
+    padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+  .sm-header .sm-label {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700;
+  }
+  .sm-header .sm-note {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 10px; color: rgba(244,237,224,.6);
+  }
+  .sm-row {
+    display: grid; grid-template-columns: 130px 1fr;
+    border-bottom: 1px dotted rgba(42,34,26,.2); align-items: center;
+  }
+  .sm-row:last-child { border-bottom: none; }
+  .sm-kind {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--ink-mute); padding: 16px 14px;
+    border-right: 1px solid rgba(42,34,26,.15); background: var(--paper-warm);
+    align-self: stretch; display: flex; align-items: center;
+  }
+  .sm-flow {
+    padding: 14px 18px;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  }
+
+  /* Status node color vocabulary */
+  .sn {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 11px; font-weight: 700; padding: 5px 12px;
+    letter-spacing: 0.03em; white-space: nowrap; display: inline-block;
+  }
+  .sn-backlog  { background: var(--paper-warm); color: var(--ink-mute); border: 1px solid rgba(42,34,26,.28); }
+  .sn-ready    { background: #dbeafe; color: #1e3a5f; border: 1px solid #93c5fd; }
+  .sn-inprog   { background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
+  .sn-review   { background: #ffedd5; color: #7c2d12; border: 1px solid #fdba74; }
+  .sn-done     { background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+  .sn-optional { background: var(--paper-warm); color: var(--ink-mute); border: 1px dashed rgba(42,34,26,.3); font-style: italic; }
+  .sn-arrow    { color: var(--accent); font-size: 16px; font-weight: 700; line-height: 1; padding: 0 2px; }
+  .sn-bidir    { color: var(--ink-mute); font-size: 14px; padding: 0 2px; }
+
+  /* Never-downgrade callout */
+  .no-downgrade {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px;
+    background: #fff7ed; border: 1px solid #fdba74; border-left: 4px solid var(--accent);
+    margin: 16px 0 24px; font-size: 13px; line-height: 1.55; color: var(--ink-soft);
+  }
+  .no-downgrade strong { color: var(--accent); display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* Story ID conversion */
+  .id-conversion {
+    background: var(--code-bg); color: var(--code-fg);
+    padding: 16px 20px; margin: 12px 0 20px;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 12.5px; line-height: 2.2; border: 1px solid var(--rule);
+  }
+  .id-conversion .step-line { display: flex; align-items: baseline; gap: 16px; }
+  .id-conversion .step-label {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em;
+    color: var(--highlight); min-width: 100px; flex-shrink: 0;
+  }
+  .id-conversion .step-val em { color: #86efac; font-style: normal; }
+
+  /* Colophon */
+  footer.colophon {
+    grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px;
+    background: var(--paper-warm);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute);
+  }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .module-grid { grid-template-columns: 1fr; }
+    .sm-row { grid-template-columns: 1fr; }
+    .sm-kind { border-right: none; border-bottom: 1px solid rgba(42,34,26,.15); align-self: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad · Sprint Planning</span>
+        <span>Skill · bmad-sprint-planning</span>
+        <span>Phase 4 · Developer Role</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Sprint Planning <em>· Status Tracking Generator</em></h1>
+    <p class="subtitle">Parse epic files, detect story statuses from the filesystem, and generate sprint-status.yaml — the single source of truth for all Phase 4 downstream workflows. Full automation. Zero user intervention required after invocation.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-sprint-planning</dd></div>
+      <div><dt>Menu code</dt><dd>SP</dd></div>
+      <div><dt>Input</dt><dd>Epic files + filesystem story state</dd></div>
+      <div><dt>Trigger</dt><dd>"run sprint planning"</dd></div>
+      <div><dt>Agent</dt><dd>Developer (Amelia)</dd></div>
+      <div><dt>Automation</dt><dd>Full auto · Zero input</dd></div>
+      <div><dt>Steps</dt><dd>5 · Idempotent</dd></div>
+      <div><dt>Output</dt><dd>sprint-status.yaml</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#key-capabilities">Key Capabilities</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-planning">Why Sprint Planning?</a>
+      <a href="#when-to-use">When to Use</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#workflow">5-Step Workflow</a>
+      <a href="#step-01" class="toc-sub">Step 1 · Parse Epics</a>
+      <a href="#step-02" class="toc-sub">Step 2 · Build Structure</a>
+      <a href="#step-03" class="toc-sub">Step 3 · Detect Status</a>
+      <a href="#step-04" class="toc-sub">Step 4 · Generate YAML</a>
+      <a href="#step-05" class="toc-sub">Step 5 · Validate &amp; Report</a>
+      <a href="#state-machine">Status State Machine</a>
+      <a href="#story-id">Story ID Conversion</a>
+      <a href="#output-schema">Output: sprint-status.yaml</a>
+      <a href="#validation">Validation Checklist</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Sprint Planning <em>· What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-sprint-planning</code></dd>
+        <dt>Trigger phrases</dt><dd>
+          <div class="menu-codes">
+            <code>run sprint planning</code>
+            <code>generate sprint plan</code>
+          </div>
+        </dd>
+        <dt>Agent</dt><dd>Developer — reads epic files, infers story statuses from the filesystem, writes tracking state to <code>sprint-status.yaml</code>.</dd>
+        <dt>Automation</dt><dd>Full auto. No user intervention required after invocation. Re-runnable at any time — statuses are never downgraded on re-run.</dd>
+        <dt>Output</dt><dd><code>{implementation_artifacts}/sprint-status.yaml</code> — flat key→status map covering every epic, story, and retrospective in the project.</dd>
+        <dt>Upstream</dt><dd>Phase 3 epic/story decomposition complete. Epic files (<code>*epic*.md</code>) must exist in <code>planning_artifacts</code>.</dd>
+        <dt>Downstream</dt><dd>All Phase 4 skills — <code>create-story</code>, <code>dev-story</code>, <code>bmad-sprint-status</code> — read from <code>sprint-status.yaml</code> as their source of truth.</dd>
+      </dl>
+
+      <p>Sprint Planning is the gateway to Phase 4. It scans every epic file, extracts the full inventory of epics and stories, cross-references that inventory against story files on disk, and produces a single YAML tracking file the entire Phase 4 toolchain depends on. Nothing in Phase 4 moves without this file.</p>
+    </section>
+
+    <section id="key-capabilities">
+      <h3 class="skill-heading">
+        <span class="code-name">key-capabilities</span>
+        Key Capabilities
+      </h3>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">Capability · 01</div>
+          <div class="card-name">Epic Discovery</div>
+          <div class="card-body">
+            <ul>
+              <li>Whole doc: single <code>*epic*.md</code></li>
+              <li>Sharded: <code>index.md</code> + section files</li>
+              <li>Fuzzy name matching (epics.md, bmm-epics.md…)</li>
+              <li>Whole doc takes priority if both exist</li>
+            </ul>
+          </div>
+          <div class="card-footer">Searches planning_artifacts</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 02</div>
+          <div class="card-name">Status Detection</div>
+          <div class="card-body">
+            <ul>
+              <li>Checks if story file exists on disk</li>
+              <li>Upgrades to <code>ready-for-dev</code> if file found</li>
+              <li>Preserves any more-advanced existing status</li>
+              <li>Never downgrades a recorded status</li>
+            </ul>
+          </div>
+          <div class="card-footer">Reads implementation_artifacts</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 03</div>
+          <div class="card-name">YAML Generation</div>
+          <div class="card-body">
+            <ul>
+              <li>Flat <code>development_status</code> key→value map</li>
+              <li>Metadata header: project, date, tracking_system</li>
+              <li>Order: epic → stories → retrospective per block</li>
+              <li>Self-documenting via embedded comment blocks</li>
+            </ul>
+          </div>
+          <div class="card-footer">Writes sprint-status.yaml</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 04</div>
+          <div class="card-name">Validation &amp; Report</div>
+          <div class="card-body">
+            <ul>
+              <li>Completeness: every epic/story/retro present</li>
+              <li>No orphaned entries (entries with no epic source)</li>
+              <li>Legal status values only</li>
+              <li>Totals summary delivered to user</li>
+            </ul>
+          </div>
+          <div class="card-footer">Reports to user on completion</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-planning">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Sprint Planning?
+      </h2>
+
+      <p class="lede">Without a sprint-status.yaml, every Phase 4 workflow must independently re-parse epic files — with no guarantee their view of the current development state agrees.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Without Sprint Planning</th>
+            <th>With Sprint Planning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Status tracking</td>
+            <td>Manual notes or memory — each team member's view of what's done may differ</td>
+            <td>Single YAML file; all Phase 4 agents read the same source of truth</td>
+          </tr>
+          <tr>
+            <td>Status discovery</td>
+            <td>Developer must scan story folders by hand to know which stories have been created</td>
+            <td>Automatic: filesystem scan detects existing story files and upgrades their status to at least <code>ready-for-dev</code></td>
+          </tr>
+          <tr>
+            <td>Inventory accuracy</td>
+            <td>Stories added to epics may never appear in tracking if someone forgets to update a list</td>
+            <td>Every epic, story, and retrospective from every epic file is guaranteed an entry</td>
+          </tr>
+          <tr>
+            <td>Re-run safety</td>
+            <td>Overwriting tracking manually risks resetting work that is already in progress</td>
+            <td>Idempotent: running again only upgrades statuses, never downgrades completed or in-progress work</td>
+          </tr>
+          <tr>
+            <td>Downstream integration</td>
+            <td>Each agent re-derives project state from scratch — slow, error-prone, inconsistent</td>
+            <td>All Phase 4 skills (<code>create-story</code>, <code>dev-story</code>, <code>sprint-status</code>) read directly from the YAML without re-parsing epics</td>
+          </tr>
+          <tr>
+            <td>Sharded epics</td>
+            <td>Multi-file epic structures are tedious to aggregate and compare manually</td>
+            <td>Automatic index + section file assembly into one complete, ordered inventory</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="when-to-use">
+      <h3 class="skill-heading">
+        <span class="code-name">when-to-use</span>
+        When to Use This Skill
+      </h3>
+
+      <ul class="step-detail">
+        <li><strong class="label">Phrase 1</strong>"run sprint planning" / "generate sprint plan"</li>
+        <li><strong class="label">Phase start</strong>First entry into Phase 4 — before any stories are created or developed</li>
+        <li><strong class="label">Epic update</strong>After epics are modified to add new stories or epics</li>
+        <li><strong class="label">Re-sync</strong>After story files are created outside the normal <code>create-story</code> workflow</li>
+        <li><strong class="label">Audit</strong>When <code>sprint-status.yaml</code> is suspected to be out of sync with the filesystem</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <section id="workflow">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        How to Execute <em>· 5-Step Workflow</em>
+      </h2>
+
+      <h4 class="step-heading" id="step-01">Step 1 · Parse Epic Files</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Build a complete inventory of every epic and story defined in <code>planning_artifacts</code>.</li>
+        <li><strong class="label">Discovery</strong>Look for a whole document first: <code>epics.md</code>, <code>bmm-epics.md</code>, or any <code>*epic*.md</code> file. If not found, look for the sharded format: <code>epics/index.md</code> + all section files listed in the index.</li>
+        <li><strong class="label">Priority</strong>If both whole and sharded versions exist, the whole document takes precedence.</li>
+        <li><strong class="label">Extraction</strong>Parse epic headers (<code>## Epic 1:</code>), story sub-headers (<code>### Story 1.1: Title</code>), and build a numbered inventory in source order.</li>
+      </ul>
+
+      <h4 class="step-heading" id="step-02">Step 2 · Build Status Structure</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Create a flat key→status map with all epics, stories, and retrospectives in the correct order.</li>
+        <li><strong class="label">Entry order</strong>For each epic: epic entry → story entries (in source order) → retrospective entry. Then next epic block.</li>
+        <li><strong class="label">Default statuses</strong>Epic: <code>backlog</code> · Story: <code>backlog</code> · Retrospective: <code>optional</code></li>
+        <li><strong class="label">Key format</strong>See Story ID Conversion rules — all keys are deterministic, kebab-case derivations of the source header.</li>
+      </ul>
+
+      <h4 class="step-heading" id="step-03">Step 3 · Apply Status Detection</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Automatically upgrade statuses where the filesystem provides evidence of progress.</li>
+        <li><strong class="label">Story file check</strong>For each story key, check if <code>{story_location}/{story-key}.md</code> exists on disk.</li>
+        <li><strong class="label">If file found</strong>Upgrade story status to at least <code>ready-for-dev</code>.</li>
+        <li><strong class="label">Preservation rule</strong>If a prior <code>sprint-status.yaml</code> already records a more advanced status (e.g. <code>in-progress</code>, <code>done</code>), preserve it verbatim. Never downgrade.</li>
+      </ul>
+
+      <div class="no-downgrade">
+        <div>
+          <strong>Never-Downgrade Rule</strong>
+          The filesystem can only prove a story file exists — it cannot prove the story is still <code>backlog</code> if a developer has already started work. Any status more advanced than what file detection can determine is preserved from the prior <code>sprint-status.yaml</code> without modification.
+        </div>
+      </div>
+
+      <h4 class="step-heading" id="step-04">Step 4 · Generate sprint-status.yaml</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Write the complete tracking file to <code>{implementation_artifacts}/sprint-status.yaml</code>.</li>
+        <li><strong class="label">Dual metadata</strong>Metadata appears twice: once as YAML comment lines (for human readability) and once as key:value fields (for machine parsing by downstream agents).</li>
+        <li><strong class="label">Ordering</strong>All items in order: epic → its stories → its retrospective → next epic block.</li>
+        <li><strong class="label">Self-documentation</strong>STATUS DEFINITIONS and WORKFLOW NOTES embedded as comment blocks — the file is its own reference.</li>
+      </ul>
+
+      <h4 class="step-heading" id="step-05">Step 5 · Validate &amp; Report</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Confirm the generated file is complete, consistent, and valid before reporting to the user.</li>
+        <li><strong class="label">Completeness</strong>Every epic, story, and retrospective from the epic files appears in <code>sprint-status.yaml</code>. No extra entries that have no source in the epic files.</li>
+        <li><strong class="label">Validity</strong>All status values match defined state machine values. YAML syntax is valid and parseable.</li>
+        <li><strong class="label">Report</strong>Delivers: file location · total epics · total stories · epics in-progress · stories completed · next steps for the user.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- State Machine -->
+    <section id="state-machine">
+      <h3 class="skill-heading">
+        <span class="code-name">state-machine</span>
+        Status State Machine
+      </h3>
+      <p class="lede">Three separate state machines govern tracking. Transitions are strictly one-directional except for Retrospective. The color vocabulary below is used consistently across this document and the generated YAML.</p>
+
+      <div class="state-machine-section">
+        <div class="sm-header">
+          <span class="sm-label">Status Flow Diagrams</span>
+          <span class="sm-note">SKILL.md · Status State Machine</span>
+        </div>
+        <div class="sm-row">
+          <div class="sm-kind">Epic</div>
+          <div class="sm-flow">
+            <span class="sn sn-backlog">backlog</span>
+            <span class="sn-arrow">→</span>
+            <span class="sn sn-inprog">in-progress</span>
+            <span class="sn-arrow">→</span>
+            <span class="sn sn-done">done</span>
+          </div>
+        </div>
+        <div class="sm-row">
+          <div class="sm-kind">Story</div>
+          <div class="sm-flow">
+            <span class="sn sn-backlog">backlog</span>
+            <span class="sn-arrow">→</span>
+            <span class="sn sn-ready">ready-for-dev</span>
+            <span class="sn-arrow">→</span>
+            <span class="sn sn-inprog">in-progress</span>
+            <span class="sn-arrow">→</span>
+            <span class="sn sn-review">review</span>
+            <span class="sn-arrow">→</span>
+            <span class="sn sn-done">done</span>
+          </div>
+        </div>
+        <div class="sm-row">
+          <div class="sm-kind">Retrospective</div>
+          <div class="sm-flow">
+            <span class="sn sn-optional">optional</span>
+            <span class="sn-bidir">⇄</span>
+            <span class="sn sn-done">done</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Status Definitions</span>
+          <span class="data-source">SKILL.md · Additional Documentation</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Status</th><th>Applies to</th><th>Meaning</th><th>Set by</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><span class="sn sn-backlog">backlog</span></td>
+              <td>Epic, Story</td>
+              <td>Not yet started. For stories: only exists as a header in the epic file — no story file on disk yet.</td>
+              <td>Sprint Planning (default on first run)</td>
+            </tr>
+            <tr>
+              <td class="key-col"><span class="sn sn-ready">ready-for-dev</span></td>
+              <td>Story</td>
+              <td>Story file created in <code>{story_location}/</code>. Ready to be picked up by a developer agent.</td>
+              <td>Sprint Planning (auto-detect) or <code>create-story</code></td>
+            </tr>
+            <tr>
+              <td class="key-col"><span class="sn sn-inprog">in-progress</span></td>
+              <td>Epic, Story</td>
+              <td>Actively being worked on. Epics transition here automatically when the first story file is created.</td>
+              <td>Developer manually or <code>dev-story</code></td>
+            </tr>
+            <tr>
+              <td class="key-col"><span class="sn sn-review">review</span></td>
+              <td>Story</td>
+              <td>Implementation complete. Awaiting code review. Dev runs the <code>code-review</code> workflow at this stage.</td>
+              <td>Developer after finishing implementation</td>
+            </tr>
+            <tr>
+              <td class="key-col"><span class="sn sn-done">done</span></td>
+              <td>Epic, Story, Retrospective</td>
+              <td>Completed. For epics: all stories in the epic have reached <code>done</code>.</td>
+              <td>Developer or reviewer</td>
+            </tr>
+            <tr>
+              <td class="key-col"><span class="sn sn-optional">optional</span></td>
+              <td>Retrospective</td>
+              <td>Retrospective can be conducted but is not required for epic or project completion.</td>
+              <td>Sprint Planning (default for all retrospectives)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Story ID Conversion -->
+    <section id="story-id">
+      <h3 class="skill-heading">
+        <span class="code-name">story-id</span>
+        Story ID Conversion Rules
+      </h3>
+      <p>Every story header in the epic file is converted to a deterministic kebab-case key for <code>sprint-status.yaml</code>. The same key is used for the corresponding story file on disk.</p>
+
+      <div class="id-conversion">
+        <div class="step-line">
+          <span class="step-label">Source</span>
+          <span class="step-val">### Story <em>1.1</em>: <em>User Authentication</em></span>
+        </div>
+        <div class="step-line">
+          <span class="step-label">Period → Dash</span>
+          <span class="step-val"><em>1-1</em></span>
+        </div>
+        <div class="step-line">
+          <span class="step-label">Title → Kebab</span>
+          <span class="step-val"><em>user-authentication</em></span>
+        </div>
+        <div class="step-line">
+          <span class="step-label">Final key</span>
+          <span class="step-val"><em>1-1-user-authentication</em></span>
+        </div>
+      </div>
+
+      <ul class="inline-list">
+        <li>Epic entries use the key <code>epic-{num}</code> — e.g. <code>epic-1</code>, <code>epic-2</code></li>
+        <li>Retrospective entries use <code>epic-{num}-retrospective</code> — e.g. <code>epic-1-retrospective</code></li>
+        <li>Story file on disk must match the derived key: <code>{story_location}/1-1-user-authentication.md</code></li>
+        <li>The conversion is applied consistently — no exceptions, no overrides</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Output Schema -->
+    <section id="output-schema">
+      <h3 class="skill-heading">
+        <span class="code-name">output</span>
+        Output: sprint-status.yaml
+        <span class="code-tag">single source of truth</span>
+      </h3>
+      <p class="lede">One flat YAML file. Self-documenting via embedded comment blocks. Consumed directly by all Phase 4 workflows without transformation or re-parsing of epic files.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">File Schema</span>
+          <span class="data-source">sprint-status-template.yaml</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><code>generated</code></td>
+              <td>datetime</td>
+              <td>Timestamp when the file was first created by Sprint Planning. Not updated on subsequent runs.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>last_updated</code></td>
+              <td>datetime</td>
+              <td>Timestamp of the most recent Sprint Planning run. Updated on every run.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>project</code></td>
+              <td>string</td>
+              <td>Project name from <code>_bmad/bmm/config.yaml</code>.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>project_key</code></td>
+              <td>string</td>
+              <td>Short project identifier. Default: <code>NOKEY</code> when using file-system tracking.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>tracking_system</code></td>
+              <td>string</td>
+              <td>Backend for status tracking. Default: <code>file-system</code>.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>story_location</code></td>
+              <td>path</td>
+              <td>Directory where story files live. Used by downstream workflows to locate and check story files.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>development_status</code></td>
+              <td>map</td>
+              <td>Flat key→status map. Covers every epic, story, and retrospective. Order: epic → stories → retrospective, per epic block.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <pre><code># generated: 2025-06-22 09:00
+# last_updated: 2025-06-22 09:00
+# project: My Project
+# tracking_system: file-system
+# story_location: implementation/stories
+
+generated: 2025-06-22 09:00
+last_updated: 2025-06-22 09:00
+project: My Project
+project_key: NOKEY
+tracking_system: file-system
+story_location: implementation/stories
+
+development_status:
+  epic-1: in-progress
+  1-1-user-authentication: done
+  1-2-account-management: ready-for-dev
+  1-3-plant-data-model: backlog
+  1-4-add-plant-manual: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-personality-system: backlog
+  2-2-chat-interface: backlog
+  2-3-llm-integration: backlog
+  epic-2-retrospective: optional</code></pre>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Validation Checklist -->
+    <section id="validation">
+      <h3 class="skill-heading">
+        <span class="code-name">validation</span>
+        Validation Checklist
+      </h3>
+      <p class="lede">Step 5 runs these checks before reporting completion. A failed check must be resolved before the summary is delivered to the user.</p>
+
+      <h5>Complete Coverage</h5>
+      <ul class="checklist">
+        <li>Every epic found in <code>*epic*.md</code> files has an entry in <code>sprint-status.yaml</code></li>
+        <li>Every story found in <code>*epic*.md</code> files has an entry in <code>sprint-status.yaml</code></li>
+        <li>Every epic has a corresponding <code>epic-{num}-retrospective</code> entry</li>
+        <li>No entries in <code>sprint-status.yaml</code> that cannot be traced to an epic or story in the epic files</li>
+      </ul>
+
+      <h5>Status Integrity</h5>
+      <ul class="checklist">
+        <li>All status values are legal values from the state machine definitions</li>
+        <li>No status was downgraded from a value recorded in a prior run</li>
+        <li>Items appear in the correct order: epic → stories → retrospective per block</li>
+      </ul>
+
+      <h5>File Quality</h5>
+      <ul class="checklist">
+        <li>Generated YAML parses without error</li>
+        <li>Metadata appears both as YAML comment lines and as key:value fields</li>
+        <li><code>last_updated</code> reflects the current run's timestamp</li>
+        <li>File written to correct path: <code>{implementation_artifacts}/sprint-status.yaml</code></li>
+      </ul>
+
+      <h5>Handoff Readiness</h5>
+      <ul class="checklist">
+        <li>Summary report delivered to user: file location · epic count · story count · in-progress count · done count</li>
+        <li>Next steps communicated: review file → use to track progress → agents update statuses as they work → re-run to refresh auto-detected statuses</li>
+      </ul>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

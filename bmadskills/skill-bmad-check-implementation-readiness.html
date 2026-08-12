@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Implementation Readiness Check — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 160px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Verdict card grid ────────────────────────── */
+  .verdict-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .verdict-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .verdict-card { background: var(--paper); padding: 20px 22px; }
+  .verdict-card .verdict-icon { font-size: 1.6rem; margin-bottom: 8px; }
+  .verdict-card .verdict-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 6px; }
+  .verdict-card .verdict-name { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+  .verdict-card .verdict-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.58; }
+  .verdict-card .verdict-action { margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+  .verdict-ready { border-top: 3px solid #16a34a; }
+  .verdict-ready .verdict-label { color: #16a34a; }
+  .verdict-needs-work { border-top: 3px solid #d97706; }
+  .verdict-needs-work .verdict-label { color: #d97706; }
+  .verdict-not-ready { border-top: 3px solid #dc2626; }
+  .verdict-not-ready .verdict-label { color: #dc2626; }
+
+  /* ── Step block ───────────────────────────────── */
+  .step-block { border: 1px solid var(--rule); margin: 20px 0 28px; }
+  .step-block-head { display: flex; align-items: center; gap: 16px; padding: 12px 18px; background: var(--ink); color: var(--paper); flex-wrap: wrap; }
+  .step-block-head .step-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--highlight); }
+  .step-block-head .step-name { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--paper); }
+  .step-block-head .step-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink); padding: 2px 9px; margin-left: auto; white-space: nowrap; }
+  .step-tag-interactive { background: var(--highlight); }
+  .step-tag-auto { background: #86efac; }
+  .step-block-body { padding: 18px 20px; background: var(--paper); }
+  .step-block-body p { margin-bottom: 12px; }
+  .step-block-body p:last-child { margin-bottom: 0; }
+
+  /* ── Mode grid (2-col) ────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  /* ── Risk score colors ────────────────────────── */
+  .risk-high { background: #fee2e2; color: #991b1b; font-weight: 700; text-align: center; }
+  .risk-med  { background: #fef3c7; color: #92400e; font-weight: 700; text-align: center; }
+  .risk-low  { background: #dcfce7; color: #166534; font-weight: 700; text-align: center; }
+
+  /* ── P-badge ──────────────────────────────────── */
+  .p-badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; padding: 1px 7px; display: inline-block; }
+  .p1 { background: #dc2626; color: #fff; }
+  .p2 { background: #d97706; color: #fff; }
+  .p3 { background: #6b7280; color: #fff; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 44px 0; opacity: 0.3; }
+
+  /* ── Inline list ──────────────────────────────── */
+  ul.inline-list { margin: 0 0 20px 18px; }
+  ul.inline-list li { margin-bottom: 8px; font-size: 0.9rem; color: var(--ink-soft); line-height: 1.6; }
+  ul.inline-list li strong { color: var(--ink); }
+
+  /* ── Checklist ────────────────────────────────── */
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li { padding: 6px 0 6px 28px; position: relative; font-size: 0.875rem; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: '☐'; position: absolute; left: 4px; color: var(--accent); font-size: 1rem; line-height: 1.4; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.step-detail li { padding: 7px 0 7px 0; border-bottom: 1px dotted rgba(42,34,26,.12); font-size: 0.875rem; color: var(--ink-soft); line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail li .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); display: block; margin-bottom: 3px; }
+
+  /* ── Sub-check block ──────────────────────────── */
+  .subcheck { border-left: 3px solid var(--accent); padding: 12px 0 12px 18px; margin: 20px 0; }
+  .subcheck-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--accent); margin-bottom: 4px; }
+  .subcheck-title { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+  .subcheck-body { font-size: 0.875rem; color: var(--ink-soft); line-height: 1.65; }
+  .subcheck-body p { margin-bottom: 10px; }
+  .subcheck-body ul { margin: 0 0 10px 16px; }
+  .subcheck-body li { margin-bottom: 5px; }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid var(--rule); }
+  .compare-table th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .compare-table td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink-soft); }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table td:first-child { font-weight: 600; color: var(--ink); white-space: nowrap; }
+
+  /* ── Notice blocks ────────────────────────────── */
+  .notice { padding: 14px 18px; margin: 16px 0 22px; border-left: 4px solid; font-size: 0.875rem; line-height: 1.65; color: var(--ink-soft); }
+  .notice-critical { border-color: #dc2626; background: #fee2e2; }
+  .notice-warning  { border-color: #d97706; background: #fef3c7; }
+  .notice-info     { border-color: #2563eb; background: #eff6ff; }
+  .notice strong { color: inherit; }
+  .notice .notice-head { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 6px; display: block; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+    .verdict-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad BMM · Phase 02/03 Gate</span>
+        <span>Skill · bmad-check-implementation-readiness</span>
+        <span>Agent · John (Product Manager)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Implementation Readiness Check <em>· John (PM)</em></h1>
+    <p class="subtitle">6-step sequential gate. Only Step 1 requires user input — Steps 2–6 auto-proceed. Validates FR coverage, UX alignment, epic quality. Outputs READY / NEEDS WORK / NOT READY verdict.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-check-implementation-readiness</dd></div>
+      <div><dt>Input</dt><dd>PRD + UX + Architecture + Epics (existing artifacts)</dd></div>
+      <div><dt>Trigger</dt><dd>"check implementation readiness"</dd></div>
+      <div><dt>Agent</dt><dd>John (PM)</dd></div>
+      <div><dt>Steps</dt><dd>6</dd></div>
+      <div><dt>Verdicts</dt><dd>READY / NEEDS WORK / NOT READY</dd></div>
+      <div><dt>Severity</dt><dd>Critical / Major / Minor</dd></div>
+      <div><dt>Output</dt><dd>implementation-readiness-report-{date}.md</dd></div>
+      <div><dt>Interactive</dt><dd>Step 1 only</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#step-cards" class="toc-sub">6-Step Summary Cards</a>
+      <a href="#verdict-system">Verdict System</a>
+      <a href="#verdict-ready" class="toc-sub">READY</a>
+      <a href="#verdict-needs-work" class="toc-sub">NEEDS WORK</a>
+      <a href="#verdict-not-ready" class="toc-sub">NOT READY</a>
+      <a href="#severity">Severity Classification</a>
+      <a href="#scope-boundaries">Scope Boundaries</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-gate">Why a Formal Gate?</a>
+      <a href="#why-step1">Why Only Step 1 Interactive?</a>
+      <a href="#why-coverage-quality">Coverage AND Quality</a>
+      <a href="#why-duplicate">Duplicate Detection Block</a>
+      <a href="#why-not-arch">Why Not Architecture Feasibility?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#how-steps">Before Calling the Skill</a>
+      <a href="#how-steps" class="toc-sub">1 · General BMAD Setup</a>
+      <a href="#how-steps" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#how-steps" class="toc-sub">3 · Skills That Help</a>
+      <a href="#how-steps" class="toc-sub">4 · Pre-Check Preparation</a>
+      <a href="#toolkit">Applied Toolkit</a>
+      <a href="#technique-descriptions" class="toc-sub">Technique Descriptions</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Implementation Readiness Check — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Invocation</dt><dd><code>/bmad-agent-pm</code> then say "check implementation readiness" — or invoke <code>bmad-check-implementation-readiness</code> directly from any agent context</dd>
+        <dt>Input</dt><dd>Auto-discovered from <code>planning_artifacts/</code>: PRD, Architecture doc, and Epics &amp; Stories doc (all required). UX Design is optional — checked for UI projects as <code>DESIGN.md</code> + <code>EXPERIENCE.md</code> (bmad-ux spine pair), falling back to a legacy <code>*ux*.md</code> document if the spine pair isn't present.</dd>
+        <dt>Output</dt><dd><code>{planning_artifacts}/implementation-readiness-report-{date}.md</code> — structured report with findings log, coverage matrix, and final verdict</dd>
+        <dt>Architecture</dt><dd>6-step micro-file workflow. <strong>Only Step 1 requires [C] Continue</strong> from the user. Steps 2–6 execute autonomously, each auto-loading the next step upon completion.</dd>
+        <dt>Collaboration</dt><dd>John (PM) leads the validation. Winston (Architect) may be consulted for technical context when assessing architecture-related epic issues in Step 5.</dd>
+      </dl>
+
+      <p>This skill is a structured planning-layer gate that executes before Sprint 1 begins. It reads the PRD, Epics &amp; Stories, Architecture, and optionally the UX document — cross-validates them against each other — and produces a single authoritative verdict on whether the team's planning artifacts are complete and consistent enough to begin development without significant rework risk.</p>
+
+      <p>The check is deliberately scoped: it validates the <em>planning layer only</em>, not the technical design. Whether an architecture decision is sound, whether a tech stack will scale, or whether a UX wireframe is aesthetically appropriate — these are outside its scope. What it validates rigorously is whether every functional requirement has a story, whether epics are structured for incremental delivery, whether acceptance criteria are testable, and whether the planning documents are internally consistent.</p>
+    </section>
+
+    <!-- Step summary cards -->
+    <section id="step-cards">
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">Step 1 · Interactive</div>
+          <div class="card-name">Document Discovery</div>
+          <div class="card-body">
+            <ul>
+              <li>Scan <code>planning_artifacts/</code> for all docs</li>
+              <li>Detect whole-file vs. sharded versions</li>
+              <li>Flag duplicates — HARD BLOCK if found</li>
+              <li>Warn on missing required documents</li>
+              <li>Await [C] Continue from user before Step 2</li>
+            </ul>
+          </div>
+          <div class="card-footer">Only step requiring user input</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Step 2 · Auto</div>
+          <div class="card-name">PRD Analysis</div>
+          <div class="card-body">
+            <ul>
+              <li>Read entire PRD — no summarizing allowed</li>
+              <li>Extract all Functional Requirements (FR1, FR2…)</li>
+              <li>Extract Non-Functional Requirements</li>
+              <li>Capture unlabeled additional requirements</li>
+            </ul>
+          </div>
+          <div class="card-footer">Full-text extraction — no compression</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Step 3 · Auto</div>
+          <div class="card-name">Epic Coverage</div>
+          <div class="card-body">
+            <ul>
+              <li>Map every PRD FR to an epic / story</li>
+              <li>Flag FRs with no coverage as MISSING</li>
+              <li>Calculate coverage percentage</li>
+              <li>Document impact of each uncovered FR</li>
+            </ul>
+          </div>
+          <div class="card-footer">Missing FRs = Critical issues</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Step 4 · Auto</div>
+          <div class="card-name">UX Alignment</div>
+          <div class="card-body">
+            <ul>
+              <li>UX ↔ PRD: user journeys vs. use cases</li>
+              <li>UX ↔ Architecture: components, performance</li>
+              <li>If UX absent: check for implied UI</li>
+              <li>Log warnings and issues to report</li>
+            </ul>
+          </div>
+          <div class="card-footer">Optional doc — absence may trigger warning</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Step 5 · Auto</div>
+          <div class="card-name">Epic Quality (9 checks)</div>
+          <div class="card-body">
+            <ul>
+              <li>User value focus per epic (5a)</li>
+              <li>Independence &amp; forward-dependency (5b)</li>
+              <li>Story sizing &amp; AC quality (5c, 5d)</li>
+              <li>Within-epic dependency map (5e)</li>
+              <li>DB creation timing (5f)</li>
+              <li>Starter template &amp; project type (5g, 5h)</li>
+              <li>Per-epic compliance checklist (5i)</li>
+            </ul>
+          </div>
+          <div class="card-footer">Autonomous 9-sub-check quality sweep</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Step 6 · Auto</div>
+          <div class="card-name">Final Assessment</div>
+          <div class="card-body">
+            <ul>
+              <li>Aggregate all findings from Steps 1–5</li>
+              <li>Assign one of three verdicts</li>
+              <li>List Critical issues with specific actions</li>
+              <li>Produce ordered recommended next steps</li>
+              <li>Auto-invoke bmad-help for guidance</li>
+            </ul>
+          </div>
+          <div class="card-footer">Auto-completes → hands off to bmad-help</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Verdict System -->
+    <section id="verdict-system">
+      <h3 class="skill-heading">
+        <span class="code-name">verdict-system</span>
+        Verdict System
+      </h3>
+      <p class="lede">Every run produces exactly one of three verdicts. The verdict drives the team's next action — there is no partial-proceed state.</p>
+
+      <div class="verdict-grid">
+        <div class="verdict-card verdict-ready" id="verdict-ready">
+          <div class="verdict-icon">✅</div>
+          <div class="verdict-label">READY</div>
+          <div class="verdict-name">Artifacts aligned and complete</div>
+          <div class="verdict-body">
+            All functional requirements are covered by at least one epic story. UX (if present) is consistent with the PRD and Architecture. Epics are structured for incremental delivery with no forward dependencies. Acceptance criteria are testable. Database tables are created by the story that first uses them. No Critical issues found anywhere in the validation. Minor issues may exist but do not block development.
+          </div>
+          <div class="verdict-action">Proceed to development · Sprint 1 may begin immediately</div>
+        </div>
+        <div class="verdict-card verdict-needs-work" id="verdict-needs-work">
+          <div class="verdict-icon">⚠️</div>
+          <div class="verdict-label">NEEDS WORK</div>
+          <div class="verdict-name">Critical issues found that will cause wrong features</div>
+          <div class="verdict-body">
+            One or more Critical issues were identified that will cause wrong features to be built, FRs to be skipped entirely, or stories to fail independently in a sprint. Typical triggers: at least one uncovered FR, a forward dependency that breaks epic independence, a technical-only epic with no user value, or a starter template story missing when the Architecture requires one. These must be resolved before Sprint 1 begins — not during it.
+          </div>
+          <div class="verdict-action">Fix all Critical issues · Re-run check · Only then begin Sprint 1</div>
+        </div>
+        <div class="verdict-card verdict-not-ready" id="verdict-not-ready">
+          <div class="verdict-icon">❌</div>
+          <div class="verdict-label">NOT READY</div>
+          <div class="verdict-name">Fundamental gaps across multiple areas</div>
+          <div class="verdict-body">
+            Critical issues are widespread or systemic — not isolated gaps but missing structural elements across multiple planning artifacts. Typical triggers: PRD has no numbered FRs at all, epics do not cover user flows end-to-end, Architecture document is missing entirely, or stories throughout the epics have no acceptance criteria whatsoever. The planning documents must be substantially reworked before any development begins.
+          </div>
+          <div class="verdict-action">Fix Critical issues before ANY development · Full re-check required after</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Severity Classification -->
+    <section id="severity">
+      <h3 class="skill-heading">
+        <span class="code-name">severity-classification</span>
+        Severity Classification
+      </h3>
+      <p>Every issue logged to the report is assigned one of three severity levels. Severity determines the fix timeline — not priority within a category. All Critical issues must be resolved before the overall verdict can improve.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Severity Levels — Fix Timing Matrix</span>
+          <span class="data-source">check-implementation-readiness · v6.10.0</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>When to fix</th>
+              <th>Typical examples</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="risk-high">🔴 Critical</td>
+              <td>Before development begins — blocks ALL Sprint 1 work</td>
+              <td>FR uncovered in any story; Epic 2 story referencing Epic 3 component (forward dependency); technical-only epic with no user value (e.g., "Setup Database"); missing starter template setup story when Architecture specifies a starter; story with no acceptance criteria whatsoever</td>
+            </tr>
+            <tr>
+              <td class="risk-med">🟠 Major</td>
+              <td>Before the affected story begins — blocks that story only</td>
+              <td>Vague or untestable acceptance criteria; database table creation timing violation (all tables created in Story 1 upfront); story referencing a feature from a future story in the same epic; UX requirement implied by PRD but no UX document; UX component not supported by Architecture; brownfield project with no migration or integration stories</td>
+            </tr>
+            <tr>
+              <td class="risk-low">🟡 Minor</td>
+              <td>Can be fixed incrementally — does not block sprints</td>
+              <td>Formatting deviations in the epics document; minor structure deviations from BMAD templates; documentation gaps that do not affect story execution; story titles that are slightly technical in phrasing but still deliver recognizable user value</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>The overall verdict is determined by Critical issues. One or more isolated Critical issues = NEEDS WORK. Widespread, systemic Critical issues across multiple artifacts = NOT READY. Major issues do not change the overall verdict but are logged explicitly so sprint planning can account for them. Minor issues are listed in the report but do not affect sprint sequencing.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Scope Boundaries -->
+    <section id="scope-boundaries">
+      <h3 class="skill-heading">
+        <span class="code-name">scope-boundaries</span>
+        Scope Boundaries — What This Check Does NOT Cover
+      </h3>
+      <p>This skill is a planning-layer validator. Understanding its boundaries prevents mis-use and sets correct expectations for what a READY verdict means.</p>
+
+      <ul class="inline-list">
+        <li><strong>Architecture ↔ Story technical feasibility.</strong> Whether a proposed technical approach in a story is sound, whether the chosen database can handle the load described, or whether the API design is scalable — these are architecture review concerns, not readiness check concerns. The check validates that the planning documents are complete and internally consistent, not that the technical design is correct.</li>
+        <li><strong>Story content vs. actual codebase.</strong> For brownfield projects, the check does not compare story descriptions against the existing codebase to verify achievability. It only validates planning artifacts against each other.</li>
+        <li><strong>Qualitative UX judgment.</strong> Whether wireframes are well-designed, whether user flows are intuitive, or whether the visual hierarchy is appropriate — these are UX quality judgments. The check validates only that UX requirements stated in the PRD are reflected in the UX document and that the Architecture supports the components the UX requires.</li>
+        <li><strong>NFR coverage in epics.</strong> Non-Functional Requirements (performance, security, reliability) are validated for presence in the PRD — but the check does not verify that each epic explicitly handles each NFR. NFRs must be embedded in story acceptance criteria per the BMAD method; this is a QA and story-authoring concern, not a planning-gate concern.</li>
+        <li><strong>Test coverage or test plan quality.</strong> Implementation readiness is not a test readiness check. Use <code>bmad-testarch-test-design</code> for test planning and test coverage validation.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Design Rationale — <em>Why this approach for each decision</em>
+      </h2>
+
+      <h3 class="skill-heading" id="why-gate">
+        <span class="code-name">why-formal-gate</span>
+        Why a Formal Gate?
+      </h3>
+      <p>Without a named gate, planning artifacts drift into development with unresolved gaps. Teams make implicit decisions about missing FRs — often wrong ones — and discover the gaps mid-sprint when the cost of change is highest. A formal, structured gate forces resolution of those gaps while changes cost almost nothing.</p>
+      <p>The cost-of-change ratio across the software lifecycle is well-established: fixing an issue costs approximately <strong>1×</strong> in planning, <strong>10×</strong> in active development (code, tests, and integration work must be redone), and <strong>100×</strong> in production (deployment, rollback, customer impact, and rework compound). Catching a missing FR before Sprint 1 means updating a Markdown file. Catching it in Sprint 4 means reworking three stories, re-testing two epics, and potentially delaying the release by weeks.</p>
+      <p>The gate does not add bureaucracy — it adds <em>structure to a decision point teams were already making informally</em>. If a team was proceeding to development, they were implicitly deciding the planning was good enough. This skill makes that decision explicit, documented, and defensible.</p>
+
+      <h3 class="skill-heading" id="why-step1">
+        <span class="code-name">why-step1-only</span>
+        Why Only Step 1 Is Interactive?
+      </h3>
+      <p>After Step 1 completes, John (PM) has a complete inventory of all planning documents — their paths, their versions, and their completeness status. The agent has everything it needs to execute Steps 2–6 autonomously. Requiring [C] Continue after every step would force the user to babysit a process that has no decision points requiring human judgment until the final verdict.</p>
+      <p>The only reason Step 1 is interactive is the duplicate detection block: if both a whole-file version and a sharded version of the same document type exist, the agent cannot choose which version to use — that decision carries information only the user has (which version is current, which was deprecated). Once that uncertainty is resolved, the remaining five steps execute on deterministic rules: extract FRs, map to stories, check alignment, evaluate quality, produce verdict.</p>
+      <p>Requiring [C] after every step is theater, not quality control. It creates the illusion of human oversight without providing it — because the user has nothing meaningful to review between steps except intermediate extraction results they did not create and cannot validate without re-reading the source documents themselves.</p>
+
+      <h3 class="skill-heading" id="why-coverage-quality">
+        <span class="code-name">why-coverage-and-quality</span>
+        Why Validate BOTH Coverage AND Quality?
+      </h3>
+      <p>Coverage alone — "every FR has a story" — is insufficient. A story that says "Users can log in" covers a login FR but is not testable, because it does not specify what credentials are acceptable, what happens on failure, or what the success state looks like. A team following that story will build something, but it may not be the right something.</p>
+      <p>Quality alone — "every story has BDD-format AC" — is also insufficient. A perfectly written acceptance criterion for a feature that was never mapped to any PRD FR means the team built a feature that was not required. The product ships missing specified functionality while containing un-specified functionality — a worst-of-both-worlds outcome.</p>
+      <p>The combination of coverage validation (Step 3) and quality review (Step 5) closes both failure modes: nothing important is missing, and nothing present is too vague to execute on. This is the minimum viable validation needed before a team can start development with confidence.</p>
+
+      <h3 class="skill-heading" id="why-duplicate">
+        <span class="code-name">why-duplicate-detection</span>
+        Why the Duplicate Detection Hard Block?
+      </h3>
+      <p>Ambiguous document versions are the single most common cause of validation errors in planning. When both a whole-file PRD and a sharded PRD directory exist in <code>planning_artifacts/</code>, the agent cannot determine which one was last updated or which the team is actually working from. Validating against the wrong version produces a report that is not just incomplete — it is <em>wrong in a way that appears correct</em>, which is more dangerous than a visible error.</p>
+      <p>Consider the failure mode: the sharded PRD was updated with three new FRs but the whole-file PRD was not regenerated. A validation against the whole-file version reports 100% coverage for the old FR set — missing the three new requirements entirely. The team proceeds to Sprint 1 confident that everything is covered, when three FRs have no stories.</p>
+      <p>The hard block forces the user to make an explicit, documented choice before the validation runs. This is not a recoverable warning — it is a prerequisite for the report to have any validity at all. The cost of the hard stop (two minutes of user action) is negligible compared to the cost of the failure mode it prevents.</p>
+
+      <h3 class="skill-heading" id="why-not-arch">
+        <span class="code-name">why-not-arch-feasibility</span>
+        Why NOT Validate Architecture Feasibility?
+      </h3>
+      <p>Technical feasibility — whether the chosen architecture can actually implement the stories — is a design question, not a planning question. Answering it requires deep technical analysis: database query planning, API throughput modeling, infrastructure cost analysis, security threat modeling. These are the domain of Winston (Architect) and the architecture review process, not the planning gate.</p>
+      <p>The implementation readiness check asks a different question: "Is the planning layer complete and consistent?" This is a document-to-document validation, not a document-to-reality validation. It checks that the PRD FR list and the epics coverage map match — not that the architecture can implement any of them at scale.</p>
+      <p>Conflating the two produces a check that is either too narrow (reduced to a superficial scan because full feasibility cannot be automated) or too broad (days of analysis per project, delaying the gate indefinitely). The readiness check is designed to be fast, automatable, and definitive within its narrow, well-defined scope.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW — Before Calling the Skill
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="how-steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before saying <code>"check implementation readiness"</code> to John. This check runs in one automated pass — all preparation must happen <em>before</em> you invoke it. For the 6-step execution and verdict details, see the Applied Toolkit section below.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · General BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all BMAD skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">BMAD installed</td>
+              <td>Latest version required. Verify before starting: <code>npx bmad-method --version</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Claude Code running</td>
+              <td>Open a terminal and run <code>claude</code> first. All skill invocations happen inside an active Claude Code session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Invocation</td>
+              <td>No menu selection required — say <code>"check implementation readiness"</code> to John directly. The skill begins with Document Discovery immediately.</td>
+            </tr>
+            <tr>
+              <td class="key-col">No user input during the run</td>
+              <td>Unlike Create PRD, this skill runs all 6 steps in one pass without stopping. Everything must be in place before you invoke it — the agent cannot ask clarifying questions mid-run.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to implementation readiness. Have all planning artifacts stable before invoking.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">bmad-implementation-readiness · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">All planning artifacts at final pre-dev state</td>
+              <td>PRD, UX Spec, and Epics should all be stable. If any artifact is still actively changing, wait — the check will flag misalignments that disappear once the artifact stabilizes, wasting the check run.</td>
+            </tr>
+            <tr>
+              <td class="key-col">All prototype feedback incorporated</td>
+              <td>If prototype feedback has not been incorporated into the PRD and UX Spec, the check will flag misalignments that will disappear once feedback is applied. Run incorporation first, then the check.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Architecture document</td>
+              <td>Strongly recommended for Brownfield projects. Without Architecture, the technical feasibility step cannot confirm technical concerns — they appear as "unvalidated assumptions." The check still runs; you choose Continue or Pause when prompted.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Awareness of update order</td>
+              <td>If Epics were created before the last PRD edit round, divergences are almost certain. Know which documents were updated most recently — this tells you where to focus when reviewing the check report.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">skills</span>
+        3 · Skills That Help This Session
+      </h3>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Reviewer Mindset</span>
+          <span class="data-source">bmad-implementation-readiness · session quality</span>
+        </div>
+        <table>
+          <thead><tr><th>Skill</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Triage discipline</td>
+              <td>The check produces issues categorized as Critical / Major / Minor. Have a triage table ready (Issue | Severity | Decision | Owner) before the report lands. Treating all issues as equal priority is the fastest way to overwhelm the fix session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Cross-document thinking</td>
+              <td>The check validates PRD ↔ UX Spec ↔ Epics alignment. When an issue appears, ask: does this originate in the PRD (root cause) or in the Epics (symptom)? Fix the root cause, not the symptom.</td>
+            </tr>
+            <tr>
+              <td class="key-col">FR coverage mapping</td>
+              <td>The check maps each FR to its corresponding stories. Know your PRD's FR list before reviewing the coverage matrix — orphaned FRs (no story coverage) are the most common Critical issue.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Same-session fix readiness</td>
+              <td>After the report is presented, John can immediately fix identified issues without starting a new session. Be ready to act on findings immediately — the session context is warm, the fix cost is low.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-step</span>
+        4 · Pre-Check Preparation
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">The check runs automatically — no user input between steps. All preparation must happen before invocation. These are the moments where you act, not during the run.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Pre-Check Readiness</span>
+          <span class="data-source">bmad-implementation-readiness · 6-step check</span>
+        </div>
+        <table>
+          <thead><tr><th>Preparation Item</th><th>What to do before invoking</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Before Step 1 · Document Discovery</td>
+              <td>Confirm all planning artifact file paths are correct and the files are at their final pre-dev state. If Architecture is missing, decide in advance: Continue (proceed without Architecture) or Pause (create Architecture first). For most projects, Continue is the right call.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Before Step 2 · PRD Analysis</td>
+              <td>Know your PRD's FR and NFR count. When the check reports "FR-03 has no story coverage," you need to know whether FR-03 is in the current phase or a future phase — the fix is different.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Before Step 3 · Epic Coverage Validation</td>
+              <td>Know the expected epic structure — how many epics, what each covers, and which FRs each epic is responsible for. Coverage gaps that look like errors may just be planned-future-phase work.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Before Step 6 · Final Assessment</td>
+              <td>Prepare a fix plan template: for each Critical issue, know who owns the fix and what the target resolution is. The full check + fix cycle typically runs in 30–60 minutes — having owners identified in advance cuts the fix time in half.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h5>What Happens in Each Step</h5>
+      <ul class="step-detail">
+        <li><strong class="label">Step 1 · Document Discovery</strong>Agent scans <code>planning_artifacts/</code> for all docs. Detects whole-file vs. sharded versions. Flags duplicates (HARD BLOCK if found). Warns on missing required documents. <em>Interactive</em> — the only step requiring user input. Awaits <code>[C] Continue</code> before Step 2 proceeds.</li>
+        <li><strong class="label">Step 2 · PRD Analysis</strong>Reads the entire PRD — no summarizing allowed. Extracts all Functional Requirements (FR-1, FR-2…) with full text, all Non-Functional Requirements, and any unlabeled additional requirements. Full-text extraction with no compression.</li>
+        <li><strong class="label">Step 3 · Epic Coverage Validation</strong>Maps every PRD FR to an epic or story. Flags FRs with no coverage as MISSING. Calculates coverage percentage. Documents impact of each uncovered FR. Missing FRs = Critical issues that block a READY verdict.</li>
+        <li><strong class="label">Step 4 · UX Alignment</strong>Validates UX Spec ↔ PRD (user journeys vs. use cases) and UX Spec ↔ Architecture (components, performance targets). If UX Spec is absent, checks for implied UI requirements in the PRD. Logs all discrepancies to the report.</li>
+        <li><strong class="label">Step 5 · Epic Quality (9 checks)</strong>Autonomous sweep: (5a) user value focus per epic; (5b) independence and no forward dependencies; (5c) story sizing within one dev agent context; (5d) AC completeness and testability; (5e) within-epic dependency map; (5f) DB table creation timing (JIT); (5g) starter template story present when Architecture requires one; (5h) project type alignment; (5i) per-epic compliance checklist.</li>
+        <li><strong class="label">Step 6 · Final Assessment</strong>Aggregates all findings from Steps 1–5. Assigns one verdict: READY / NEEDS WORK / NOT READY. Lists all Critical issues with specific recommended actions. Produces ordered next steps by severity. Auto-invokes <code>bmad-help</code> for continuation guidance.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">applied-toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Skill Reference — Applied Toolkit</span>
+          <span class="data-source">bmad-check-implementation-readiness · v6.10.0</span>
+        </div>
+        <table>
+          <tbody>
+            <tr>
+              <td class="key-col">Skill</td>
+              <td><code>bmad-check-implementation-readiness</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent</td>
+              <td>John — Product Manager · Primary agent for this skill</td>
+            </tr>
+            <tr>
+              <td class="key-col">Output</td>
+              <td><code>implementation-readiness-report-{date}.md</code> written to <code>planning_artifacts/</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Interactive</td>
+              <td>Step 1 only — user reviews document inventory and presses [C] Continue to proceed</td>
+            </tr>
+            <tr>
+              <td class="key-col">Autonomous</td>
+              <td>Steps 2–6 — auto-proceed sequentially after user confirms Step 1; no further user input required</td>
+            </tr>
+            <tr>
+              <td class="key-col">Verdicts</td>
+              <td>✅ READY &nbsp;·&nbsp; ⚠️ NEEDS WORK &nbsp;·&nbsp; ❌ NOT READY</td>
+            </tr>
+            <tr>
+              <td class="key-col">Severity</td>
+              <td>🔴 Critical — fix before dev begins &nbsp;·&nbsp; 🟠 Major — fix before affected story &nbsp;·&nbsp; 🟡 Minor — fix incrementally</td>
+            </tr>
+            <tr>
+              <td class="key-col">Collab</td>
+              <td>Winston (Architect) — consulted for technical context on architecture-related epic issues detected in Step 5</td>
+            </tr>
+            <tr>
+              <td class="key-col">MCP Tools</td>
+              <td><code>bmad-help</code> — invoked automatically after Step 6 completes to present next-step guidance based on the verdict</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section id="technique-descriptions">
+        <h5>Technique Descriptions</h5>
+
+        <h5>6-Step Automated Check Process</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Step</th><th>What It Checks</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Step 1 · Document Discovery</td>
+                <td>Inventory all planning artifacts. Flag missing documents. If Architecture is missing, offer Continue or Pause.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Step 2 · PRD Analysis</td>
+                <td>Extract the complete FR and NFR list. Identify key constraints and compliance requirements.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Step 3 · Epic Coverage Validation</td>
+                <td>Map each FR to its corresponding stories. Produce a coverage matrix. Identify FRs with no story coverage — the most common Critical issue.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Step 4 · UX Alignment</td>
+                <td>Compare UX Spec against PRD and Epics. Flag UX decisions not captured in any FR. Flag FRs with no UX coverage that imply a visual component.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Step 5 · Epic Quality Review</td>
+                <td>Evaluate stories: user story format, AC completeness and testability, story sizing, dependency mapping. Flag "As a System" actor anti-pattern.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Step 6 · Final Assessment</td>
+                <td>Synthesize all findings into a verdict (READY / NEEDS WORK / NOT READY) and prioritized action plan sorted by severity.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Same-Session Fix Sequence</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Order</th><th>What to Fix</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">1st</td><td>Requirements Inventory in epics.md — update outdated FR/NFR text</td></tr>
+              <tr><td class="key-col">2nd</td><td>UX Design Requirements in epics.md — update outdated UX-DRs</td></tr>
+              <tr><td class="key-col">3rd</td><td>Epic descriptions — correct scope at the epic level</td></tr>
+              <tr><td class="key-col">4th</td><td>Individual stories — rewrite or extend acceptance criteria, fix scope</td></tr>
+              <tr><td class="key-col">5th</td><td>PRD — resolve document conflicts that originated in the PRD itself</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Review — Guide</title>
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --navy:       #1d3557;
+
+    /* Reviewer identity colors */
+    --blind-bg:   #fff1f2;
+    --blind-bdr:  #fca5a5;
+    --blind-head: #991b1b;
+    --blind-fg:   #7f1d1d;
+    --edge-bg:    #fffbeb;
+    --edge-bdr:   #fcd34d;
+    --edge-head:  #92400e;
+    --edge-fg:    #78350f;
+    --audit-bg:   #eff6ff;
+    --audit-bdr:  #93c5fd;
+    --audit-head: #1e3a5f;
+    --audit-fg:   #1e40af;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.65; font-size: 0.9375rem; position: relative;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .5;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "masthead masthead" "toc article";
+    max-width: 1340px; margin: 0 auto; min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ── Masthead ─────────────────────────────────── */
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 760px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Headings ─────────────────────────────────── */
+  h2.agent-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: var(--navy); }
+  h2.agent-heading em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.35rem; font-weight: 700; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+  h4.step-heading .step-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--ink-mute); color: var(--paper); padding: 1px 8px; letter-spacing: 0.1em; align-self: center; }
+
+  h5 { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.1rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.45; }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
+
+  /* ── Step detail ──────────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 120px; margin-right: 8px; }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  /* ── Inline list ──────────────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Adversarial mandate callout ──────────────── */
+  .mandate-callout { border: 2px solid var(--rule); background: var(--ink); color: var(--paper); padding: 20px 24px; margin: 20px 0 28px; }
+  .mandate-callout .mc-eyebrow { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); margin-bottom: 10px; }
+  .mandate-callout .mc-quote { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.15rem; font-weight: 400; font-style: italic; line-height: 1.5; color: var(--paper); margin-bottom: 10px; }
+  .mandate-callout .mc-sub { font-size: 12.5px; color: rgba(244,237,224,.65); line-height: 1.55; }
+
+  /* ── PARALLEL REVIEW CHAMBER — distinctive visual ─ */
+  .chamber-wrapper { border: 1px solid var(--rule); margin: 20px 0 32px; }
+  .chamber-header { background: var(--ink); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .ch-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .ch-note { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: rgba(244,237,224,.6); }
+  .chamber { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+
+  .reviewer { display: flex; flex-direction: column; border-right: 1px solid rgba(42,34,26,.18); }
+  .reviewer:last-child { border-right: none; }
+
+  .reviewer-head { padding: 14px 18px; border-bottom: 1px solid rgba(42,34,26,.18); display: flex; align-items: flex-start; gap: 12px; }
+  .reviewer-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; flex-shrink: 0; text-align: center; line-height: 1.2; }
+  .reviewer-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1rem; font-weight: 700; line-height: 1.2; margin-bottom: 3px; }
+  .reviewer-code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; }
+
+  .reviewer-body { flex: 1; padding: 14px 18px; }
+  .rb-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 6px; }
+  .rb-context { font-size: 12px; line-height: 1.45; margin-bottom: 14px; }
+  .rb-hunts { list-style: none; padding: 0; margin: 0; border-top: 1px dashed rgba(42,34,26,.2); padding-top: 10px; }
+  .rb-hunts li { font-size: 12px; padding: 3px 0 3px 14px; position: relative; line-height: 1.4; border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .rb-hunts li:last-child { border-bottom: none; }
+  .rb-hunts li::before { content: '›'; position: absolute; left: 0; font-weight: 700; font-size: 13px; }
+
+  .reviewer-foot { border-top: 1px solid rgba(42,34,26,.15); padding: 8px 18px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; }
+
+  /* Per-reviewer colors */
+  .rev-blind { background: var(--blind-bg); }
+  .rev-blind .reviewer-head { background: var(--blind-bg); border-bottom-color: var(--blind-bdr); }
+  .rev-blind .reviewer-icon { background: #fee2e2; border: 2px solid #ef4444; color: var(--blind-head); }
+  .rev-blind .reviewer-title { color: var(--blind-head); }
+  .rev-blind .reviewer-code { color: #dc2626; }
+  .rev-blind .rb-label { color: #dc2626; }
+  .rev-blind .rb-hunts li::before { color: #dc2626; }
+  .rev-blind .reviewer-foot { background: #fee2e2; color: var(--blind-head); border-top-color: var(--blind-bdr); }
+
+  .rev-edge { background: var(--edge-bg); }
+  .rev-edge .reviewer-head { background: var(--edge-bg); border-bottom-color: var(--edge-bdr); }
+  .rev-edge .reviewer-icon { background: #fef3c7; border: 2px solid #f59e0b; color: var(--edge-head); }
+  .rev-edge .reviewer-title { color: var(--edge-head); }
+  .rev-edge .reviewer-code { color: #b45309; }
+  .rev-edge .rb-label { color: #b45309; }
+  .rev-edge .rb-hunts li::before { color: #b45309; }
+  .rev-edge .reviewer-foot { background: #fef3c7; color: var(--edge-head); border-top-color: var(--edge-bdr); }
+
+  .rev-audit { background: var(--audit-bg); }
+  .rev-audit .reviewer-head { background: var(--audit-bg); border-bottom-color: var(--audit-bdr); }
+  .rev-audit .reviewer-icon { background: #dbeafe; border: 2px solid #3b82f6; color: var(--audit-head); }
+  .rev-audit .reviewer-title { color: var(--audit-head); }
+  .rev-audit .reviewer-code { color: #2563eb; }
+  .rev-audit .rb-label { color: #2563eb; }
+  .rev-audit .rb-hunts li::before { color: #2563eb; }
+  .rev-audit .reviewer-foot { background: #dbeafe; color: var(--audit-head); border-top-color: var(--audit-bdr); }
+
+  /* ── Triage bucket strip ──────────────────────── */
+  .triage-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 28px; }
+  .triage-strip > * { box-shadow: 0 0 0 1px var(--rule); }
+  .triage-bucket { padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .tb-badge { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; padding: 3px 10px; display: inline-block; align-self: flex-start; }
+  .tb-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1rem; font-weight: 700; }
+  .tb-body { font-size: 12px; color: var(--ink-soft); line-height: 1.45; }
+  .tb-action { margin-top: auto; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
+
+  .tb-decision { background: #fffbeb; }
+  .tb-decision .tb-badge { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+  .tb-decision .tb-title { color: #78350f; }
+  .tb-decision .tb-action { color: #92400e; }
+
+  .tb-patch { background: #fff1f2; }
+  .tb-patch .tb-badge { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+  .tb-patch .tb-title { color: #7f1d1d; }
+  .tb-patch .tb-action { color: #dc2626; }
+
+  .tb-defer { background: var(--audit-bg); }
+  .tb-defer .tb-badge { background: #dbeafe; color: var(--audit-head); border: 1px solid #93c5fd; }
+  .tb-defer .tb-title { color: var(--navy); }
+  .tb-defer .tb-action { color: #2563eb; }
+
+  .tb-dismiss { background: #f8f6f2; }
+  .tb-dismiss .tb-badge { background: #e5e0d8; color: var(--ink-mute); border: 1px solid #c5bfb5; }
+  .tb-dismiss .tb-title { color: var(--ink-soft); }
+  .tb-dismiss .tb-action { color: var(--ink-mute); }
+
+  /* ── Tier cascade ─────────────────────────────── */
+  .tier-cascade { list-style: none; margin: 16px 0 24px; border: 1px solid rgba(42,34,26,.2); background: var(--paper); }
+  .tier-cascade li { display: flex; align-items: flex-start; gap: 14px; padding: 11px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.875rem; line-height: 1.55; }
+  .tier-cascade li:last-child { border-bottom: none; }
+  .tier-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--ink-mute); color: var(--paper); padding: 2px 8px; flex-shrink: 0; align-self: flex-start; margin-top: 2px; letter-spacing: 0.1em; }
+  .tier-halt { background: var(--accent); }
+  .tier-body strong { color: var(--ink); }
+  .tier-body { color: var(--ink-soft); flex: 1; }
+
+  /* ── Status transition ────────────────────────── */
+  .status-outcomes { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 24px; }
+  .status-outcomes > * { box-shadow: 0 0 0 1px var(--rule); }
+  .so-card { background: var(--paper); padding: 16px 18px; }
+  .so-card .soc-head { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 8px; }
+  .so-card .soc-status { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; padding: 4px 10px; display: inline-block; margin-bottom: 8px; }
+  .so-card .soc-condition { font-size: 12.5px; color: var(--ink-soft); line-height: 1.45; }
+  .so-done .soc-head { color: #14532d; }
+  .so-done .soc-status { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .so-inprog .soc-head { color: #78350f; }
+  .so-inprog .soc-status { background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
+
+  /* ── Step-file architecture callout ──────────── */
+  .arch-callout { border: 1px solid rgba(42,34,26,.25); background: var(--paper-warm); margin: 16px 0 24px; }
+  .arch-callout .ac-head { background: var(--navy); color: var(--paper); padding: 8px 16px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; }
+  .arch-callout .ac-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0; background: var(--paper); border-top: 1px solid rgba(42,34,26,.15); }
+  .arch-item { background: var(--paper); padding: 12px 14px; }
+  .arch-item .ai-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--navy); margin-bottom: 4px; }
+  .arch-item .ai-rule { font-size: 12px; color: var(--ink-soft); line-height: 1.4; }
+
+  /* ── Colophon ─────────────────────────────────── */
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .chamber { grid-template-columns: 1fr; }
+    .reviewer { border-right: none; border-bottom: 1px solid rgba(42,34,26,.18); }
+    .reviewer:last-child { border-bottom: none; }
+    .triage-strip { grid-template-columns: 1fr 1fr; }
+    .status-outcomes { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad · Code Review</span>
+        <span>Skill · bmad-code-review</span>
+        <span>Phase 4 · Adversarial Review · Short-code CR</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Code Review <em>· Adversarial Review Engine</em></h1>
+    <p class="subtitle">Three independent subagents review the same diff with different context — each blind to the others' findings. Findings are triaged into four buckets, written to the story file, and resolved interactively. An AI cannot objectively review its own code; adversarial mandate is the structural solution.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-code-review</dd></div>
+      <div><dt>Menu code</dt><dd>CR</dd></div>
+      <div><dt>Input</dt><dd>Git diff / changed code + story context</dd></div>
+      <div><dt>Trigger</dt><dd>"run code review"</dd></div>
+      <div><dt>Agent</dt><dd>Developer / TEA (Amelia)</dd></div>
+      <div><dt>Steps</dt><dd>4 · Interactive</dd></div>
+      <div><dt>Output</dt><dd>story status → done / in-progress</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#key-capabilities">Key Capabilities</a>
+      <a href="#step-architecture">Step-File Architecture</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#adversarial-mandate">Adversarial Mandate</a>
+      <a href="#why-compare">Self-Review vs Adversarial</a>
+      <a href="#review-modes">Review Modes</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#workflow">4-Step Workflow</a>
+      <a href="#target-discovery" class="toc-sub">Step 1 · Target Discovery</a>
+      <a href="#parallel-chamber" class="toc-sub">Step 2 · Parallel Review</a>
+      <a href="#triage" class="toc-sub">Step 3 · Triage</a>
+      <a href="#present-resolve" class="toc-sub">Step 4 · Present &amp; Resolve</a>
+      <a href="#status-outcomes">Status Outcomes</a>
+      <a href="#output-artifacts">Output Artifacts</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Code Review <em>· What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-code-review</code> &nbsp;·&nbsp; Short-code <code>CR</code></dd>
+        <dt>Trigger phrases</dt><dd>
+          <div class="menu-codes">
+            <code>run code review</code>
+            <code>review this code</code>
+          </div>
+        </dd>
+        <dt>Agent</dt><dd>Developer / TEA — launches three adversarial subagents, triages their findings, and drives resolution with the user.</dd>
+        <dt>Automation level</dt><dd>Mostly automatic — HALT when <code>decision_needed</code> findings require user input to resolve ambiguity.</dd>
+        <dt>Review target</dt><dd>Auto-detected via 5-tier cascade (sprint tracking → git state → explicit argument → ask). Supports: story file + diff, branch diff, commit range, staged changes, or user-provided diff.</dd>
+        <dt>Review modes</dt><dd><code>full</code> — story spec available, all 3 reviewers run · <code>no-spec</code> — no story file, Acceptance Auditor skipped, 2 reviewers run.</dd>
+        <dt>Output</dt><dd>Story file appended with <code>## Review Findings</code> section · <code>deferred-work.md</code> updated · <code>sprint-status.yaml</code>: <code>review → done</code> (clean) or <code>review → in-progress</code> (action items remain).</dd>
+        <dt>Upstream</dt><dd><code>bmad-dev-story</code> marks story <code>review</code> and hands off.</dd>
+        <dt>Downstream</dt><dd>Clean: story is <code>done</code>, next story cycle begins. Issues remain: <code>bmad-dev-story</code> re-runs to address review findings.</dd>
+      </dl>
+
+      <p>Code Review is the adversarial gate of Phase 4. It does not ask the dev agent to review its own output — that produces rubber-stamp reviews. Instead it spawns three independent subagents with deliberately different contexts, then forces deduplication, triage, and interactive resolution of every ambiguous finding.</p>
+    </section>
+
+    <section id="key-capabilities">
+      <h3 class="skill-heading">
+        <span class="code-name">key-capabilities</span>
+        Key Capabilities
+      </h3>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">Capability · 01</div>
+          <div class="card-name">Target Discovery</div>
+          <div class="card-body"><ul>
+            <li>5-tier cascade — auto-finds review target</li>
+            <li>Sprint tracking: picks up any <code>review</code>-status story</li>
+            <li>Supports PR, branch, commit range, staged, file list</li>
+            <li>Sanity-checks diff size; offers chunking at 3000+ lines</li>
+          </ul></div>
+          <div class="card-footer">Step 1</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 02</div>
+          <div class="card-name">Parallel Adversarial Review</div>
+          <div class="card-body"><ul>
+            <li>3 subagents run simultaneously, context-isolated</li>
+            <li>Blind Hunter: diff only — no spec, no project</li>
+            <li>Edge Case Hunter: diff + project read access</li>
+            <li>Acceptance Auditor: diff + spec + context docs</li>
+          </ul></div>
+          <div class="card-footer">Step 2</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 03</div>
+          <div class="card-name">Triage Engine</div>
+          <div class="card-body"><ul>
+            <li>Normalize 3 different output formats → unified schema</li>
+            <li>Deduplicate cross-reviewer findings, merge details</li>
+            <li>Classify into 4 buckets: patch / defer / dismiss / decision_needed</li>
+            <li>Severity requires reading surrounding source (call sites, guards) — no rating from the diff hunk alone</li>
+            <li>Zero findings is valid — clean code is clean</li>
+          </ul></div>
+          <div class="card-footer">Step 3</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 04</div>
+          <div class="card-name">Interactive Resolution</div>
+          <div class="card-body"><ul>
+            <li>Writes findings to story file before resolving</li>
+            <li>HALT on every <code>decision_needed</code> item — user decides</li>
+            <li>Patch handling: apply all / walk through each / leave as items</li>
+            <li>Deferred items written to <code>deferred-work.md</code></li>
+          </ul></div>
+          <div class="card-footer">Step 4</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 05</div>
+          <div class="card-name">Sprint Sync</div>
+          <div class="card-body"><ul>
+            <li>Story file Status updated before sprint sync</li>
+            <li><code>sprint-status.yaml</code> updated with new status</li>
+            <li><code>done</code>: all findings resolved or dismissed</li>
+            <li><code>in-progress</code>: patch items left as action items</li>
+          </ul></div>
+          <div class="card-footer">Step 4 · end</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 06</div>
+          <div class="card-name">Fallback Mode</div>
+          <div class="card-body"><ul>
+            <li>If subagents unavailable: generate prompt files per reviewer</li>
+            <li>User runs each in a separate session (different LLM preferred)</li>
+            <li>User pastes findings back; workflow resumes at triage</li>
+            <li>Partial failures logged in <code>failed_layers</code></li>
+          </ul></div>
+          <div class="card-footer">Step 2 · fallback</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="step-architecture">
+      <h3 class="skill-heading">
+        <span class="code-name">step-architecture</span>
+        Step-File Architecture
+      </h3>
+      <p>Code Review uses a step-file design — each step is a self-contained file loaded just-in-time. This enforces sequential execution and prevents the agent from conflating step logic across the workflow.</p>
+
+      <div class="arch-callout">
+        <div class="ac-head">Execution Rules — No Exceptions</div>
+        <div class="ac-body">
+          <div class="arch-item">
+            <div class="ai-label">Micro-file design</div>
+            <div class="ai-rule">Each step file is self-contained and complete. Read the entire file before taking any action.</div>
+          </div>
+          <div class="arch-item">
+            <div class="ai-label">Just-in-time loading</div>
+            <div class="ai-rule">Load only the current step file. Never load the next step file until directed by the current one.</div>
+          </div>
+          <div class="arch-item">
+            <div class="ai-label">Sequential enforcement</div>
+            <div class="ai-rule">Complete steps in order. No skipping, no optimization of the sequence.</div>
+          </div>
+          <div class="arch-item">
+            <div class="ai-label">HALT at checkpoints</div>
+            <div class="ai-rule">When a step says HALT, stop and wait for human input before proceeding.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="adversarial-mandate">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Adversarial? <em>· The Case Against Self-Review</em>
+      </h2>
+
+      <div class="mandate-callout">
+        <div class="mc-eyebrow">Adversarial Mandate</div>
+        <div class="mc-quote">"AI tự review code của mình sẽ rubber-stamp — adversarial mandate buộc Amelia phải genuinely hunt for issues."</div>
+        <div class="mc-sub">An LLM that wrote the code carries the original intent into review. It anchors on "what I meant to write" and confirms that the code satisfies that intent — even when it doesn't. Context isolation is not a preference; it is the mechanism that breaks anchoring bias at the architectural level.</div>
+      </div>
+
+      <p class="lede">Three reviewers with different contexts find different bugs. A reviewer who can't see the spec can't be anchored by it. A reviewer who traverses every branching path finds boundary errors human reviewers skip. A reviewer who cross-checks the original ACs catches spec drift no one noticed during implementation.</p>
+    </section>
+
+    <section id="why-compare">
+      <h3 class="skill-heading">
+        <span class="code-name">self-vs-adversarial</span>
+        Self-Review vs Adversarial Review
+      </h3>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Self-review (same agent)</th>
+            <th>Adversarial review (3 isolated)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Anchoring bias</td>
+            <td>Reviewer knows what was intended — interprets bugs as "working as designed"</td>
+            <td>Blind Hunter has no spec context — cannot assume intent, must read what the code actually does</td>
+          </tr>
+          <tr>
+            <td>Branch coverage</td>
+            <td>Happy-path focus — the implementation path is the one that gets reviewed</td>
+            <td>Edge Case Hunter systematically traces every if/else, try/catch, and early return</td>
+          </tr>
+          <tr>
+            <td>Spec drift</td>
+            <td>AC drift goes undetected — reviewer remembers the intent, not the original AC text</td>
+            <td>Acceptance Auditor cross-references diff against original AC text, line by line</td>
+          </tr>
+          <tr>
+            <td>Finding cross-validation</td>
+            <td>No second opinion — one reviewer, one pass</td>
+            <td>Cross-reviewer deduplication: same bug found by two sources gets merged, gets higher confidence</td>
+          </tr>
+          <tr>
+            <td>Clean code verdict</td>
+            <td>"Looks good to me" — inherently unreliable from the author</td>
+            <td>Zero findings is valid — three reviewers with different contexts all passed</td>
+          </tr>
+          <tr>
+            <td>v6.x improvement</td>
+            <td>—</td>
+            <td>Removed minimum findings requirement — prior versions fabricated issues to hit a ≥3 threshold on clean code</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="review-modes">
+      <h3 class="skill-heading">
+        <span class="code-name">review-modes</span>
+        Review Modes
+      </h3>
+      <ul class="step-detail">
+        <li><strong class="label">full mode</strong>A story spec file is available. All 3 reviewers run. Acceptance Auditor cross-checks diff against every Acceptance Criterion. <code>decision_needed</code> bucket is active — ambiguous findings that need user input to resolve correctly.</li>
+        <li><strong class="label">no-spec mode</strong>No story file provided. Blind Hunter and Edge Case Hunter run. Acceptance Auditor is skipped with notice to user. In this mode, any finding that would otherwise be <code>decision_needed</code> is reclassified as <code>patch</code> (if fix is unambiguous) or <code>defer</code> (if not).</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <section id="workflow">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        How to Execute <em>· 4-Step Workflow</em>
+      </h2>
+    </section>
+
+    <!-- STEP 1 -->
+    <section id="target-discovery">
+      <h4 class="step-heading">
+        <span class="step-num">01</span>
+        Gather Context — 5-Tier Target Discovery
+      </h4>
+      <p>The skill auto-detects what to review through a cascade. It stops as soon as a tier identifies the target — no extra questions asked beyond what the cascade prescribes.</p>
+
+      <ol class="tier-cascade">
+        <li>
+          <span class="tier-num">Tier 1</span>
+          <div class="tier-body"><strong>Explicit argument.</strong> Did the user pass a PR, commit SHA, branch, spec file, or diff source? Also scan for diff-mode keywords: "staged" / "branch diff vs main" / "last N commits" / "this diff". When multiple match, prefer the most specific.</div>
+        </li>
+        <li>
+          <span class="tier-num">Tier 2</span>
+          <div class="tier-body"><strong>Recent conversation.</strong> Do the last few messages reveal what the user wants reviewed? Look for spec paths, commit refs, branches, PRs, or described changes. Apply the same keyword scan as Tier 1.</div>
+        </li>
+        <li>
+          <span class="tier-num">Tier 3</span>
+          <div class="tier-body"><strong>Sprint tracking.</strong> Scan for <code>sprint-status.yaml</code>. If exactly one story has status <code>review</code> — suggest it and confirm. If multiple: present numbered options. If none: fall through.</div>
+        </li>
+        <li>
+          <span class="tier-num">Tier 4</span>
+          <div class="tier-body"><strong>Current git state.</strong> If current branch is not <code>main</code>, confirm: "I see HEAD on &lt;branch&gt; — do you want to review this branch's changes?" If declined: fall through.</div>
+        </li>
+        <li>
+          <span class="tier-num tier-halt">Tier 5</span>
+          <div class="tier-body"><strong>Ask.</strong> HALT. Present 5 options: uncommitted changes · staged changes only · branch diff vs base · commit range · provided diff or file list. Wait for user choice.</div>
+        </li>
+      </ol>
+
+      <h5>After Target Is Found</h5>
+      <ul class="step-detail">
+        <li><strong class="label">Spec context</strong>If spec file already identified: set <code>review_mode = full</code>. Otherwise, ask: "Is there a spec or story file?" If yes: load it, set <code>full</code>. If no: set <code>no-spec</code>.</li>
+        <li><strong class="label">Diff size check</strong>If diff exceeds ~3000 lines: warn user, offer chunking by file group. If user opts in: agree on the first group and list remaining groups for follow-up runs.</li>
+        <li><strong class="label">Checkpoint</strong>HALT. Present: diff stats (files changed, lines +/−), review mode, loaded spec/context docs. Wait for user confirmation to proceed.</li>
+      </ul>
+    </section>
+
+    <!-- STEP 2 — The distinctive visual -->
+    <section id="parallel-chamber">
+      <h4 class="step-heading">
+        <span class="step-num">02</span>
+        Parallel Review Chamber — 3 Isolated Subagents
+      </h4>
+      <p>Three subagents launch simultaneously. Each receives a different context package — deliberately. The isolation prevents one reviewer from anchoring on another's interpretation, and ensures each finds bugs the others are structurally unable to find.</p>
+
+      <div class="chamber-wrapper">
+        <div class="chamber-header">
+          <span class="ch-label">Parallel Review Chamber</span>
+          <span class="ch-note">All 3 run concurrently · Context isolation enforced · No cross-reviewer context</span>
+        </div>
+        <div class="chamber">
+
+          <!-- Blind Hunter -->
+          <div class="reviewer rev-blind">
+            <div class="reviewer-head">
+              <div class="reviewer-icon">BH</div>
+              <div>
+                <div class="reviewer-title">Blind Hunter</div>
+                <div class="reviewer-code">bmad-review-adversarial-general</div>
+              </div>
+            </div>
+            <div class="reviewer-body">
+              <div class="rb-label">Receives</div>
+              <div class="rb-context">
+                <strong>Diff only.</strong> No spec file. No context docs. No project read access. Cannot see what the code was supposed to do — only what it does.
+              </div>
+              <div class="rb-label">Hunts for</div>
+              <ul class="rb-hunts">
+                <li>Logic errors and incorrect assumptions</li>
+                <li>Security vulnerabilities (injection, exposure, validation gaps)</li>
+                <li>Runtime exceptions — nil deref, type mismatch, unhandled errors</li>
+                <li>Off-by-one errors and index boundary issues</li>
+                <li>Each finding: <code>file:line</code> location required</li>
+              </ul>
+            </div>
+            <div class="reviewer-foot">Why isolated: breaks anchoring bias — can't assume "code reflects intent"</div>
+          </div>
+
+          <!-- Edge Case Hunter -->
+          <div class="reviewer rev-edge">
+            <div class="reviewer-head">
+              <div class="reviewer-icon">EH</div>
+              <div>
+                <div class="reviewer-title">Edge Case Hunter</div>
+                <div class="reviewer-code">bmad-review-edge-case-hunter</div>
+              </div>
+            </div>
+            <div class="reviewer-body">
+              <div class="rb-label">Receives</div>
+              <div class="rb-context">
+                <strong>Diff + project read access.</strong> Can traverse the codebase to understand patterns, but does not receive the spec — judges correctness by code structure, not intent.
+              </div>
+              <div class="rb-label">Hunts for</div>
+              <ul class="rb-hunts">
+                <li>All branching paths: if/else, try/catch, early returns</li>
+                <li>Boundary conditions — empty, null, zero, overflow, max</li>
+                <li>Race conditions and concurrency hazards</li>
+                <li>Deletion-contract audit — removed code's callers/references are checked, absorbed here instead of a standalone layer</li>
+                <li>Outputs: JSON with <code>location, trigger_condition, guard_snippet, potential_consequence</code></li>
+                <li>Systematic path traversal — not sampling</li>
+              </ul>
+            </div>
+            <div class="reviewer-foot">Why isolated: human reviewers skip path combinations — systematic traversal finds what intuition misses</div>
+          </div>
+
+          <!-- Acceptance Auditor -->
+          <div class="reviewer rev-audit">
+            <div class="reviewer-head">
+              <div class="reviewer-icon">AA</div>
+              <div>
+                <div class="reviewer-title">Acceptance Auditor</div>
+                <div class="reviewer-code">full mode only</div>
+              </div>
+            </div>
+            <div class="reviewer-body">
+              <div class="rb-label">Receives</div>
+              <div class="rb-context">
+                <strong>Diff + story spec + context docs.</strong> The only reviewer with the original Acceptance Criteria. Its job is to compare implementation reality against spec intent — nothing else.
+              </div>
+              <div class="rb-label">Hunts for</div>
+              <ul class="rb-hunts">
+                <li>AC drift — spec says X, code does Y</li>
+                <li>Missing implementation of specified behavior</li>
+                <li>Missing error paths required by spec</li>
+                <li>Contradictions between spec constraints and code</li>
+                <li>Each finding: <code>AC-id + file:line</code> evidence required</li>
+              </ul>
+            </div>
+            <div class="reviewer-foot">Why isolated: cross-checks the original AC, not the developer's memory of it</div>
+          </div>
+
+        </div>
+      </div>
+
+      <p>If subagents are unavailable, the skill generates prompt files — one per reviewer — in <code>implementation_artifacts</code> and HALTs. The user runs each in a separate session (preferably a different LLM) and pastes findings back. The workflow resumes at Step 3.</p>
+    </section>
+
+    <!-- STEP 3 -->
+    <section id="triage">
+      <h4 class="step-heading">
+        <span class="step-num">03</span>
+        Triage — Normalize, Deduplicate, Classify
+      </h4>
+      <p>Each reviewer returns a different output format. Step 3 normalizes all findings into a unified schema, deduplicates cross-reviewer overlaps, and classifies each finding into exactly one bucket.</p>
+
+      <div class="triage-strip">
+        <div class="triage-bucket tb-decision">
+          <span class="tb-badge">decision_needed</span>
+          <div class="tb-title">Ambiguous — Human Required</div>
+          <div class="tb-body">The correct fix depends on intent that only the user knows. The code cannot be correctly patched without their input. Only possible in <code>full</code> mode.</div>
+          <div class="tb-action">→ HALT, ask user · resolves to patch / defer / dismiss</div>
+        </div>
+        <div class="triage-bucket tb-patch">
+          <span class="tb-badge">patch</span>
+          <div class="tb-title">Fix Now</div>
+          <div class="tb-body">A real code issue with an unambiguous correct fix. No user input needed to determine the right solution — just apply it.</div>
+          <div class="tb-action">→ Apply all / walk through / leave as items</div>
+        </div>
+        <div class="triage-bucket tb-defer">
+          <span class="tb-badge">defer</span>
+          <div class="tb-title">Track for Later</div>
+          <div class="tb-body">A valid concern, but pre-existing and not caused by this change. Does not block merge. Written to <code>deferred-work.md</code> for future work.</div>
+          <div class="tb-action">→ Append to deferred-work.md · checked off in story</div>
+        </div>
+        <div class="triage-bucket tb-dismiss">
+          <span class="tb-badge">dismiss</span>
+          <div class="tb-title">Noise</div>
+          <div class="tb-body">False positive, already handled elsewhere, or not actionable. Dropped from the output. Count is reported in the summary.</div>
+          <div class="tb-action">→ Drop · count recorded in summary</div>
+        </div>
+      </div>
+
+      <h5>Deduplication Logic</h5>
+      <ul class="step-detail">
+        <li><strong class="label">Same issue</strong>If two or more findings describe the same issue, merge them. Use the most specific as the base (edge-case JSON with location beats adversarial prose).</li>
+        <li><strong class="label">Merged detail</strong>Append unique reasoning or location references from the other finding(s) into the surviving finding's detail field.</li>
+        <li><strong class="label">Combined source</strong>Set source to the merged labels (e.g., <code>blind+edge</code>, <code>edge+auditor</code>). A multi-source finding has higher confidence.</li>
+        <li><strong class="label">Severity calibration</strong>Rate severity only after reading the surrounding source (call sites, guards) — never from the diff hunk alone. The "prefer conservative when uncertain" tie-breaker that used to inflate severity has been removed.</li>
+        <li><strong class="label">Failed layers</strong>If any reviewer failed or timed out: report which before announcing results. Zero findings with failed layers = warn user (may be incomplete), not a clean pass.</li>
+      </ul>
+    </section>
+
+    <!-- STEP 4 -->
+    <section id="present-resolve">
+      <h4 class="step-heading">
+        <span class="step-num">04</span>
+        Present, Resolve &amp; Update Status
+      </h4>
+
+      <ul class="step-detail">
+        <li><strong class="label">Write first</strong>If spec file exists: append all findings to story file under <code>### Review Findings</code> <em>before</em> offering resolution options. Findings are written regardless of how they will be resolved.</li>
+        <li><strong class="label">Finding format</strong><code>[ ] [Review][Decision]</code> · <code>[ ] [Review][Patch]</code> · <code>[x] [Review][Defer]</code> — each marked with file:line location. Deferred items also go to <code>deferred-work.md</code>.</li>
+        <li><strong class="label">Decision first</strong>All <code>decision_needed</code> items are resolved before patch items. HALT on each — wait for user to say: patch / defer / dismiss. If deferred: ask for a one-line reason to record in the story and in deferred-work.md.</li>
+        <li><strong class="label">Patch handling</strong>Three options (when spec file exists): Apply every patch now · Leave as action items · Walk through each. When no spec file: only apply-all and walk-through available.</li>
+        <li><strong class="label">Clean shortcut</strong>If zero findings remain after triage: state "✅ Clean review — all layers passed" and skip directly to sprint status update.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Status Outcomes -->
+    <section id="status-outcomes">
+      <h3 class="skill-heading">
+        <span class="code-name">status-outcomes</span>
+        Status Outcomes
+      </h3>
+      <p>The story's final status from a code review run is determined by whether all actionable findings were resolved. Both the story file and <code>sprint-status.yaml</code> are updated.</p>
+
+      <div class="status-outcomes">
+        <div class="so-card so-done">
+          <div class="soc-head">All Resolved — Clean</div>
+          <div class="soc-status">done</div>
+          <div class="soc-condition">All <code>decision_needed</code> and <code>patch</code> findings were resolved (fixed or dismissed). No unresolved HIGH/MEDIUM issues remain. Story moves to <code>done</code>. Next story in the sprint can begin.</div>
+        </div>
+        <div class="so-card so-inprog">
+          <div class="soc-head">Action Items Remain</div>
+          <div class="soc-status">in-progress</div>
+          <div class="soc-condition">Patch findings were left as action items in the story file, or unresolved issues remain. Story moves back to <code>in-progress</code>. Dev Story re-runs to address review findings via review continuation mode.</div>
+        </div>
+      </div>
+
+      <h5>Handoff Chain</h5>
+      <ul class="inline-list">
+        <li><strong>All resolved → done:</strong> <code>bmad-sprint-planning</code> or <code>bmad-create-story</code> picks up next <code>ready-for-dev</code> story in the sprint.</li>
+        <li><strong>Action items → in-progress:</strong> <code>bmad-dev-story</code> re-runs. Step 3 of dev-story detects the "Senior Developer Review" section and enters review continuation mode.</li>
+        <li><strong>Last story of epic → done:</strong> Sprint retrospective (<code>bmad-retrospective</code>) runs after the final story is marked done.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Output Artifacts -->
+    <section id="output-artifacts">
+      <h3 class="skill-heading">
+        <span class="code-name">output-artifacts</span>
+        Output Artifacts
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">What Gets Written — Where</span>
+          <span class="data-source">step-04-present.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Artifact</th><th>What's Written</th><th>Format</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Story file</td>
+              <td><code>### Review Findings</code> subsection appended to Tasks section. Decision, patch, and defer findings listed with <code>[Review][Tag]</code> markers and file:line locations.</td>
+              <td>Markdown checkboxes</td>
+            </tr>
+            <tr>
+              <td class="key-col">Story file · Status</td>
+              <td>Status field updated to <code>done</code> or <code>in-progress</code> based on resolution outcome.</td>
+              <td>YAML frontmatter</td>
+            </tr>
+            <tr>
+              <td class="key-col">deferred-work.md</td>
+              <td>Each <code>defer</code> finding appended under heading <code>## Deferred from: code review of {story-id} ({date})</code>. One bullet per finding with description and optional reason.</td>
+              <td>Markdown bullets</td>
+            </tr>
+            <tr>
+              <td class="key-col">sprint-status.yaml</td>
+              <td>Story's <code>development_status</code> entry updated to new status. <code>last_updated</code> refreshed. All comments and structure preserved.</td>
+              <td>YAML (in-place edit)</td>
+            </tr>
+            <tr>
+              <td class="key-col">Prompt files (fallback)</td>
+              <td>When subagents unavailable: three prompt files written to <code>implementation_artifacts</code>, one per reviewer role. User runs each externally and pastes findings back.</td>
+              <td>Markdown prompts</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

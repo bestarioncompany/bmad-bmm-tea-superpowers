@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automate — Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #fafaf8;
+    --paper-warm: #f5f3ef;
+    --accent: #c84b31;
+    --highlight: #e8b84b;
+    --rule: #e2ddd8;
+    --muted: #8a8480;
+    --code-bg: #f0ede8;
+    --green: #2d6a4f;
+    --green-bg: #d8f3dc;
+    --red-bg: #ffe8e3;
+    --blue: #1d3557;
+    --blue-bg: #e8f0f8;
+    --orange-bg: #fff3cd;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  /* ── Layout ────────────────────────────────────── */
+  .page-wrap { display: flex; min-height: 100vh; }
+
+  aside.toc {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 280px;
+    min-width: 280px;
+    background: var(--ink);
+    color: var(--paper);
+    overflow-y: auto;
+    padding: 28px 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  aside.toc .toc-brand {
+    padding: 0 22px 22px;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+    margin-bottom: 16px;
+  }
+
+  aside.toc .toc-brand .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--highlight);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  aside.toc .toc-brand h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  aside.toc nav a {
+    display: block;
+    padding: 7px 22px;
+    text-decoration: none;
+    color: rgba(255,255,255,.7);
+    font-size: 13px;
+    line-height: 1.4;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+  }
+
+  aside.toc nav a.sub {
+    padding-left: 34px;
+    font-size: 12px;
+    color: rgba(255,255,255,.5);
+  }
+
+  aside.toc nav a:hover,
+  aside.toc nav a.active {
+    color: var(--paper);
+    border-left-color: var(--highlight);
+    background: rgba(255,255,255,.05);
+  }
+
+  aside.toc nav .toc-section-label {
+    padding: 16px 22px 6px;
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.35);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  main.content {
+    flex: 1;
+    min-width: 0;
+    padding: 56px 64px 80px;
+    max-width: 900px;
+  }
+
+  /* ── Page header ─────────────────────────────── */
+  .page-header {
+    margin-bottom: 48px;
+    padding-bottom: 36px;
+    border-bottom: 2px solid var(--rule);
+  }
+
+  .page-header .skill-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--highlight);
+    padding: 4px 10px;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+
+  .page-header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+
+  .page-header .subtitle {
+    font-size: 17px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 680px;
+  }
+
+  .page-header .meta-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .page-header .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .page-header .meta-item .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  section { margin-bottom: 52px; }
+
+  /* ── Section headings (§WHAT/§WHY/§HOW) ──────── */
+  h2.section-what, h2.section-why, h2.section-how {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .s-marker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+    color: var(--paper);
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  h2.section-what .s-marker { background: var(--ink); }
+  h2.section-why .s-marker { background: var(--accent); }
+  h2.section-how .s-marker { background: var(--blue); }
+
+  h2.section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  h3.sub-title {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin: 28px 0 12px;
+    color: var(--ink);
+  }
+
+  p { margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 600; }
+  em { font-style: italic; color: var(--accent); }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  /* ── Section divider ─────────────────────────── */
+  hr.section-divider {
+    border: none;
+    border-top: 2px solid var(--rule);
+    margin: 52px 0;
+  }
+
+  /* ── Compare table (§WHY) ────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 22%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 39%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 39%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 11px; color: var(--ink); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.04em; }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--muted); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Stats banner ────────────────────────────── */
+  .stats-banner {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--rule);
+    margin-bottom: 32px;
+    background: var(--paper-warm);
+  }
+
+  .stat-cell {
+    padding: 18px 20px;
+    border-right: 1px solid var(--rule);
+    text-align: center;
+  }
+
+  .stat-cell:last-child { border-right: none; }
+
+  .stat-cell .val {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+
+  .stat-cell .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── Mode grid ───────────────────────────────── */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
+  }
+
+  .mode-card {
+    border: 1px solid var(--rule);
+    background: var(--paper-warm);
+    overflow: hidden;
+  }
+
+  .mode-card .mode-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mode-card.integrated .mode-header { background: var(--ink); color: var(--paper); }
+  .mode-card.standalone .mode-header { background: #2d3a4a; color: var(--paper); }
+
+  .mode-card .mode-header .mode-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    background: var(--highlight);
+    color: var(--ink);
+    padding: 2px 7px;
+  }
+
+  .mode-card .mode-header h4 {
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter Tight', sans-serif;
+  }
+
+  .mode-card .mode-body { padding: 16px; }
+
+  .mode-card .mode-body ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mode-card .mode-body ul li {
+    font-size: 13px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.4;
+  }
+
+  .mode-card .mode-body ul li:last-child { border-bottom: none; }
+
+  .mode-card .mode-body ul li::before {
+    content: '→';
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ── Coverage targets ────────────────────────── */
+  .coverage-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .coverage-card {
+    border: 1px solid var(--rule);
+    padding: 18px;
+    background: var(--paper-warm);
+  }
+
+  .coverage-card .cov-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .coverage-card h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .coverage-card p {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* ── Step cards ──────────────────────────────── */
+  .steps-list { display: flex; flex-direction: column; gap: 20px; margin: 20px 0; }
+
+  .step-item { border: 1px solid var(--rule); overflow: hidden; }
+
+  .step-item .step-head {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .step-item .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: var(--highlight);
+    color: var(--ink);
+    padding: 2px 8px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .step-item .step-title { font-size: 14px; font-weight: 600; }
+
+  .step-item .step-file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,.5);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  .step-item .step-body {
+    padding: 16px 18px;
+    background: var(--paper-warm);
+  }
+
+  .step-item .step-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .step-item .step-body ul li {
+    font-size: 13px;
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .step-item .step-body ul li::before {
+    content: '·';
+    position: absolute;
+    left: 4px;
+    color: var(--accent);
+    font-weight: bold;
+  }
+
+  /* ── Worker architecture ─────────────────────── */
+  .worker-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .worker-card { border: 2px solid var(--rule); overflow: hidden; }
+
+  .worker-card.worker-api { border-color: #c84b31; }
+  .worker-card.worker-e2e { border-color: #2d6a4f; }
+  .worker-card.worker-backend { border-color: #1d3557; }
+
+  .worker-card .worker-head {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .worker-card.worker-api .worker-head { background: var(--red-bg); }
+  .worker-card.worker-e2e .worker-head { background: var(--green-bg); }
+  .worker-card.worker-backend .worker-head { background: var(--blue-bg); }
+
+  .worker-card .worker-head .w-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .worker-card .worker-head h4 { font-size: 13px; font-weight: 600; }
+
+  .worker-card .worker-head .w-file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .worker-card .worker-body { padding: 12px 14px; background: var(--paper); }
+
+  .worker-card .worker-body ul { list-style: none; padding: 0; margin: 0; }
+
+  .worker-card .worker-body ul li {
+    font-size: 12px;
+    padding: 3px 0;
+    border-bottom: 1px solid var(--rule);
+    line-height: 1.4;
+    color: var(--ink);
+  }
+
+  .worker-card .worker-body ul li:last-child { border-bottom: none; }
+
+  .worker-card .worker-foot {
+    background: var(--paper-warm);
+    padding: 8px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* ── Dispatch matrix ─────────────────────────── */
+  .dispatch-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+
+  .dispatch-table th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 14px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .dispatch-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-warm);
+  }
+
+  .dispatch-table tr:last-child td { border-bottom: none; }
+
+  .badge-run {
+    display: inline-block;
+    background: var(--green-bg);
+    color: var(--green);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+
+  .badge-skip {
+    display: inline-block;
+    background: var(--code-bg);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+
+  /* ── Execution mode resolution ───────────────── */
+  .exec-flow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid var(--rule);
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .exec-step {
+    padding: 16px 14px;
+    border-right: 1px solid var(--rule);
+    background: var(--paper-warm);
+    text-align: center;
+    position: relative;
+  }
+
+  .exec-step:last-child { border-right: none; }
+
+  .exec-step .e-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .exec-step .e-name {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .exec-step .e-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+  .exec-step.preferred { background: var(--ink); color: var(--paper); }
+  .exec-step.preferred .e-desc { color: rgba(255,255,255,.6); }
+  .exec-step.preferred .e-name { color: var(--highlight); }
+
+  /* ── Test types table ────────────────────────── */
+  .test-levels-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+  }
+
+  .test-levels-table th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 14px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .test-levels-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    background: var(--paper-warm);
+  }
+
+  .test-levels-table tr:nth-child(even) td { background: var(--paper); }
+  .test-levels-table tr:last-child td { border-bottom: none; }
+
+  .stack-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+
+  .stack-fe { background: var(--red-bg); color: var(--accent); }
+  .stack-be { background: var(--blue-bg); color: var(--blue); }
+  .stack-fs { background: var(--orange-bg); color: #8a6914; }
+
+  /* ── CDC / Pact box ──────────────────────────── */
+  .pact-section {
+    border: 2px solid var(--accent);
+    background: var(--red-bg);
+    padding: 20px 22px;
+    margin: 20px 0;
+  }
+
+  .pact-section .pact-title {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pact-section .pact-title .pact-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    background: var(--accent);
+    color: var(--paper);
+    padding: 2px 7px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  /* ── Scrutiny checklist ──────────────────────── */
+  .scrutiny-box {
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    padding: 16px 18px;
+    margin: 16px 0;
+  }
+
+  .scrutiny-box h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .scrutiny-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .scrutiny-item {
+    background: var(--paper-warm);
+    border: 1px solid var(--rule);
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .scrutiny-item .s-num {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+  }
+
+  .scrutiny-item .s-label { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.3; }
+
+  /* ── Rule boxes ──────────────────────────────── */
+  .rule-box {
+    border-left: 4px solid var(--accent);
+    background: var(--paper-warm);
+    padding: 14px 18px;
+    margin: 16px 0;
+  }
+
+  .rule-box.green { border-left-color: var(--green); }
+  .rule-box.blue { border-left-color: var(--blue); }
+  .rule-box.highlight { border-left-color: var(--highlight); }
+
+  .rule-box .rule-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .rule-box ul { list-style: none; padding: 0; margin: 0; }
+
+  .rule-box ul li {
+    font-size: 13px;
+    padding: 3px 0 3px 16px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .rule-box ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--green);
+    font-weight: bold;
+    font-size: 12px;
+  }
+
+  .rule-box ul li.no::before { content: '✕'; color: var(--accent); }
+
+  .rule-box p { font-size: 13px; margin: 0; line-height: 1.6; }
+
+  /* ── Fixture types ───────────────────────────── */
+  .fixture-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 16px 0; }
+
+  .fixture-card { border: 1px solid var(--rule); overflow: hidden; background: var(--paper-warm); }
+
+  .fixture-card .fix-head {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .fixture-card .fix-head .fix-path { color: var(--highlight); font-size: 10px; }
+
+  .fixture-card .fix-body {
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── Healing section ─────────────────────────── */
+  .healing-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid var(--rule);
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .healing-step {
+    flex: 1;
+    padding: 16px 14px;
+    border-right: 1px solid var(--rule);
+    background: var(--paper-warm);
+    text-align: center;
+  }
+
+  .healing-step:last-child { border-right: none; }
+
+  .healing-step .h-icon { font-size: 20px; display: block; margin-bottom: 6px; }
+
+  .healing-step .h-title {
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .healing-step .h-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+  .healing-step.terminal { background: var(--ink); }
+  .healing-step.terminal .h-title { color: var(--highlight); }
+  .healing-step.terminal .h-desc { color: rgba(255,255,255,.6); }
+
+  /* ── Output & generic tables ─────────────────── */
+  .output-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+  }
+
+  .output-table th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 14px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .output-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-warm);
+    vertical-align: top;
+  }
+
+  .output-table tr:nth-child(even) td { background: var(--paper); }
+  .output-table tr:last-child td { border-bottom: none; }
+
+  .output-table .path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+  }
+
+  /* ── Postel's law box ────────────────────────── */
+  .postels-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+
+  .postels-card { border: 1px solid var(--rule); overflow: hidden; }
+
+  .postels-card .pc-head {
+    padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .postels-card.exact .pc-head { background: var(--green-bg); color: var(--green); }
+  .postels-card.flexible .pc-head { background: var(--blue-bg); color: var(--blue); }
+
+  .postels-card .pc-body { padding: 12px 14px; background: var(--paper-warm); }
+
+  .postels-card .pc-body ul { list-style: none; padding: 0; margin: 0; }
+
+  .postels-card .pc-body ul li {
+    font-size: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--rule);
+    line-height: 1.4;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .postels-card .pc-body ul li:last-child { border-bottom: none; }
+
+  /* ── Back link ───────────────────────────────── */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12px;
+    margin-bottom: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .05em;
+    transition: color .15s;
+  }
+
+  .back-link:hover { color: var(--ink); }
+
+  /* ── When-to-use trigger table ───────────────── */
+  .trigger-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .trigger-table th { background: var(--ink); color: var(--paper); padding: 9px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+  .trigger-table td { padding: 9px 14px; border-bottom: 1px solid var(--rule); background: var(--paper-warm); vertical-align: top; font-size: 13px; }
+  .trigger-table tr:nth-child(even) td { background: var(--paper); }
+  .trigger-table tr:last-child td { border-bottom: none; }
+  .trigger-table td code { font-size: 11.5px; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- ─── Sidebar TOC ─────────────────────────────────────────── -->
+<aside class="toc">
+  <div class="toc-brand">
+    <span class="label">TEA Skill Guide</span>
+    <h2>bmad-testarch-automate</h2>
+  </div>
+  <nav>
+    <div class="toc-section-label">§ WHAT</div>
+    <a href="#what-overview">What It Does</a>
+    <a href="#modes">Execution Modes</a>
+    <a href="#worker-architecture">Worker Architecture</a>
+    <a href="#dispatch-matrix" class="sub">Dispatch Matrix</a>
+
+    <div class="toc-section-label">§ WHY</div>
+    <a href="#why-automate">Why Automate?</a>
+    <a href="#when-to-use">When to Use</a>
+
+    <div class="toc-section-label">§ HOW</div>
+    <a href="#exec-mode-resolution">Execution Mode Resolution</a>
+    <a href="#steps">Steps (C Mode)</a>
+    <a href="#test-types">Test Types by Stack</a>
+    <a href="#contract-testing">Contract Testing (CDC)</a>
+    <a href="#output">Output Files</a>
+  </nav>
+</aside>
+
+<!-- ─── Main Content ────────────────────────────────────────── -->
+<main class="content">
+  <a href="bmad-ecosystem-v671-research-v1.html" class="back-link">← Ecosystem Overview</a>
+
+  <!-- Header -->
+  <div class="page-header">
+    <span class="skill-chip">bmad-testarch-automate · TEA</span>
+    <h1>Automate</h1>
+    <p class="subtitle">Expands test automation coverage after implementation or analyzes an existing codebase — operating in BMad-Integrated mode when story artifacts are present, or Standalone mode when working from source code alone.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="dot"></span>Tags: qa, automation, test-architect, regression, coverage</div>
+      <div class="meta-item"><span class="dot"></span>Output: <code>automation-summary.md</code></div>
+    </div>
+  </div>
+
+  <!-- Stats banner -->
+  <div class="stats-banner">
+    <div class="stat-cell">
+      <span class="val">2</span>
+      <span class="lbl">Exec Modes</span>
+    </div>
+    <div class="stat-cell">
+      <span class="val">3</span>
+      <span class="lbl">Workers</span>
+    </div>
+    <div class="stat-cell">
+      <span class="val">4+1</span>
+      <span class="lbl">Steps C+resume</span>
+    </div>
+    <div class="stat-cell">
+      <span class="val">3</span>
+      <span class="lbl">Coverage Targets</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       § WHAT
+       ══════════════════════════════════════════════ -->
+  <h2 class="section-what" id="what-overview">
+    <span class="s-marker">§ WHAT</span>
+    What does this Skill do?
+  </h2>
+
+  <section id="overview-content">
+    <p>The <code>bmad-testarch-automate</code> skill generates a full suite of automated tests for a project. Unlike <code>bmad-testarch-atdd</code> — which generates scaffolding-first tests <em>before</em> implementation — <strong>automate</strong> runs <em>after</em> code exists, either expanding coverage beyond what ATDD produced or generating tests from scratch for an existing codebase.</p>
+    <p>It detects the project stack (Frontend / Backend / Fullstack), determines which tests are needed at each level (E2E, API, Unit, Integration, Contract), then dispatches parallel worker subagents to generate each type concurrently. A final aggregation step combines outputs, creates shared fixture infrastructure, and validates quality.</p>
+
+    <div class="rule-box highlight">
+      <div class="rule-title">Only Hard Requirement</div>
+      <p>A test framework config must exist (<code>playwright.config.ts</code> or <code>cypress.config.ts</code>). If missing, the skill halts and instructs the user to run <code>bmad-testarch-framework</code> first. All other inputs — story files, PRDs, ATDD outputs — are <strong>optional</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ── Execution Modes ──────────────────────────────────── -->
+  <section id="modes">
+    <h2 class="section-title">Execution Modes</h2>
+    <p>The skill selects its execution mode automatically based on what artifacts are available in the project. The mode shapes how targets are identified in Step 2.</p>
+
+    <div class="mode-grid">
+      <div class="mode-card integrated">
+        <div class="mode-header">
+          <span class="mode-tag">Integrated</span>
+          <h4>BMad-Integrated Mode</h4>
+        </div>
+        <div class="mode-body">
+          <ul>
+            <li>Triggered when a story file, PRD, or test-design artifact is available</li>
+            <li>Maps acceptance criteria directly to test scenarios</li>
+            <li>Checks for existing ATDD outputs — avoids generating duplicate coverage</li>
+            <li>Expands beyond ATDD: edge cases, negative paths, variations</li>
+            <li>References risk scores and priority classifications from test-design</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mode-card standalone">
+        <div class="mode-header">
+          <span class="mode-tag">Standalone</span>
+          <h4>Standalone Mode</h4>
+        </div>
+        <div class="mode-body">
+          <ul>
+            <li>Triggered when only source code is available (no story, PRD, or test-design)</li>
+            <li>Auto-discovers features by scanning source directory</li>
+            <li>Prioritizes by: untested paths → complex business logic → external integrations → critical user journeys</li>
+            <li>Performs browser exploration (Frontend/Fullstack) to verify actual UI selectors</li>
+            <li>Scans route handlers, OpenAPI/Swagger, DB models for Backend targets</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-box">
+      <div class="rule-title">Auto-discover Sub-mode</div>
+      <p>When neither <code>target_feature</code> nor <code>target_files</code> is specified, the skill enters auto-discover mode — it scans the entire <code>source_dir</code> and identifies features lacking test coverage. If source code cannot be found, the skill asks the user to specify explicit targets.</p>
+    </div>
+  </section>
+
+  <!-- ── Worker Architecture ──────────────────────────────── -->
+  <section id="worker-architecture">
+    <h2 class="section-title">Worker Architecture</h2>
+    <p>Step 3 operates as an orchestrator that dispatches specialized worker subagents. Each worker generates one type of test independently, writing its results to a timestamped temp file. Step 3C (Aggregation) then reads all temp files and writes everything to disk.</p>
+
+    <div class="worker-grid">
+      <div class="worker-card worker-api">
+        <div class="worker-head">
+          <span class="w-label">Worker A · Always</span>
+          <h4>API Test Generation</h4>
+          <span class="w-file">step-03a-subagent-api.md</span>
+        </div>
+        <div class="worker-body">
+          <ul>
+            <li>Generates <code>tests/api/[feature].spec.ts</code></li>
+            <li>Uses <code>apiRequest()</code> helper if Playwright Utils enabled</li>
+            <li>Uses data factories for test data (no hardcoded values)</li>
+            <li>Tests happy path + error scenarios at each priority level</li>
+            <li>Performs Provider Source Scrutiny before any Pact interaction (if CDC enabled)</li>
+            <li>Output: <code>/tmp/tea-automate-api-tests-{ts}.json</code></li>
+          </ul>
+        </div>
+        <div class="worker-foot">Output schema: success, tests[], fixture_needs, test_count</div>
+      </div>
+
+      <div class="worker-card worker-e2e">
+        <div class="worker-head">
+          <span class="w-label">Worker B-E2E · Frontend / Fullstack</span>
+          <h4>E2E Test Generation</h4>
+          <span class="w-file">step-03b-subagent-e2e.md</span>
+        </div>
+        <div class="worker-body">
+          <ul>
+            <li>Generates <code>tests/e2e/[feature].spec.ts</code></li>
+            <li>Uses browser automation for selector verification (cli / mcp / auto / none)</li>
+            <li>Applies network-first pattern: <code>page.route()</code> before <code>page.goto()</code></li>
+            <li>Uses resilient selectors: <code>getByRole</code>, <code>getByLabel</code>, <code>getByText</code></li>
+            <li>Closes CLI sessions with <code>close</code>, never <code>close-all</code></li>
+            <li>Output: <code>/tmp/tea-automate-e2e-tests-{ts}.json</code></li>
+          </ul>
+        </div>
+        <div class="worker-foot">Output schema: success, tests[], fixture_needs, test_count</div>
+      </div>
+
+      <div class="worker-card worker-backend">
+        <div class="worker-head">
+          <span class="w-label">Worker B-backend · Backend / Fullstack</span>
+          <h4>Backend Test Generation</h4>
+          <span class="w-file">step-03b-subagent-backend.md</span>
+        </div>
+        <div class="worker-body">
+          <ul>
+            <li>Generates unit tests (<code>tests/unit/</code>) and integration tests (<code>tests/integration/</code>)</li>
+            <li>Detects framework language: pytest / JUnit / go test / xUnit / RSpec</li>
+            <li>Uses idiomatic patterns per framework (table-driven Go tests, <code>@Nested</code> JUnit, etc.)</li>
+            <li>Mocks all external dependencies (no real DB/queue calls in unit tests)</li>
+            <li>Generates contract tests when microservices patterns detected</li>
+            <li>Output: <code>/tmp/tea-automate-backend-tests-{ts}.json</code></li>
+          </ul>
+        </div>
+        <div class="worker-foot">Output schema: success, subagentType, testsGenerated[], coverageSummary</div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Step 3C: Aggregation</h3>
+    <p>After all workers complete, the aggregation sub-step reads all temp files, writes test files to disk, deduplicates fixture needs across workers, generates shared fixture infrastructure, and calculates combined statistics for the summary report.</p>
+
+    <div class="rule-box blue">
+      <div class="rule-title">Fixture Aggregation</div>
+      <ul>
+        <li>Collects all <code>fixture_needs</code> from every launched worker</li>
+        <li>Deduplicates: one auth fixture, one data factory per entity type</li>
+        <li>Categorizes: Authentication, Data Factories, Network Mocks, Test Helpers</li>
+        <li>Generates files: <code>tests/fixtures/auth.ts</code>, <code>tests/fixtures/data-factories.ts</code>, <code>tests/fixtures/network-mocks.ts</code>, <code>tests/fixtures/helpers.ts</code></li>
+      </ul>
+    </div>
+
+    <h3 class="sub-title" id="dispatch-matrix">Dispatch Matrix</h3>
+    <p>Which workers are launched depends on the detected stack. Worker A (API) always runs. Workers B-E2E and B-backend are conditional.</p>
+
+    <table class="dispatch-table">
+      <thead>
+        <tr>
+          <th>Detected Stack</th>
+          <th>Worker A — API</th>
+          <th>Worker B-E2E — E2E</th>
+          <th>Worker B-backend — Unit/Integration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="stack-tag stack-fe">frontend</span></td>
+          <td><span class="badge-run">Launch</span></td>
+          <td><span class="badge-run">Launch</span></td>
+          <td><span class="badge-skip">Skip</span></td>
+        </tr>
+        <tr>
+          <td><span class="stack-tag stack-be">backend</span></td>
+          <td><span class="badge-run">Launch</span></td>
+          <td><span class="badge-skip">Skip</span></td>
+          <td><span class="badge-run">Launch</span></td>
+        </tr>
+        <tr>
+          <td><span class="stack-tag stack-fs">fullstack</span></td>
+          <td><span class="badge-run">Launch</span></td>
+          <td><span class="badge-run">Launch</span></td>
+          <td><span class="badge-run">Launch</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ══════════════════════════════════════════════
+       § WHY
+       ══════════════════════════════════════════════ -->
+  <h2 class="section-why" id="why-automate">
+    <span class="s-marker">§ WHY</span>
+    Why use this Skill?
+  </h2>
+
+  <section id="why-content">
+    <p>ATDD scaffolds happy-path tests. Implementation produces code. But coverage after those two steps is still shallow — edge cases, error states, negative paths, contract boundaries, and cross-layer integration are left uncovered. Automate fills that gap systematically.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Without Automate</th>
+          <th>With Automate (this skill)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Post-ATDD coverage</td>
+          <td>Tests only cover acceptance criteria happy paths; edge cases, negative paths, and P2/P3 scenarios are missing</td>
+          <td>Expands ATDD output to full coverage: error states, boundary conditions, variations — deduplicating what ATDD already covered</td>
+        </tr>
+        <tr>
+          <td>Existing codebase</td>
+          <td>No systematic method to add tests — developers guess what to cover, write tests inconsistently</td>
+          <td>Auto-discovers untested paths by scanning source, routes, OpenAPI specs, and DB models; prioritizes by criticality</td>
+        </tr>
+        <tr>
+          <td>Multi-stack complexity</td>
+          <td>API, E2E, and unit tests written separately with different patterns, tools, and test data strategies</td>
+          <td>3 workers run in parallel (API + E2E + Backend), each generating idiomatic tests for its level from one invocation</td>
+        </tr>
+        <tr>
+          <td>Selector fragility</td>
+          <td>E2E tests use CSS class selectors that break on UI refactors; flaky tests committed to main</td>
+          <td>Browser exploration verifies real selectors; resilient <code>getByRole</code>/<code>getByLabel</code> patterns enforced; optional auto-healing loop</td>
+        </tr>
+        <tr>
+          <td>Framework consistency</td>
+          <td>Tests follow different patterns across features — different auth helpers, different factory approaches, different fixture strategies</td>
+          <td>All tests use the same shared fixture infrastructure, selector conventions, and factory functions generated once and referenced everywhere</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── When to Use ──────────────────────────────────────── -->
+  <section id="when-to-use">
+    <h2 class="section-title">When to Use</h2>
+    <p>The skill is activated by user phrases or by the BMad framework routing to it after implementation is complete.</p>
+
+    <table class="trigger-table">
+      <thead>
+        <tr><th>Context</th><th>Trigger phrase / condition</th><th>Mode selected</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Post-ATDD expansion</td>
+          <td>"expand test coverage" · "add more tests" · "increase coverage"</td>
+          <td>BMad-Integrated — reads ATDD outputs, avoids duplication</td>
+        </tr>
+        <tr>
+          <td>New feature complete</td>
+          <td>"automate our tests" · "generate test suite for [feature]" · "test this feature"</td>
+          <td>BMad-Integrated if story/PRD found; otherwise Standalone</td>
+        </tr>
+        <tr>
+          <td>Existing codebase</td>
+          <td>"add tests to this codebase" · "we have no tests, start automating"</td>
+          <td>Standalone — auto-discovers from source code</td>
+        </tr>
+        <tr>
+          <td>Targeted coverage gap</td>
+          <td>"add tests for <code>src/payment/</code>" · "cover the <code>checkout</code> flow"</td>
+          <td>Standalone with <code>selective</code> coverage target, explicit <code>target_files</code></td>
+        </tr>
+        <tr>
+          <td>Prerequisite missing</td>
+          <td>Framework config absent (<code>playwright.config.ts</code> / <code>cypress.config.ts</code>)</td>
+          <td>HALT — "Run <code>bmad-testarch-framework</code> first"</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ══════════════════════════════════════════════
+       § HOW
+       ══════════════════════════════════════════════ -->
+  <h2 class="section-how" id="exec-mode-resolution">
+    <span class="s-marker">§ HOW</span>
+    How to Execute
+  </h2>
+
+  <!-- ── Execution Mode Resolution ───────────────────────── -->
+  <section id="exec-mode-content">
+    <h2 class="section-title">Execution Mode Resolution</h2>
+    <p>Before dispatching workers, Step 3 resolves the best available execution mode. An explicit user instruction in the active run always takes priority; fallback logic applies when probing is enabled.</p>
+
+    <div class="exec-flow">
+      <div class="exec-step preferred">
+        <span class="e-num">Priority 1</span>
+        <span class="e-name">agent-team</span>
+        <span class="e-desc">Runtime-native parallel squad; highest throughput</span>
+      </div>
+      <div class="exec-step">
+        <span class="e-num">Priority 2</span>
+        <span class="e-name">subagent</span>
+        <span class="e-desc">Parallel subagents; ~40–70% faster than sequential</span>
+      </div>
+      <div class="exec-step">
+        <span class="e-num">Priority 3</span>
+        <span class="e-name">sequential</span>
+        <span class="e-desc">One worker at a time; always supported; baseline speed</span>
+      </div>
+      <div class="exec-step">
+        <span class="e-num">Config</span>
+        <span class="e-name">auto</span>
+        <span class="e-desc">Probe capability, select best supported mode automatically</span>
+      </div>
+    </div>
+
+    <div class="rule-box">
+      <div class="rule-title">Resolution Precedence</div>
+      <ul>
+        <li>Explicit user instruction during the active run (e.g., "use sequential")</li>
+        <li><code>tea_execution_mode</code> value in workflow config (<code>agent-team</code> / <code>subagent</code> / <code>sequential</code> / <code>auto</code>)</li>
+        <li>Runtime capability probe result (when <code>tea_capability_probe: true</code>)</li>
+      </ul>
+    </div>
+    <div class="rule-box" style="margin-top:8px;">
+      <div class="rule-title">Probe Disabled Behavior</div>
+      <p>When <code>tea_capability_probe: false</code>, the requested mode is honored strictly. If that mode cannot be executed at runtime, the skill fails with an explicit error — no silent fallback.</p>
+    </div>
+  </section>
+
+  <!-- ── Steps ────────────────────────────────────────────── -->
+  <section id="steps">
+    <h2 class="section-title">Steps (C Mode)</h2>
+    <p>The create mode runs four main steps. Step 3 is an orchestration step that dispatches parallel worker subagents; those workers are not counted as independent steps but as nested subagents within Step 3.</p>
+
+    <div class="steps-list">
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 01</span>
+          <span class="step-title">Preflight &amp; Context Loading</span>
+          <span class="step-file">step-01-preflight-and-context.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Detect stack: scan <code>package.json</code>, <code>pom.xml</code>, <code>go.mod</code>, <code>requirements.txt</code> etc. → classify as <code>frontend</code> / <code>backend</code> / <code>fullstack</code></li>
+            <li>Determine execution mode: BMad-Integrated if story/PRD/test-design found; otherwise Standalone</li>
+            <li>Load tiered knowledge: Core always (test-levels, test-priorities, data-factories, selective-testing, ci-burn-in, test-quality); Extended on demand; Specialized when relevant</li>
+            <li>Read config flags: <code>tea_use_playwright_utils</code>, <code>tea_use_pactjs_utils</code>, <code>tea_pact_mcp</code>, <code>tea_browser_automation</code>, <code>tea_execution_mode</code></li>
+            <li>Halt if framework scaffolding missing; instruct user to run <code>bmad-testarch-framework</code> first</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 02</span>
+          <span class="step-title">Identify Automation Targets</span>
+          <span class="step-file">step-02-identify-targets.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li><strong>BMad-Integrated:</strong> map acceptance criteria → test scenarios; check existing ATDD outputs to avoid duplicate coverage; plan expansion (edge cases, negative paths)</li>
+            <li><strong>Standalone:</strong> auto-discover features in <code>source_dir</code>, prioritize by coverage gaps and criticality</li>
+            <li>Frontend/Fullstack: optional browser exploration via <code>playwright-cli</code> to verify real UI selectors and user flows</li>
+            <li>Backend: scan route handlers, OpenAPI/Swagger specs, DB models, service integrations for test targets</li>
+            <li>Build Provider Endpoint Map (when <code>tea_use_pactjs_utils</code> enabled): table mapping consumer endpoints to provider route handlers</li>
+            <li>Produce coverage plan: targets by test level (E2E/API/Unit/Integration), P0–P3 priorities, scope justification</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 03</span>
+          <span class="step-title">Generate Tests (Orchestrator)</span>
+          <span class="step-file">step-03-generate-tests.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Resolve execution mode: <code>agent-team</code> → <code>subagent</code> → <code>sequential</code> (capability probe)</li>
+            <li>Generate unique timestamp for temp file naming (<code>/tmp/tea-automate-*-{timestamp}.json</code>)</li>
+            <li>Dispatch Worker A (API) — always launched regardless of stack</li>
+            <li>Dispatch Worker B-E2E (E2E) — launched for Frontend and Fullstack only</li>
+            <li>Dispatch Worker B-backend (Backend) — launched for Backend and Fullstack only</li>
+            <li>Wait for all launched workers; verify all expected output files exist</li>
+            <li>Report performance metrics (execution mode, elapsed time, parallel gain)</li>
+            <li><em>Sub-step 3C:</em> Aggregate outputs, write test files to disk, generate shared fixtures, calculate summary stats</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 04</span>
+          <span class="step-title">Validate &amp; Summarize</span>
+          <span class="step-file">step-04-validate-and-summarize.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Run checklist validation: framework readiness, coverage mapping, test quality, fixtures/factories, no orphaned CLI sessions</li>
+            <li>Optional test healing loop (when <code>auto_heal_failures: true</code>): run tests → identify failures → apply healing strategy → re-run; max 3 iterations</li>
+            <li>Mark unfixable tests with <code>test.fixme()</code> and detailed comments (what failed, what was tried, why healing failed)</li>
+            <li>Polish output: remove duplication, verify consistency, fill any gaps</li>
+            <li>Write final <code>automation-summary.md</code> with coverage plan, file list, assumptions, and recommended next workflow</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="rule-box">
+      <div class="rule-title">Resume Support</div>
+      <p>Each step appends to <code>automation-summary.md</code> with YAML frontmatter tracking <code>stepsCompleted</code>, <code>lastStep</code>, and <code>lastSaved</code>. If a run is interrupted, the skill can resume from the last completed step without regenerating earlier work.</p>
+    </div>
+  </section>
+
+  <!-- ── Test Types ───────────────────────────────────────── -->
+  <section id="test-types">
+    <h2 class="section-title">Test Types by Stack</h2>
+    <p>The skill generates tests at the appropriate levels for each stack type, using the test-levels-framework knowledge fragment to avoid duplicate coverage (same behavior tested at multiple levels).</p>
+
+    <table class="test-levels-table">
+      <thead>
+        <tr>
+          <th>Test Level</th>
+          <th>Worker</th>
+          <th>Stack</th>
+          <th>Output Path</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>API</strong></td>
+          <td>Worker A</td>
+          <td><span class="stack-tag stack-fe">FE</span> <span class="stack-tag stack-be">BE</span> <span class="stack-tag stack-fs">FS</span></td>
+          <td><code>tests/api/*.spec.ts</code></td>
+          <td>Business logic, service contracts, HTTP status codes, error handling</td>
+        </tr>
+        <tr>
+          <td><strong>E2E</strong></td>
+          <td>Worker B-E2E</td>
+          <td><span class="stack-tag stack-fe">FE</span> <span class="stack-tag stack-fs">FS</span></td>
+          <td><code>tests/e2e/*.spec.ts</code></td>
+          <td>Critical user journeys — happy path only, full system integration</td>
+        </tr>
+        <tr>
+          <td><strong>Unit</strong></td>
+          <td>Worker B-backend</td>
+          <td><span class="stack-tag stack-be">BE</span> <span class="stack-tag stack-fs">FS</span></td>
+          <td><code>tests/unit/*.[test/spec].*</code></td>
+          <td>Pure business logic, edge cases, error handling (no external deps)</td>
+        </tr>
+        <tr>
+          <td><strong>Integration</strong></td>
+          <td>Worker B-backend</td>
+          <td><span class="stack-tag stack-be">BE</span> <span class="stack-tag stack-fs">FS</span></td>
+          <td><code>tests/integration/*.[test/spec].*</code></td>
+          <td>Database, message queues, cache, external service clients</td>
+        </tr>
+        <tr>
+          <td><strong>Contract (CDC)</strong></td>
+          <td>Worker A</td>
+          <td><span class="stack-tag stack-be">BE</span> <span class="stack-tag stack-fs">FS</span></td>
+          <td><code>pact/http/consumer/</code>, <code>pact/http/provider/</code></td>
+          <td>Consumer-driven contracts via Pact.js (when <code>use_pactjs_utils: true</code>)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-title">Backend Framework Language Support</h3>
+    <p>Worker B-backend detects the backend framework from project manifests and generates idiomatic tests for each:</p>
+
+    <table class="output-table">
+      <thead>
+        <tr><th>Language / Framework</th><th>Test Style</th><th>Mocking Library</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Python (pytest)</strong></td>
+          <td><code>class Test…</code>, <code>@pytest.mark</code> decorators, <code>conftest.py</code> fixtures</td>
+          <td><code>unittest.mock.MagicMock</code>, <code>patch</code></td>
+        </tr>
+        <tr>
+          <td><strong>Java / Kotlin (JUnit 5)</strong></td>
+          <td><code>@Test</code>, <code>@BeforeEach</code>, <code>@Nested</code> for grouping</td>
+          <td>Mockito</td>
+        </tr>
+        <tr>
+          <td><strong>Go (go test)</strong></td>
+          <td>Table-driven tests, <code>*_test.go</code> files, <code>testing.T</code></td>
+          <td><code>testify</code> assertions</td>
+        </tr>
+        <tr>
+          <td><strong>C# / .NET (xUnit)</strong></td>
+          <td><code>[Fact]</code>, <code>[Theory]</code>, <code>[InlineData]</code></td>
+          <td>Moq</td>
+        </tr>
+        <tr>
+          <td><strong>Ruby (RSpec)</strong></td>
+          <td><code>describe</code> / <code>context</code> / <code>it</code>, <code>let</code> / <code>before</code></td>
+          <td>FactoryBot</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── Contract Testing ─────────────────────────────────── -->
+  <section id="contract-testing">
+    <h2 class="section-title">Contract Testing (CDC / Pact)</h2>
+    <p>When <code>tea_use_pactjs_utils: true</code>, Worker A also generates Consumer-Driven Contract (CDC) tests using Pact.js. This is a distinct, opt-in capability requiring extra scrutiny steps.</p>
+
+    <div class="pact-section">
+      <div class="pact-title">
+        <span class="pact-badge">CDC</span>
+        Provider Source Scrutiny Protocol
+      </div>
+      <p style="font-size:13px;margin-bottom:12px;">Before generating ANY Pact interaction, the subagent must read the provider's actual source code (or OpenAPI spec) to verify the real response shape. Generating contracts from consumer-side types alone is the #1 cause of verification failures.</p>
+    </div>
+
+  </section>
+
+  <!-- ── Output ───────────────────────────────────────────── -->
+  <section id="output">
+    <h2 class="section-title">Output Files</h2>
+
+    <pre style="font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.75;background:#1a1a2e;color:#e8e4de;padding:20px 24px;overflow-x:auto;margin:0 0 20px;"><span style="color:#e8b84b;font-weight:700;">tests/</span>
+├── api/
+│   └── <span style="color:#9ecbff;">[feature].spec.ts</span>          <span style="color:#6a9955;">← test API endpoint</span>
+├── e2e/
+│   └── <span style="color:#9ecbff;">[feature].spec.ts</span>          <span style="color:#6a9955;">← test UI flow</span>
+├── unit/
+│   └── <span style="color:#9ecbff;">[module].test.*</span>            <span style="color:#6a9955;">← test logic thuần</span>
+├── integration/
+│   └── <span style="color:#9ecbff;">[module].test.*</span>            <span style="color:#6a9955;">← test kết nối DB/queue</span>
+├── fixtures/
+│   ├── <span style="color:#9ecbff;">auth.ts</span>                    <span style="color:#6a9955;">← login tự động + cleanup session</span>
+│   ├── <span style="color:#9ecbff;">data-factories.ts</span>          <span style="color:#6a9955;">← sinh test data ngẫu nhiên</span>
+│   ├── <span style="color:#9ecbff;">network-mocks.ts</span>           <span style="color:#6a9955;">← giả lập API bên ngoài</span>
+│   └── <span style="color:#9ecbff;">helpers.ts</span>                 <span style="color:#6a9955;">← tiện ích dùng chung</span>
+└── <span style="color:#9ecbff;">README.md</span>                      <span style="color:#6a9955;">← hướng dẫn chạy test</span></pre>
+
+    <table class="output-table">
+      <thead>
+        <tr><th>File</th><th>Stack</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="path">tests/api/[feature].spec.ts</span></td>
+          <td>All</td>
+          <td>API-level tests from Worker A; HTTP requests, response validation, error codes</td>
+        </tr>
+        <tr>
+          <td><span class="path">tests/e2e/[feature].spec.ts</span></td>
+          <td>FE, FS</td>
+          <td>E2E user journey tests from Worker B-E2E; browser-verified selectors</td>
+        </tr>
+        <tr>
+          <td><span class="path">tests/unit/[module].[test/spec].*</span></td>
+          <td>BE, FS</td>
+          <td>Unit tests from Worker B-backend; framework-idiomatic, no external deps</td>
+        </tr>
+        <tr>
+          <td><span class="path">tests/integration/[module].[test/spec].*</span></td>
+          <td>BE, FS</td>
+          <td>Integration tests from Worker B-backend; DB, queues, service clients</td>
+        </tr>
+        <tr>
+          <td><span class="path">pact/http/consumer/</span></td>
+          <td>BE, FS</td>
+          <td>Consumer contract tests (when <code>use_pactjs_utils: true</code>)</td>
+        </tr>
+        <tr>
+          <td><span class="path">pact/http/provider/</span></td>
+          <td>BE, FS</td>
+          <td>Provider verification tests (when <code>use_pactjs_utils: true</code>)</td>
+        </tr>
+        <tr>
+          <td><span class="path">tests/fixtures/auth.ts</span></td>
+          <td>All</td>
+          <td>Shared authentication fixtures with auto-cleanup</td>
+        </tr>
+        <tr>
+          <td><span class="path">tests/fixtures/data-factories.ts</span></td>
+          <td>All</td>
+          <td>Faker-based data factory functions</td>
+        </tr>
+        <tr>
+          <td><span class="path">tests/fixtures/network-mocks.ts</span></td>
+          <td>FE, FS</td>
+          <td>Route intercept helpers for external service mocking</td>
+        </tr>
+        <tr>
+          <td><span class="path">tests/fixtures/helpers.ts</span></td>
+          <td>All</td>
+          <td>Shared utility helpers (observeApiCall, waitFor, retry)</td>
+        </tr>
+        <tr>
+          <td><span class="path">tests/README.md</span></td>
+          <td>All</td>
+          <td>Test suite documentation: structure, execution commands, patterns, anti-patterns</td>
+        </tr>
+        <tr>
+          <td><span class="path">{test_artifacts}/automation-summary.md</span></td>
+          <td>All</td>
+          <td>Primary output: coverage plan, file list, priority breakdown, next steps</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-title">package.json Scripts Added</h3>
+    <p>The skill adds priority-gated test execution scripts to <code>package.json</code>:</p>
+    <div class="rule-box green">
+      <div class="rule-title">Generated Scripts</div>
+      <ul>
+        <li><code>test:e2e</code> — all E2E tests</li>
+        <li><code>test:e2e:p0</code> — P0 tests only (run on every commit)</li>
+        <li><code>test:e2e:p1</code> — P0 + P1 tests (run on every PR)</li>
+        <li><code>test:api</code> — all API tests</li>
+        <li><code>test:component</code> — component tests (when applicable)</li>
+        <li><code>test:unit</code> — unit tests (backend/fullstack)</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+</body>
+</html>

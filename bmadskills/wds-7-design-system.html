@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2255c;
+    --accent-soft:#e64980;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 18px 22px; margin: 16px 0 24px; overflow-x: auto; border: 1px solid var(--rule); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>WDS · Phase 7 · optional · grows from real specs</span>
+        <span>Skill · wds-7-design-system</span>
+        <span>Agent · Freya (WDS Designer)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Design System <em>· grows from real specs</em></h1>
+    <p class="subtitle">Build and maintain a living component library and design-token system extracted from actual page specifications. The design system grows organically — it is not designed upfront; it emerges from real spec patterns. A non-linear activity menu — Create / Import / View / Edit / Browse — wrapped around an eight-step Create workflow whose key checkpoint is the reuse-vs-extend-vs-create decision.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>wds-7-design-system</dd></div>
+      <div><dt>Menu code</dt><dd>DS</dd></div>
+      <div><dt>Agent</dt><dd>Freya (WDS Designer)</dd></div>
+      <div><dt>Phase</dt><dd>WDS Phase 7 (optional)</dd></div>
+      <div><dt>Output</dt><dd>D-Design-System/components/*.md</dd></div>
+      <div><dt>Activities</dt><dd>C · I · V · E · B</dd></div>
+      <div><dt>Input</dt><dd>Phase 4 specs · Phase 6 assets</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#activity-menu">Activity Menu</a>
+      <a href="#create-workflow">Create Workflow</a>
+      <a href="#browse-features">Browse Features</a>
+      <a href="#tokens">Design Tokens</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-not-upfront">Why Not Design Upfront?</a>
+      <a href="#why-reuse">Why the Reuse Decision?</a>
+      <a href="#why-import">Why Import Exists</a>
+      <a href="#why-living">Why a Living System?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#workflows">Sub-Workflows</a>
+      <a href="#workflow-create" class="toc-sub">Create Component</a>
+      <a href="#workflow-browse" class="toc-sub">Browse Library</a>
+      <a href="#workflow-view" class="toc-sub">View Component</a>
+      <a href="#workflow-edit" class="toc-sub">Edit Component</a>
+      <a href="#workflow-import" class="toc-sub">Import from Spec</a>
+      <a href="#applied-toolkit">Applied Toolkit</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Design System — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>wds-7-design-system</code></dd>
+        <dt>Menu code</dt><dd><span class="menu-codes"><code>DS</code></span> (invoked via <code>/wds-agent-freya-ux</code> → DS, or <code>/wds-7-design-system</code>)</dd>
+        <dt>Role</dt><dd>Living component-library and design-token curator — grows the system organically from real Phase 4 spec patterns rather than designing it upfront.</dd>
+        <dt>Phase</dt><dd>WDS Phase 7 — optional. Runs when a project is large enough that component reuse and token consistency start to matter.</dd>
+        <dt>Inputs</dt><dd>Phase 4 page specifications, Phase 6 visual assets, and any existing component library (brownfield).</dd>
+      </dl>
+
+      <p>This skill builds and maintains a <strong>living component library and design-token system extracted from actual page specifications</strong>. The defining principle is that the design system is <strong>not designed upfront</strong> — it grows organically, emerging from the component patterns that appear in real Phase 4 specs. Components are catalogued as they prove themselves in use, and tokens are extracted from the visual assets the project actually ships.</p>
+
+      <p>Use it once enough page specifications exist for genuine patterns to surface — typically after several Phase 4 pages — or when onboarding a brownfield project that already carries a component library, in which case Freya maps those existing components into the WDS spec format.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Activity Menu -->
+    <section id="activity-menu">
+      <h3 class="skill-heading">
+        <span class="code-name">activities</span>
+        Activity Menu
+        <span class="code-tag">non-linear</span>
+      </h3>
+      <p class="lede">Unlike the earlier phases, Phase 7 is non-linear — you choose an activity rather than walking a fixed flow. Five entry points cover building, importing, previewing, editing, and exploring.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Activity Menu</span>
+          <span class="data-source">wds-7-design-system · non-linear</span>
+        </div>
+        <table>
+          <thead><tr><th>Code</th><th>Activity</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">C</td><td>Create Design System</td><td>Build a new design system from specs.</td></tr>
+            <tr><td class="key-col">I</td><td>Import Design System</td><td>Bring in an existing design system.</td></tr>
+            <tr><td class="key-col">V</td><td>View Components</td><td>Preview selected components at localhost.</td></tr>
+            <tr><td class="key-col">E</td><td>Edit Components</td><td>Open selected components in Figma.</td></tr>
+            <tr><td class="key-col">B</td><td>Browse Design System</td><td>Search and explore tokens and components.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Create Workflow -->
+    <section id="create-workflow">
+      <h3 class="skill-heading">
+        <span class="code-name">steps-c/</span>
+        Create Workflow
+        <span class="code-tag">detailed</span>
+      </h3>
+      <p>The Create activity <code>[C]</code> runs a detailed, ordered workflow. Most of it is analysis — scanning and comparing what already exists — so the system only grows where a genuine new pattern has appeared. Step 6, the reuse decision, is the user checkpoint everything else builds toward.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Create Workflow</span>
+          <span class="data-source">wds-7-design-system · steps-c/</span>
+        </div>
+        <table>
+          <thead><tr><th>Step</th><th>Name</th><th>What Happens</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">1</td><td>Scan Existing Components</td><td>Read all current component files.</td></tr>
+            <tr><td class="key-col">2</td><td>Compare Attributes</td><td>Systematic comparison of component attributes.</td></tr>
+            <tr><td class="key-col">3</td><td>Calculate Similarity</td><td>Identify near-matches and variants.</td></tr>
+            <tr><td class="key-col">4</td><td>Identify Opportunities</td><td>Surface reuse potential.</td></tr>
+            <tr><td class="key-col">5</td><td>Identify Risks</td><td>Flag naming conflicts or style conflicts.</td></tr>
+            <tr><td class="key-col">6</td><td>Present Decision</td><td>Show reuse vs. extend vs. create options to the user — the key checkpoint.</td></tr>
+            <tr><td class="key-col">7</td><td>Execute Decision</td><td>Build or update the component per the user's decision.</td></tr>
+            <tr><td class="key-col">8a–8e</td><td>Initialize &amp; Catalog</td><td>Initialize design system structure, create components, add variants, generate catalog.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Browse Features -->
+    <section id="browse-features">
+      <h3 class="skill-heading">
+        <span class="code-name">steps-b/</span>
+        Browse Design System Features
+      </h3>
+      <p>The Browse activity <code>[B]</code> turns the system into something you can interrogate — by token, by relationship, by intent, or by component.</p>
+
+      <ul class="step-detail">
+        <li><strong class="label">Token Explorer</strong>Filterable and sortable view of all design tokens.</li>
+        <li><strong class="label">Relationship Viewer</strong>Visualize how tokens connect — color → semantic token → component.</li>
+        <li><strong class="label">Intent Search</strong>Natural-language search: "I need a shadow for cards" returns the relevant tokens.</li>
+        <li><strong class="label">Component Catalog</strong>Browse components with previews and state variations.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Design Tokens -->
+    <section id="tokens">
+      <h3 class="skill-heading">
+        <span class="code-name">design-tokens.md</span>
+        Design Tokens Structure
+      </h3>
+      <p>Tokens are extracted from the visual assets the project actually produces and written to <code>D-Design-System/design-tokens.md</code>. They group into color, spacing, and typography families.</p>
+
+      <pre class="code-block">## Color Tokens
+- brand-primary: #HEXVAL
+- brand-secondary: #HEXVAL
+- surface-base: #HEXVAL
+- text-primary: #HEXVAL
+
+## Spacing Tokens
+- space-xs: 4px
+- space-sm: 8px
+- space-md: 16px
+
+## Typography Tokens
+- font-heading: [font name], [weight], [size range]
+- font-body: [font name], [weight], [size range]</pre>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-not-upfront">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why a Design System? — <em>The reasoning behind each design choice</em>
+      </h2>
+
+      <h3 class="skill-heading">
+        <span class="code-name">why-not-upfront</span>
+        Why Not Design the System Upfront?
+      </h3>
+      <p>A design system designed before any pages exist is a system of guesses. Premature abstraction creates tokens and components that don't map to the real UI — they have to be reworked or quietly ignored once actual screens appear. WDS instead builds the system from the patterns that emerge in Phase 4 specifications: a component earns its place in the library only after it has proven itself across real pages. The system is always a description of what the product actually uses, never a speculation about what it might.</p>
+
+      <h3 class="skill-heading" id="why-reuse">
+        <span class="code-name">why-reuse-decision</span>
+        Why the Reuse Decision Is the Most Important Checkpoint
+      </h3>
+      <p>Step 6 — Present Decision — is where the human stays in the loop. Steps 1–5 do the analysis: scan, compare, score similarity, surface opportunities, and flag risks. But the call between <strong>reuse</strong>, <strong>extend</strong>, and <strong>create</strong> is a judgment about the product's coherence, not a mechanical one. Freya presents each option with its trade-offs and lets you decide. Reuse keeps the system tight but can force-fit a pattern; extending adds a variant but grows the surface; creating is clean but risks duplication. This is the decision worth investing time in — everything after it just executes the choice.</p>
+
+      <h3 class="skill-heading" id="why-import">
+        <span class="code-name">why-import-exists</span>
+        Why Import [I] Exists
+      </h3>
+      <p>Not every project starts from a blank library. When you join a brownfield project that already has a component library, rebuilding it from scratch would throw away working, tested UI. Import handles this: Freya maps the existing components into the WDS spec format so they live alongside spec-derived components under one catalog and token vocabulary — bringing the legacy system into the WDS pipeline rather than competing with it.</p>
+
+      <h3 class="skill-heading" id="why-living">
+        <span class="code-name">why-living-system</span>
+        Why a Living System Beats a Static One
+      </h3>
+      <p>A static design system is correct on the day it ships and drifts from reality every day after. Because the WDS system grows organically from real specs and assets, it stays in sync with the product as the product changes — new patterns get catalogued, conflicts get flagged at the moment of creation, and tokens trace back to the assets that defined them. The Browse activity makes that living state explorable, so the system remains a source of truth rather than a document nobody trusts.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="workflows">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Sub-Workflows — <em>How each activity works, step by step</em>
+      </h2>
+
+      <p class="lede">Phase 7 routes to one of five dedicated workflow files depending on which activity you choose. Each workflow is self-contained — it reads design log state, executes its steps, and returns you to the Activity Menu. Below is a comprehensive reference for all five.</p>
+
+      <!-- ── workflow-create ──────────────────────── -->
+      <h3 class="skill-heading" id="workflow-create">
+        <span class="code-name">workflow-create.md</span>
+        Create Component
+        <span class="code-tag">11 steps</span>
+      </h3>
+      <p>Builds a new design system from scratch or adds new components to an existing one with automatic duplicate detection. Before writing a single component file, Freya runs a full similarity analysis — scanning, comparing, scoring, surfacing opportunities, and flagging risks — so the Step 6 reuse decision is backed by data, not guesswork. Entry routing skips the duplicate-detection phase when the design system is empty or when the required operation is already known.</p>
+
+      <h4 class="step-heading">Step 1 · Initialize Design System</h4>
+      <p>Runs only when no design system exists yet. Creates the <code>D-Design-System/</code> folder structure, writes placeholder token and config files, and sets up the component index. After initialization the workflow continues to Step 3 for the first component. Executed via <code>step-08a-initialize-design-system.md</code>.</p>
+
+      <h4 class="step-heading">Step 2a · Scan Existing Components</h4>
+      <p>Reads every file in <code>D-Design-System/components/</code>, extracts component metadata (ID, variants, states, key styling attributes, usage count), and builds a candidate list filtered by matching component type. If no matches are found the workflow routes directly to <code>step-08b-create-new-component.md</code>; if the library is empty, to <code>step-08a-initialize-design-system.md</code>.</p>
+
+      <h4 class="step-heading">Step 2b · Compare Attributes</h4>
+      <p>Runs a systematic four-dimension comparison of the incoming component specification against each candidate: visual attributes (size, shape, color, typography, spacing, borders), functional attributes (purpose, user action, input/output type), behavioral attributes (states, interactions, animations, keyboard, accessibility), and contextual attributes (usage pattern, frequency, journey stage). Each dimension is scored High / Medium / Low and produces a structured diff.</p>
+
+      <h4 class="step-heading">Step 2c · Calculate Similarity</h4>
+      <p>Applies a weighted formula — Visual 30%, Functional 30%, Behavioral 25%, Contextual 15% — to derive an overall similarity percentage. Maps the result to one of six levels: Identical (95–100%), Very High (80–94%), High (65–79%), Medium (45–64%), Low (20–44%), or No Similarity (&lt;20%). Generates an initial recommendation and highlights the key decision factors that will most influence the Step 6 choice.</p>
+
+      <h4 class="step-heading">Step 2d · Identify Opportunities</h4>
+      <p>For each of the three decision paths — Reuse, Add Variant, Create New — enumerates the concrete benefits: consistency and maintenance gains for reuse; flexibility and scalability gains for variants; semantic clarity and independence gains for new components. Weighs these against project context (design system maturity, team size, timeline) and surfaces the strongest opportunities per path.</p>
+
+      <h4 class="step-heading">Step 2e · Identify Risks</h4>
+      <p>Mirrors the opportunity analysis with a risk assessment: loss of semantic distinction and developer confusion for reuse; complexity growth and variant explosion for adding variants; visual inconsistency and component proliferation for creating new. Assigns severity (Low / Medium / High) to each risk, identifies deal-breakers, and proposes mitigation strategies where applicable.</p>
+
+      <h4 class="step-heading">Step 2f · Present Decision</h4>
+      <p>Consolidates the full analysis into a structured decision panel: context summary, the three options with trade-off comparison table, a detailed analysis block for each option, and Freya's AI recommendation with reasoning. The user selects Reuse / Add Variant / Create New — or requests more information. This is the key human checkpoint; everything after it executes the chosen path.</p>
+
+      <h4 class="step-heading">Step 2g · Execute Decision</h4>
+      <p>Routes to the appropriate component operation based on the Step 6 choice. <strong>Reuse:</strong> extracts page-specific content, creates a reference to the existing component, and increments its usage count. <strong>Add Variant:</strong> updates the component definition with variant-specific styling and states, tracks variant usage, and logs the change to version history. <strong>Create New:</strong> generates a unique component ID, extracts visual/behavioral/functional attributes, creates the component file from template, and updates the component index.</p>
+
+      <h4 class="step-heading">Step 3a · Initialize Design System (8a)</h4>
+      <p>Creates the design system folder structure, token-category placeholders, mode-specific files (Figma mappings for custom mode, component-library config for library mode), and the component index. Runs once per project — subsequent components skip this step.</p>
+
+      <h4 class="step-heading">Step 3b · Create New Component (8b)</h4>
+      <p>Generates a unique component ID using type-prefix convention (e.g., <code>btn-003</code>), categorizes the component (Interactive / Form / Layout / Content / Feedback / Navigation), extracts all attributes from the spec, populates the full component template, updates the component index, and generates a component reference for use in page specs.</p>
+
+      <h4 class="step-heading">Step 3c · Update Component (8c)</h4>
+      <p>Handles additive or modifying changes to an existing component — new states, styling updates, behavior changes, accessibility improvements, documentation clarifications, or structural refactors. Analyzes breaking-change impact, requires confirmation for destructive changes, applies the update, increments version history, and notifies affected pages. Generates a migration checklist for breaking changes.</p>
+
+      <h4 class="step-heading">Step 3d · Add Variant (8d)</h4>
+      <p>Loads the existing component, extracts what is shared vs. variant-specific, confirms or generates the variant name, appends the variant to the component definition with its styling and state overrides, tracks usage, checks for variant explosion (warn at 3+, review at 5+), and updates version history. Returns a component reference specifying the new variant.</p>
+
+      <h4 class="step-heading">Step 3e · Generate Catalog (8e)</h4>
+      <p>Reads all component files and the design-tokens file, then generates <code>D-Design-System/catalog.html</code> — an interactive HTML page with fixed sidebar navigation, component showcases (all variants + states with live toggle demos), design token swatches (color, typography, spacing), code examples, usage guidelines, Figma links (custom mode), and a full changelog built from component version histories. Regenerated automatically after every component change.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── workflow-browse ─────────────────────── -->
+      <h3 class="skill-heading" id="workflow-browse">
+        <span class="code-name">workflow-browse.md</span>
+        Browse Library
+        <span class="code-tag">4 steps</span>
+      </h3>
+      <p>Generates and serves a disposable localhost application for exploring the design system in full — tokens, components, relationships, and natural-language intent search. The app is built fresh from the current data each time, so it always reflects the latest state. Any changes the user identifies while browsing are logged and routed to the appropriate activity on exit.</p>
+
+      <h4 class="step-heading">Step 1 · Load Design System Data</h4>
+      <p>Reads all design system files: <code>design-tokens.md</code>, every component file in <code>components/*.md</code>, and <code>component-library-config.md</code>. Parses the data into structured form — tokens with categories, components with dependency lists, and a relationship graph linking tokens to the components that reference them.</p>
+
+      <h4 class="step-heading">Step 2 · Generate Browser Application</h4>
+      <p>Builds a single-page app with four views. <strong>Token Explorer:</strong> an Airtable-style table filterable by category and sortable by name or value, with a live preview column (color swatches, spacing bars, rendered typography). <strong>Component Catalog:</strong> a grid of all components with thumbnail previews, expandable detail showing all variants and token dependencies, and category filters. <strong>Relationship Viewer:</strong> an interactive graph where clicking a component highlights its token chain and clicking a token highlights every component that references it. <strong>Intent Search:</strong> natural-language input ("I need a background for warning messages") matched against token names, descriptions, categories, and usage context — results include live previews and copy-ready token names.</p>
+
+      <h4 class="step-heading">Step 3 · Serve and Interact</h4>
+      <p>Starts the localhost server and presents the four URL paths (<code>/tokens</code>, <code>/components</code>, <code>/graph</code>, <code>/search</code>). The user browses freely; Freya remains available to answer questions about what they find. The server stays running until the user signals exit.</p>
+
+      <h4 class="step-heading">Step 4 · Capture Actions</h4>
+      <p>If the user identifies changes while browsing (rename a token, add a variant, fix an inconsistency), each item is logged with component name, description, and severity. On exit the action list is presented and routed to the appropriate activity: Create [C], Edit [E], or View [V]. The generated app is discarded after the session; the design system source files are unchanged.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── workflow-view ───────────────────────── -->
+      <h3 class="skill-heading" id="workflow-view">
+        <span class="code-name">workflow-view.md</span>
+        View Component
+        <span class="code-tag">4 steps</span>
+      </h3>
+      <p>Renders selected components in a focused localhost preview so the user can inspect them visually with all states and variants side by side. Lighter than Browse — no relationship graph or token explorer — just a clean per-component showcase. Any feedback captured routes to Edit [E] or Create [C] for follow-up.</p>
+
+      <h4 class="step-heading">Step 1 · Select Components</h4>
+      <p>Presents the component catalog as a numbered list with variant counts. The user selects components to preview by number, comma-separated, or "all". The selection drives which component files are loaded in the next step.</p>
+
+      <h4 class="step-heading">Step 2 · Generate Preview App</h4>
+      <p>Reads the selected component specs and the design-tokens file, then generates a minimal HTML/CSS localhost app that renders each component with: all variants displayed side by side, all interactive states (default, hover, active, disabled, focus), responsive breakpoint switching, and dark/light mode if defined in the tokens. The app is served immediately.</p>
+
+      <h4 class="step-heading">Step 3 · Interactive Review</h4>
+      <p>With the preview running, the user inspects components visually. If changes are needed, the user can request them inline — Freya routes to Edit [E] for Figma-based changes or Create [C] (update path) for spec-level changes. Issues can also be flagged for later without blocking the preview session.</p>
+
+      <h4 class="step-heading">Step 4 · Capture Feedback</h4>
+      <p>Any issues or desired changes noted during review are logged — component name, issue description, severity — and a next-action suggestion is offered: edit in Figma, update via Create, or defer. The localhost server is stopped and the design log updated before returning to the Activity Menu.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── workflow-edit ───────────────────────── -->
+      <h3 class="skill-heading" id="workflow-edit">
+        <span class="code-name">workflow-edit.md</span>
+        Edit Component
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Opens selected components in Figma for visual editing, then syncs approved changes back to the WDS design system files. Requires Figma MCP integration or a file export/import round-trip. Changes are diffed against current WDS specs and presented for approval before any files are updated, ensuring the code remains the source of truth.</p>
+
+      <h4 class="step-heading">Step 1 · Select Components</h4>
+      <p>Presents the current component catalog and asks the user to choose which components to edit in Figma. Multiple components can be selected; each is prepared independently in the next step.</p>
+
+      <h4 class="step-heading">Step 2 · Prepare for Figma</h4>
+      <p>For each selected component, reads the current spec and associated design tokens, generates or updates the Figma-compatible representation, and pushes it to Figma via MCP integration (or provides an export file). Confirms that the Figma file is open and ready before pausing for user edits.</p>
+
+      <h4 class="step-heading">Step 3 · User Edits in Figma</h4>
+      <p>Pauses the workflow and waits for the user to make changes in Figma. Freya holds until the user signals completion — this is an explicit human-in-the-loop pause, not a timeout.</p>
+
+      <h4 class="step-heading">Step 4 · Sync Changes Back</h4>
+      <p>Reads updated component data from Figma (via MCP or user export), diffs it against the current WDS specifications, and presents the delta for approval: token values changed, new variants added, properties modified. Only approved changes are written back to the WDS design system files.</p>
+
+      <h4 class="step-heading">Step 5 · Validate Sync</h4>
+      <p>Runs a consistency check on the applied changes: verifies that altered tokens do not break other components that reference them, that all variants are complete, and that naming conventions are maintained. Reports any issues for resolution before marking the edit workflow complete. Catalog generation is then suggested to reflect the updates.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── workflow-import ─────────────────────── -->
+      <h3 class="skill-heading" id="workflow-import">
+        <span class="code-name">workflow-import.md</span>
+        Import from Spec
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Brings an existing design system — from a URL, file export, Figma project, or codebase — into the WDS format. Used for brownfield projects that already have a component library. Freya extracts tokens and components from the source, maps them into WDS spec format, and runs a validation pass to ensure consistency before the import is finalized. After import, the Browse activity is the recommended next step to explore what was brought in.</p>
+
+      <h4 class="step-heading">Step 1 · Identify Source</h4>
+      <p>Asks the user for the design system source: a public URL (e.g., Material UI, Chakra UI, or custom documentation), an exported tokens file (JSON, CSS custom properties, or SCSS variables), a Figma design system file (via Figma MCP or export), or an existing codebase with a component library. The source type determines which extraction path is used in Step 2.</p>
+
+      <h4 class="step-heading">Step 2 · Extract Tokens</h4>
+      <p>Reads the source and extracts design tokens across all categories: colors (primary, secondary, semantic, neutrals), typography (font families, sizes, weights, line heights), spacing (scale values, named tokens), shadows (elevation levels), borders (radius, border styles), breakpoints (responsive breakpoints), and motion (transition durations, easing curves). Extracted tokens are presented to the user for review; ambiguous mappings are flagged for clarification.</p>
+
+      <h4 class="step-heading">Step 3 · Extract Components</h4>
+      <p>Identifies reusable components from the source — lists all found components, maps each to the WDS component template format (name, props/variants, token dependencies), and flags components that do not map cleanly. The full component list is presented for user approval before any files are written.</p>
+
+      <h4 class="step-heading">Step 4 · Generate Design System Files</h4>
+      <p>Creates the complete WDS design system file structure: <code>design-tokens.md</code> with all extracted tokens in WDS format, one <code>components/*.md</code> file per component, and <code>component-library-config.md</code> with configuration and metadata. Files are written only after user approval of the extracted token and component lists.</p>
+
+      <h4 class="step-heading">Step 5 · Validate Import</h4>
+      <p>Runs a full validation pass: checks that all tokens referenced by components exist, that no orphaned tokens remain (defined but never referenced by any component), that naming conventions are consistent throughout, and that all component variants are complete. Presents a validation report and allows issues to be fixed interactively before the import is considered finalized.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="applied-toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Applied Toolkit</span>
+          <span class="data-source">wds-7-design-system</span>
+        </div>
+        <table>
+          <thead><tr><th>Category</th><th>Items</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Skill</td><td><code>wds-7-design-system</code></td></tr>
+            <tr><td class="key-col">Agent</td><td>Freya — WDS Designer</td></tr>
+            <tr><td class="key-col">Output</td><td><code>D-Design-System/components/*.md</code> · <code>design-tokens.md</code> · <code>component-library-config.md</code></td></tr>
+            <tr><td class="key-col">Activities</td><td>C (Create) · I (Import) · V (View) · E (Edit) · B (Browse)</td></tr>
+            <tr><td class="key-col">Tools</td><td>localhost preview (View / Browse) · Figma (Edit)</td></tr>
+            <tr><td class="key-col">Inputs</td><td>Phase 4 page specs · Phase 6 visual assets · existing component library (brownfield)</td></tr>
+            <tr><td class="key-col">Workflow files</td><td><code>workflow-create.md</code> · <code>workflow-browse.md</code> · <code>workflow-view.md</code> · <code>workflow-edit.md</code> · <code>workflow-import.md</code></td></tr>
+            <tr><td class="key-col">Step files</td><td><code>steps-c/step-01</code> through <code>step-08e</code> (11 step files for Create)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>

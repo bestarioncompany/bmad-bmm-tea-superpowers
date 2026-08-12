@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Design &amp; Risk Assessment — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 160px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Risk score colors ────────────────────────── */
+  .risk-high { background: #fee2e2; color: #991b1b; font-weight: 700; text-align: center; }
+  .risk-med  { background: #fef3c7; color: #92400e; font-weight: 700; text-align: center; }
+  .risk-low  { background: #dcfce7; color: #166534; font-weight: 700; text-align: center; }
+
+  /* ── Priority badges ──────────────────────────── */
+  .p-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; padding: 2px 8px; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+  .p0 { background: #1a1612; color: #f4ede0; }
+  .p1 { background: #c2410c; color: #f4ede0; }
+  .p2 { background: var(--highlight); color: var(--ink); border: 1px solid #ca8a04; }
+  .p3 { background: var(--paper-warm); color: var(--ink-mute); border: 1px solid rgba(42,34,26,.3); }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li { padding: 6px 0 6px 24px; position: relative; font-size: 0.875rem; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.5; }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: '□'; position: absolute; left: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-mute); }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad TEA · Test Architecture Enterprise</span>
+        <span>Skill · bmad-testarch-test-design</span>
+        <span>Module · tea-skills</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Test Design &amp; Risk Assessment <em>· Master Architect</em></h1>
+    <p class="subtitle">Produce system-level or epic-level test plans grounded in risk scoring, testability assessment, and coverage prioritisation. Generates two output documents for system-level mode and a single test plan for epic-level mode.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-testarch-test-design</dd></div>
+      <div><dt>Menu code</dt><dd>TD</dd></div>
+      <div><dt>Input</dt><dd>PRD + Architecture (system-level) or Epic (epic-level)</dd></div>
+      <div><dt>Trigger</dt><dd>"lets design test plan" / "I want to create test strategy"</dd></div>
+      <div><dt>Agent</dt><dd>Murat (Test Architect)</dd></div>
+      <div><dt>Modes</dt><dd>System-Level · Epic-Level</dd></div>
+      <div><dt>Risk scoring</dt><dd>P × I · 1–9 scale</dd></div>
+      <div><dt>Priority</dt><dd>P0 · P1 · P2 · P3</dd></div>
+      <div><dt>Resumable</dt><dd>Yes · progress persisted</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#design-modes">Two Design Modes</a>
+      <a href="#system-level" class="toc-sub">System-Level (Phase 3)</a>
+      <a href="#epic-level" class="toc-sub">Epic-Level (Phase 4)</a>
+      <a href="#knowledge-base">Knowledge Base</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-design">Why Test Design?</a>
+      <a href="#risk">Risk Framework (6 Categories)</a>
+      <a href="#risk-scoring" class="toc-sub">P × I Scoring Matrix</a>
+      <a href="#priority">Priority System P0–P3</a>
+      <a href="#when-to-use">When to Use</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#activation">Activation &amp; Modes (C/R/V/E)</a>
+
+      <a href="#steps-c">Workflow Steps (5 Steps)</a>
+      <a href="#steps-e" class="toc-sub">Edit Mode</a>
+      <a href="#steps-v" class="toc-sub">Validate Mode</a>
+      <a href="#test-levels" class="toc-sub">Test Levels</a>
+      <a href="#execution-strategy" class="toc-sub">Execution Strategy</a>
+      <a href="#estimates" class="toc-sub">Resource Estimates</a>
+      <a href="#outputs">Output Documents</a>
+      <a href="#arch-doc" class="toc-sub">Architecture Doc</a>
+      <a href="#qa-doc" class="toc-sub">QA Doc</a>
+      <a href="#handoff-doc" class="toc-sub">BMAD Handoff Doc</a>
+      <a href="#epic-doc" class="toc-sub">Epic-Level Doc</a>
+      <a href="#quality">Quality Gates &amp; Checklist</a>
+
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT — What is this Skill?
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Test Design &amp; Risk Assessment — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-testarch-test-design</code></dd>
+        <dt>Menu code</dt><dd><span class="menu-codes"><code>TD</code></span></dd>
+        <dt>Role</dt><dd>Master Test Architect — produces evidence-based test plans grounded in risk, not guesswork.</dd>
+        <dt>Two design modes</dt><dd><strong>System-Level</strong> (Phase 3) — testability review of architecture, generates 2 docs + handoff. <strong>Epic-Level</strong> (Phase 4) — per-epic test plan with coverage matrix and resource estimates.</dd>
+        <dt>Risk framework</dt><dd>6 categories (TECH / SEC / PERF / DATA / BUS / OPS) · P×I scoring 1–9 · Score ≥ 6 = mandatory mitigation with owner &amp; timeline.</dd>
+
+      </dl>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Two Design Modes -->
+    <section id="design-modes">
+      <h3 class="skill-heading">
+        <span class="code-name">design-modes</span>
+        Two Design Modes
+      </h3>
+      <p class="lede">The skill auto-detects which mode to run based on available inputs. Both modes share the same 5-step workflow but differ in inputs, outputs, and scope.</p>
+
+      <div class="mode-grid" id="system-level">
+        <div class="mode-card">
+          <span class="mode-phase">Phase 3</span>
+          <div class="mode-name">System-Level Mode</div>
+          <div class="mode-trigger">Testability review of architecture before solutioning gate</div>
+          <div class="mode-requires">Required inputs</div>
+          <ul>
+            <li>PRD (functional + non-functional requirements)</li>
+            <li>ADR (Architecture Decision Records)</li>
+            <li>Architecture / tech-spec document</li>
+          </ul>
+          <div class="mode-requires">What it produces</div>
+          <ul>
+            <li>Testability review (Controllability · Observability · Reliability)</li>
+            <li>ASRs (Actionable + FYI classification)</li>
+            <li>Full risk register with mitigation plans</li>
+            <li>Architecture doc (concerns-focused, 150–200 lines)</li>
+            <li>QA doc (execution recipe, coverage plan)</li>
+            <li>BMAD handoff document (bridges to epic decomposition)</li>
+          </ul>
+          <div class="mode-outputs">
+            <strong>Output files</strong>
+            test-design-architecture.md<br>
+            test-design-qa.md<br>
+            test-design/{project}-handoff.md
+          </div>
+        </div>
+        <div class="mode-card" id="epic-level">
+          <span class="mode-phase">Phase 4</span>
+          <div class="mode-name">Epic-Level Mode</div>
+          <div class="mode-trigger">Per-epic test planning with risk assessment and coverage matrix</div>
+          <div class="mode-requires">Required inputs</div>
+          <ul>
+            <li>Epic + Stories with acceptance criteria</li>
+            <li>Architecture context (optional but helpful)</li>
+            <li>Prior system-level outputs (if available)</li>
+          </ul>
+          <div class="mode-requires">What it produces</div>
+          <ul>
+            <li>Risk assessment for the epic scope</li>
+            <li>Test coverage matrix (atomic scenarios)</li>
+            <li>P0–P3 priority assignments</li>
+            <li>Execution strategy (PR / Nightly / Weekly)</li>
+            <li>Resource estimates (ranges, not exact numbers)</li>
+            <li>Quality gate thresholds</li>
+          </ul>
+          <div class="mode-outputs">
+            <strong>Output file</strong>
+            test-design-epic-{epic_num}.md
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY — Why use this Skill?
+         ══════════════════════════════════════════════ -->
+    <section id="why-design">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Test Design &amp; Risk Assessment?
+      </h2>
+
+      <p class="lede">Without a test design, teams test what developers happen to think of — missing high-risk paths, duplicating effort across levels, and discovering architecture testability gaps only after implementation has started.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Without Test Design</th>
+            <th>With Test Design (TD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Risk visibility</td>
+            <td>Risks discovered when they cause production failures</td>
+            <td>6-category risk register with P×I scores before implementation begins</td>
+          </tr>
+          <tr>
+            <td>Test scope</td>
+            <td>Whatever developers and QA think of — ad-hoc, incomplete</td>
+            <td>P0–P3 priority matrix tied to risk scores; every requirement decomposed into atomic scenarios</td>
+          </tr>
+          <tr>
+            <td>Architecture gaps</td>
+            <td>Testability problems (no observability, shared state, tight coupling) found during testing</td>
+            <td>Testability review (Controllability / Observability / Reliability) before the implementation gate</td>
+          </tr>
+          <tr>
+            <td>Test level selection</td>
+            <td>E2E for everything — slow, brittle, expensive CI</td>
+            <td>Right level per scenario: E2E critical paths, API business logic, Unit edge cases. No duplicate coverage.</td>
+          </tr>
+          <tr>
+            <td>Resource planning</td>
+            <td>No estimates, or single-point exact numbers that erode trust when wrong</td>
+            <td>Interval-based effort estimates per priority tier (~25–40 hours); timeline as week ranges</td>
+          </tr>
+          <tr>
+            <td>Cross-team alignment</td>
+            <td>Developers and QA have different understanding of what "tested" means</td>
+            <td>Shared Architecture doc (for Dev/Arch teams) and QA doc (for QA team), both referencing the same risk IDs</td>
+          </tr>
+          <tr>
+            <td>Epic handoff</td>
+            <td>Requirements go straight to development; testing is an afterthought</td>
+            <td>BMAD handoff doc maps P0/P1 risks to epic/story concerns before decomposition starts</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- When to use -->
+    <section id="when-to-use">
+      <h3 class="skill-heading">
+        <span class="code-name">when-to-use</span>
+        When to Use This Skill
+      </h3>
+
+      <ul class="step-detail">
+        <li><strong class="label">Phrase 1</strong>"lets design test plan" / "I want to design test plan"</li>
+        <li><strong class="label">Phrase 2</strong>"I want to create test strategy" / "create test strategy"</li>
+        <li><strong class="label">Phrase 3</strong>"run test design" / "test design for this epic"</li>
+        <li><strong class="label">Phase 3</strong>After PRD + ADR are ready, before implementation starts → System-Level mode</li>
+        <li><strong class="label">Phase 4</strong>After an epic is decomposed into stories → Epic-Level mode</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW — How to Execute
+         ══════════════════════════════════════════════ -->
+    <section id="activation">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        How to Activate &amp; Execute
+      </h2>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Four Operating Modes</span>
+          <span class="data-source">SKILL.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Code</th><th>Name</th><th>Entry point</th><th>Use when</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><code>C</code></td>
+              <td><strong>Create</strong></td>
+              <td><code>steps-c/step-01-detect-mode.md</code></td>
+              <td>Starting a fresh test design run — auto-detects System-Level vs Epic-Level</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>R</code></td>
+              <td><strong>Resume</strong></td>
+              <td><code>steps-c/step-01b-resume.md</code></td>
+              <td>Continuing an interrupted run — reads <code>workflowStatus</code>, <code>nextStep</code> from progress file</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>V</code></td>
+              <td><strong>Validate</strong></td>
+              <td><code>steps-v/step-01-validate.md</code></td>
+              <td>Auditing existing test design output(s) against the full checklist</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>E</code></td>
+              <td><strong>Edit</strong></td>
+              <td><code>steps-e/step-01-assess.md</code></td>
+              <td>Revising a specific section of an existing test design document</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Workflow Steps -->
+    <section id="steps-c">
+      <h3 class="skill-heading">
+        <span class="code-name">steps-c</span>
+        Create Mode — 5 Steps
+        <span class="code-tag">primary</span>
+      </h3>
+      <p class="lede">Five steps loaded just-in-time. Outputs are written at each step and accumulated into the final document(s). Progress is persisted so interrupted runs can be resumed.</p>
+
+      <h4 class="step-heading">step-01 · Detect Mode &amp; Prerequisites</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-01-detect-mode.md</code></li>
+        <li><strong class="label">Goal</strong>Determine System-Level vs Epic-Level mode and confirm required inputs are available.</li>
+        <li><strong class="label">Actions</strong>Mode is resolved in this priority order:
+          <ol style="margin:6px 0 0 0;padding-left:18px;">
+            <li><strong>User intent</strong> — PRD + ADR provided (no epic/stories) → System-Level. Epic + Stories provided (no PRD/ADR) → Epic-Level. Both provided → System-Level first.</li>
+            <li><strong>File scan</strong> — If <code>sprint-status.yaml</code> exists under <code>{implementation_artifacts}/</code> → Epic-Level (BMad-integrated). Otherwise → System-Level.</li>
+            <li><strong>Ask user</strong> — If still unclear, ask: "(A) System-level test design or (B) Epic-level test design?" — halts until user responds.</li>
+          </ol>
+          Then check prerequisites for chosen mode; state which mode will be used and why.
+        </li>
+        <li><strong class="label">Halts if</strong>Required inputs are missing and user cannot provide them — prints specific error message.</li>
+        <li><strong class="label">Progress file</strong>Creates <code>{test_artifacts}/test-design-progress.md</code> with <code>workflowStatus</code>, <code>totalSteps: 5</code>, <code>nextStep</code> frontmatter.</li>
+      </ul>
+
+      <h4 class="step-heading">step-01b · Resume Workflow</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-01b-resume.md</code></li>
+        <li><strong class="label">Goal</strong>Resume an interrupted workflow from the last completed step.</li>
+        <li><strong class="label">Actions</strong>Read progress file frontmatter (<code>workflowStatus</code>, <code>stepsCompleted</code>, <code>nextStep</code>); display progress dashboard; route to the next step.</li>
+        <li><strong class="label">Completed state</strong>If <code>workflowStatus: completed</code>, shows "All steps done. Use V or E." and halts.</li>
+      </ul>
+
+      <h4 class="step-heading">step-02 · Load Context &amp; Knowledge Base</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-02-load-context.md</code></li>
+        <li><strong class="label">Config flags</strong><code>tea_use_playwright_utils</code>, <code>tea_use_pactjs_utils</code>, <code>tea_pact_mcp</code>, <code>tea_browser_automation</code>, <code>test_stack_type</code></li>
+        <li><strong class="label">System-Level</strong>Loads: PRD, ADRs, architecture doc, epics (for scope). Extracts: tech stack, integration points, NFRs.</li>
+        <li><strong class="label">Epic-Level</strong>Loads: epic + stories, PRD (optional), prior test-design outputs. Scans repo for existing tests and coverage gaps.</li>
+        <li><strong class="label">Knowledge</strong>Core tier always loaded. Extended on-demand. Specialized only when relevant (e.g. Pact.js for microservices). 40–50% context saving vs full load.</li>
+        <li><strong class="label">Browser</strong>If <code>tea_browser_automation: cli</code> or <code>auto</code>, uses Playwright CLI to explore the running app and capture screenshots under <code>{test_artifacts}/exploration/</code>.</li>
+      </ul>
+
+      <div class="data-callout" id="knowledge-base">
+        <div class="data-head">
+          <span class="data-label">Knowledge Base — Tiered Loading Detail</span>
+          <span class="data-source">tea-index.csv · step-02-load-context.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Tier</th><th>Config condition</th><th>Fragments loaded</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Core<br><small style="font-size:10px;color:var(--ink-mute);font-weight:400;">System-Level</small></td>
+              <td>Always (Phase 3 mode)</td>
+              <td><code>risk-governance</code> · <code>test-levels-framework</code> · <code>test-quality</code> · <code>adr-quality-readiness-checklist</code> · <code>nfr-criteria</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Core<br><small style="font-size:10px;color:var(--ink-mute);font-weight:400;">Epic-Level</small></td>
+              <td>Always (Phase 4 mode)</td>
+              <td><code>risk-governance</code> · <code>probability-impact</code> · <code>test-levels-framework</code> · <code>test-priorities-matrix</code> · <code>nfr-criteria</code> <em style="font-size:11px;">(when security / perf / compliance in scope)</em></td>
+            </tr>
+            <tr>
+              <td class="key-col">Playwright Utils<br><small style="font-size:10px;color:var(--ink-mute);font-weight:400;">API-only profile</small></td>
+              <td><code>tea_use_playwright_utils: true</code> + backend stack detected</td>
+              <td><code>overview</code> · <code>api-request</code> · <code>auth-session</code> · <code>recurse</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Playwright Utils<br><small style="font-size:10px;color:var(--ink-mute);font-weight:400;">Full UI+API profile</small></td>
+              <td><code>tea_use_playwright_utils: true</code> + frontend / fullstack detected</td>
+              <td><code>overview</code> · <code>api-request</code> · <code>auth-session</code> · <code>recurse</code> · <code>network-recorder</code> · <code>intercept-network-call</code> · <code>log</code> · <code>file-utils</code> · <code>burn-in</code> · <code>selector-resilience</code> · <code>fixtures-composition</code> · <code>network-error-monitor</code> + timing/visual fragments (~4,500 lines)</td>
+            </tr>
+            <tr>
+              <td class="key-col">Pact.js Utils</td>
+              <td><code>tea_use_pactjs_utils: true</code> (any stack)</td>
+              <td><code>pactjs-utils-overview</code> · <code>pactjs-utils-consumer-helpers</code> · <code>pactjs-utils-provider-verifier</code> · <code>pactjs-utils-request-filter</code> · <code>pact-consumer-di</code> · <code>pact-consumer-framework-setup</code> · <code>pact-broker-webhooks</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Pact MCP</td>
+              <td><code>tea_pact_mcp: mcp</code></td>
+              <td><code>pact-mcp</code> — enables SmartBear PactFlow MCP integration (generate tests, can-i-deploy, provider states)</td>
+            </tr>
+            <tr>
+              <td class="key-col">Browser CLI</td>
+              <td><code>tea_browser_automation: cli</code> or <code>auto</code></td>
+              <td><code>playwright-cli</code> — live app exploration, screenshot capture under <code>{test_artifacts}/exploration/</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 class="step-heading">step-03 · Testability &amp; Risk Assessment</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-03-risk-and-testability.md</code></li>
+        <li><strong class="label">Testability review</strong>System-Level only. Evaluates 3 dimensions: <strong>Controllability</strong> (state seeding, mockability, fault injection), <strong>Observability</strong> (logs, metrics, traces), <strong>Reliability</strong> (isolation, reproducibility, parallel safety). Output: 🚨 ACTIONABLE CONCERNS first, then ✅ Assessment Summary.</li>
+        <li><strong class="label">Risk assessment</strong>All modes. Identify real risks (not features). Classify by 6 categories. Score P × I. Flag high risks (≥ 6). Define mitigation, owner, timeline.</li>
+        <li><strong class="label">ASRs</strong>Architecturally Significant Requirements — each marked ACTIONABLE (must decide) or FYI (no decision needed).</li>
+      </ul>
+
+      <div class="data-callout" style="margin-top:16px;">
+        <div class="data-head">
+          <span class="data-label">How to Assess Testability — 3 Steps</span>
+          <span class="data-source">adr-quality-readiness-checklist.md · System-Level only</span>
+        </div>
+        <ul class="step-detail" style="margin:0; padding: 12px 16px;">
+          <li><strong class="label">① Read artifacts</strong>Read <code>tech-spec.md</code>, <code>PRD.md</code>, and architecture/ADR docs to understand what the system does and how it is designed. You need enough context to answer "does this exist?"</li>
+          <li><strong class="label">② Score all 29 criteria</strong>Go through all 8 ADR categories (29 criteria). For each criterion, mark one of three statuses based on what the artifacts say:
+            <ul style="margin-top:8px; list-style:none; padding:0;">
+              <li style="padding: 3px 0 3px 0;"><code>✅ Covered</code> — artifact confirms it exists</li>
+              <li style="padding: 3px 0 3px 0;"><code>⚠️ Gap</code> — artifact does not mention it, or explicitly shows it is missing</li>
+              <li style="padding: 3px 0 3px 0;"><code>⬜ Not Assessed</code> — not enough information to conclude</li>
+            </ul>
+          </li>
+          <li><strong class="label">③ Classify each ⚠️ Gap</strong>For every gap, ask one question: <em>"If this is missing, will QA be blocked from writing or running tests?"</em>
+            <ul style="margin-top:8px; list-style:none; padding:0;">
+              <li style="padding: 3px 0 3px 0;"><strong>Yes → 🚨 ACTIONABLE</strong> — must be fixed before testing begins. Record: Concern · Impact · What architecture must provide · Owner · Timeline.</li>
+              <li style="padding: 3px 0 3px 0;"><strong>No → ✅ FYI</strong> — note it, no immediate action required.</li>
+            </ul>
+          </li>
+        </ul>
+        <div style="padding: 0 16px 12px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;">All 8 Categories and Their Criteria</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+
+            <div style="border:1px solid var(--rule-soft);padding:12px 14px;">
+              <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Category 1</div>
+              <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;">Testability</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">4 criteria</div>
+              <ul style="margin:0;padding:0;list-style:none;">
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Components can be tested in isolation</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Test environment is separated from production</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– External dependencies can be mocked or stubbed</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;">– Test data can be provisioned programmatically</li>
+              </ul>
+            </div>
+
+            <div style="border:1px solid var(--rule-soft);padding:12px 14px;">
+              <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Category 2</div>
+              <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;">Data Strategy</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">3 criteria</div>
+              <ul style="margin:0;padding:0;list-style:none;">
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Test data is isolated from production data</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Data factories exist for all major entities</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;">– No shared mutable state between parallel test workers</li>
+              </ul>
+            </div>
+
+            <div style="border:1px solid var(--rule-soft);padding:12px 14px;">
+              <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Category 3</div>
+              <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;">Scalability</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">4 criteria</div>
+              <ul style="margin:0;padding:0;list-style:none;">
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– NFR thresholds are defined (latency, throughput, error rate)</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Load testing has been run at projected peak volume</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Auto-scaling rules are defined and tested</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;">– Database connection pooling is configured correctly</li>
+              </ul>
+            </div>
+
+            <div style="border:1px solid var(--rule-soft);padding:12px 14px;">
+              <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Category 4</div>
+              <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;">Disaster Recovery</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">3 criteria</div>
+              <ul style="margin:0;padding:0;list-style:none;">
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– RTO and RPO targets are defined and documented</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Backup restore procedure has been tested</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;">– Rollback procedure exists and has been dry-run</li>
+              </ul>
+            </div>
+
+            <div style="border:1px solid var(--rule-soft);padding:12px 14px;">
+              <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Category 5</div>
+              <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;">Security</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">4 criteria</div>
+              <ul style="margin:0;padding:0;list-style:none;">
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Authentication mechanism is implemented and tested</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Authorization (RBAC/ABAC) is enforced at all endpoints</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Sensitive data is never logged or returned in error responses</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;">– OWASP Top 10 risks have been addressed</li>
+              </ul>
+            </div>
+
+            <div style="border:1px solid var(--rule-soft);padding:12px 14px;">
+              <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Category 6</div>
+              <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;">Observability</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">4 criteria</div>
+              <ul style="margin:0;padding:0;list-style:none;">
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Structured logging is in place on all services</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Metrics (latency, error rate, throughput) are being collected</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Distributed tracing is implemented (request IDs propagated)</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;">– Alerts are configured for P0 error conditions</li>
+              </ul>
+            </div>
+
+            <div style="border:1px solid var(--rule-soft);padding:12px 14px;">
+              <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Category 7</div>
+              <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;">Quality of Service</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">4 criteria</div>
+              <ul style="margin:0;padding:0;list-style:none;">
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Latency budgets are defined per endpoint</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Rate limiting is implemented and tested</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Circuit breaker or retry logic handles downstream failures</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;">– SLA/SLO targets are documented</li>
+              </ul>
+            </div>
+
+            <div style="border:1px solid var(--rule-soft);padding:12px 14px;">
+              <div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;">Category 8</div>
+              <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;">Deployability</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">3 criteria</div>
+              <ul style="margin:0;padding:0;list-style:none;">
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Zero-downtime deployment is supported</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;border-bottom:1px solid var(--rule-soft);">– Feature flags exist for risky changes (can be turned off post-deploy)</li>
+                <li style="font-size:11px;color:var(--ink-soft);padding:4px 0;">– Deployment pipeline includes automated smoke tests</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="data-callout" style="margin-top:16px;">
+        <div class="data-head">
+          <span class="data-label">Risk Categories</span>
+          <span class="data-source">risk-governance.md · step-03</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Category</th><th>Covers</th><th>Examples</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><code>TECH</code></td>
+              <td>Architecture &amp; integration issues</td>
+              <td>Async race conditions, database migration risk, external API instability, dependency conflicts</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>SEC</code></td>
+              <td>Security vulnerabilities</td>
+              <td>Auth bypass, data exposure, injection attacks, session handling, OWASP Top 10</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>PERF</code></td>
+              <td>Performance &amp; scalability</td>
+              <td>Response time SLO breaches, DB query degradation under load, cache invalidation storms</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>DATA</code></td>
+              <td>Data integrity issues</td>
+              <td>Orphaned records, migration data loss, incorrect aggregation, duplicate entries</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>BUS</code></td>
+              <td>Business &amp; revenue impacts</td>
+              <td>Incorrect billing logic, broken checkout flow, regulatory non-compliance, audit failures</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>OPS</code></td>
+              <td>Deployment &amp; operational issues</td>
+              <td>Blue-green rollback failure, health check gaps, missing observability, deployment dependency</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 class="step-heading" id="risk-scoring">P × I Scoring Matrix</h4>
+      <p>Each risk is scored on two dimensions (1–3 each). The product is the Risk Score.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Scoring Scale</span>
+          <span class="data-source">probability-impact.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Dimension</th><th>1</th><th>2</th><th>3</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Probability</td>
+              <td>Low — unlikely to occur</td>
+              <td>Medium — possible</td>
+              <td>High — likely or already seen</td>
+            </tr>
+            <tr>
+              <td class="key-col">Impact</td>
+              <td>Low — minor degradation</td>
+              <td>Medium — significant feature impact</td>
+              <td>High — blocks core flow, data loss, revenue impact</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="data-callout" style="margin-top:0;">
+        <div class="data-head">
+          <span class="data-label">Score Thresholds</span>
+          <span class="data-source">P × I = 1–9</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Score</th><th>Level</th><th>Required action</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col risk-high">6 – 9</td>
+              <td><strong>High</strong></td>
+              <td>Mandatory mitigation plan: numbered steps, Owner, Timeline, Status, Verification. Architecture doc includes these; QA doc references them.</td>
+            </tr>
+            <tr>
+              <td class="key-col risk-med">3 – 5</td>
+              <td>Medium</td>
+              <td>Document in risk register with mitigation approach. Monitor during implementation.</td>
+            </tr>
+            <tr>
+              <td class="key-col risk-low">1 – 2</td>
+              <td>Low</td>
+              <td>Note in risk register. Reassess if scope changes. No immediate action required.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="inline-list">
+        <li>All risks get a unique ID: <code>R-001</code>, <code>R-002</code>, …</li>
+        <li>Both Architecture doc and QA doc reference risks by the same IDs for cross-document consistency</li>
+        <li>Mitigation plans in Architecture doc cover Backend/DevOps/Arch/Security actions only — QA mitigations go in QA doc</li>
+      </ul>
+
+      <p style="margin-top:16px;">Priority = risk and business importance, NOT execution timing. P0/P1/P2/P3 sections describe criteria and purpose — the Execution Strategy section separately handles when tests run.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Priority Table</span>
+          <span class="data-source">test-priorities-matrix.md · step-04</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Priority</th><th>Criteria</th><th>Purpose</th><th>Pass rate gate</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><span class="p-badge p0">P0</span></td>
+              <td>Blocks core functionality <strong>AND</strong> risk score ≥ 6 <strong>AND</strong> no workaround exists</td>
+              <td>Must pass before any release. Failing P0 = ship nothing.</td>
+              <td class="risk-high">100%</td>
+            </tr>
+            <tr>
+              <td class="key-col"><span class="p-badge p1">P1</span></td>
+              <td>Critical paths + medium/high risk + common user workflows</td>
+              <td>Important but not absolute blockers. 1 failure in many = acceptable with a plan.</td>
+              <td class="risk-med">≥ 95%</td>
+            </tr>
+            <tr>
+              <td class="key-col"><span class="p-badge p2">P2</span></td>
+              <td>Secondary features + low/medium risk + edge cases</td>
+              <td>Valuable but acceptable to defer until after initial release.</td>
+              <td>Best effort</td>
+            </tr>
+            <tr>
+              <td class="key-col"><span class="p-badge p3">P3</span></td>
+              <td>Nice-to-have + exploratory + benchmarks + performance baselines</td>
+              <td>Track and improve over time. Never blocks release.</td>
+              <td>No gate</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 class="step-heading">step-04 · Coverage Plan &amp; Execution Strategy</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-04-coverage-plan.md</code></li>
+        <li><strong class="label">Coverage matrix</strong>Decompose requirements into atomic test scenarios. Select test level (E2E / API / Component / Unit). Assign P0–P3. No duplicate coverage across levels.</li>
+        <li><strong class="label">Execution</strong>Simple model: PR / Nightly / Weekly. PR = all functional tests if &lt;15 min. Nightly/Weekly = long-running or expensive suites. Do not re-list all tests.</li>
+        <li><strong class="label">Estimates</strong>Ranges only (e.g., "~25–40 hours" — never "36 hours"). P0/P1/P2/P3 + total + timeline as week ranges.</li>
+        <li><strong class="label">Quality gates</strong>P0 pass rate = 100%, P1 ≥ 95%, coverage target ≥ 80%.</li>
+      </ul>
+
+      <h4 class="step-heading" id="test-levels">Test Level Selection</h4>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Test Levels</span>
+          <span class="data-source">test-levels-framework.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Level</th><th>Use for</th><th>Avoid when</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><code>E2E</code></td>
+              <td>Critical user-facing flows; end-to-end happy paths; high-risk integrations</td>
+              <td>Business logic testable at API level; edge cases better served by unit tests</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>API</code></td>
+              <td>Complex business logic; contract validation; backend integrations; all non-P0 flows</td>
+              <td>Purely UI interactions; pure computations without side-effects</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>Component</code></td>
+              <td>UI component behavior; form validation; state management; accessibility</td>
+              <td>Full user workflows that span multiple pages</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>Unit</code></td>
+              <td>Algorithms; edge cases; pure functions; error handling branches</td>
+              <td>Integration points; anything requiring external services</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 class="step-heading" id="execution-strategy">Execution Strategy — Keep Simple</h4>
+      <p>Use the <strong>PR / Nightly / Weekly</strong> model. Do not create complex tier structures. Do not re-list all tests in this section — refer to the coverage plan.</p>
+      <ul class="step-detail">
+        <li><strong class="label">Every PR</strong>All functional tests (P0 + P1 + P2) — Playwright parallelises 100s of tests in 10–15 min. Run everything if under 15 min total.</li>
+        <li><strong class="label">Nightly</strong>Performance tests (k6, Locust, JMeter) · Long-running suites (30–60 min) · Tests requiring large datasets</li>
+        <li><strong class="label">Weekly</strong>Chaos / resilience tests · Full regression pass · Exploratory / P3 scenarios</li>
+        <li><strong class="label">Principle</strong>"Run everything in PRs unless expensive/long-running." Avoid smoke/P0/P1/P2 tier hierarchy — complexity with no benefit.</li>
+      </ul>
+
+      <h4 class="step-heading" id="estimates">Resource Estimates — Intervals Only</h4>
+      <p>Always use ranges. Never give exact numbers like "36 hours" — use "~25–40 hours" instead. Exact calculations create false precision and erode trust when estimates miss.</p>
+      <h4 class="step-heading">step-05 · Generate Outputs &amp; Validate</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-05-generate-output.md</code></li>
+        <li><strong class="label">System-Level</strong>Generates 2 docs in parallel (agent-team/subagent) or sequentially. Reconciles for cross-document consistency. Generates handoff doc.</li>
+        <li><strong class="label">Epic-Level</strong>Generates 1 doc (<code>test-design-epic-{epic_num}.md</code>). Single-worker.</li>
+        <li><strong class="label">Execution modes</strong>agent-team → subagent → sequential (capability probe).</li>
+        <li><strong class="label">Polish pass</strong>Removes duplication, verifies consistency, checks all sections populated, cleans formatting.</li>
+        <li><strong class="label">Completion</strong>States mode used, output paths, key risks, gate thresholds, open assumptions.</li>
+      </ul>
+
+      <h3 class="skill-heading" id="steps-e">
+        <span class="code-name">steps-e</span>
+        Edit Mode — 2 Steps
+      </h3>
+      <h4 class="step-heading">step-01 · Assess Edit Target</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-e/step-01-assess.md</code></li>
+        <li><strong class="label">Goal</strong>Identify which output file to edit and load it for review before making changes.</li>
+      </ul>
+      <h4 class="step-heading">step-02 · Apply Edits</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-e/step-02-apply-edit.md</code></li>
+        <li><strong class="label">Goal</strong>Apply explicitly requested edits and confirm changes. No scope creep beyond what was asked.</li>
+      </ul>
+
+      <h3 class="skill-heading" id="steps-v">
+        <span class="code-name">steps-v</span>
+        Validate Mode — 1 Step
+      </h3>
+      <h4 class="step-heading">step-01 · Validate Outputs</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-v/step-01-validate.md</code></li>
+        <li><strong class="label">System-Level</strong>Validates both <code>test-design-architecture.md</code> AND <code>test-design-qa.md</code> plus the handoff document. Checks cross-document consistency.</li>
+        <li><strong class="label">Epic-Level</strong>Validates the single epic test plan document.</li>
+        <li><strong class="label">Output</strong>Writes validation report to <code>{test_artifacts}/framework-validation-report.md</code>.</li>
+      </ul>
+    </section>
+
+    <!-- Output Documents -->
+    <section id="outputs">
+      <h3 class="skill-heading">
+        <span class="code-name">outputs</span>
+        Output Documents
+      </h3>
+      <p class="lede">System-Level mode produces three documents. Epic-Level produces one. All documents share risk IDs and priority levels for cross-referencing.</p>
+
+      <h4 class="step-heading" id="arch-doc">Architecture Document — <code>test-design-architecture.md</code></h4>
+
+      <p><strong>§ WHAT</strong> — Dedicated to the <strong>Architecture &amp; Dev team</strong>. Covers concerns, testability gaps, and NFR requirements. Contains no test code or test scenarios — only what the architecture team must decide or provide before QA can begin writing tests. Target ~150–200 lines.</p>
+
+      <p><strong>§ WHY</strong> — Architecture teams need a completely different view from QA: they need to know <em>blockers</em> (what prevents test development), not specific test scenarios. Separating this document prevents architects from reading through hundreds of test cases to find the decisions that require their attention. Actionable-first: 🚨 blockers always at the top, FYI at the bottom.</p>
+
+      <p><strong>§ HOW</strong> — Document structure (per <code>test-design-architecture-template.md</code>):</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Document Sections</span>
+          <span class="data-source">test-design-architecture-template.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Section</th><th>Content</th><th>Audience</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Executive Summary</td>
+              <td>Scope · Business context (revenue/impact/GA date) · Architecture decisions (from ADR) · Expected scale · Risk summary (total risk count, high-priority count, effort estimate)</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td class="key-col">Quick Guide</td>
+              <td>Three tiers:<br>🚨 <strong>BLOCKERS</strong> — must be resolved before QA can write integration tests<br>⚠️ <strong>HIGH PRIORITY</strong> — QA recommends, team approves<br>📋 <strong>INFO ONLY</strong> — solution already provided, review only</td>
+              <td>Decision makers</td>
+            </tr>
+            <tr>
+              <td class="key-col">Risk Assessment</td>
+              <td>Total risk count · High-priority table (score ≥ 6): Risk ID / Category / Description / P / I / Score / Mitigation / Owner / Timeline · Medium table (3–5) · Low table (1–2) · Risk Category Legend (TECH / SEC / PERF / DATA / BUS / OPS)</td>
+              <td>Architects / Devs</td>
+            </tr>
+            <tr>
+              <td class="key-col">NFR Testability Requirements</td>
+              <td>Table: NFR Category / Threshold / Current Design Support / Gap or Decision Needed / Planned Evidence. Unknown thresholds → convert to risk or clarification item; do not guess values. Boundary: planning only — do not assess PASS/FAIL.</td>
+              <td>Architects</td>
+            </tr>
+            <tr>
+              <td class="key-col">Testability Concerns &amp; Architectural Gaps</td>
+              <td>🚨 ACTIONABLE: blockers to fast feedback (table: Concern / Impact / What Architecture Must Provide / Owner / Timeline) · Architectural improvements needed (numbered, each with: Current problem / Required change / Impact if not fixed / Owner / Timeline)</td>
+              <td>Architects / Devs</td>
+            </tr>
+            <tr>
+              <td class="key-col">Testability Assessment Summary</td>
+              <td>✅ What works well · Accepted trade-offs (no action required). Include only when there are passing items worth mentioning.</td>
+              <td>FYI</td>
+            </tr>
+            <tr>
+              <td class="key-col">Risk Mitigation Plans</td>
+              <td>For each high-risk (≥ 6): numbered steps · Owner · Timeline · Status (Planned/In Progress/Complete) · Verification. Backend/Arch/Sec actions only — no test code.</td>
+              <td>Risk owners</td>
+            </tr>
+            <tr>
+              <td class="key-col">Assumptions &amp; Dependencies</td>
+              <td>Assumptions (about architecture, team, scope) · Dependencies (required by date/milestone) · Risks to the test plan itself (with contingency)</td>
+              <td>All</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="step-detail" style="margin-top:12px;">
+        <li><strong class="label">Anti-patterns</strong>No test code snippets · No test scenario checklists · No "Test Levels Strategy" section · No tool selection (Playwright, k6) — these belong in <code>test-design-qa.md</code></li>
+      </ul>
+
+      <h4 class="step-heading" id="qa-doc">QA Document — <code>test-design-qa.md</code></h4>
+
+      <p><strong>§ WHAT</strong> — Dedicated to the <strong>QA team</strong>. A test execution recipe: what to test, how to test it, with which tools, and what QA needs from other teams before testing can begin. Contains concrete test scenarios, P0–P3 coverage plans, execution strategy, and effort estimates. Complements — does not duplicate — the Architecture doc.</p>
+
+      <p><strong>§ WHY</strong> — QA needs a completely different view from architects: they need test scenarios, execution timing, and tooling — not architectural blockers or NFR design gaps. Keeping this document separate lets QA work from a focused, actionable recipe while referencing the Architecture doc for risk context. Duplication between the two documents is explicitly avoided.</p>
+
+      <p><strong>§ HOW</strong> — Document structure (per <code>test-design-qa-template.md</code>):</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Document Sections</span>
+          <span class="data-source">test-design-qa-template.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Section</th><th>Content</th><th>Audience</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Executive Summary</td>
+              <td>Testing scope · Risk summary (high/medium/low counts) · Coverage summary (P0/P1/P2/P3 test counts + total effort estimate)</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td class="key-col">Not in Scope</td>
+              <td>Table of explicitly excluded items: Item / Reasoning / Mitigation. Each exclusion reviewed and accepted by QA, Dev, and PM.</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td class="key-col">Dependencies &amp; Test Blockers</td>
+              <td>Two sub-sections:<br><strong>Backend/Arch dependencies</strong> — what QA needs from other teams before testing can start (references Architecture doc Quick Guide for details)<br><strong>QA infra setup</strong> — test data factories, fixture patterns, local/CI/staging environment configuration</td>
+              <td>QA / Architects / Devs</td>
+            </tr>
+            <tr>
+              <td class="key-col">Risk Assessment</td>
+              <td>Brief summary only — full details live in the Architecture doc. Adds one column: <strong>QA Test Coverage</strong> (how QA validates each risk). High-priority table (score ≥ 6) + medium/low table.</td>
+              <td>QA</td>
+            </tr>
+            <tr>
+              <td class="key-col">NFR Test Coverage Plan</td>
+              <td>Table: NFR Category / Requirement or Threshold / Planned Validation / Tool or Level / Evidence Artifact / Priority. Lists missing thresholds or evidence sources that need stakeholder clarification before <code>nfr-assess</code>.</td>
+              <td>QA</td>
+            </tr>
+            <tr>
+              <td class="key-col">Entry &amp; Exit Criteria</td>
+              <td><strong>Entry:</strong> checklist of prerequisites before QA begins (environments ready, factories ready, blockers resolved, feature deployed)<br><strong>Exit:</strong> checklist of completion conditions (all P0 pass, no open high-severity bugs, coverage accepted by QA Lead and Dev Lead)</td>
+              <td>QA / PM</td>
+            </tr>
+            <tr>
+              <td class="key-col">Test Coverage Plan</td>
+              <td>Four priority sections — P0 / P1 / P2 / P3. Header note: <em>"P0/P1/P2/P3 = priority and risk level, NOT execution timing."</em> Each section: criteria definition + table (Test ID / Requirement / Test Level / Risk Link / Notes) + test count.</td>
+              <td>QA</td>
+            </tr>
+            <tr>
+              <td class="key-col">Execution Strategy</td>
+              <td>Organised by tool type, not priority tier:<br><strong>Every PR</strong> — all Playwright tests (E2E, API, integration, unit) parallelised across shards (~10–15 min)<br><strong>Nightly</strong> — k6 performance tests (load, stress, spike, endurance; expensive infra)<br><strong>Weekly</strong> — chaos &amp; long-running (failover, disaster recovery, 4+ hr endurance)<br><strong>Manual</strong> — DevOps, finance, documentation validation</td>
+              <td>QA / DevOps</td>
+            </tr>
+            <tr>
+              <td class="key-col">QA Effort Estimate</td>
+              <td>Table by priority: Count / Effort Range / Notes. Total row with range in weeks. Assumptions stated (includes design, implementation, CI integration; excludes maintenance). References Dependencies section for cross-team work.</td>
+              <td>QA / PM</td>
+            </tr>
+            <tr>
+              <td class="key-col">Interworking &amp; Regression</td>
+              <td>Table of impacted services/components: Service / Impact / Regression Scope / Validation Steps. Regression test strategy: which existing suites must pass, cross-team coordination needed.</td>
+              <td>QA / Devs</td>
+            </tr>
+            <tr>
+              <td class="key-col">Optional Sections</td>
+              <td><strong>Project Team</strong> — include only if roles/names are known (Name / Role / Testing Responsibilities)<br><strong>Implementation Planning Handoff</strong> — include only if test tasks must be scheduled (Work Item / Owner / Milestone / Notes)<br><strong>Tooling &amp; Access</strong> — include only if non-standard tools or access requests are needed</td>
+              <td>As needed</td>
+            </tr>
+            <tr>
+              <td class="key-col">Appendices</td>
+              <td><strong>Appendix A:</strong> Code examples &amp; Playwright tag patterns for selective execution (<code>@P0</code>, <code>@Security</code>, etc.)<br><strong>Appendix B:</strong> Knowledge base references (risk-governance, test-priorities-matrix, test-levels-framework, test-quality)</td>
+              <td>QA</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="step-detail" style="margin-top:12px;">
+        <li><strong class="label">Anti-patterns</strong>No Quick Reference section · No System Architecture Summary · No NFR Readiness Summary · No generic Next Steps · Do not duplicate risk details from the Architecture doc — reference it instead</li>
+      </ul>
+
+      <h4 class="step-heading" id="handoff-doc">BMAD Handoff Document — <code>test-design/{project}-handoff.md</code></h4>
+
+      <p><strong>§ WHAT</strong> — A bridge document generated at the end of <strong>System-Level mode only</strong>. It carries TEA's test design outputs — risk assessments, P0/P1 scenarios, quality gates — into BMAD's <code>create-epics-and-stories</code> workflow so that quality requirements are embedded in epic and story decomposition from the start, not added as an afterthought.</p>
+
+      <p><strong>§ WHY</strong> — Without this handoff, test constraints stay siloed in QA documents and never reach the epic/story authors. Epics get written without quality gates; stories get acceptance criteria that ignore P0 risks. This document makes quality a first-class input to implementation planning by providing a structured mapping from risks and test scenarios to the exact epics and stories that must address them.</p>
+
+      <p><strong>§ HOW</strong> — Document structure (per <code>test-design-handoff-template.md</code>):</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Document Sections</span>
+          <span class="data-source">test-design-handoff-template.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Section</th><th>Content</th><th>Audience</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">TEA Artifacts Inventory</td>
+              <td>Table of all generated documents with actual paths: Test Design doc / Risk Assessment (embedded) / Coverage Strategy (embedded) — mapped to their BMAD integration point (epic quality requirements, story acceptance criteria, story test requirements)</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td class="key-col">Epic-Level Integration Guidance</td>
+              <td><strong>Risk References</strong> — P0/P1 risks that should appear as epic-level quality gates<br><strong>Quality Gates</strong> — recommended quality gates per epic derived from the risk assessment</td>
+              <td>PM / Tech Lead</td>
+            </tr>
+            <tr>
+              <td class="key-col">Story-Level Integration Guidance</td>
+              <td><strong>P0/P1 Test Scenarios → Acceptance Criteria</strong> — critical test scenarios that MUST become story acceptance criteria<br><strong>data-testid Requirements</strong> — recommended testability attributes developers must implement per story</td>
+              <td>Devs / QA</td>
+            </tr>
+            <tr>
+              <td class="key-col">Risk-to-Story Mapping</td>
+              <td>Table: Risk ID / Category / P×I Score / Recommended Story or Epic / Test Level. Each risk is linked to the specific story or epic responsible for addressing it.</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td class="key-col">Recommended Workflow Sequence</td>
+              <td>Six-step chain: <code>TD</code> (this doc) → BMAD Create Epics &amp; Stories → <code>AT</code> ATDD → BMAD Implementation → <code>TA</code> Automate → <code>TR</code> Trace</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td class="key-col">Phase Transition Quality Gates</td>
+              <td>Table of gate criteria between each phase transition: Test Design → Epic/Story Creation (all P0 risks have mitigation) · Epic/Story → ATDD (stories have acceptance criteria) · ATDD → Implementation (failing tests exist for P0/P1) · Implementation → Automate (acceptance tests pass) · Automate → Release (Trace ≥ 80% P0/P1 coverage)</td>
+              <td>All</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="step-detail" style="margin-top:12px;">
+        <li><strong class="label">System-Level only</strong>Generated only in System-Level mode (Phase 3). Not produced for Epic-Level designs — the handoff is only relevant when decomposing a full system into epics and stories.</li>
+      </ul>
+
+      <h4 class="step-heading" id="epic-doc">Epic-Level Document — <code>test-design-epic-{epic_num}.md</code></h4>
+
+      <p><strong>§ WHAT</strong> — The primary output of <strong>Epic-Level mode</strong>. A single, self-contained document covering the complete test plan for one epic: risk assessment across all 6 categories, NFR planning, a prioritized test coverage plan (P0–P3), execution order, resource estimates, quality gate criteria, and mitigation plans for high-priority risks. One file per epic; consumed directly by QA engineers, dev leads, and story authors.</p>
+
+      <p><strong>§ WHY</strong> — Unlike the system-level QA document (which spans the full product architecture), this document is scoped to a single epic — making it immediately actionable for the team doing the work. It gives story authors concrete P0/P1 test scenarios to embed as acceptance criteria, gives dev leads clear quality gate thresholds, and gives QA a prioritized execution plan sized to the epic's risk profile rather than the full system.</p>
+
+      <p><strong>§ HOW</strong> — Document structure (per <code>test-design-template.md</code>):</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Document Sections</span>
+          <span class="data-source">test-design-template.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Section</th><th>Content</th><th>Audience</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Executive Summary</td>
+              <td>Scope statement + risk summary (total risks / high-priority count / critical categories) + coverage summary (P0/P1/P2/P3 scenario counts and total estimated effort in hours/days)</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td class="key-col">Not in Scope</td>
+              <td>Table: Item / Reasoning / Mitigation — every excluded area must be explicitly listed with justification; prevents silent coverage gaps</td>
+              <td>QA / PM</td>
+            </tr>
+            <tr>
+              <td class="key-col">Risk Assessment</td>
+              <td>Three tiers — <strong>High (≥6)</strong>: full mitigation plan, owner, timeline · <strong>Medium (3–5)</strong>: MONITOR action · <strong>Low (1–2)</strong>: DOCUMENT action. Risk category legend: TECH / SEC / PERF / DATA / BUS / OPS</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td class="key-col">NFR Planning</td>
+              <td>Table: NFR Category / Requirement &amp; Threshold / Risk Link / Planned Validation / Evidence Needed. Four categories: Security / Performance / Reliability / Maintainability. Planning only — not a final evidence audit; feeds into <code>bmad-testarch-nfr</code></td>
+              <td>QA / Dev</td>
+            </tr>
+            <tr>
+              <td class="key-col">Entry &amp; Exit Criteria</td>
+              <td><strong>Entry</strong>: requirements agreed, environment provisioned, test data ready, feature deployed · <strong>Exit</strong>: all P0 pass, P1 pass or triaged, no open high-severity bugs, coverage agreed sufficient</td>
+              <td>QA / Dev</td>
+            </tr>
+            <tr>
+              <td class="key-col">Test Coverage Plan</td>
+              <td>Four priority buckets — <strong>P0</strong>: every commit (blocks core journey, risk ≥6, no workaround) · <strong>P1</strong>: PR to main (important features, risk 3–5) · <strong>P2</strong>: nightly/weekly (secondary features, edge cases) · <strong>P3</strong>: on-demand (exploratory, benchmarks). Each row: Requirement / Test Level / Risk Link / Test Count / Owner</td>
+              <td>QA / Dev</td>
+            </tr>
+            <tr>
+              <td class="key-col">Execution Order</td>
+              <td>Ordered run phases: Smoke (&lt;5 min) → P0 (&lt;10 min) → P1 (&lt;30 min) → P2/P3 (&lt;60 min). Defines the CI pipeline sequence and fast-feedback contract</td>
+              <td>QA / DevOps</td>
+            </tr>
+            <tr>
+              <td class="key-col">Resource Estimates</td>
+              <td>Effort table by priority (count × hours/test → total hours) + prerequisites: test data factories/fixtures, tooling requirements, environment requirements</td>
+              <td>PM / QA</td>
+            </tr>
+            <tr>
+              <td class="key-col">Quality Gate Criteria</td>
+              <td><strong>Pass/fail thresholds</strong>: P0 = 100%, P1 ≥ 95%, P2/P3 ≥ 90% · <strong>Coverage targets</strong>: critical paths ≥ 80%, security 100%, business logic ≥ 70% · <strong>Non-negotiables</strong>: all P0 pass, no unmitigated high risks, NFR evidence exists</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td class="key-col">Mitigation Plans</td>
+              <td>One entry per high-priority risk (score ≥ 6): Mitigation Strategy / Owner / Timeline / Status / Verification method</td>
+              <td>Dev / QA</td>
+            </tr>
+            <tr>
+              <td class="key-col">Assumptions &amp; Dependencies</td>
+              <td>Numbered assumption list + dependency list with required-by dates + risks to the test plan with contingency actions</td>
+              <td>All</td>
+            </tr>
+            <tr>
+              <td class="key-col">Interworking &amp; Regression</td>
+              <td>Table: Service/Component / Impact / Regression Scope — identifies existing test suites that must still pass after this epic's changes</td>
+              <td>QA / Dev</td>
+            </tr>
+            <tr>
+              <td class="key-col">Appendix</td>
+              <td>Knowledge Base references (risk-governance.md, probability-impact.md, test-levels-framework.md, test-priorities-matrix.md) + related document links (PRD, Epic, Architecture, Tech Spec)</td>
+              <td>QA</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="step-detail" style="margin-top:12px;">
+        <li><strong class="label">Optional sections</strong>Project Team (include only if roles/names are known) · Approval sign-off block (PM / Tech Lead / QA Lead)</li>
+        <li><strong class="label">Epic-Level only</strong>Generated only in Epic-Level mode (Phase 4). System-Level mode produces the Architecture Document + QA Document + BMAD Handoff Document instead.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Quality Gates -->
+    <section id="quality">
+      <h3 class="skill-heading">
+        <span class="code-name">quality-gates</span>
+        Quality Gates &amp; Key Checklist Items
+      </h3>
+
+      <h5>Risk Assessment Quality</h5>
+      <ul class="checklist">
+        <li>All risks have unique IDs (R-001, R-002, …)</li>
+        <li>Probability and Impact values are 1, 2, or 3 — not descriptive labels</li>
+        <li>Scores calculated correctly (P × I)</li>
+        <li>High-priority risks (≥ 6) clearly flagged and have mitigation plans</li>
+        <li>Mitigation strategies are specific and actionable (not "add monitoring")</li>
+        <li>Owner and timeline assigned to each mitigation</li>
+      </ul>
+
+      <h5>Coverage Matrix Quality</h5>
+      <ul class="checklist">
+        <li>All requirements mapped to test levels</li>
+        <li>No duplicate coverage (same behavior tested at multiple levels)</li>
+        <li>P0 scenarios represent &lt;10% of total scenario count</li>
+        <li>Risk linkage documented in coverage table</li>
+      </ul>
+
+      <h5>Execution Strategy Quality</h5>
+      <ul class="checklist">
+        <li>Simple structure: PR / Nightly / Weekly — not complex tier hierarchy</li>
+        <li>PR execution: all functional tests unless infrastructure overhead is significant</li>
+        <li>No redundancy: coverage plan not re-listed in execution strategy</li>
+        <li>Philosophy stated: "Run everything in PRs if &lt;15 min"</li>
+      </ul>
+
+      <h5>Resource Estimates Quality</h5>
+      <ul class="checklist">
+        <li>All estimates use interval ranges (e.g., "~25–40 hours")</li>
+        <li>No exact calculations cited (no "18 × 2h = 36h")</li>
+        <li>Timeline as week range, not day count</li>
+      </ul>
+
+      <h5>Document Quality (Anti-Bloat)</h5>
+      <ul class="checklist">
+        <li>Architecture doc: concerns-focused, NOT implementation-focused. No test code examples.</li>
+        <li>QA doc: implementation-focused, NOT theory-focused. No architecture summaries.</li>
+        <li>No repeated notes across 10+ sections — write once at the top, reference briefly</li>
+        <li>Professional tone — no excessive emojis, no "absolutely/fantastic/excellent"</li>
+        <li>Both docs use same risk IDs, same priority levels, same blocker references</li>
+      </ul>
+    </section>
+
+
+  </main>
+
+</div>
+
+</body>
+</html>

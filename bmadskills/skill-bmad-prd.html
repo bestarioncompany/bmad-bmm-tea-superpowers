@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRD — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 760px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 18px 20px; margin: 16px 0 24px; overflow-x: auto; border-left: 3px solid var(--accent); }
+  pre.code-block code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; border-radius: 0; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 180px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 160px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Intent grid (3-col) ──────────────────────── */
+  .intent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .intent-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .intent-card { background: var(--paper); padding: 20px 22px; }
+  .intent-card .intent-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .intent-card .intent-label.create { background: #1d3557; }
+  .intent-card .intent-label.validate { background: var(--accent); }
+  .intent-card .intent-label.update { background: #4a3f35; }
+  .intent-card .intent-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .intent-card .intent-vn { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-mute); margin-bottom: 10px; font-style: italic; }
+  .intent-card ul { list-style: none; padding: 0; margin: 0; }
+  .intent-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .intent-card ul li:last-child { border-bottom: none; }
+  .intent-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li { padding: 6px 0 6px 24px; position: relative; font-size: 0.875rem; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.5; }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: '□'; position: absolute; left: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-mute); }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  /* ── Verdict / flow row ───────────────────────── */
+  .verdict-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 24px; }
+  .verdict-row > * { box-shadow: 0 0 0 1px var(--rule); }
+  .verdict-cell { background: var(--paper); padding: 14px 16px; }
+  .verdict-cell .verdict-grade { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 10px; display: inline-block; margin-bottom: 8px; }
+  .verdict-cell .verdict-grade.good { background: #dcfce7; color: #166534; }
+  .verdict-cell .verdict-grade.fair { background: #fef3c7; color: #92400e; }
+  .verdict-cell .verdict-grade.poor { background: #fee2e2; color: #991b1b; }
+  .verdict-cell p { font-size: 12.5px; color: var(--ink-soft); margin: 0; line-height: 1.5; }
+
+  /* ── Warning callout ──────────────────────────── */
+  .warn-callout { border-left: 3px solid var(--accent); background: #fff7ed; padding: 12px 16px; margin: 16px 0 24px; font-size: 0.875rem; color: var(--ink-soft); line-height: 1.6; }
+  .warn-callout strong { color: var(--accent); }
+
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .intent-grid { grid-template-columns: 1fr; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+    .verdict-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad BMM · Phase 02 Planning</span>
+        <span>Skill · bmad-prd</span>
+        <span>Agent · John (Product Manager)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">PRD — Create · Validate · Update <em>· Unified Skill</em></h1>
+    <p class="subtitle">Unified skill — one agent, three intents. Essential Spine + Adapt-In Menu based on product concerns, <code>.memlog.md</code> audit trail, and a Reviewer Gate producing an HTML report. bmad-create-prd, bmad-validate-prd, bmad-edit-prd are now deprecated forwarding shims — use unified bmad-prd.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-prd</dd></div>
+      <div><dt>Input</dt><dd>Product brief / user intent (Create) or existing prd.md (Validate/Update)</dd></div>
+      <div><dt>Agent</dt><dd>John (PM)</dd></div>
+      <div><dt>Intents</dt><dd>Create / Validate / Update</dd></div>
+      <div><dt>FR Format</dt><dd>FR-N with testable Consequences</dd></div>
+      <div><dt>Output</dt><dd>prd.md + addendum.md + .memlog.md</dd></div>
+      <div><dt>Headless</dt><dd>No</dd></div>
+      <div><dt>Resumable</dt><dd>Yes</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Unified Intent Model</a>
+      <a href="#prd-structure">PRD Structure</a>
+      <a href="#essential-spine" class="toc-sub">Essential Spine (9 sections)</a>
+      <a href="#fr-format" class="toc-sub">FR Format</a>
+      <a href="#adapt-in" class="toc-sub">Adapt-In Menu (7 Groups)</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-prd">Why This Approach?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#how-steps">Before Calling the Skill</a>
+      <a href="#how-steps" class="toc-sub">1 · General BMAD Setup</a>
+      <a href="#how-steps" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#how-steps" class="toc-sub">3 · Skills That Help</a>
+      <a href="#how-steps" class="toc-sub">4 · Per-Phase Preparation</a>
+      <a href="#create-intent">Create Intent</a>
+      <a href="#discovery-phase" class="toc-sub">Discovery Phase</a>
+      <a href="#finalize-process" class="toc-sub">Finalize — 8 Steps</a>
+      <a href="#validate-intent">Validate Intent</a>
+      <a href="#rubric" class="toc-sub">7 Rubric Dimensions</a>
+      <a href="#verdict-action" class="toc-sub">Verdict → Action Table</a>
+      <a href="#update-intent">Update Intent</a>
+      <a href="#toolkit">Applied Toolkit</a>
+      <a href="#technique-descriptions" class="toc-sub">Technique Descriptions</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        PRD — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-prd</code></dd>
+        <dt>Opening menu</dt><dd><span class="menu-codes"><code>Create</code><code>Update</code><code>Validate</code></span></dd>
+        <dt>Agent</dt><dd>John — Product Manager. One agent, three intents. Do not use deprecated skills.</dd>
+        <dt>Output folder</dt><dd><code>_bmad-output/planning-artifacts/prds/prd-{name}-{date}/</code></dd>
+        <dt>Deprecated</dt><dd><code>bmad-create-prd</code> · <code>bmad-validate-prd</code> · <code>bmad-edit-prd</code> — now thin forwarding shims to unified <code>bmad-prd</code></dd>
+        <dt>Resumable</dt><dd>Yes — <code>stepsCompleted</code> frontmatter tracks progress. Check before long L3/L4 runs.</dd>
+      </dl>
+
+      <p>The <code>bmad-prd</code> skill is the single entry point for all PRD work. It handles creation of a PRD from scratch through a structured discovery process, validates an existing PRD against a 7-dimension rubric, and applies targeted updates with blast-radius analysis. All three intents share the same agent (John), the same output folder, and the same three output files.</p>
+
+      <div class="intent-grid">
+        <div class="intent-card">
+          <span class="intent-label create">Create</span>
+          <div class="intent-name">Create</div>
+          <div class="intent-vn">Default intent — build from scratch</div>
+          <ul>
+            <li>Brain dump → artifact scan → calibration → draft</li>
+            <li>Parallel subagents scan all sources</li>
+            <li>Concern scan drives Adapt-In cluster selection</li>
+            <li>Fast path or coaching mode</li>
+            <li>Produces prd.md + addendum.md + .memlog.md</li>
+          </ul>
+        </div>
+        <div class="intent-card">
+          <span class="intent-label validate">Validate</span>
+          <div class="intent-name">Validate</div>
+          <div class="intent-vn">Use a DIFFERENT LLM than the author</div>
+          <ul>
+            <li>2 reviewers by default (rubric walker + adversarial)</li>
+            <li>7 rubric dimensions, graded Excellent to Poor</li>
+            <li>Verdict → proceed / fix / must update</li>
+            <li>Prevents author blind spots</li>
+            <li>Loops back into Update if issues found</li>
+          </ul>
+        </div>
+        <div class="intent-card">
+          <span class="intent-label update">Update</span>
+          <div class="intent-name">Update</div>
+          <div class="intent-vn">Surgical edit against an existing PRD</div>
+          <ul>
+            <li>Blast radius analysis before every edit</li>
+            <li>Source-extract → conflict check → apply</li>
+            <li>Status returns to <code>draft</code> until Finalize</li>
+            <li>Replaces deprecated bmad-edit-prd</li>
+            <li>Cascades to related FRs, NFRs, Vision, decision log</li>
+          </ul>
+        </div>
+      </div>
+
+      <h5>Output Files</h5>
+      <pre class="code-block"><code>_bmad-output/planning-artifacts/prds/prd-{name}-{date}/
+├── prd.md            ← main PRD document
+├── addendum.md       ← supplementary (data dictionaries, API mocks)
+└── .memlog.md  ← every decision: # | Date | Decision | Rationale | Status</code></pre>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- PRD Structure -->
+    <section id="prd-structure">
+      <h3 class="skill-heading">
+        <span class="code-name">prd-structure</span>
+        PRD Structure — Essential Spine + Adapt-In
+      </h3>
+      <p class="lede">Every PRD starts with the Essential Spine — nine sections that are always present. Additional sections are pulled in from the Adapt-In menu only when the product's concern profile demands them.</p>
+
+      <section id="essential-spine">
+        <h4 class="step-heading">Essential Spine — Always Present</h4>
+
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">The 9 Essential Sections</span>
+            <span class="data-source">prd.md</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Section</th><th>Purpose</th><th>Key Detail</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="key-col">§0 Document Purpose</td>
+                <td>Who the PRD is for, how it is structured, references to existing inputs</td>
+                <td>Sets reader expectations; links to brief, PRFAQ, brainstorming artifacts</td>
+              </tr>
+              <tr>
+                <td class="key-col">§1 Vision</td>
+                <td>2–3 paragraphs, 3–5 year direction</td>
+                <td>Blue Ocean Canvas lens optional — Eliminate / Reduce / Raise / Create</td>
+              </tr>
+              <tr>
+                <td class="key-col">§2 Target User</td>
+                <td>§2.1 Jobs To Be Done · §2.2 Non-Users (v1) · §2.3 Key User Journeys</td>
+                <td>Named-persona narratives; UJ-1 … UJ-N; JTBD framing (Christensen)</td>
+              </tr>
+              <tr>
+                <td class="key-col">§3 Glossary</td>
+                <td>Every domain noun defined once; no synonyms</td>
+                <td><strong>New v6.8:</strong> downstream workflows source-extract from PRD using Glossary terms as anchors. Auto-built by agent as drafting proceeds.</td>
+              </tr>
+              <tr>
+                <td class="key-col">§4 Features</td>
+                <td>FR-1 through FR-N with testable Consequences</td>
+                <td>Behavioral narrative per feature group; each FR realizes one or more user journeys</td>
+              </tr>
+              <tr>
+                <td class="key-col">§5 Non-Goals (Explicit)</td>
+                <td>What the product will NOT do in v1</td>
+                <td>Out-of-scope is as load-bearing as in-scope; prevents scope creep</td>
+              </tr>
+              <tr>
+                <td class="key-col">§6 MVP Scope</td>
+                <td>In Scope (bulleted) + Out of Scope for MVP</td>
+                <td>Each out-of-scope item carries reason + defer target: v2 / v3 / research</td>
+              </tr>
+              <tr>
+                <td class="key-col">§7 Success Metrics</td>
+                <td>Primary · Secondary · Counter-metrics</td>
+                <td><strong>New v6.8:</strong> Counter-metrics — what NOT to optimize; prevents gaming one metric at expense of another</td>
+              </tr>
+              <tr>
+                <td class="key-col">§8 Open Questions</td>
+                <td>Numbered questions that become future tickets</td>
+                <td>Triaged during Finalize step 4; phase-blockers addressed first</td>
+              </tr>
+              <tr>
+                <td class="key-col">§9 Assumptions Index</td>
+                <td>Every [ASSUMPTION] tag surfaced and indexed</td>
+                <td>All <code>[ASSUMPTION]</code> inline tags are collected here for stakeholder review</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="fr-format">
+        <h4 class="step-heading">FR Format — Functional Requirements</h4>
+        <p>Every functional requirement follows this exact structure. FR numbers are the backbone of the entire workflow: FR-03 in PRD → component in Architecture → Story references FR-03 → QA verifies FR-03.</p>
+
+        <pre class="code-block"><code>#### FR-N: {Short capability name}
+[Actor] can [capability] [under conditions]. Realizes UJ-X.
+
+**Consequences (testable):**
+- {Specific testable condition}
+- {Another testable condition}
+
+**Out of Scope:** (optional)
+- {Explicit bound}</code></pre>
+
+        <ul class="inline-list">
+          <li>Actor is always a named user or system — never "the user" without persona context</li>
+          <li>Capability is a verb phrase: "assigns a confidence score", not "confidence scoring"</li>
+          <li>Consequences must be independently testable — each one is a potential QA scenario</li>
+          <li>Example: "we need a confidence score" → FR-11: System assigns Confidence Score (3 levels: High / Medium / Low)</li>
+        </ul>
+      </section>
+
+      <section id="adapt-in">
+        <h4 class="step-heading">Adapt-In Menu — 7 Groups</h4>
+        <p>The agent scans inputs for concerns and selects which groups to pull in. Groups are not added by default — they are triggered by the product's concern profile.</p>
+
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Group 1</div>
+            <div class="card-name">Cross-cutting Quality</div>
+            <div class="card-body">
+              <ul>
+                <li>Cross-Cutting NFRs</li>
+                <li>Constraints &amp; Guardrails</li>
+                <li>Why Now</li>
+              </ul>
+            </div>
+            <div class="card-footer">All non-trivial products</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Group 2</div>
+            <div class="card-name">Consumer / Branded</div>
+            <div class="card-body">
+              <ul>
+                <li>Aesthetic &amp; Tone</li>
+                <li>Information Architecture</li>
+                <li>Monetization</li>
+                <li>Platform</li>
+              </ul>
+            </div>
+            <div class="card-footer">B2C, branded apps</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Group 3</div>
+            <div class="card-name">Enterprise</div>
+            <div class="card-body">
+              <ul>
+                <li>Stakeholders &amp; Approvals</li>
+                <li>Risk &amp; Mitigations</li>
+                <li>ROI / Business Case</li>
+                <li>Operational Requirements</li>
+                <li>Integration &amp; Dependencies</li>
+                <li>Rollout &amp; Change Mgmt</li>
+                <li>Data Governance</li>
+                <li>Audit Trail</li>
+              </ul>
+            </div>
+            <div class="card-footer">B2B, internal tools, SaaS</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Group 4</div>
+            <div class="card-name">Regulated Domains</div>
+            <div class="card-body">
+              <ul>
+                <li>Compliance &amp; Regulatory</li>
+                <li>Domain taxonomy (13 industries)</li>
+              </ul>
+            </div>
+            <div class="card-footer">Healthcare, fintech, legal, HR…</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Group 5</div>
+            <div class="card-name">Developer Products</div>
+            <div class="card-body">
+              <ul>
+                <li>API Contracts</li>
+                <li>Versioning Policy</li>
+                <li>Performance Budgets</li>
+                <li>Language / Runtime Targets</li>
+              </ul>
+            </div>
+            <div class="card-footer">APIs, SDKs, CLIs, platforms</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Group 6</div>
+            <div class="card-name">Embedded / Hardware</div>
+            <div class="card-body">
+              <ul>
+                <li>Hardware Constraints</li>
+                <li>Deployment &amp; Update</li>
+                <li>Environmental &amp; Reliability</li>
+              </ul>
+            </div>
+            <div class="card-footer">IoT, firmware, edge devices</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Group 7</div>
+            <div class="card-name">Small-scope</div>
+            <div class="card-body">
+              <ul>
+                <li>Stories (1–2 story max)</li>
+                <li>Lean PRD + stories in same doc</li>
+              </ul>
+            </div>
+            <div class="card-footer">Micro-features, spike tasks</div>
+          </div>
+        </div>
+
+        <p>Concern scan runs in parallel with Discovery. Agent reads inputs and names the concerns this product carries: compliance, integration density, operational SLAs, hardware constraints, data governance, monetization, form factor — then selects which Adapt-In clusters to activate.</p>
+      </section>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-prd">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why This Approach?
+      </h2>
+
+      <p class="lede">A PRD without numbered FRs, explicit non-goals, and a decision log is not a product requirements document — it is a wish list. Every structural choice in the Essential Spine exists to prevent a specific failure mode in downstream workflows.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Without</th>
+            <th>Failure Mode</th>
+            <th>With bmad-prd (v6.10.0)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Numbered FRs</td>
+            <td>"Confidence score" in PRD, "trust rating" in architecture, "accuracy signal" in stories — same feature, three names, three implementations</td>
+            <td>FR-11 in PRD → FR-11 in architecture component → FR-11 in story AC → QA verifies FR-11. One anchor, no ambiguity.</td>
+          </tr>
+          <tr>
+            <td>Explicit Non-Goals</td>
+            <td>Scope creep — everything that was not explicitly excluded gets built eventually</td>
+            <td>§5 Non-Goals + §6 MVP Out-of-Scope each with reason + defer target. A PRD that only lists in-scope enables unlimited creep.</td>
+          </tr>
+          <tr>
+            <td>Decision Log</td>
+            <td>After 6 months, no one remembers why option B was rejected — debate restarts from zero</td>
+            <td>.memlog.md captures every decision: # | Date | Decision | Rationale | Status. Audited during Finalize.</td>
+          </tr>
+          <tr>
+            <td>Counter-metrics (v6.8)</td>
+            <td>Optimizing throughput crushes accuracy; optimizing activation crushes retention</td>
+            <td>§7 Counter-metrics tell the architect what NOT to optimize — prevents gaming one metric at expense of another.</td>
+          </tr>
+          <tr>
+            <td>Glossary (v6.8)</td>
+            <td>"Is a 'client' the same as an 'account'?" Dispute surfaces in UX, architecture, and QA independently</td>
+            <td>§3 Glossary anchors every domain noun once. Downstream workflows source-extract using Glossary terms.</td>
+          </tr>
+          <tr>
+            <td>Testable Consequences per FR</td>
+            <td>FRs are too vague to test — QA invents scenarios that do not match PM intent</td>
+            <td>Each FR carries explicit, independently testable Consequences. QA scenarios derive directly from these.</td>
+          </tr>
+          <tr>
+            <td>External Validator</td>
+            <td>PRD author will miss their own blind spots — self-validation is an antipattern</td>
+            <td>Validate intent uses a DIFFERENT LLM from the author. 2 reviewers: rubric walker + adversarial reviewer.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW — Before Calling the Skill
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="how-steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/bmad-agent-pm → CP</code> (Create) or <code>VP</code> (Validate) or <code>EP</code> (Edit). The PRD is the single most important planning artifact — the quality of its inputs determines the quality of all downstream work. For Create / Validate / Update execution details, see the Applied Toolkit section below.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · General BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all BMAD skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">BMAD installed</td>
+              <td>Latest version required. Verify before starting: <code>npx bmad-method --version</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Claude Code running</td>
+              <td>Open a terminal and run <code>claude</code> first. All skill invocations happen inside an active Claude Code session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent-first invocation</td>
+              <td>Always <code>/bmad-agent-pm → select intent</code>. The agent automatically searches for and loads the brainstorming-report and any Phase 1 artifacts on startup.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Full context upfront</td>
+              <td>The Create PRD session is scale-adaptive — Discovery classifies project level and domain complexity upfront. Having all inputs ready prevents mid-session pauses.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to bmad-prd. Have these clear before starting the session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">bmad-prd · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Brainstorming report</td>
+              <td>The output from Step 1 (Brainstorming) is the primary input to Create PRD. Have the file path ready — the agent loads it automatically.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Business goals</td>
+              <td>Why is this feature being built? What business problem does it solve? Know this before the session — the North Star Metric must be an outcome, not an output.</td>
+            </tr>
+            <tr>
+              <td class="key-col">User knowledge</td>
+              <td>Who are the key user types? What are their day-to-day workflows? Interview or observe at least 1 real user per persona before the session if possible.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Technical constraints</td>
+              <td>What APIs, data formats, or integrations already exist? Ask engineering about platform constraints and access control models before the session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Success definition</td>
+              <td>How will you know this was worth building? What number would you look at 6 months after launch? Have a baseline value ready.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Compliance / regulatory context</td>
+              <td>Does the product touch regulated data? Check the domain taxonomy (12 industries) before the session. A constraint discovered late is expensive — the same constraint discovered here is just a rule the PRD works within.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Timeline and team constraints</td>
+              <td>Is there a launch deadline? A team size? A budget ceiling? These constrain the MVP strategy and phased feature set.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Competitive awareness</td>
+              <td>Are there existing tools solving this problem? The agent runs web research in parallel — but your domain knowledge shapes the Blue Ocean Canvas discussion.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">skills</span>
+        3 · Skills That Help This Session
+      </h3>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Facilitator Mindset</span>
+          <span class="data-source">bmad-prd · session quality</span>
+        </div>
+        <table>
+          <thead><tr><th>Skill</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Product thinking (what, not how)</td>
+              <td>The PRD describes behavior, not implementation. "System processes uploaded payroll PDF via OCR" is a requirement. "Use AWS Textract" is an implementation choice — keep it out of FRs.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Decisive prioritization</td>
+              <td>When the agent asks MoSCoW — be decisive. If everything is Must, nothing is Must. Aim for at least 30% of FRs in Should or lower.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Quantitative instinct</td>
+              <td>"Fast" becomes "p95 &lt; 200ms." "Many users" becomes "up to 10,000 concurrent." Every NFR must have a number — if you don't know it, ask engineering before the session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Comfort saying "out of scope"</td>
+              <td>One of the hardest PRD skills is explicitly excluding features. Unwritten out-of-scope items become future misunderstandings. Know which features are definitely NOT in this release before the session starts.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-step</span>
+        4 · Per-Phase Preparation
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">v6.8 PRD uses a Discovery phase followed by the Essential Spine (§0–§9). The categories: <strong>[Stakeholder]</strong> = information from clients or other teams; <strong>[Domain]</strong> = concepts to understand; <strong>[Session]</strong> = how to act during the AI interaction.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Phase-Level Readiness</span>
+          <span class="data-source">bmad-prd · create intent · v6.10.0 Discovery + Essential Spine</span>
+        </div>
+        <table>
+          <thead><tr><th>Phase / Section</th><th>What to have ready</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Brain Dump</td>
+              <td><strong>[Stakeholder]</strong> Gather all source artifacts before the session — brainstorming output, PRFAQ distillate, prior briefs, transcripts. The agent auto-scans and loads them. More input → fewer clarifying questions mid-session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Stakes Calibration</td>
+              <td><strong>[Domain]</strong> Know your project type before the session: Hobby/solo · Internal tool · Consumer launch · Regulated (healthcare, finance, government). Stakes determine project level (L0–L4) and depth of each section. When uncertain, bias upward — the agent can narrow scope, not retroactively add skipped content.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Working Mode</td>
+              <td><strong>[Session]</strong> Decide in advance — <strong>Fast Path</strong> if concept is clear and speed matters (agent auto-drafts with <code>[ASSUMPTION]</code> tags, then you review); <strong>Coaching Path</strong> if you need to work through it section by section collaboratively. You can switch modes at any point.</td>
+            </tr>
+            <tr>
+              <td class="key-col">§1 Vision</td>
+              <td><strong>[Stakeholder]</strong> Know the 2–3 year direction before the session. Blue Ocean Canvas frame: what would you Eliminate / Reduce / Raise / Create relative to the market? A vague Vision produces vague FRs downstream.</td>
+            </tr>
+            <tr>
+              <td class="key-col">§2 Target User</td>
+              <td><strong>[Stakeholder]</strong> Interview at least 1 real user per persona before this session: "Walk me through what you do on a typical [task]." Grounded personas anchor all FR decisions. Use real names — "Linh, bookkeeper processing payroll for 15 clients every Friday" beats "the accountant".</td>
+            </tr>
+            <tr>
+              <td class="key-col">§4 Features</td>
+              <td><strong>[Stakeholder]</strong> Ask: "If we could only ship 5 features, which would you refuse to launch without?" — <strong>[Domain]</strong> Know atomic FR format: 1 FR = 1 user-visible behavior independently testable. Know user story format: "As a [persona] / I want to [action] / So that [outcome]."</td>
+            </tr>
+            <tr>
+              <td class="key-col">§5 Non-Goals</td>
+              <td><strong>[Stakeholder]</strong> Ask: "What features are definitely NOT in this release?" / "What would make you reject this release?" — Explicitly naming out-of-scope items is as load-bearing as naming in-scope items. Do not skip this section.</td>
+            </tr>
+            <tr>
+              <td class="key-col">§6 MVP Scope</td>
+              <td><strong>[Stakeholder]</strong> Ask: "If we had to ship in half the time, what would we cut?" / "Which features create dependencies that block others?" — <strong>[Domain]</strong> MVP = minimum to be usable and shippable. Phase 1 may be larger, but resist putting 80% of features in Phase 1.</td>
+            </tr>
+            <tr>
+              <td class="key-col">§7 Success Metrics</td>
+              <td><strong>[Stakeholder]</strong> Ask: "What number would you look at 6 months after launch to decide if this was worth building? What is that number today?" — <strong>[Domain]</strong> Know primary metric vs counter-metrics (v6.8: what NOT to optimize, prevents gaming one metric at expense of another). Both required in every PRD.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Finalize · Validate</td>
+              <td><strong>[Session]</strong> Use a <strong>different LLM</strong> for Validate than the one that wrote the PRD — the authoring LLM has internalized its own assumptions and will miss its own blind spots. This is an explicit antipattern in v6.8, not optional guidance. Have the destination tool (Confluence, Notion, etc.) available for Finalize handoffs.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Create Intent -->
+    <section id="create-intent">
+      <h3 class="skill-heading">
+        <span class="code-name">create</span>
+        Create Intent
+        <span class="code-tag">tạo mới</span>
+      </h3>
+      <p class="lede">Begin with a structured brain dump — everything the user knows goes in one pass. The skill then runs an artifact scan, stakes calibration, and working mode selection before drafting the full PRD (Essential Spine + any triggered Adapt-In sections).</p>
+
+      <section id="discovery-phase">
+        <h4 class="step-heading">Discovery Phase — 4 Stages</h4>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Discovery Phase</span>
+            <span class="data-source">bmad-prd v6.10.0 · Create Intent</span>
+          </div>
+          <table>
+            <thead><tr><th>Stage</th><th>What happens</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Source scan</td>
+                <td>Auto-scan <code>planning_artifacts/</code> for brainstorming, PRFAQ, brief, and any domain inputs. Surface paths only — user confirms which apply before content is read.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Brain dump</td>
+                <td>User provides all context in one pass — requirements, constraints, transcripts, goals, competing priorities. "Anything else?" is mandatory before narrowing. Subagent web research spawns in parallel during this stage.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Artifact scan</td>
+                <td>Parallel subagents read each confirmed source and extract decision signals relevant to the user's stated focus. Parent receives a relevance-filtered digest — not a raw doc dump. Missing inputs are flagged before drafting starts.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Stakes calibration</td>
+                <td>One probe: Hobby/solo · Internal tool · Consumer launch · Regulated. Sets depth for every section — accessibility floor, compliance flags, NFR thresholds, validation rigor. Also classifies project level (L0–L4); determines which Adapt-In sections are triggered.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Working mode</td>
+                <td><strong>Fast Path</strong> — batch remaining gaps into 1–2 consolidated questions → draft full PRD with <code>[ASSUMPTION]</code> tags → user reviews and iterates. <strong>Coaching Path</strong> — walk through Essential Spine section by section; push back on thin assumptions in real time. Switchable at any point.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="finalize-process">
+        <h4 class="step-heading">Finalize Process — 8 Steps</h4>
+        <p class="lede">Runs at the end of every Create session and must be re-run after each Update that returns status to <code>draft</code>.</p>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Finalize — 8 Steps</span>
+            <span class="data-source">bmad-prd v6.10.0</span>
+          </div>
+          <table>
+            <thead><tr><th>Step</th><th>What happens</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">1 · Decision log audit</td><td>Walk <code>.memlog.md</code> with user; confirm each entry is captured in PRD, addendum, or explicitly set aside. Missing entries flagged.</td></tr>
+              <tr><td class="key-col">2 · Input reconciliation</td><td>Subagent per source input checks PRD + addendum for gaps — especially qualitative ideas (tone, voice, feel) that the FR structure silently drops.</td></tr>
+              <tr><td class="key-col">3 · Reviewer pass</td><td>Rubric walker + adversarial reviewer run in parallel and render an HTML validation report. Findings tiered by severity (Critical/High surfaced first). Resolve before polish.</td></tr>
+              <tr><td class="key-col">4 · Triage open items</td><td>All Open Questions, <code>[ASSUMPTION]</code> tags, <code>[NOTE FOR PM]</code> callouts. Phase-blockers resolved first; non-blockers deferred to <code>.memlog.md</code>.</td></tr>
+              <tr><td class="key-col">5 · Polish</td><td><code>bmad-editorial-review-structure</code> then <code>bmad-editorial-review-prose</code> on <code>prd.md</code> + <code>addendum.md</code>. Structural passes run before prose — do not polish text that will soon be cut.</td></tr>
+              <tr><td class="key-col">6 · External handoffs</td><td>Execute configured handoffs (Confluence, Notion, Jira…); surface returned URLs/IDs. Skip and flag unavailable tools.</td></tr>
+              <tr><td class="key-col">7 · Close</td><td>Set <code>prd.md</code> frontmatter <code>status: final</code>. Log finalization to <code>.memlog.md</code>. ⚠ If context was exhausted before Close, check <code>stepsCompleted</code> in frontmatter — start new session with explicit "Finalize this PRD — start from the Close step."</td></tr>
+              <tr><td class="key-col">8 · on_complete hook</td><td>Run if configured in <code>customize.toml</code>. Suggest common next steps: <code>bmad-ux</code>, <code>bmad-architecture</code>, <code>bmad-create-epics-and-stories</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Validate Intent -->
+    <section id="validate-intent">
+      <h3 class="skill-heading">
+        <span class="code-name">validate</span>
+        Validate Intent
+        <span class="code-tag">separate llm</span>
+      </h3>
+      <p class="lede">Validation is only meaningful when performed by a different LLM than the one that wrote the PRD. Self-validation is an explicit antipattern in bmad-prd v6.8.</p>
+
+      <div class="warn-callout">
+        <strong>Antipattern Warning:</strong> Always use a DIFFERENT LLM than the one that authored the PRD. The authoring LLM has internalized its own assumptions and will not catch its own blind spots. This is not optional.
+      </div>
+
+      <section id="rubric">
+        <h4 class="step-heading">7 Rubric Dimensions</h4>
+
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Validation Rubric</span>
+            <span class="data-source">bmad-validate-prd · rubric-walker</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Dimension</th><th>What it tests</th><th>Common failure</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Decision-readiness</td>
+                <td>Can a team make build/not-build decisions from this PRD alone?</td>
+                <td>Vague FRs; no scope boundary; missing NFRs</td>
+              </tr>
+              <tr>
+                <td class="key-col">Substance over theater</td>
+                <td>Are FRs specific and testable, or are they marketing language?</td>
+                <td>"Seamless experience", "powerful dashboard" — not testable</td>
+              </tr>
+              <tr>
+                <td class="key-col">Strategic coherence</td>
+                <td>Does Vision → User Journeys → Features form a coherent chain?</td>
+                <td>Features that do not realize any user journey; vision misaligned with scope</td>
+              </tr>
+              <tr>
+                <td class="key-col">Done-ness clarity</td>
+                <td>Is it unambiguous when each FR is complete?</td>
+                <td>FRs without testable Consequences; missing acceptance signals</td>
+              </tr>
+              <tr>
+                <td class="key-col">Scope honesty</td>
+                <td>Are non-goals and MVP exclusions explicit and reasoned?</td>
+                <td>Only in-scope items listed; no rationale for deferred items</td>
+              </tr>
+              <tr>
+                <td class="key-col">Downstream usability</td>
+                <td>Can UX, Architecture, and Engineering work from this without a PM in the room?</td>
+                <td>Missing Glossary; FR numbering inconsistent; ambiguous actor references</td>
+              </tr>
+              <tr>
+                <td class="key-col">Shape fit</td>
+                <td>Does the PRD's scope and depth match the product's stakes?</td>
+                <td>Hobby-level depth for launch-level product; over-engineered for a spike task</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Reviewer Configuration</h5>
+        <ul class="step-detail">
+          <li><strong class="label">Rubric walker</strong>Systematic pass through all 7 dimensions; grades each Excellent / Good / Fair / Poor; cites specific sections</li>
+          <li><strong class="label">Adversarial</strong>Plays devil's advocate — finds assumptions, contradictions, and missing edge cases the rubric walker misses</li>
+          <li><strong class="label">Default</strong>Both run by default. Additional reviewers can be added for regulated domains or high-stakes launches.</li>
+        </ul>
+      </section>
+
+      <section id="verdict-action">
+        <h4 class="step-heading">Verdict → Action Table</h4>
+
+        <div class="verdict-row">
+          <div class="verdict-cell">
+            <span class="verdict-grade good">Good / Excellent</span>
+            <p>Proceed to downstream workflows. Document any minor findings as future improvement notes. No blocking action required.</p>
+          </div>
+          <div class="verdict-cell">
+            <span class="verdict-grade fair">Fair</span>
+            <p>Fix all High findings before downstream work begins. Medium findings may proceed with PM sign-off. Re-validate after fixing High items.</p>
+          </div>
+          <div class="verdict-cell">
+            <span class="verdict-grade poor">Poor</span>
+            <p>Must Update before any downstream workflow. Do not proceed to UX, Architecture, or Epics. Use bmad-prd → Update then Validate again.</p>
+          </div>
+        </div>
+
+        <h5>Validation Flows</h5>
+        <ul class="inline-list">
+          <li><strong>Flow A:</strong> Create → Validate → [issues found] → Update → Validate again</li>
+          <li><strong>Flow B:</strong> [stakeholder feedback received] → Update → Validate</li>
+        </ul>
+      </section>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Update Intent -->
+    <section id="update-intent">
+      <h3 class="skill-heading">
+        <span class="code-name">update</span>
+        Update Intent
+        <span class="code-tag">cập nhật</span>
+      </h3>
+      <p class="lede">Every update starts with a blast radius analysis. No change is made without first mapping cascade effects across the document.</p>
+
+      <h4 class="step-heading">Blast Radius Analysis (Pre-edit)</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Cascade check</strong>Identify all FRs, NFRs, Vision text, and decision log entries that touch the thing being changed</li>
+        <li><strong class="label">Conflict check</strong>Source-extract the change from inputs; compare against existing text; surface conflicts before applying</li>
+        <li><strong class="label">Apply</strong>Make changes with full awareness of what else must change to keep the document coherent</li>
+        <li><strong class="label">Status</strong>After Update, PRD status returns to <code>draft</code>; Finalize must be re-run to set back to <code>final</code></li>
+      </ul>
+
+      <h4 class="step-heading">Deprecation Note</h4>
+      <div class="warn-callout">
+        <strong>bmad-edit-prd is now a deprecated forwarding shim.</strong> All update work goes through <code>bmad-prd</code> → Update. The deprecated skill forwards to the unified skill but direct use is not supported and will not receive updates.
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Full Reference</span>
+          <span class="data-source">bmad-prd v6.10.0</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Area</th><th>Detail</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Skill</td>
+              <td><code>bmad-prd</code> (unified — replaces <code>bmad-create-prd</code>, <code>bmad-validate-prd</code>, <code>bmad-edit-prd</code>)</td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent</td>
+              <td>John — Product Manager</td>
+            </tr>
+            <tr>
+              <td class="key-col">Output</td>
+              <td><code>prd.md</code> + <code>addendum.md</code> + <code>.memlog.md</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Reviewer Gate</td>
+              <td>Rubric walker + adversarial reviewer render an HTML validation report alongside the graded findings</td>
+            </tr>
+            <tr>
+              <td class="key-col">FR Format</td>
+              <td>FR-N: Actor can [capability]. Consequences: testable.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Frameworks</td>
+              <td>JTBD (Christensen) · Blue Ocean Canvas · INVEST · SMART · Gherkin</td>
+            </tr>
+            <tr>
+              <td class="key-col">Editorial</td>
+              <td><code>bmad-editorial-review-structure</code> · <code>bmad-editorial-review-prose</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">MCP Tools</td>
+              <td><code>bmad-help</code> · parallel subagents (artifact scan, web research, reviewers)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h5>Downstream Workflow Chain</h5>
+      <ul class="inline-list">
+        <li><strong>bmad-prd</strong> (this skill) → PRD complete + validated</li>
+        <li><strong>bmad-ux</strong> → UX design grounded in §2 User Journeys and §3 Glossary</li>
+        <li><strong>bmad-architecture</strong> → Architecture informed by §4 FRs, §7 Counter-metrics, §6 MVP Scope</li>
+        <li><strong>bmad-create-epics-and-stories</strong> → Stories that reference FR-N numbers and testable Consequences</li>
+        <li><strong>bmad-testarch-test-design</strong> → Test design anchored to FR-N and §7 Success Metrics</li>
+      </ul>
+
+      <section id="technique-descriptions">
+        <h5>Technique Descriptions</h5>
+
+        <h5>Create Intent — Discovery Phase (v6.8)</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Stage</th><th>What happens</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Source scan</td>
+                <td>Auto-scan <code>planning_artifacts/</code> for brainstorming, PRFAQ, brief, and any domain inputs. Surface paths only — user confirms which apply before content is read.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Brain dump</td>
+                <td>User provides all context in one pass — requirements, constraints, transcripts, goals, competing priorities. "Anything else?" is mandatory before narrowing. Subagent web research spawns in parallel during this stage.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Artifact scan</td>
+                <td>Parallel subagents read each confirmed source and extract decision signals relevant to the user's stated focus. Parent receives a relevance-filtered digest — not a raw doc dump. Missing inputs are flagged before drafting starts.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Stakes calibration</td>
+                <td>One probe: Hobby/solo · Internal tool · Consumer launch · Regulated. Sets depth for every section — accessibility floor, compliance flags, NFR thresholds, validation rigor. Also classifies project level (L0–L4); determines which Adapt-In sections are triggered.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Working mode</td>
+                <td><strong>Fast Path</strong> — batch remaining gaps into 1–2 consolidated questions → draft full PRD with <code>[ASSUMPTION]</code> tags → user reviews and iterates. <strong>Coaching Path</strong> — walk through Essential Spine section by section; push back on thin assumptions in real time. Switchable at any point.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Finalize Process — 8 Steps</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Step</th><th>What happens</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">1 · Decision log audit</td><td>Walk <code>.memlog.md</code> with user; confirm each entry is captured in PRD, addendum, or explicitly set aside. Missing entries flagged.</td></tr>
+              <tr><td class="key-col">2 · Input reconciliation</td><td>Subagent per source input checks PRD + addendum for gaps — especially qualitative ideas (tone, voice, feel) that the FR structure silently drops.</td></tr>
+              <tr><td class="key-col">3 · Reviewer pass</td><td>Rubric walker + adversarial reviewer run in parallel and render an HTML validation report. Findings tiered by severity (Critical/High surfaced first). Resolve before polish.</td></tr>
+              <tr><td class="key-col">4 · Triage open items</td><td>All Open Questions, <code>[ASSUMPTION]</code> tags, <code>[NOTE FOR PM]</code> callouts. Phase-blockers resolved first; non-blockers deferred to <code>.memlog.md</code>.</td></tr>
+              <tr><td class="key-col">5 · Polish</td><td><code>bmad-editorial-review-structure</code> then <code>bmad-editorial-review-prose</code> on <code>prd.md</code> + <code>addendum.md</code>. Structural passes run before prose — do not polish text that will soon be cut.</td></tr>
+              <tr><td class="key-col">6 · External handoffs</td><td>Execute configured handoffs (Confluence, Notion, Jira…); surface returned URLs/IDs. Skip and flag unavailable tools.</td></tr>
+              <tr><td class="key-col">7 · Close</td><td>Set <code>prd.md</code> frontmatter <code>status: final</code>. Log finalization to <code>.memlog.md</code>. ⚠ If context was exhausted before Close, check <code>stepsCompleted</code> in frontmatter — start new session with explicit "Finalize this PRD — start from the Close step."</td></tr>
+              <tr><td class="key-col">8 · on_complete hook</td><td>Run if configured in <code>customize.toml</code>. Suggest common next steps: <code>bmad-ux</code>, <code>bmad-architecture</code>, <code>bmad-create-epics-and-stories</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Blue Ocean Canvas</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Dimension</th><th>Question</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Eliminate</td><td>What industry assumptions can be completely removed? What do we offer that customers don't actually value?</td></tr>
+              <tr><td class="key-col">Reduce</td><td>What can be below industry standard? What are we over-delivering on relative to customer need?</td></tr>
+              <tr><td class="key-col">Raise</td><td>What should be raised well above industry standard? Where does the customer want more and gets less?</td></tr>
+              <tr><td class="key-col">Create</td><td>What does no one in the industry currently offer? What new sources of value can we invent?</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Domain Taxonomy — 13 Industries (Adapt-In: Compliance &amp; Regulatory)</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Domain</th><th>Key Standards</th><th>Trigger Question</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Financial / Accounting</td><td>IRS, GAAP, SOX, IFRS, FASB</td><td>Does it generate financial reports or store ledger entries?</td></tr>
+              <tr><td class="key-col">Healthcare / Medical</td><td>HIPAA, HITECH, FDA 21 CFR Part 11, HL7/FHIR</td><td>Does it touch patient records, diagnoses, or prescriptions?</td></tr>
+              <tr><td class="key-col">Payment / Fintech</td><td>PCI-DSS, AML, KYC, PSD2</td><td>Does it move money, hold balances, or process card payments?</td></tr>
+              <tr><td class="key-col">Personal Data / Consumer</td><td>GDPR, CCPA/CPRA, COPPA</td><td>Does it collect names, emails, locations, or behavioral data?</td></tr>
+              <tr><td class="key-col">Education</td><td>FERPA, COPPA</td><td>Does it store student education records, or may it be accessed by users under 13?</td></tr>
+              <tr><td class="key-col">Employment / HR / Payroll</td><td>FLSA, state payroll tax laws, ADA</td><td>Does it calculate wages, deductions, or payroll taxes?</td></tr>
+              <tr><td class="key-col">Government / Public Sector</td><td>FedRAMP, FISMA, Section 508 (WCAG 2.1 AA)</td><td>Is the client a US federal, state, or local government entity?</td></tr>
+              <tr><td class="key-col">Legal / e-Signature</td><td>ESIGN Act, eIDAS</td><td>Does it create or store contracts or legally binding documents?</td></tr>
+              <tr><td class="key-col">Telecommunications / Messaging</td><td>TCPA, CAN-SPAM Act, CASL</td><td>Does it send marketing SMS, robocalls, or commercial email?</td></tr>
+              <tr><td class="key-col">Real Estate / Property</td><td>RESPA, Fair Housing Act</td><td>Does it process mortgage disclosures or list residential properties?</td></tr>
+              <tr><td class="key-col">Insurance</td><td>NAIC Model Laws, HIPAA (if health data)</td><td>Does it calculate premiums, process claims, or store policyholder data?</td></tr>
+              <tr><td class="key-col">Food / Hospitality / Agriculture</td><td>FSMA, FDA 21 CFR Part 11</td><td>Does it manage food traceability, supplier verification, or recall workflows?</td></tr>
+              <tr><td class="key-col">Energy / Utilities</td><td>NERC CIP, FERC regulations</td><td>Does it touch bulk power systems, grid reliability, or energy market reporting?</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

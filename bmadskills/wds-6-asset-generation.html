@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset Generation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2255c;
+    --accent-soft:#e64980;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 18px 22px; margin: 16px 0 24px; overflow-x: auto; border: 1px solid var(--rule); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  /* ── Utility coordinator callout ──────────────── */
+  .utility-callout { margin: 32px 0; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .utility-callout .utility-head { display: flex; align-items: baseline; gap: 14px; padding: 12px 18px; border-bottom: 1px solid var(--rule); background: #1d3557; flex-wrap: wrap; }
+  .utility-callout .utility-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; white-space: nowrap; }
+  .utility-callout .utility-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--paper); }
+  .utility-callout .utility-body { padding: 18px; font-size: 0.9rem; color: var(--ink-soft); line-height: 1.65; }
+  .utility-callout .utility-body p { margin-bottom: 10px; }
+  .utility-callout .utility-body p:last-child { margin-bottom: 0; }
+
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>WDS · Phase 6 · where specs become pixels</span>
+        <span>Skill · wds-6-asset-generation</span>
+        <span>Agent · Freya 🎨 (WDS Designer)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Asset Generation <em>· where specs become pixels</em></h1>
+    <p class="subtitle">Generate production-ready visual assets from specifications using AI-powered creative tools. A non-linear activity menu — wireframes, page designs, UI elements, icons, images, video, and content — each driven by a shared generation pattern that grounds prompts in specs, style, and reference images before routing to MCP services.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>wds-6-asset-generation</dd></div>
+      <div><dt>Menu code</dt><dd>GA</dd></div>
+      <div><dt>Agent</dt><dd>Freya (WDS Designer)</dd></div>
+      <div><dt>Phase</dt><dd>WDS Phase 6</dd></div>
+      <div><dt>Input</dt><dd>Phase 4 specs + Phase 1 visual direction</dd></div>
+      <div><dt>Output</dt><dd>Wireframes · designs · assets · content</dd></div>
+      <div><dt>Activities</dt><dd>W · P · U · I · M · V · C · E</dd></div>
+      <div><dt>Services</dt><dd>Stitch · Nano Banana · Figma</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#activity-menu">Activity Menu</a>
+      <a href="#generation-pattern">Shared Generation Pattern</a>
+      <a href="#design-styles">Design Style Library</a>
+      <a href="#content-styles">Content Style Library</a>
+      <a href="#outputs">Outputs</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-references">Why Reference Images Are Critical</a>
+      <a href="#why-batch">Why Batch Mode?</a>
+      <a href="#why-after-specs">Why After Specs?</a>
+      <a href="#why-mcp">Why Route Through MCP Services?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#workflows">Workflows</a>
+      <a href="#workflows" class="toc-sub">W · Wireframes</a>
+      <a href="#workflows" class="toc-sub">P · Page Designs</a>
+      <a href="#workflows" class="toc-sub">U · UI Elements</a>
+      <a href="#workflows" class="toc-sub">I · Icons</a>
+      <a href="#workflows" class="toc-sub">M · Images</a>
+      <a href="#workflows" class="toc-sub">V · Videos</a>
+      <a href="#workflows" class="toc-sub">C · Content</a>
+      <a href="#workflows" class="toc-sub">E · Figma Export</a>
+      <a href="#workflows" class="toc-sub">Stitch (utility)</a>
+      <a href="#applied-toolkit">Applied Toolkit</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Asset Generation — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>wds-6-asset-generation</code></dd>
+        <dt>Menu code</dt><dd><span class="menu-codes"><code>GA</code></span> (invoked via <code>/wds-agent-freya-ux</code> → GA, or <code>/wds-6-asset-generation</code>)</dd>
+        <dt>Role</dt><dd>AI-powered creative production — turns Phase 4 specifications, style, and references into production-ready pixels.</dd>
+        <dt>Agent</dt><dd>Freya 🎨 — WDS Designer; replaces BMM Sally (UX Designer) when WDS is installed.</dd>
+        <dt>Continuity</dt><dd>Reads the design log and prior-phase artifacts on entry so generated assets stay anchored to the same visual intent.</dd>
+      </dl>
+
+      <p>This skill generates production-ready visual assets from specifications using AI-powered creative tools. <strong>This is where specifications become pixels.</strong> Phase 4 told you precisely what each page and component should be; Phase 6 produces the artifacts — wireframes, full page compositions, UI elements, icons, imagery, video, and the strategic copy that fills them. The menu is <strong>non-linear</strong>: pick whichever activity you need, in any order, as many times as the work demands.</p>
+
+      <p>It reads four inputs: <strong>Phase 4 page specifications</strong>, <strong>Phase 7 design tokens</strong> (if available), <strong>visual direction from Phase 1</strong> (style references, brand), and <strong>reference images</strong> provided by you. Outputs span wireframes, page design compositions, UI element assets (buttons, cards, forms), icon sets, photography / illustrations / backgrounds, video and motion content, written content (copy), and Figma files when the Figma export activity is used.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Activity Menu -->
+    <section id="activity-menu">
+      <h3 class="skill-heading">
+        <span class="code-name">activities</span>
+        Activity Menu
+        <span class="code-tag">non-linear</span>
+      </h3>
+      <p>Eight activities, selected by single-letter code. Each is independent — run wireframes today, icons next week, content whenever the copy is ready. There is no required order.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Activity Menu</span>
+          <span class="data-source">wds-6-asset-generation · non-linear</span>
+        </div>
+        <table>
+          <thead><tr><th>Code</th><th>Activity</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">W</td><td>Wireframes</td><td>Outline wireframes from page specs</td></tr>
+            <tr><td class="key-col">P</td><td>Page Designs</td><td>Full page design compositions</td></tr>
+            <tr><td class="key-col">U</td><td>UI Elements</td><td>Buttons, cards, forms, components</td></tr>
+            <tr><td class="key-col">I</td><td>Icons</td><td>Icon sets and individual icons</td></tr>
+            <tr><td class="key-col">M</td><td>Images</td><td>Photos, illustrations, backgrounds</td></tr>
+            <tr><td class="key-col">V</td><td>Videos</td><td>Motion content and animations</td></tr>
+            <tr><td class="key-col">C</td><td>Content</td><td>Strategic text content (5-model framework)</td></tr>
+            <tr><td class="key-col">E</td><td>Export to Figma</td><td>Push specs and assets to Figma</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Shared Generation Pattern -->
+    <section id="generation-pattern">
+      <h3 class="skill-heading">
+        <span class="code-name">pattern</span>
+        Shared Generation Pattern
+        <span class="code-tag">7 steps</span>
+      </h3>
+      <p>Every visual activity (W, P, U, I, M, V) walks the same seven-step pattern. It is what keeps generation grounded: spec, style, and references converge into a prompt before a single pixel is produced.</p>
+
+      <pre class="code-block">1. Load Context     → Read relevant page specs, design system, visual direction
+2. Asset Inventory  → Identify all assets needed (single or batch)
+3. Select Style     → Choose design style + content style
+4. Reference Images → Attach reference images for visual consistency
+5. Craft Prompts    → Translate spec + style + references into generation prompts
+6. Select Service   → Route to MCP service (Stitch, Nano Banana) or export prompts
+7. Generate &amp; Review → Execute, review results, iterate</pre>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Design Style Library -->
+    <section id="design-styles">
+      <h3 class="skill-heading">
+        <span class="code-name">design-styles</span>
+        Design Style Library
+      </h3>
+      <p>The <em>design style</em> sets the overall character of a composition — its structure, rhythm, and feel. Chosen at step 3 of the generation pattern.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Design Style Library</span>
+          <span class="data-source">wds-6-asset-generation · step 3</span>
+        </div>
+        <table>
+          <thead><tr><th>Style</th><th>Character</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Minimal</td><td>Clean, whitespace-heavy, restrained</td></tr>
+            <tr><td class="key-col">Brutalist</td><td>Raw, high contrast, structural exposure</td></tr>
+            <tr><td class="key-col">Organic</td><td>Natural shapes, warm tones, hand-crafted feel</td></tr>
+            <tr><td class="key-col">Corporate</td><td>Professional, trustworthy, structured</td></tr>
+            <tr><td class="key-col">Playful</td><td>Energetic, colorful, expressive</td></tr>
+            <tr><td class="key-col">Editorial</td><td>Magazine-style, strong typography</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Content Style Library -->
+    <section id="content-styles">
+      <h3 class="skill-heading">
+        <span class="code-name">content-styles</span>
+        Content Style Library
+      </h3>
+      <p>The <em>content style</em> sets how imagery and illustration are rendered — the visual medium. Paired with a design style at step 3.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Content Style Library</span>
+          <span class="data-source">wds-6-asset-generation · step 3</span>
+        </div>
+        <table>
+          <thead><tr><th>Style</th><th>Character</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Photorealistic</td><td>True-to-life photography</td></tr>
+            <tr><td class="key-col">Illustration</td><td>Hand-drawn or vector illustration</td></tr>
+            <tr><td class="key-col">Watercolor</td><td>Soft, painterly textures</td></tr>
+            <tr><td class="key-col">Comic Book</td><td>Bold lines, flat color panels</td></tr>
+            <tr><td class="key-col">Pencil Sketch</td><td>Rough, hand-drawn feel</td></tr>
+            <tr><td class="key-col">Isometric</td><td>3D axonometric projection</td></tr>
+            <tr><td class="key-col">Flat Design</td><td>Vector, minimal shadows</td></tr>
+            <tr><td class="key-col">3D Render</td><td>CGI-quality 3D objects</td></tr>
+            <tr><td class="key-col">Hyper-realistic</td><td>Ultra-detailed, photographic</td></tr>
+            <tr><td class="key-col">Line Art</td><td>Outline-only illustration</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Outputs -->
+    <section id="outputs">
+      <h3 class="skill-heading">
+        <span class="code-name">output</span>
+        Outputs
+        <span class="code-tag">production-ready</span>
+      </h3>
+      <p>What this phase produces, depending on which activities you run.</p>
+
+      <ul class="step-detail">
+        <li><strong class="label">Wireframes</strong>Outline sketches of page structure, generated from page specs.</li>
+        <li><strong class="label">Page Designs</strong>Full visual page compositions.</li>
+        <li><strong class="label">UI Elements</strong>Buttons, cards, forms, and reusable components.</li>
+        <li><strong class="label">Icons</strong>Icon sets and individual icons.</li>
+        <li><strong class="label">Images</strong>Photography, illustrations, and backgrounds.</li>
+        <li><strong class="label">Video &amp; Motion</strong>Motion content and animations.</li>
+        <li><strong class="label">Content</strong>Strategic written copy via the 5-model framework.</li>
+        <li><strong class="label">Figma Files</strong>Produced when the Figma export activity is used.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-references">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Asset Generation Works This Way — <em>The reasoning behind each design choice</em>
+      </h2>
+
+      <h3 class="skill-heading">
+        <span class="code-name">why-references</span>
+        Why Reference Images Are Critical
+      </h3>
+      <p>Without explicit reference images, AI generation drifts from your brand — it free-associates toward generic, statistically average output rather than your specific visual intent. References are the anchor. Collect <strong>3–5 reference images before generating</strong> so every prompt has concrete visual ground to match. This is why step 4 of the shared pattern exists as its own step rather than being folded into prompt-crafting: references are non-negotiable, not optional polish.</p>
+
+      <h3 class="skill-heading" id="why-batch">
+        <span class="code-name">why-batch</span>
+        Why Batch Mode?
+      </h3>
+      <p>When you generate many assets of the same type — say <strong>20 icons</strong> — batch mode keeps the style consistent across the whole set. Generating them one at a time invites drift: each individual prompt subtly diverges, and the set ends up looking like it came from different hands. Batching holds style, weight, and treatment constant so the assets read as a coherent family.</p>
+
+      <h3 class="skill-heading" id="why-after-specs">
+        <span class="code-name">why-after-specs</span>
+        Why This Phase Comes After Specs
+      </h3>
+      <p>Asset Generation is Phase 6 by design — it runs after specifications exist. Specs + style + references combine into <strong>grounded prompts</strong> rather than free-association. Generating before the spec is settled means producing pixels for decisions that have not been made yet, then regenerating once they are. By the time you reach this phase, Phase 4 has already decided what each page and component should be; Phase 6 only has to render it.</p>
+
+      <h3 class="skill-heading" id="why-mcp">
+        <span class="code-name">why-mcp</span>
+        Why Route Through MCP Services?
+      </h3>
+      <p><strong>Stitch</strong> and <strong>Nano Banana</strong> are the primary integrated generation services, accessed via MCP in your AI coding environment. Routing through MCP keeps generation inside the same environment where the specs and design log live — the AI can read context and call the service directly, rather than asking you to copy prompts out to a separate tool and paste results back. When a service is unavailable, the pattern still produces craftable prompts you can export and run elsewhere.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="workflows">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Workflows — <em>Eight sub-workflows, one for each activity</em>
+      </h2>
+
+      <p class="lede">Phase 6 is a multi-workflow phase. Each activity code (W, P, U, I, M, V, C, E) routes to its own dedicated workflow with its own step sequence. Stitch is a separate utility coordinator used across visual workflows. All workflows share the same facilitation discipline: read the complete step file, wait for user input at every menu, never skip steps.</p>
+
+      <!-- ── W: Wireframes ── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-wireframes</span>
+        Wireframes
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Generates structural outline wireframes that visualize page layouts from UX specifications. Use this activity to establish layout logic and information hierarchy before committing to full visual designs. Fidelity is selectable — Low-Fi (boxes and labels), Mid-Fi (recognizable components), or High-Fi (near-realistic with placeholder content) — and annotations can be switched on or off.</p>
+
+      <h4 class="step-heading">Step 1 · Load Context</h4>
+      <p>Reads page specifications from the Scenarios folder, loads layout tokens from the design system (grid, gutters, spacing, breakpoints), and scans for any previously generated wireframes. Presents a context summary showing the pages to wireframe, grid configuration, and existing wireframe count before proceeding.</p>
+
+      <h4 class="step-heading">Step 2 · Asset Inventory</h4>
+      <p>Lists all pages and views (desktop, mobile) identified in the specs, cross-references them against existing wireframes to flag what already exists and what is outdated, and presents scope options: generate all, select specific, or missing only. Waits for user scope selection before proceeding.</p>
+
+      <h4 class="step-heading">Step 3 · Select Style</h4>
+      <p>Presents fidelity level options and loads the chosen design style from the style library to extract layout principles and spacing feel. Also confirms annotation preferences and output dimensions (desktop and mobile widths). Documents the complete wireframe style configuration before generation begins.</p>
+
+      <h4 class="step-heading">Step 4 · Generate Wireframes</h4>
+      <p>Crafts a base prompt from context and style (fidelity, grid, content zones, style keywords, dimensions, grayscale palette), then customizes per page. Offers MCP generation or prompt export for external tools. Generates one wireframe at a time with per-page approval before continuing; chains approved results as references for batch consistency. Tracks progress per page and view.</p>
+
+      <h4 class="step-heading">Step 5 · Review and Iterate</h4>
+      <p>Presents all wireframes grouped by page with desktop and mobile side by side. Runs consistency checks across the set: grid alignment, navigation placement, typography hierarchy, spacing uniformity, and annotation labels. Offers approve all, regenerate specific, style adjust, or edit annotations. Saves the approved set to <code>E-Assets/wireframes/</code> and updates the design log.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── P: Page Designs ── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-page-designs</span>
+        Page Designs
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Generates complete full-page design compositions that bring UX specifications to life with real color, typography, imagery, and components. Use after wireframes are approved and the design system and visual direction are established. Requires specs, a complete design system, visual direction, and ideally approved wireframes as structural reference.</p>
+
+      <h4 class="step-heading">Step 1 · Load Context</h4>
+      <p>Loads all four context sources: page specifications (full structure, user journeys, content, image placement), the complete design system (color, typography, components, spacing, elevation tokens), visual direction (brand guidelines, mood board, photography direction), and approved wireframes from the wireframes folder. Presents a context summary with pages to design, token count, wireframe availability, and content readiness per page.</p>
+
+      <h4 class="step-heading">Step 2 · Asset Inventory</h4>
+      <p>Lists all pages with readiness assessment: wireframe approved, real copy available, source images available, all components defined. Flags pages blocked by missing assets and suggests the relevant activity (Images, Icons) to run first. Presents ready count, blocked count, and already-designed count alongside scope selection options.</p>
+
+      <h4 class="step-heading">Step 3 · Select Style</h4>
+      <p>Presents available design styles and content styles from the style libraries, with suggestions matched to the project brand direction. Merges the selected style mood with design system color tokens, spacing feel with spacing tokens, and typography approach with the project's font stack. Confirms design style, content style (or photography-only mode), and output dimensions.</p>
+
+      <h4 class="step-heading">Step 4 · Generate Page Designs</h4>
+      <p>Builds comprehensive prompts per page — layout (from wireframe or spec), hex colors from the design system, typography, style keywords, real headlines and body text, components, image areas, and dimensions. Attaches the approved wireframe as structural reference when available. Generates desktop first, presents for approval, then uses the approved desktop as reference for mobile. Chains approved pages for batch visual consistency across the set.</p>
+
+      <h4 class="step-heading">Step 5 · Review and Iterate</h4>
+      <p>Shows all designs grouped by page as desktop + mobile pairs. Runs two review passes: design system compliance (colors, typography, spacing, components, responsive layout match tokens) and cross-page consistency (navigation identical, footer consistent, color usage and visual rhythm unified). Offers approve, regenerate, style adjust, detail edit, or side-by-side compare. Saves the approved set to <code>E-Assets/page-designs/</code>.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── U: UI Elements ── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-ui-elements</span>
+        UI Elements
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Generates UI component assets — buttons, cards, form inputs, navigation, feedback components — consistent with the design system. Covers all variants and states (default, hover, focus, active, disabled) for each component type. Use when you need design-system-compliant component visuals for prototyping, documentation, or handoff.</p>
+
+      <h4 class="step-heading">Step 1 · Load Context</h4>
+      <p>Reads component definitions from the design system (button variants, card patterns, form elements, navigation, feedback components) and all design tokens affecting rendering (color per state, typography, spacing, border, shadow, transition tokens). Also reads page specs to identify which components appear on which pages. Presents a context summary with component type count, token count, states to generate, and referencing pages.</p>
+
+      <h4 class="step-heading">Step 2 · Asset Inventory</h4>
+      <p>Creates a complete inventory table: component type, variant count, state count, and total assets (variants × states). Assigns priority levels — High (used every page: buttons, inputs, navigation), Medium (multiple pages: cards, alerts), Low (specific pages: specialized components). Checks for existing generated assets and presents scope options: all, high priority only, or select specific.</p>
+
+      <h4 class="step-heading">Step 3 · Select Style</h4>
+      <p>Confirms the rendering approach: Vector/CSS (clean and scalable), Realistic (shadows and depth), or Flat (minimal, no shadows). Selects state visualization mode: Grid (all states of one variant in one image, design-system doc style), Individual (each state as a separate asset), or Animated (state transitions as a sequence). Maps design tokens to visual properties for the entire component set.</p>
+
+      <h4 class="step-heading">Step 4 · Generate UI Elements</h4>
+      <p>Generates in priority order: buttons, form inputs, cards, navigation, feedback components. Applies batch strategy per visualization mode — Grid style generates all states in a single prompt; Individual style chains references for consistency. Requires group-level approval before continuing to the next component type. Tracks progress per component group with completion counts.</p>
+
+      <h4 class="step-heading">Step 5 · Review and Iterate</h4>
+      <p>Reviews across three dimensions: design system compliance (exact token values for colors, typography, border radius, shadows, spacing, focus rings), cross-component consistency (visual weight balance, uniform radius and shadows, consistent disabled state treatment), and accessibility (WCAG AA contrast 4.5:1 text, 3:1 large text; visible focus states; distinguishable disabled states). Saves the approved library organized by type to <code>E-Assets/ui-elements/</code>.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── I: Icons ── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-icons</span>
+        Icons
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Generates consistent icon sets and individual icons matching the project's visual direction and design system. Covers navigation, action, status, feature, social, and decorative icon categories. Batch-generates by group (navigation together, actions together, etc.) to ensure the full set reads as a coherent family. Output is SVG primary with PNG fallbacks at multiple sizes.</p>
+
+      <h4 class="step-heading">Step 1 · Load Context</h4>
+      <p>Reads every icon reference from across all page specs, organized by category. Loads icon-related design tokens (sizes 16/24/32/48px, stroke width, color mode, container type). Checks for existing generated icons and external icon library references in the design system. Presents a context summary with total icon count, categories, existing assets, primary size, and style direction from the design system.</p>
+
+      <h4 class="step-heading">Step 2 · Asset Inventory</h4>
+      <p>Builds a complete deduplicated icon catalog: icon name, category, pages used on, sizes needed. Merges icons that appear across multiple pages, notes all size variants, and identifies similar icons that could share a base (arrow families, CRUD action sets). Calculates total unique icons and total assets (unique × size variants). Presents scope options: all, by category, select individual, or priority first (navigation + actions).</p>
+
+      <h4 class="step-heading">Step 3 · Select Style</h4>
+      <p>Defines the complete icon style — Outline, Filled, Duotone, or Glyph — with detailed parameters per choice (stroke width, line cap, corner radius for outline; fill style for filled; opacity for duotone). Defines grid and alignment rules: canvas size with padding, live area, and pixel grid alignment. Selects color treatment: Monochrome (currentColor), Brand colors by category, or Fixed hex per icon. Confirms output format (SVG primary, PNG fallback).</p>
+
+      <h4 class="step-heading">Step 4 · Generate Icons</h4>
+      <p>Constructs a base prompt from the style configuration and generates icons by group for maximum consistency: navigation set first, then action set, status set, feature set, and social set. Within each group: generates the first icon, gets approval, then uses it as reference for the rest of the group. Optimizes SVG output — clean markup, correct viewBox, currentColor for monochrome, pixel alignment. Offers MCP generation, prompt export, or open-source library match.</p>
+
+      <h4 class="step-heading">Step 5 · Review and Iterate</h4>
+      <p>Presents the full icon set in a grid organized by category, shown at multiple sizes (sm, md, lg) on both dark and light backgrounds. Checks consistency across the set: uniform stroke weight, balanced visual weight, consistent corner radius and detail level, uniform padding, recognizable at smallest size. Also runs a metaphor clarity check: each icon clearly communicates its meaning without ambiguity. Generates size variants (SVG, PNG at 1×/2×/3× for each defined size) after approval. Saves to <code>E-Assets/icons/</code>.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── M: Images ── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-images</span>
+        Images
+        <span class="code-tag">6 steps</span>
+      </h3>
+      <p>Generates production-quality images — hero shots, product photos, illustrations, backgrounds, team photos — consistent with the project's visual direction. This workflow has a dedicated References step (step 4) because image generation is where reference chaining matters most: each approved image in a batch becomes the reference for the next, keeping color temperature, lighting direction, and style locked across the set.</p>
+
+      <h4 class="step-heading">Step 1 · Load Context</h4>
+      <p>Loads five context sources: page specifications (image placement, content story, dimensional requirements, alt text), visual direction (brand photography guidelines, color palette, mood, subject preferences, what to avoid), design system (aspect ratios, border radius, overlay treatments, container sizes), existing brand assets and approved images. Presents a context summary with image count, categories, reusable existing assets, and generation needed count.</p>
+
+      <h4 class="step-heading">Step 2 · Asset Inventory</h4>
+      <p>Catalogs all image placements across every page: image name, page, type (hero/product/team/background/illustration/decorative), dimensions, and content description. Groups by type to identify batch opportunities — all hero images form one batch, all team photos share one lighting setup, all product images share one visual treatment. Presents scope options: all, by batch, select specific, or priority (hero and above-fold first).</p>
+
+      <h4 class="step-heading">Step 3 · Select Style</h4>
+      <p>Loads content styles and allows different styles per batch — hero images may be photorealistic while backgrounds are watercolor or flat design. Configures visual parameters per batch: lighting (natural, studio, dramatic, golden hour), color harmony (warm, cool, brand-matched), composition (rule of thirds, centered, dynamic), and mood (professional, energetic, calm, luxurious). Confirms style per batch as a table before proceeding.</p>
+
+      <h4 class="step-heading">Step 4 · Reference Images</h4>
+      <p>Gathers reference images from all available sources: brand photography from the client, mood board imagery, previously approved generated images, and style examples from the content style library. Assigns 1–3 references per batch with stated purpose (mood direction, framing, texture treatment). Defines the reference chaining strategy for batch generation: generate first image, get approval, chain it as reference for image 2, continue through the batch. Documents the fallback strategy for divergent images.</p>
+
+      <h4 class="step-heading">Step 5 · Generate Images</h4>
+      <p>Builds prompts per image: content style, subject, mood, lighting, hex color palette, composition, dimensions, style keywords, reference attachment, and negative prompts. Starts each batch with the hero/anchor image and waits for approval before continuing. Chains approved results as references for subsequent images in the batch. Offers variation counts for key images (1 best, 3 options, or 5 options). Tracks progress per batch with completion counts.</p>
+
+      <h4 class="step-heading">Step 6 · Review and Iterate</h4>
+      <p>Presents the full image gallery grouped by batch/type at intended display size, with page context shown. Checks four dimensions: batch consistency (color temperature, lighting direction, detail level uniform across each batch), brand alignment (color harmonizes with brand, mood matches visual direction, no unintended text or artifacts, cultural sensitivity), technical quality (resolution, no AI artifacts, clean edges, compression-friendly), and overall cohesion across all batches. Saves organized by type to <code>E-Assets/images/</code>.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── V: Videos ── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-videos</span>
+        Videos
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Generates motion content, animations, and video assets across four complexity levels: Simple (CSS/SVG animations, under 10KB), Medium (Lottie/JSON animations, under 50KB), Complex (produced video with storyboard guidance, under 10MB), and AI Generated (AI video via MCP, under 2MB). Routes each asset to the appropriate tool based on complexity. Accessibility is non-optional — <code>prefers-reduced-motion</code> coverage is verified before final approval.</p>
+
+      <h4 class="step-heading">Step 1 · Load Context</h4>
+      <p>Identifies all motion content requirements from page specs: hero animations, product demonstrations, micro-interactions, background video, and explainer sequences. Loads motion tokens from the design system (duration scale, easing curves, transition types). Checks static assets (images, UI components, illustrations) that motion builds upon. Presents a context summary showing motion asset count, types, duration range, static assets to animate, and full video productions.</p>
+
+      <h4 class="step-heading">Step 2 · Asset Inventory</h4>
+      <p>Catalogs all motion assets with technical requirements: asset name, page, type, duration, and format (MP4/WebM, CSS/Lottie, SVG animation). Categorizes by complexity — Simple, Medium, Complex, and AI Generated — and documents format and file size target for each level. Presents scope options: all, by type, select specific, or priority (hero and above-fold only).</p>
+
+      <h4 class="step-heading">Step 3 · Select Style</h4>
+      <p>Defines the motion personality: Subtle (corporate, medical), Fluid (wellness, lifestyle), Energetic (startup, gaming), or Precise (engineering, SaaS). Configures timing parameters based on the personality choice (base duration, easing curve, stagger delay, loop delay). For produced or AI-generated video, selects a video treatment: Cinematic (shallow DOF, color graded), Documentary (natural, handheld), Motion design (graphics-driven), or Abstract (textures, ambient). Confirms the complete motion style configuration.</p>
+
+      <h4 class="step-heading">Step 4 · Generate Motion Content</h4>
+      <p>Routes each asset to the correct tool by complexity: Simple assets get CSS/SVG keyframe animation code; Medium assets get Lottie JSON descriptions (or MCP generation if supported); Complex assets receive a storyboard, shot list, and production guide; AI Generated assets get video generation prompts with reference frames from approved static images. Previews each asset in page context and checks timing and feel before approving. Tracks progress per complexity group.</p>
+
+      <h4 class="step-heading">Step 5 · Review and Iterate</h4>
+      <p>Previews all motion content in isolation, in page context, and as before/after (static vs. animated). Checks four dimensions: consistency (timing and easing curves uniform, motion direction logical, loops seamless), performance (file sizes within targets, GPU-accelerated CSS, videos compressed, lazy loading for below-fold), accessibility (<code>prefers-reduced-motion</code> respected, no flashing above 3/second, readability unaffected, pause/stop provided for video, static fallback available), and UX quality. Saves organized by type to <code>E-Assets/motion/</code>.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── C: Content ── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-content</span>
+        Content
+        <span class="code-tag">7 steps</span>
+      </h3>
+      <p>Generates strategically grounded text content using the Five-Model Framework: Content Purpose, Trigger Map, Customer Awareness Cycle, Action Mapping (Cathy Moore), Badass Users (Kathy Sierra), and Golden Circle (Simon Sinek). Every word must earn its place — this workflow rejects vague goals and builds content decisions from measurable outcomes before writing a single word. Use for landing page copy, CTAs, error messages, feature descriptions, mission statements — any text where psychology and persuasion matter.</p>
+
+      <h4 class="step-heading">Step 0 · Define Content Purpose</h4>
+      <p>Establishes a clear, testable purpose statement before any strategy is applied. Asks what content is being created, what it must accomplish (outcome-focused, not descriptive), who will read it and what state they are in, and how success will be measured. Runs the Model Priority Matrix to select which of the five strategic models matter most for this specific content type. Documents the purpose definition in structured YAML format.</p>
+
+      <h4 class="step-heading">Step 1 · Load Trigger Map Context</h4>
+      <p>Loads the relevant Trigger Map context — the business goal, target persona, driving forces (positive wishes and negative fears), and the customer awareness journey (start level and end level). If no Trigger Map exists from Phase 2, flags the gap and offers to proceed with whatever Product Brief context is available. Confirms the strategic context with the user before documenting it for traceability.</p>
+
+      <h4 class="step-heading">Step 2 · Awareness Strategy</h4>
+      <p>Translates the Trigger Map's awareness positioning into a concrete content strategy across six dimensions: validates the starting awareness level, clarifies the target awareness shift, determines awareness-appropriate language (what words to use and avoid), sets information priorities (essential vs. overwhelming), identifies credibility requirements (personal story vs. expert credentials vs. social proof vs. data), and maps the emotional journey from starting emotion to ending emotion. Documents the complete awareness strategy in structured format.</p>
+
+      <h4 class="step-heading">Step 3 · Action Filter</h4>
+      <p>Applies Action Mapping (Cathy Moore) to identify the specific behavior the user must be able to perform after reading — not vague "understanding" but concrete action ("click the signup button with confidence," "choose the right pricing tier in under 30 seconds"). Traces the action to the Trigger Map business goal and to the persona's driving forces. Works backward from the action to determine what information is essential versus nice-to-know, and identifies content barriers (confusion, fear, effort, distrust, irrelevance) with solutions for each.</p>
+
+      <h4 class="step-heading">Step 4 · Empowerment Frame</h4>
+      <p>Applies Kathy Sierra's Badass Users framework to reframe all content from product-feature-focused to user-capability-focused. Defines the user's current state (struggles, feelings, limitations) and their "badass state" after success (what they can do, how they feel). Identifies the "aha moment" — the perspective shift that unlocks confidence, not just understanding. Rewrites feature-focused language to capability-focused language, makes the transformation path visible and achievable, and identifies cognitive load risks (too many choices, jargon, unclear next steps) with simplifications.</p>
+
+      <h4 class="step-heading">Step 5 · Structural Order</h4>
+      <p>Applies Simon Sinek's Golden Circle to sequence all content elements from Steps 3–4 into a WHY → HOW → WHAT persuasive flow. Maps each content element to its section: WHY (emotional opening that connects to driving forces), HOW (method that bridges emotion to specific solution, contains the aha moment), WHAT (concrete specifics, proof, CTA, risk removal). Sequences within each section in the most persuasive order and validates that the flow feels natural — emotional first, logical second, action last.</p>
+
+      <h4 class="step-heading">Step 6 · Generate and Review Content</h4>
+      <p>Synthesizes all strategic context from Steps 0–5 and generates 2–3 variations that differ in which driving forces they emphasize: Variation A (wish/aspiration-focused), Variation B (fear/pain-avoidance-focused), Variation C (balanced blend). Presents each variation with clear rationale for strategic choices. Guides the user through selection, combination, and refinement. Validates that the final content enables the required action, completes the awareness journey, addresses all barriers, and includes the aha moment. Documents the final content with full strategic traceability.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── E: Figma Export ── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-figma</span>
+        Figma Export
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Sends code implementations to Figma for design review, documentation, and visual iteration via the html.to.design MCP server (<code>mcp2_import-html</code>). Use when component states need visual documentation, design system components require Figma library representation, prototype pages need designer review, or design-code parity documentation is needed. Requires Figma account access and the html.to.design plugin installed in Figma.</p>
+
+      <h4 class="step-heading">Step 1 · Connection Check</h4>
+      <p>Verifies that the <code>mcp2_import-html</code> MCP tool from the html.to.design server is accessible in the current session. If not available, guides through setup (Figma account, plugin installation, MCP server configuration in the IDE). Executes a test export and asks the user to confirm the test layer is visible in their Figma file before proceeding. Does not advance until connection is verified.</p>
+
+      <h4 class="step-heading">Step 2 · Identify Export Type</h4>
+      <p>Classifies the export into one of three scenarios using a decision tree: Prototype Page Export (full page or screen, multiple sections, user flow — IDs follow <code>{page}-{section}-{element}</code>), Design System Component (component states, design system docs, reusable component — IDs follow <code>{component}-{variant}-{state}</code>), or Frontend View/Component Block (visual adjustments, spacing iteration, specific UI block — IDs follow <code>{component}-{element}-{descriptor}</code>). Confirms scenario type with the user before proceeding.</p>
+
+      <h4 class="step-heading">Step 3 · Prepare Specifications</h4>
+      <p>Searches for existing specification files containing OBJECT IDs in the Scenarios and Design System folders. If specifications exist, extracts all OBJECT IDs and maps them to components in scope. If no specifications exist, offers to analyze the code and reverse-engineer specifications, generate OBJECT IDs following project conventions, and create a specification document for review. Validates 100% coverage — every component in scope has an OBJECT ID — before proceeding.</p>
+
+      <h4 class="step-heading">Step 4 · Generate and Validate</h4>
+      <p>Generates clean, Figma-compatible HTML with proper OBJECT IDs from the specification mapping. Applies Figma-compatible styling rules: Google Fonts only, all colors as hex values (no CSS variables), all spacing in pixels (no rem/em), simple flexbox/grid layout, inline or style-block CSS. Runs five validation checks: specification coverage, ID naming convention, HTML structure, styling compatibility, and content completeness. Resolves all errors before the export is executed — this step ends with a validated HTML payload, not a Figma layer.</p>
+
+      <h4 class="step-heading">Step 5 · Execute Export</h4>
+      <p>Calls <code>mcp2_import-html</code> with the validated HTML and a descriptive layer name (<code>{Component/Page Name} - {Purpose}</code>). Waits for the MCP response, verifies the node ID was returned without errors, then asks the user to confirm the export is visible in their Figma file with proper layer names matching the OBJECT IDs. Provides troubleshooting guidance if the export is not visible. Documents the complete export summary and updates the design log before returning to the activity menu.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── Stitch utility ── -->
+      <div class="utility-callout">
+        <div class="utility-head">
+          <span class="utility-label">Utility Coordinator</span>
+          <span class="utility-name">workflow-stitch · Google Stitch AI</span>
+        </div>
+        <div class="utility-body">
+          <p><strong>Stitch is not a menu activity</strong> — it is a utility coordinator used within visual workflows (W, P, U) when MCP-powered generation is routed through Google Stitch. The dispatcher workflow routes to <code>workflow-stitch.md</code> when the user selects the Stitch service at the "Select Service" step of any visual activity.</p>
+          <p>Stitch transforms text prompts, sketches, and reference images into responsive UI designs at stitch.withgoogle.com. The input formula is: <strong>Visual Reference + Sketch + Specification = Stitch Generation</strong>. Output is exportable to Figma or as HTML/CSS. Stitch works best with detailed specifications, an existing visual reference or screenshot, and a sketch showing layout structure. It does well with single screen generation and clean HTML/CSS export, but works best 2–3 screens at a time.</p>
+          <p>The Stitch coordinator manages prompt preparation (using <code>templates/stitch-prompt.template.md</code> — never raw specs pasted directly), generation of 2–3 variants, review against spec, and export to Figma or HTML/CSS stored in the spec's <code>Visual-Design/</code> folder. After Stitch generation, the original specification is updated to reference the Stitch output.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="applied-toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Applied Toolkit</span>
+          <span class="data-source">wds-6-asset-generation</span>
+        </div>
+        <table>
+          <thead><tr><th>Category</th><th>Items</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Skill</td><td><code>wds-6-asset-generation</code></td></tr>
+            <tr><td class="key-col">Agent</td><td>Freya 🎨 — WDS Designer</td></tr>
+            <tr><td class="key-col">Output</td><td>Wireframes · page designs · UI elements · icons · images · video · content · Figma files</td></tr>
+            <tr><td class="key-col">Activities</td><td><code>W</code> · <code>P</code> · <code>U</code> · <code>I</code> · <code>M</code> · <code>V</code> · <code>C</code> · <code>E</code></td></tr>
+            <tr><td class="key-col">Services</td><td>Stitch · Nano Banana (NanoBanana) · Figma export — all via MCP</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>

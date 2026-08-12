@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Framework Setup — Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #fafaf8;
+    --paper-warm: #f5f3ef;
+    --accent: #c84b31;
+    --highlight: #e8b84b;
+    --rule: #e2ddd8;
+    --muted: #8a8480;
+    --code-bg: #f0ede8;
+    --green: #2d6a4f;
+    --green-bg: #d8f3dc;
+    --red-bg: #ffe8e3;
+    --blue: #1d3557;
+    --blue-bg: #e8f0f8;
+    --orange-bg: #fff3cd;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; font-size: 15px; line-height: 1.65; }
+
+  .page-wrap { display: flex; min-height: 100vh; }
+
+  aside.toc { position: sticky; top: 0; height: 100vh; width: 280px; min-width: 280px; background: var(--ink); color: var(--paper); overflow-y: auto; padding: 28px 0; }
+  aside.toc .toc-brand { padding: 0 22px 22px; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 16px; }
+  aside.toc .toc-brand .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--highlight); display: block; margin-bottom: 4px; }
+  aside.toc .toc-brand h2 { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; line-height: 1.3; }
+  aside.toc nav a { display: block; padding: 7px 22px; text-decoration: none; color: rgba(255,255,255,.7); font-size: 13px; line-height: 1.4; border-left: 3px solid transparent; transition: all .15s; }
+  aside.toc nav a:hover { color: var(--paper); border-left-color: var(--highlight); background: rgba(255,255,255,.05); }
+  aside.toc nav a.sub { padding-left: 34px; font-size: 12px; color: rgba(255,255,255,.5); }
+  aside.toc nav a.sub:hover { color: rgba(255,255,255,.8); }
+  aside.toc nav .toc-section-label { padding: 16px 22px 6px; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.35); font-family: 'JetBrains Mono', monospace; }
+
+  main.content { flex: 1; min-width: 0; padding: 56px 64px 80px; max-width: 900px; }
+
+  .page-header { margin-bottom: 48px; padding-bottom: 36px; border-bottom: 2px solid var(--rule); }
+  .page-header .skill-chip { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; background: var(--ink); color: var(--highlight); padding: 4px 10px; display: inline-block; margin-bottom: 16px; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 38px; font-weight: 700; line-height: 1.15; margin-bottom: 14px; }
+  .page-header .subtitle { font-size: 17px; color: var(--muted); line-height: 1.6; max-width: 680px; }
+  .page-header .meta-row { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .page-header .meta-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .page-header .meta-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  section { margin-bottom: 52px; }
+
+  h2.section-what { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--ink); display: flex; align-items: baseline; gap: 12px; }
+  h2.section-what .s-marker { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--ink); padding: 2px 9px; vertical-align: 2px; }
+  h2.section-why { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--accent); display: flex; align-items: baseline; gap: 12px; }
+  h2.section-why .s-marker { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--accent); color: var(--accent); padding: 2px 9px; vertical-align: 2px; }
+  h2.section-how { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--blue); display: flex; align-items: baseline; gap: 12px; }
+  h2.section-how .s-marker { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--blue); color: var(--blue); padding: 2px 9px; vertical-align: 2px; }
+
+  h3.sub-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; margin: 28px 0 12px; }
+  p { margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 600; }
+  em { font-style: italic; color: var(--accent); }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; background: var(--code-bg); padding: 2px 6px; border-radius: 3px; }
+  .section-divider { border: none; border-top: 1px solid var(--rule); margin: 48px 0; }
+  .path { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); }
+
+  /* Persona block */
+  .persona-block { border: 1px solid var(--rule); margin: 0 0 28px; display: grid; grid-template-columns: max-content 1fr; }
+  .persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .15em; color: var(--muted); padding: 9px 14px; border-bottom: 1px dotted var(--rule); border-right: 1px solid var(--rule); background: var(--paper-warm); white-space: nowrap; }
+  .persona-block dd { font-size: 13px; padding: 9px 14px; border-bottom: 1px dotted var(--rule); color: var(--ink); line-height: 1.55; }
+  .persona-block dt:last-of-type, .persona-block dd:last-child { border-bottom: none; }
+
+  /* Stack cards */
+  .stack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .stack-card { border: 1px solid var(--rule); overflow: hidden; }
+  .stack-card .sc-head { background: var(--ink); color: var(--paper); padding: 12px 16px; }
+  .stack-card .sc-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--highlight); display: block; margin-bottom: 3px; }
+  .stack-card h4 { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; }
+  .stack-card .sc-body { padding: 14px 16px; background: var(--paper-warm); font-size: 13px; }
+  .stack-card .sc-body ul { list-style: none; padding: 0; margin: 0; }
+  .stack-card .sc-body ul li { padding: 4px 0 4px 14px; position: relative; border-bottom: 1px dotted var(--rule); line-height: 1.4; }
+  .stack-card .sc-body ul li:last-child { border-bottom: none; }
+  .stack-card .sc-body ul li::before { content: '–'; position: absolute; left: 0; color: var(--muted); }
+
+  /* Compare table */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: var(--red-bg); color: var(--accent); width: 40%; }
+  .compare-table th:nth-child(3) { background: var(--green-bg); color: var(--green); width: 40%; }
+  .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.5; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* Output table */
+  .output-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .output-table th { background: var(--ink); color: var(--paper); padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .output-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); background: var(--paper-warm); vertical-align: top; }
+  .output-table tr:nth-child(even) td { background: var(--paper); }
+  .output-table tr:last-child td { border-bottom: none; }
+
+  /* Steps */
+  .steps-list { display: flex; flex-direction: column; gap: 16px; margin: 20px 0; }
+  .step-item { border: 1px solid var(--rule); overflow: hidden; }
+  .step-item .step-head { background: var(--ink); color: var(--paper); padding: 12px 18px; display: flex; align-items: center; gap: 14px; }
+  .step-item .step-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--highlight); color: var(--ink); padding: 2px 8px; font-weight: 600; white-space: nowrap; }
+  .step-item .step-title { font-size: 14px; font-weight: 600; }
+  .step-item .step-file { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,.45); margin-left: auto; white-space: nowrap; }
+  .step-item .step-body { padding: 16px 18px; background: var(--paper-warm); }
+  .step-item .step-body ul { list-style: none; padding: 0; margin: 0; }
+  .step-item .step-body ul li { font-size: 13px; padding: 5px 0 5px 0; position: relative; line-height: 1.55; border-bottom: 1px dotted var(--rule); }
+  .step-item .step-body ul li:last-child { border-bottom: none; }
+
+  /* Mode cards */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .mode-card { border: 1px solid var(--rule); padding: 16px; background: var(--paper-warm); }
+  .mode-card .mode-code { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 6px; }
+  .mode-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .mode-card p { font-size: 13px; color: var(--muted); margin: 0; line-height: 1.5; }
+
+  /* Rule box */
+  .rule-box { border-left: 4px solid var(--accent); background: var(--paper-warm); padding: 14px 18px; margin: 16px 0; }
+  .rule-box.green { border-left-color: var(--green); }
+  .rule-box.blue  { border-left-color: var(--blue); }
+  .rule-box .rule-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+  .rule-box ul { list-style: none; padding: 0; margin: 6px 0 0; }
+  .rule-box ul li { font-size: 13px; padding: 3px 0 3px 16px; position: relative; line-height: 1.5; }
+  .rule-box ul li::before { content: '·'; position: absolute; left: 4px; color: var(--accent); font-weight: bold; }
+  .rule-box p { font-size: 13px; margin: 0; line-height: 1.6; }
+
+  /* Checklist */
+  .checklist-group { margin: 16px 0; }
+  .checklist-group h5 { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+  .checklist-group ul { list-style: none; padding: 0; margin: 0; }
+  .checklist-group ul li { font-size: 13px; padding: 5px 0 5px 22px; position: relative; border-bottom: 1px dotted var(--rule); line-height: 1.4; }
+  .checklist-group ul li:last-child { border-bottom: none; }
+  .checklist-group ul li::before { content: '☐'; position: absolute; left: 0; color: var(--muted); font-size: 13px; }
+
+  /* When to use callout */
+  .when-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); margin: 16px 0; overflow: hidden; }
+  .when-item { padding: 12px 16px; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); background: var(--paper); font-size: 13px; }
+  .when-item:nth-child(even) { border-right: none; background: var(--paper-warm); }
+  .when-item:nth-last-child(-n+2) { border-bottom: none; }
+  .when-item .trigger { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); font-weight: 600; display: block; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<aside class="toc">
+  <div class="toc-brand">
+    <span class="label">TEA Skill Guide</span>
+    <h2>bmad-testarch-framework</h2>
+  </div>
+  <nav>
+    <div class="toc-section-label">§ WHAT</div>
+    <a href="#what-overview">Overview</a>
+    <a href="#what-stacks" class="sub">Supported stacks</a>
+    <a href="#what-outputs" class="sub">What gets created</a>
+
+    <div class="toc-section-label">§ WHY</div>
+    <a href="#why">Why use this skill</a>
+    <a href="#why-compare" class="sub">Without vs With</a>
+    <a href="#why-when" class="sub">When to invoke</a>
+
+    <div class="toc-section-label">§ HOW</div>
+    <a href="#how-modes">4 Operating Modes</a>
+    <a href="#how-steps" class="sub">Create Mode — 5 Steps</a>
+    <a href="#how-checklist" class="sub">Validation Checklist</a>
+    <a href="#how-files" class="sub">Generated Files</a>
+  </nav>
+</aside>
+
+<main class="content">
+
+  <div class="page-header">
+    <span class="skill-chip">bmad-testarch-framework · TF</span>
+    <h1>Test Framework Setup</h1>
+    <p class="subtitle">Automatically sets up a complete, production-ready test framework for your project — directories, config, fixtures, data factories, sample tests, and documentation. No manual scaffolding needed.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="dot"></span>Skill code: <strong>bmad-testarch-framework</strong></div>
+      <div class="meta-item"><span class="dot"></span>Menu code: <strong>TF</strong></div>
+      <div class="meta-item"><span class="dot"></span>Stacks: Frontend · Backend · Fullstack</div>
+      <div class="meta-item"><span class="dot"></span>Autonomous · Resumable</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       § WHAT
+       ══════════════════════════════════════════════════ -->
+
+  <section id="what-overview">
+    <h2 class="section-what"><span class="s-marker">§ WHAT</span> What does this skill do?</h2>
+
+    <dl class="persona-block">
+      <dt>Skill code</dt><dd><code>bmad-testarch-framework</code></dd>
+      <dt>Menu code</dt><dd><code>TF</code></dd>
+      <dt>Role</dt><dd>Acts as a Master Test Architect. Detects your project's tech stack, picks the right test framework, and builds the entire test infrastructure for you.</dd>
+      <dt>Autonomous</dt><dd>Yes — runs automatically. Detects the stack, selects a framework, and generates all files without asking you for input at every step. Only stops if a prerequisite is missing.</dd>
+    </dl>
+
+    <p>Think of this skill as someone who sets up the testing "house" before anyone starts writing tests. It creates the folder structure, wires up the config, adds reusable helpers and data factories, writes a sample test, and documents everything — so the team can start writing actual tests immediately without worrying about boilerplate.</p>
+
+    <p>This skill must run <strong>before</strong> ATDD, Automate, or CI skills — they all depend on the infrastructure this skill creates.</p>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="what-stacks">
+    <h3 class="sub-title">Supported Stacks</h3>
+    <p>The skill adapts to your project type. It detects whether you have a frontend, backend, or fullstack project and sets up the right framework for each.</p>
+
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="sc-head">
+          <span class="sc-tag">Frontend</span>
+          <h4>Browser Testing</h4>
+        </div>
+        <div class="sc-body">
+          <ul>
+            <li>Playwright (default) or Cypress</li>
+            <li>TypeScript config included</li>
+            <li>Fixture + mergeTests pattern</li>
+            <li>Faker-based data factories</li>
+            <li>Network interception helpers</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="sc-head">
+          <span class="sc-tag">Backend</span>
+          <h4>API / Unit Testing</h4>
+        </div>
+        <div class="sc-body">
+          <ul>
+            <li>Python → pytest</li>
+            <li>Java / Kotlin → JUnit 5</li>
+            <li>Go → go test (built-in)</li>
+            <li>C# / .NET → xUnit</li>
+            <li>Ruby → RSpec</li>
+            <li>Rust → cargo test</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="sc-head">
+          <span class="sc-tag">Fullstack</span>
+          <h4>Both Layers Together</h4>
+        </div>
+        <div class="sc-body">
+          <ul>
+            <li>Browser framework for frontend</li>
+            <li>Backend framework for the server language</li>
+            <li>Separate directory structures per layer</li>
+            <li>Single shared <code>.env.example</code></li>
+            <li>One unified README</li>
+          </ul>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="sc-head">
+          <span class="sc-tag">Outputs</span>
+          <h4>What Gets Created</h4>
+        </div>
+        <div class="sc-body">
+          <ul>
+            <li>Framework config file</li>
+            <li><code>tests/</code> directory tree</li>
+            <li>Fixtures + data factories</li>
+            <li>Sample test (passes on first run)</li>
+            <li><code>.env.example</code></li>
+            <li><code>tests/README.md</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ══════════════════════════════════════════════════
+       § WHY
+       ══════════════════════════════════════════════════ -->
+
+  <section id="why">
+    <h2 class="section-why"><span class="s-marker">§ WHY</span> Why use this skill?</h2>
+
+    <p>Every project eventually needs tests. The difference is whether the infrastructure is set up <strong>intentionally</strong> — with consistent patterns, clean isolation, and CI-ready config — or assembled piece by piece as needs arise, leading to inconsistency and technical debt.</p>
+  </section>
+
+  <section id="why-compare">
+    <h3 class="sub-title">Without vs With Framework Setup</h3>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Area</th>
+          <th>Without Framework Setup</th>
+          <th>With Framework Setup (TF)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Setup time</td>
+          <td>Hours of boilerplate. Every developer decides their own folder layout and timeout settings.</td>
+          <td>Minutes — the entire scaffold is generated in one pass with consistent structure across the team.</td>
+        </tr>
+        <tr>
+          <td>Test data</td>
+          <td>Hard-coded values or manual database seeds that get stale. No cleanup after test runs.</td>
+          <td>Faker-based data factories with entity tracking and <code>cleanup()</code>. Each test run starts clean.</td>
+        </tr>
+        <tr>
+          <td>Fixtures</td>
+          <td>State leaks between tests. Fixtures copy-pasted across files, teardown missing or incomplete.</td>
+          <td>Pure function → fixture → <code>mergeTests</code> pattern enforced. Auto-cleanup built in from day one.</td>
+        </tr>
+        <tr>
+          <td>First test run</td>
+          <td>Config may fail silently — wrong base URL, browser not installed, reporters not wired.</td>
+          <td>Validated config with a sample test written to pass on the very first <code>npm run test:e2e</code>.</td>
+        </tr>
+        <tr>
+          <td>CI integration</td>
+          <td>Manual env config per environment. JUnit XML output not set up — CI can't parse test results.</td>
+          <td>JUnit + HTML reporters pre-configured. Env vars templated in <code>.env.example</code>. CI-tuned retries and workers.</td>
+        </tr>
+        <tr>
+          <td>Onboarding</td>
+          <td>"Ask the person who set this up" — undocumented steps, unclear how to run in headed mode.</td>
+          <td><code>tests/README.md</code> covers setup, running, debugging, architecture, best practices, and CI notes.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="why-when">
+    <h3 class="sub-title">When to invoke this skill</h3>
+
+    <div class="when-grid">
+      <div class="when-item">
+        <span class="trigger">"setup test framework"</span>
+        Starting a new project and need the full test infrastructure from scratch.
+      </div>
+      <div class="when-item">
+        <span class="trigger">"initialize testing framework"</span>
+        Project exists but has no <code>tests/</code> directory or framework config yet.
+      </div>
+      <div class="when-item">
+        <span class="trigger">"setup Playwright" / "setup pytest"</span>
+        You want a specific framework — overrides the auto-selection logic.
+      </div>
+      <div class="when-item">
+        <span class="trigger">"initialize test infrastructure"</span>
+        Existing project that needs proper fixtures, factories, and helpers added.
+      </div>
+      <div class="when-item">
+        <span class="trigger">Before running ATDD</span>
+        ATDD requires a fixture index and <code>mergeTests</code> pattern to already exist.
+      </div>
+      <div class="when-item">
+        <span class="trigger">Before running Automate</span>
+        Automate requires <code>tests/support/</code> directories and data factories to be present.
+      </div>
+    </div>
+
+    <div class="rule-box blue" style="margin-top: 8px;">
+      <div class="rule-title">Dependency Rule</div>
+      <p>Framework → ATDD → Automate → CI. Always run this skill first. The others depend on the files it creates.</p>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ══════════════════════════════════════════════════
+       § HOW
+       ══════════════════════════════════════════════════ -->
+
+  <section id="how-modes">
+    <h2 class="section-how"><span class="s-marker">§ HOW</span> How to run it</h2>
+
+    <h3 class="sub-title">4 Operating Modes</h3>
+    <p>When you invoke the skill, it asks which mode you want. Pick the one that matches your situation.</p>
+
+    <div class="mode-grid">
+      <div class="mode-card">
+        <div class="mode-code">C</div>
+        <h4>Create</h4>
+        <p>First-time setup. Runs all 5 steps and builds the full infrastructure from nothing.</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-code">R</div>
+        <h4>Resume</h4>
+        <p>Picks up an interrupted Create run from where it left off. Reads the saved progress file and skips completed steps.</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-code">V</div>
+        <h4>Validate</h4>
+        <p>Audits an existing framework setup against the full checklist. Reports PASS / WARN / FAIL per item — no files are changed.</p>
+      </div>
+      <div class="mode-card">
+        <div class="mode-code">E</div>
+        <h4>Edit</h4>
+        <p>Revises one specific output file (config, fixtures, README) after the initial setup. Only touches what you ask it to change.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="how-steps">
+    <h3 class="sub-title">Create Mode — 5 Steps</h3>
+    <p>This is the main flow. Steps run sequentially and progress is saved after each one, so the skill can resume if interrupted.</p>
+
+    <div class="steps-list">
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 01</span>
+          <span class="step-title">Preflight Checks</span>
+          <span class="step-file">step-01-preflight.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>① <strong>Detect the stack</strong> — reads <code>config.test_stack_type</code>; if set to <code>auto</code>, scans the project root for manifest files to determine frontend / backend / fullstack. See detection table below.</li>
+            <li>② <strong>Validate prerequisites</strong> — checks that a project manifest exists, no conflicting framework is already installed, and write permissions are available. <strong>Halts immediately if any check fails.</strong></li>
+            <li>③ <strong>Save context</strong> — writes detected stack type and project details to <code>{test_artifacts}/framework-setup-progress.md</code> for use in later steps.</li>
+          </ul>
+          <table class="output-table" style="margin-top:14px;">
+            <thead>
+              <tr><th>Stack</th><th>Detected by</th><th>What gets set up</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>frontend</strong></td>
+                <td><code>package.json</code> with React / Vue / Angular / Next deps; <code>playwright.config.*</code>; <code>vite.config.*</code></td>
+                <td>Browser-only testing. Playwright or Cypress. TypeScript config.</td>
+              </tr>
+              <tr>
+                <td><strong>backend</strong></td>
+                <td><code>pyproject.toml</code> · <code>pom.xml</code> · <code>go.mod</code> · <code>*.csproj</code> · <code>Gemfile</code> · <code>Cargo.toml</code></td>
+                <td>API / unit testing. Framework matched to language. No browser setup.</td>
+              </tr>
+              <tr>
+                <td><strong>fullstack</strong></td>
+                <td>Both frontend and backend indicator files present</td>
+                <td>Both browser and backend frameworks. Separate directory structures. Unified <code>.env.example</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="rule-box" style="margin-top:12px;">
+            <div class="rule-title">Override Rule</div>
+            <p>An explicit <code>test_stack_type</code> in config <strong>always wins</strong> over auto-detection. If you set it, the scan is skipped entirely.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 02</span>
+          <span class="step-title">Framework Selection</span>
+          <span class="step-file">step-02-select-framework.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>① <strong>Check for explicit config</strong> — if <code>config.test_framework</code> is set to a specific value (not <code>auto</code>), that value is used directly. No further logic needed.</li>
+            <li>② <strong>Apply selection logic</strong> — for frontend: default is Playwright, Cypress only when specific criteria apply (see table below). For backend: maps the detected language to its idiomatic framework.</li>
+            <li>③ <strong>Announce decision</strong> — states which framework was selected and why before proceeding.</li>
+          </ul>
+          <p style="font-size:13px;margin:14px 0 6px;font-weight:600;">Frontend — Playwright vs Cypress</p>
+          <table class="output-table" style="margin-bottom:14px;">
+            <thead>
+              <tr><th>Criterion</th><th>Choose Playwright</th><th>Choose Cypress</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Project size</td>
+                <td>Large or complex repo</td>
+                <td>Small, simple project</td>
+              </tr>
+              <tr>
+                <td>Browser support</td>
+                <td>Multi-browser needed (Chrome, Firefox, Safari, Edge)</td>
+                <td>Chrome / Electron focus</td>
+              </tr>
+              <tr>
+                <td>Testing scope</td>
+                <td>Heavy API + UI integration testing</td>
+                <td>Component testing focus</td>
+              </tr>
+              <tr>
+                <td>CI speed</td>
+                <td>Parallelism and speed matter</td>
+                <td>Not a priority</td>
+              </tr>
+              <tr>
+                <td>Team preference</td>
+                <td>No strong preference</td>
+                <td>Team wants visual debugging / great DX</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size:13px;margin:0 0 6px;font-weight:600;">Backend — Language → Framework</p>
+          <table class="output-table">
+            <thead>
+              <tr><th>Language</th><th>Default framework</th><th>Alternatives</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Python</strong></td><td>pytest</td><td>unittest</td></tr>
+              <tr><td><strong>Java / Kotlin</strong></td><td>JUnit 5</td><td>TestNG</td></tr>
+              <tr><td><strong>Go</strong></td><td>go test (built-in)</td><td>—</td></tr>
+              <tr><td><strong>C# / .NET</strong></td><td>xUnit</td><td>NUnit · MSTest</td></tr>
+              <tr><td><strong>Ruby</strong></td><td>RSpec</td><td>Minitest</td></tr>
+              <tr><td><strong>Rust</strong></td><td>cargo test (built-in)</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 03</span>
+          <span class="step-title">Scaffold the Framework</span>
+          <span class="step-file">step-03-scaffold-framework.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>① <strong>Create directory structure</strong> — builds all folders: <code>tests/e2e/</code>, <code>tests/support/fixtures/</code>, <code>tests/support/helpers/</code>, etc. (exact layout depends on stack).</li>
+            <li>② <strong>Generate framework config</strong> — creates <code>playwright.config.ts</code> (or equivalent) with timeouts, reporters, parallelism, base URL, and CI-tuned settings. Also creates <code>.env.example</code> and <code>.nvmrc</code>.</li>
+            <li>③ <strong>Create fixtures and factories</strong> — implements the fixture index with the <code>mergeTests</code> pattern and at least one Faker-based data factory with entity tracking and <code>cleanup()</code>. Loads extra knowledge fragments (Playwright Utils, Pact.js) if configured.</li>
+            <li>④ <strong>Generate sample tests and helpers</strong> — writes a working example test and shared helpers (API helper, auth helper) that demonstrate the fixture pattern.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 04</span>
+          <span class="step-title">Documentation &amp; Scripts</span>
+          <span class="step-file">step-04-docs-and-scripts.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>① <strong>Write <code>tests/README.md</code></strong> — covers: how to set up, how to run tests (headless and headed), folder architecture, best practices, CI integration notes, and links to knowledge base references.</li>
+            <li>② <strong>Add test scripts to project config</strong> — adds the minimal test command to <code>package.json</code> (frontend: <code>"test:e2e": "npx playwright test"</code>), <code>Makefile</code>, <code>pyproject.toml</code>, or <code>build.gradle</code> depending on the stack.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 05</span>
+          <span class="step-title">Validate &amp; Summarize</span>
+          <span class="step-file">step-05-validate-and-summary.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>① <strong>Run the checklist</strong> — goes through all items: preflight passed, directory structure correct, config valid, fixtures and factories present, docs and scripts in place. Fixes any gaps found.</li>
+            <li>② <strong>Report results</strong> — summarizes: framework selected, all artifacts created, knowledge fragments applied, and recommended next steps (run ATDD, Automate, or CI skill).</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="how-checklist">
+    <h3 class="sub-title">Validation Checklist — Key Items</h3>
+    <p>Step 5 (and Validate mode) checks these items. All must pass for the setup to be considered complete.</p>
+
+    <div class="checklist-group">
+      <h5>Prerequisites</h5>
+      <ul>
+        <li>Project manifest exists (package.json, pyproject.toml, pom.xml, go.mod, *.csproj, Gemfile, or Cargo.toml)</li>
+        <li>No conflicting framework already installed</li>
+        <li>Stack type correctly identified (frontend / backend / fullstack)</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h5>Directory &amp; Config</h5>
+      <ul>
+        <li><code>tests/</code> root directory created</li>
+        <li><code>tests/support/</code> directory created — this is the critical pattern for frontend projects</li>
+        <li>Framework config file created and syntactically valid</li>
+        <li>Timeouts, reporters, parallelism, and artifact capture correctly configured</li>
+        <li><code>.env.example</code> contains <code>TEST_ENV</code>, <code>BASE_URL</code>, <code>API_URL</code></li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h5>Fixtures &amp; Factories</h5>
+      <ul>
+        <li>Fixture index with <code>mergeTests</code> pattern implemented</li>
+        <li>At least one data factory using Faker with entity tracking and <code>cleanup()</code></li>
+        <li>Auto-cleanup logic present in fixture teardown</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h5>Sample Tests</h5>
+      <ul>
+        <li>Example test file created demonstrating fixture usage</li>
+        <li>Test uses semantic locators (roles, labels, visible text) — no CSS selectors or XPath</li>
+        <li>Test follows Given-When-Then structure</li>
+        <li>No hard-coded waits or <code>sleep()</code> calls</li>
+      </ul>
+    </div>
+
+    <div class="checklist-group">
+      <h5>Documentation &amp; Code Quality</h5>
+      <ul>
+        <li><code>tests/README.md</code> created with setup, running, architecture, best practices, CI, and troubleshooting</li>
+        <li>Test script added to project config file</li>
+        <li>No credentials or hardcoded secrets in any config file</li>
+        <li>No placeholder text left behind (TODO, FIXME, replace-me)</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="how-files">
+    <h3 class="sub-title">Generated Files</h3>
+    <p>These are the files and directories created by a successful Create-mode run. Exact paths depend on <code>config.test_dir</code> (default: <code>{project-root}/tests</code>).</p>
+
+    <pre style="font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.75;background:var(--ink);color:#e8e4de;padding:20px 24px;overflow-x:auto;margin:16px 0;"><span style="color:var(--highlight);font-weight:700;">tests/</span>
+├── e2e/
+│   └── <span style="color:#9ecbff;">example.spec.ts</span>        <span style="color:#6a9955;">← sample test — passes on first run</span>
+├── support/
+│   ├── fixtures/
+│   │   └── <span style="color:#9ecbff;">index.ts</span>               <span style="color:#6a9955;">← shared fixtures (mergeTests pattern)</span>
+│   ├── factories/
+│   │   └── <span style="color:#9ecbff;">user.factory.ts</span>     <span style="color:#6a9955;">← generates fake test data (Faker)</span>
+│   └── helpers/
+│       ├── <span style="color:#9ecbff;">api.ts</span>                    <span style="color:#6a9955;">← call API endpoints inside tests</span>
+│       └── <span style="color:#9ecbff;">auth.ts</span>                  <span style="color:#6a9955;">← handle login / session setup</span>
+└── <span style="color:#9ecbff;">README.md</span>                  <span style="color:#6a9955;">← team guide: setup, run, debug, CI</span>
+<span style="color:#ce9178;">playwright.config.ts</span>                <span style="color:#6a9955;">← Playwright settings (timeouts, reporters, workers)</span>
+<span style="color:#ce9178;">.env.example</span>                           <span style="color:#6a9955;">← template for BASE_URL, API_URL, credentials</span></pre>
+
+    <table class="output-table">
+      <thead>
+        <tr><th>File / Directory</th><th>Path (frontend default)</th><th>Created in</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Framework config</strong></td>
+          <td><code>playwright.config.ts</code> (or Cypress / backend equivalent)</td>
+          <td>Step 03</td>
+        </tr>
+        <tr>
+          <td><strong>Test directory tree</strong></td>
+          <td><code>tests/e2e/</code> · <code>tests/support/</code> · sub-directories</td>
+          <td>Step 03</td>
+        </tr>
+        <tr>
+          <td><strong>Fixture index</strong></td>
+          <td><code>tests/support/fixtures/index.ts</code></td>
+          <td>Step 03</td>
+        </tr>
+        <tr>
+          <td><strong>Data factory</strong></td>
+          <td><code>tests/support/fixtures/factories/user-factory.ts</code></td>
+          <td>Step 03</td>
+        </tr>
+        <tr>
+          <td><strong>API helper</strong></td>
+          <td><code>tests/support/helpers/api.ts</code></td>
+          <td>Step 03</td>
+        </tr>
+        <tr>
+          <td><strong>Auth helper</strong></td>
+          <td><code>tests/support/helpers/auth.ts</code></td>
+          <td>Step 03</td>
+        </tr>
+        <tr>
+          <td><strong>Sample test</strong></td>
+          <td><code>tests/e2e/example.spec.ts</code></td>
+          <td>Step 03</td>
+        </tr>
+        <tr>
+          <td><strong>.env.example</strong></td>
+          <td><code>.env.example</code> (project root)</td>
+          <td>Step 03</td>
+        </tr>
+        <tr>
+          <td><strong>.nvmrc</strong></td>
+          <td><code>.nvmrc</code> (project root — Node 24+)</td>
+          <td>Step 03</td>
+        </tr>
+        <tr>
+          <td><strong>Tests README</strong></td>
+          <td><code>tests/README.md</code></td>
+          <td>Step 04</td>
+        </tr>
+        <tr>
+          <td><strong>Progress file</strong></td>
+          <td><code>{test_artifacts}/framework-setup-progress.md</code></td>
+          <td>Steps 01 – 05 (accumulated)</td>
+        </tr>
+        <tr>
+          <td><strong>Validation report</strong></td>
+          <td><code>{test_artifacts}/framework-validation-report.md</code></td>
+          <td>Validate mode only</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="rule-box green" style="margin-top: 16px;">
+      <div class="rule-title">After the Setup — Next Steps</div>
+      <ul>
+        <li>Copy <code>.env.example</code> to <code>.env</code> and fill in your environment values (BASE_URL, API_URL, credentials)</li>
+        <li>Run <code>npm install</code> (or language equivalent) to install dependencies</li>
+        <li>For Playwright: run <code>npx playwright install</code> to download browser binaries</li>
+        <li>Run the sample test: <code>npm run test:e2e</code> — it should pass on the first try</li>
+        <li>Then run <strong>bmad-testarch-atdd</strong> or <strong>bmad-testarch-automate</strong> to start generating real tests</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+</body>
+</html>

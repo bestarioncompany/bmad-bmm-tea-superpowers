@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Generate E2E Tests — Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #fafaf8;
+    --paper-warm: #f5f3ef;
+    --accent: #c84b31;
+    --highlight: #e8b84b;
+    --rule: #e2ddd8;
+    --muted: #8a8480;
+    --code-bg: #f0ede8;
+    --green: #2d6a4f;
+    --green-bg: #d8f3dc;
+    --red-bg: #ffe8e3;
+    --blue: #1d3557;
+    --blue-bg: #e8f0f8;
+    --orange-bg: #fff3cd;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .page-wrap { display: flex; min-height: 100vh; }
+
+  /* ── TOC Sidebar ── */
+  aside.toc {
+    position: sticky; top: 0; height: 100vh;
+    width: 280px; min-width: 280px;
+    background: var(--ink); color: var(--paper);
+    overflow-y: auto; padding: 28px 0;
+  }
+  aside.toc .toc-brand { padding: 0 22px 22px; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 16px; }
+  aside.toc .toc-brand .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--highlight); display: block; margin-bottom: 4px; }
+  aside.toc .toc-brand h2 { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; line-height: 1.3; }
+  aside.toc nav a { display: block; padding: 7px 22px; text-decoration: none; color: rgba(255,255,255,.7); font-size: 13px; line-height: 1.4; border-left: 3px solid transparent; transition: all .15s; }
+  aside.toc nav a:hover { color: var(--paper); border-left-color: var(--highlight); background: rgba(255,255,255,.05); }
+  aside.toc nav a.sub { padding-left: 36px; font-size: 12px; color: rgba(255,255,255,.5); }
+  aside.toc nav a.sub:hover { color: rgba(255,255,255,.85); }
+  aside.toc nav .toc-section-label { padding: 16px 22px 6px; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.35); font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Main content ── */
+  main.content { flex: 1; min-width: 0; padding: 56px 64px 80px; max-width: 900px; }
+
+  .page-header { margin-bottom: 48px; padding-bottom: 36px; border-bottom: 2px solid var(--rule); }
+  .page-header .agent-chip { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .page-header .skill-chip { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; background: var(--ink); color: var(--highlight); padding: 4px 10px; display: inline-block; }
+  .page-header .agent-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); border: 1px solid var(--rule); padding: 3px 10px; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 38px; font-weight: 700; line-height: 1.15; margin-bottom: 14px; }
+  .page-header .subtitle { font-size: 17px; color: var(--muted); line-height: 1.6; max-width: 680px; }
+  .page-header .meta-row { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .page-header .meta-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .page-header .meta-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  /* ── Section headings ── */
+  section { margin-bottom: 52px; }
+
+  h2.section-what,
+  h2.section-why,
+  h2.section-how {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .s-marker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    padding: 3px 9px;
+    flex-shrink: 0;
+  }
+
+  h2.section-what .s-marker { background: var(--ink); color: var(--highlight); border: 1px solid rgba(255,255,255,.15); }
+  h2.section-why .s-marker  { background: var(--accent); color: #fff; }
+  h2.section-how .s-marker  { background: var(--blue); color: #fff; }
+
+  h3.sub-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; margin: 28px 0 12px; }
+  h4.mini-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 22px 0 8px; }
+
+  p { margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 600; }
+  em { font-style: italic; color: var(--accent); }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; background: var(--code-bg); padding: 2px 6px; border-radius: 3px; }
+
+  hr.section-divider {
+    border: none; border-top: 1px solid var(--rule);
+    margin: 52px 0;
+  }
+
+  /* ── Stats banner ── */
+  .stats-banner { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--rule); margin-bottom: 32px; background: var(--paper-warm); }
+  .stat-cell { padding: 18px 20px; border-right: 1px solid var(--rule); text-align: center; }
+  .stat-cell:last-child { border-right: none; }
+  .stat-cell .val { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; color: var(--accent); display: block; line-height: 1; margin-bottom: 5px; }
+  .stat-cell .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── Persona / identity table ── */
+  .identity-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 24px; border: 1px solid var(--rule); }
+  .identity-table td { padding: 9px 14px; border-bottom: 1px dotted var(--rule); vertical-align: top; }
+  .identity-table tr:last-child td { border-bottom: none; }
+  .identity-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); background: var(--paper-warm); width: 160px; font-weight: 600; }
+
+  /* ── Steps ── */
+  .steps-list { display: flex; flex-direction: column; gap: 16px; margin: 20px 0; }
+  .step-item { border: 1px solid var(--rule); overflow: hidden; }
+  .step-item .step-head { background: var(--ink); color: var(--paper); padding: 12px 18px; display: flex; align-items: center; gap: 14px; }
+  .step-item .step-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--highlight); color: var(--ink); padding: 2px 8px; font-weight: 600; white-space: nowrap; }
+  .step-item .step-num.detect { background: rgba(255,255,255,.2); color: var(--paper); }
+  .step-item .step-num.required { background: var(--accent); color: #fff; }
+  .step-item .step-title { font-size: 14px; font-weight: 600; }
+  .step-item .step-note { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,.5); margin-left: auto; white-space: nowrap; }
+  .step-item .step-body { padding: 16px 18px; background: var(--paper-warm); }
+  .step-item .step-body ul { list-style: none; padding: 0; margin: 0; }
+  .step-item .step-body ul li { font-size: 13px; padding: 4px 0 4px 16px; position: relative; line-height: 1.5; }
+  .step-item .step-body ul li::before { content: '·'; position: absolute; left: 4px; color: var(--accent); font-weight: bold; }
+
+  /* ── Compare table WHY ── */
+  .whywhat-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; border: 1px solid var(--rule); }
+  .whywhat-table thead tr { background: var(--ink); }
+  .whywhat-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em; font-weight: 700; }
+  .whywhat-table th:first-child { color: var(--highlight); width: 22%; }
+  .whywhat-table th:nth-child(2) { color: #f87171; width: 39%; }
+  .whywhat-table th:nth-child(3) { color: #86efac; width: 39%; }
+  .whywhat-table td { padding: 10px 14px; border-bottom: 1px dotted var(--rule); vertical-align: top; }
+  .whywhat-table tr:last-child td { border-bottom: none; }
+  .whywhat-table tr:nth-child(even) td { background: var(--paper-warm); }
+  .whywhat-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--muted); }
+  .whywhat-table td:nth-child(2) { color: #7f1d1d; }
+  .whywhat-table td:nth-child(3) { color: #14532d; }
+
+  /* ── TEA compare table ── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .compare-table th { background: var(--ink); color: var(--paper); padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); background: var(--paper-warm); vertical-align: top; }
+  .compare-table tr:nth-child(even) td { background: var(--paper); }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table .yes { color: var(--green); font-weight: 600; }
+  .compare-table .no { color: var(--muted); }
+
+  /* ── Do / Don't grid ── */
+  .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .do-card { border: 2px solid var(--green); overflow: hidden; }
+  .dont-card { border: 2px solid var(--accent); overflow: hidden; }
+  .do-card .card-head { background: var(--green-bg); color: var(--green); padding: 8px 14px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; }
+  .dont-card .card-head { background: var(--red-bg); color: var(--accent); padding: 8px 14px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; }
+  .do-card .card-body, .dont-card .card-body { padding: 12px 14px; background: var(--paper-warm); }
+  .do-card .card-body ul, .dont-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .do-card .card-body ul li, .dont-card .card-body ul li { font-size: 12.5px; padding: 4px 0 4px 14px; position: relative; line-height: 1.5; }
+  .do-card .card-body ul li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-size: 11px; }
+  .dont-card .card-body ul li::before { content: '✗'; position: absolute; left: 0; color: var(--accent); font-size: 11px; }
+
+  /* ── Rule boxes ── */
+  .rule-box { border-left: 4px solid var(--accent); background: var(--paper-warm); padding: 14px 18px; margin: 16px 0; }
+  .rule-box.green { border-left-color: var(--green); }
+  .rule-box.blue { border-left-color: var(--blue); }
+  .rule-box .rule-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+  .rule-box ul { list-style: none; padding: 0; margin: 0; }
+  .rule-box ul li { font-size: 13px; padding: 3px 0 3px 16px; position: relative; line-height: 1.5; }
+  .rule-box ul li::before { content: '·'; position: absolute; left: 4px; color: var(--accent); font-weight: bold; }
+  .rule-box.green ul li::before { color: var(--green); }
+  .rule-box p { font-size: 13px; margin: 0; line-height: 1.6; }
+
+  /* ── Output table ── */
+  .output-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .output-table th { background: var(--ink); color: var(--paper); padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .output-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); background: var(--paper-warm); vertical-align: top; }
+  .output-table tr:nth-child(even) td { background: var(--paper); }
+  .output-table tr:last-child td { border-bottom: none; }
+  .output-table .path { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); }
+
+  /* ── Trigger table ── */
+  .trigger-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .trigger-table th { background: var(--paper-warm); color: var(--muted); padding: 8px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid var(--rule); }
+  .trigger-table td { padding: 9px 14px; border-bottom: 1px dotted var(--rule); vertical-align: top; font-size: 13px; }
+  .trigger-table tr:last-child td { border-bottom: none; }
+  .trigger-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--ink); width: 30%; }
+
+  /* ── Code block ── */
+  .code-block { background: var(--ink); color: #e8e4df; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 20px 22px; margin: 16px 0; overflow-x: auto; }
+  .code-block .cm { color: #8a8480; }
+  .code-block .ck { color: var(--highlight); }
+  .code-block .cs { color: #a8d8a8; }
+  .code-block .cn { color: #e8b84b; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; font-size: 12px; margin-bottom: 32px; font-family: 'JetBrains Mono', monospace; letter-spacing: .05em; transition: color .15s; }
+  .back-link:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<aside class="toc">
+  <div class="toc-brand">
+    <span class="label">Skill Guide · Agent Dev</span>
+    <h2>bmad-qa-generate-e2e-tests</h2>
+  </div>
+  <nav>
+    <div class="toc-section-label">§ WHAT</div>
+    <a href="#what">Overview &amp; Identity</a>
+    <a href="#scope" class="sub">Scope &amp; boundaries</a>
+    <a href="#vs-tea" class="sub">vs. TEA Automate</a>
+
+    <div class="toc-section-label">§ WHY</div>
+    <a href="#why">Without vs With</a>
+    <a href="#when-to-use" class="sub">When to invoke</a>
+
+    <div class="toc-section-label">§ HOW</div>
+    <a href="#steps">Steps (0–5)</a>
+    <a href="#api-tests" class="sub">API Tests</a>
+    <a href="#e2e-tests" class="sub">E2E Tests</a>
+    <a href="#run-fix" class="sub">Run &amp; Fix</a>
+    <a href="#keep-simple" class="sub">Keep It Simple</a>
+    <a href="#output" class="sub">Output</a>
+    <a href="#upgrade" class="sub">When to upgrade to TEA</a>
+  </nav>
+</aside>
+
+<main class="content">
+  <a href="bmad-ecosystem-v671-research-v1.html" class="back-link">← Ecosystem Overview</a>
+
+  <div class="page-header">
+    <div class="agent-chip">
+      <span class="skill-chip">bmad-qa-generate-e2e-tests</span>
+      <span class="agent-label">Agent: Amelia (Dev)</span>
+    </div>
+    <h1>QA Generate<br>E2E Tests</h1>
+    <p class="subtitle">Generates automated API and E2E tests for already-implemented features. Lightweight, pragmatic, and opinionated toward simplicity — runs tests immediately and fixes any failures before finishing.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="dot"></span>Agent: bmad-agent-dev (Amelia)</div>
+      <div class="meta-item"><span class="dot"></span>Config: <code>_bmad/bmm/config.yaml</code></div>
+      <div class="meta-item"><span class="dot"></span>Output: <code>test-summary.md</code></div>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!--  §WHAT                                                           -->
+  <!-- ================================================================ -->
+  <section id="what">
+    <h2 class="section-what">
+      <span class="s-marker">§ WHAT</span>
+      Overview &amp; Identity
+    </h2>
+
+    <div class="stats-banner">
+      <div class="stat-cell">
+        <span class="val">6</span>
+        <span class="lbl">Steps (0–5)</span>
+      </div>
+      <div class="stat-cell">
+        <span class="val">2</span>
+        <span class="lbl">Test Types</span>
+      </div>
+      <div class="stat-cell">
+        <span class="val">Auto</span>
+        <span class="lbl">Framework Detect</span>
+      </div>
+      <div class="stat-cell">
+        <span class="val">Run</span>
+        <span class="lbl">&amp; Fix Failures</span>
+      </div>
+    </div>
+
+    <table class="identity-table">
+      <tbody>
+        <tr><td>Skill code</td><td><code>bmad-qa-generate-e2e-tests</code></td></tr>
+        <tr><td>Agent</td><td>Amelia — <strong>bmad-agent-dev</strong> (the developer agent, not TEA)</td></tr>
+        <tr><td>Role</td><td>QA automation engineer — generates tests <strong>only</strong>. No code review, no story validation, no risk scoring.</td></tr>
+        <tr><td>Trigger phrase</td><td>"create qa automated tests for [feature]"</td></tr>
+        <tr><td>Config</td><td><code>{project-root}/_bmad/bmm/config.yaml</code></td></tr>
+        <tr><td>Output file</td><td><code>{implementation_artifacts}/tests/test-summary.md</code></td></tr>
+        <tr><td>Checklist</td><td><code>checklist.md</code> — validated before the skill finishes</td></tr>
+      </tbody>
+    </table>
+
+    <p>This skill belongs to <strong>Amelia</strong>, the dev agent — not the TEA (Test Architect Enterprise) module. Given a feature that is already implemented, it generates working API and E2E tests, runs them immediately, and fixes any failures on the spot before writing the summary.</p>
+
+    <div class="rule-box" id="scope">
+      <div class="rule-title">Single Responsibility — Scope Boundary</div>
+      <p>This skill generates and verifies tests <strong>only</strong>. For code review: use <code>bmad-code-review</code>. For risk-based test planning, quality gates, or contract testing: use the TEA module (<code>bmad-testarch-*</code>).</p>
+    </div>
+
+    <h3 class="sub-title" id="vs-tea">vs. TEA Automate (bmad-testarch-automate)</h3>
+    <p>Both generate test scripts, but serve fundamentally different use cases.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr><th>Aspect</th><th>bmad-qa-generate-e2e-tests</th><th>bmad-testarch-automate (TEA)</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Agent</td>
+          <td>Amelia (dev agent)</td>
+          <td>Murat (TEA test architect agent)</td>
+        </tr>
+        <tr>
+          <td>Philosophy</td>
+          <td>Simple, fast, pragmatic</td>
+          <td>Enterprise-grade, risk-based</td>
+        </tr>
+        <tr>
+          <td>Runs &amp; fixes tests</td>
+          <td><span class="yes">Yes — Step 4, required</span></td>
+          <td><span class="no">No — generates only; CI verifies.<br><code style="font-size:10px;">auto_heal_failures</code> defaults to <code style="font-size:10px;">false</code> — healing runs only when explicitly set to <code style="font-size:10px;">true</code></span></td>
+        </tr>
+        <tr>
+          <td>Parallel workers</td>
+          <td><span class="no">No — sequential steps</span></td>
+          <td><span class="yes">Yes — 3 workers (API, E2E, Backend)</span></td>
+        </tr>
+        <tr>
+          <td>Priority system (P0–P3)</td>
+          <td><span class="no">No</span></td>
+          <td><span class="yes">Yes</span></td>
+        </tr>
+        <tr>
+          <td>Contract (Pact/CDC) tests</td>
+          <td><span class="no">No</span></td>
+          <td><span class="yes">Yes (when enabled)</span></td>
+        </tr>
+        <tr>
+          <td>Coverage gate / oracle</td>
+          <td><span class="no">No</span></td>
+          <td><span class="yes">Via bmad-testarch-trace</span></td>
+        </tr>
+        <tr>
+          <td>Test healing</td>
+          <td><span class="no">No</span></td>
+          <td><span class="yes">Yes — 4-stage healing loop</span></td>
+        </tr>
+        <tr>
+          <td>When to use</td>
+          <td>Feature coded, need quick tests now</td>
+          <td>Full SDLC test strategy</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ================================================================ -->
+  <!--  §WHY                                                            -->
+  <!-- ================================================================ -->
+  <section id="why">
+    <h2 class="section-why">
+      <span class="s-marker">§ WHY</span>
+      Without vs With
+    </h2>
+
+    <p>Features get shipped. Tests don't get written unless something makes them easy to write and verify. This skill fills that gap — pragmatically, without ceremony.</p>
+
+    <table class="whywhat-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Without bmad-qa-generate-e2e-tests</th>
+          <th>With bmad-qa-generate-e2e-tests</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Test coverage after feature</td>
+          <td>Zero — tests get scheduled "later" and often never written.</td>
+          <td>API + E2E tests generated in the same session the feature is finished.</td>
+        </tr>
+        <tr>
+          <td>Framework detection</td>
+          <td>Dev must know what framework to use and how to set it up from scratch.</td>
+          <td>Auto-detected from <code>package.json</code> and existing test files. No setup required.</td>
+        </tr>
+        <tr>
+          <td>Generated test quality</td>
+          <td>Devs default to brittle CSS selectors and hardcoded waits that break on refactor.</td>
+          <td>Semantic locators enforced (<code>getByRole</code>, <code>getByLabel</code>, <code>getByText</code>). No sleeps.</td>
+        </tr>
+        <tr>
+          <td>Broken tests after generation</td>
+          <td>Common — generated code often has import errors, wrong paths, or stale assumptions.</td>
+          <td>Run-and-fix loop in Step 4: all tests must pass before the skill finishes.</td>
+        </tr>
+        <tr>
+          <td>Test scope discipline</td>
+          <td>Either too many tests (exhaustive, high maintenance) or too few (only happy path).</td>
+          <td>Opinionated default: happy path + 1–2 critical error cases. Readable, maintainable.</td>
+        </tr>
+        <tr>
+          <td>Visibility / reporting</td>
+          <td>No record of what was tested or what coverage exists.</td>
+          <td><code>test-summary.md</code> with file list, pass/fail status, API and UI coverage metrics.</td>
+        </tr>
+        <tr>
+          <td>Upgrade path</td>
+          <td>When tests need to grow, dev doesn't know what to reach for next.</td>
+          <td>Explicit "When to Upgrade to TEA" table guides teams to the right next tool.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-title" id="when-to-use">When to Invoke This Skill</h3>
+    <table class="trigger-table">
+      <thead>
+        <tr><th>Trigger / Condition</th><th>Context</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>"create qa automated tests for [feature]"</td>
+          <td>Primary trigger phrase. Feature must be already implemented — this skill generates tests for <em>existing code</em>.</td>
+        </tr>
+        <tr>
+          <td>Quick test pass before handoff</td>
+          <td>QA needs fast verification that the implementation matches expected behavior.</td>
+        </tr>
+        <tr>
+          <td>No TEA module installed</td>
+          <td>Team hasn't adopted the full TEA module; needs a lightweight starting point.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ================================================================ -->
+  <!--  §HOW                                                            -->
+  <!-- ================================================================ -->
+  <section id="how">
+    <h2 class="section-how">
+      <span class="s-marker">§ HOW</span>
+      Running the Skill
+    </h2>
+
+    <!-- Steps -->
+    <h3 class="sub-title" id="steps">Steps (0–5)</h3>
+
+    <div class="steps-list">
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num detect">STEP 0</span>
+          <span class="step-title">Detect Test Framework</span>
+          <span class="step-note">auto-detect</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Scan <code>package.json</code> for test dependencies (playwright, jest, vitest, cypress, etc.)</li>
+            <li>Check existing test files to understand the project's patterns and conventions</li>
+            <li>Use whatever framework the project already has — never impose a new one without reason</li>
+            <li>If no framework exists: analyze project type (React, Vue, Node API…) → search for recommended framework → suggest and use it (or ask user to confirm)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 1</span>
+          <span class="step-title">Identify Features to Test</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Ask user: specific feature/component name, a directory to scan, or auto-discover</li>
+            <li>Auto-discovery: scan <code>source_dir</code> for components, routes, and API endpoints</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 2</span>
+          <span class="step-title">Generate API Tests</span>
+          <span class="step-note">if applicable</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>For each API endpoint or service, generate tests covering: status codes (200, 400, 404, 500), response structure validation</li>
+            <li>Scope: <strong>happy path + 1–2 critical error cases</strong> — not exhaustive</li>
+            <li>Follow the project's existing test patterns (fixtures, helpers, naming conventions)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 3</span>
+          <span class="step-title">Generate E2E Tests</span>
+          <span class="step-note">if UI exists</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>For UI features: test user workflows end-to-end (clicks, form fills, navigation)</li>
+            <li>Use <strong>semantic locators</strong> — roles, labels, visible text — never CSS selectors or XPath</li>
+            <li>Assert visible outcomes that a user would observe</li>
+            <li>Keep tests <strong>linear and simple</strong> — no complex fixture composition</li>
+            <li>Follow the project's existing test patterns</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num required">STEP 4</span>
+          <span class="step-title">Run Tests &amp; Fix Failures</span>
+          <span class="step-note">required — not optional</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Execute all generated tests using the project's test command</li>
+            <li>If any test fails: <strong>fix immediately</strong> — read the failure output, patch the test, re-run</li>
+            <li>Repeat until all tests pass — the summary is only written after this condition is met</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 5</span>
+          <span class="step-title">Create Summary</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Write markdown summary listing all generated test files with pass/fail status</li>
+            <li>Include coverage metrics: API endpoints covered (N/total), UI features covered (N/total)</li>
+            <li>Note suggested next steps (CI integration, additional edge cases)</li>
+            <li>Save to <code>{implementation_artifacts}/tests/test-summary.md</code></li>
+            <li>Validate against <code>checklist.md</code> before finishing</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- API Tests -->
+    <h3 class="sub-title" id="api-tests">API Tests</h3>
+    <p>API tests verify endpoint contracts — status codes and response shapes. Target: <strong>happy path + 1–2 error scenarios</strong>.</p>
+
+    <div class="code-block"><span class="cm">// Example — follows project's existing style</span>
+<span class="ck">test</span>(<span class="cs">'GET /api/users/:id returns user'</span>, <span class="ck">async</span> ({ request }) => {
+  <span class="ck">const</span> response = <span class="ck">await</span> request.get(<span class="cs">'/api/users/1'</span>);
+  expect(response.status()).toBe(<span class="cn">200</span>);
+  <span class="ck">const</span> body = <span class="ck">await</span> response.json();
+  expect(body).toMatchObject({ id: <span class="cn">1</span>, email: expect.any(String) });
+});
+
+<span class="ck">test</span>(<span class="cs">'GET /api/users/:id returns 404 for unknown id'</span>, <span class="ck">async</span> ({ request }) => {
+  <span class="ck">const</span> response = <span class="ck">await</span> request.get(<span class="cs">'/api/users/99999'</span>);
+  expect(response.status()).toBe(<span class="cn">404</span>);
+});</div>
+
+    <!-- E2E Tests -->
+    <h3 class="sub-title" id="e2e-tests">E2E Tests</h3>
+    <p>E2E tests simulate real user interactions. The key rule: use <strong>semantic locators</strong> that reflect how users perceive the UI — never CSS class selectors.</p>
+
+    <div class="code-block"><span class="cm">// Semantic locators — roles, labels, visible text</span>
+<span class="ck">test</span>(<span class="cs">'user can log in successfully'</span>, <span class="ck">async</span> ({ page }) => {
+  <span class="ck">await</span> page.goto(<span class="cs">'/login'</span>);
+  <span class="ck">await</span> page.getByLabel(<span class="cs">'Email'</span>).fill(<span class="cs">'user@example.com'</span>);
+  <span class="ck">await</span> page.getByLabel(<span class="cs">'Password'</span>).fill(<span class="cs">'password123'</span>);
+  <span class="ck">await</span> page.getByRole(<span class="cs">'button'</span>, { name: <span class="cs">'Sign In'</span> }).click();
+
+  <span class="cm">// Assert visible outcome the user would see</span>
+  <span class="ck">await</span> expect(page.getByText(<span class="cs">'Welcome back'</span>)).toBeVisible();
+  <span class="ck">await</span> expect(page).toHaveURL(<span class="cs">'/dashboard'</span>);
+});</div>
+
+    <!-- Run & Fix -->
+    <h3 class="sub-title" id="run-fix">Run &amp; Fix — What Makes This Skill Different</h3>
+    <p>Step 4 is what separates this skill from pure generators. Every generated test <strong>must pass</strong> before the skill completes.</p>
+
+    <div class="rule-box">
+      <div class="rule-title">Rule: all tests green before finishing</div>
+      <p>The skill runs the project's test command, reads the failure output, patches the test, and re-runs. This loop continues until output is clean. The summary is only written after this condition is met.</p>
+    </div>
+
+    <p>This is intentionally different from TEA <code>automate</code>, which generates tests but does not run them — TEA expects CI to verify tests through priority-gated pipelines.</p>
+
+    <!-- Keep Simple -->
+    <h3 class="sub-title" id="keep-simple">Keep It Simple</h3>
+    <p>This skill is explicitly designed to avoid over-engineering. Tests should be easy to read and easy to maintain — not architecturally impressive.</p>
+
+    <div class="do-dont">
+      <div class="do-card">
+        <div class="card-head">Do</div>
+        <div class="card-body">
+          <ul>
+            <li>Use standard test framework APIs</li>
+            <li>Focus on happy path + critical errors</li>
+            <li>Write readable, maintainable tests</li>
+            <li>Use semantic locators (roles, labels, text)</li>
+            <li>Run tests to verify they pass</li>
+            <li>Follow existing project patterns</li>
+          </ul>
+        </div>
+      </div>
+      <div class="dont-card">
+        <div class="card-head">Avoid</div>
+        <div class="card-body">
+          <ul>
+            <li>Complex fixture composition</li>
+            <li>Over-engineering and unnecessary abstractions</li>
+            <li>CSS selectors or XPath locators</li>
+            <li>Hardcoded waits or sleeps</li>
+            <li>Order-dependent tests</li>
+            <li>Exhaustive edge-case coverage</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <h3 class="sub-title" id="output">Output Files</h3>
+
+    <table class="output-table">
+      <thead><tr><th>File</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="path">{implementation_artifacts}/tests/test-summary.md</span></td>
+          <td>Markdown summary — list of generated test files, coverage metrics (API endpoints N/total, UI features N/total), next steps</td>
+        </tr>
+        <tr>
+          <td><span class="path">tests/api/[feature].spec.ts</span></td>
+          <td>API test files — written to the project's existing test directory, following existing naming conventions</td>
+        </tr>
+        <tr>
+          <td><span class="path">tests/e2e/[feature].spec.ts</span></td>
+          <td>E2E test files — user workflow tests using semantic locators</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4 class="mini-title">Summary format</h4>
+    <div class="code-block"><span class="ck"># Test Automation Summary</span>
+
+<span class="ck">## Generated Tests</span>
+
+<span class="ck">### API Tests</span>
+- [x] tests/api/users.spec.ts - User endpoint validation
+- [x] tests/api/orders.spec.ts - Order endpoint validation
+
+<span class="ck">### E2E Tests</span>
+- [x] tests/e2e/login.spec.ts - Login user workflow
+- [x] tests/e2e/checkout.spec.ts - Checkout flow
+
+<span class="ck">## Coverage</span>
+- API endpoints: 5/10 covered
+- UI features: 3/8 covered
+
+<span class="ck">## Next Steps</span>
+- Run tests in CI
+- Add more edge cases as needed</div>
+
+    <!-- When to Upgrade -->
+    <h3 class="sub-title" id="upgrade">When to Upgrade to TEA</h3>
+    <p>This skill is intentionally lightweight. If the project needs more rigorous quality infrastructure, the TEA module provides dedicated skills for each concern.</p>
+
+    <table class="output-table">
+      <thead><tr><th>You need…</th><th>Use this instead</th></tr></thead>
+      <tbody>
+        <tr><td>Risk-based test strategy with P0–P3 priorities</td><td><code>bmad-testarch-test-design</code></td></tr>
+        <tr><td>Tests written BEFORE implementation (TDD/ATDD)</td><td><code>bmad-testarch-atdd</code></td></tr>
+        <tr><td>Contract testing (Pact/CDC) for microservices</td><td><code>bmad-testarch-automate</code> (TEA)</td></tr>
+        <tr><td>Release gate with coverage thresholds</td><td><code>bmad-testarch-trace</code></td></tr>
+        <tr><td>NFR assessment (security, performance, reliability)</td><td><code>bmad-testarch-nfr</code></td></tr>
+        <tr><td>Test quality audit (determinism, isolation, maintainability)</td><td><code>bmad-testarch-test-review</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="rule-box green">
+      <div class="rule-title">Install TEA</div>
+      <p>For teams that need comprehensive test architecture coverage, the full TEA module is available at the BMad Method Test Architecture Enterprise page linked in the skill's <code>SKILL.md</code>.</p>
+    </div>
+
+  </section>
+
+</main>
+</div>
+</body>
+</html>

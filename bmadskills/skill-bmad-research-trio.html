@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research Trio — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+    --blue:       #1d3557;
+    --green:      #2d6a4f;
+    --green-bg:   #d8f3dc;
+    --red-bg:     #ffe8e3;
+    --blue-bg:    #e8f0f8;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: var(--blue); }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+  h3.skill-heading .code-tag.blue { background: var(--blue); }
+  h3.skill-heading .code-tag.green { background: var(--green); }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+  h5.blue { color: var(--blue); }
+  h5.green { color: var(--green); }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 160px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+  .data-callout tr.tier-best td { border-left: 3px solid var(--green); }
+  .data-callout tr.tier-strong td { border-left: 3px solid var(--blue); }
+  .data-callout tr.tier-moderate td { border-left: 3px solid var(--accent); }
+  .data-callout tr.tier-thin td { border-left: 3px solid var(--ink-mute); color: var(--ink-mute); }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-code.blue { color: var(--blue); }
+  .module-card .card-code.green { color: var(--green); }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 4px 0 0; }
+  .module-card .card-body li { padding: 2px 0 2px 14px; position: relative; font-size: 11.5px; border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 22%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline list ──────────────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Flow steps ───────────────────────────────── */
+  .flow-steps { margin: 20px 0 32px; }
+  .flow-step { display: grid; grid-template-columns: 48px 1fr; gap: 0; border: 1px solid var(--rule); border-bottom: none; background: var(--paper); }
+  .flow-step:last-child { border-bottom: 1px solid var(--rule); }
+  .flow-step-num { background: var(--ink); color: var(--paper); font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; min-height: 60px; flex-shrink: 0; }
+  .flow-step-num.mr { background: var(--accent); }
+  .flow-step-num.dr { background: var(--blue); }
+  .flow-step-num.tr { background: var(--green); }
+  .flow-step-body { padding: 14px 18px; border-left: 1px solid var(--rule); }
+  .flow-step-title { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .flow-step-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+  .flow-step-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin-bottom: 4px; }
+
+  /* ── Skill jump cards ─────────────────────────── */
+  .skill-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 20px 0 32px; }
+  .skill-cards > * { box-shadow: 0 0 0 1px var(--rule); }
+  .skill-card { background: var(--paper); padding: 20px 22px; border-top: 4px solid var(--ink); }
+  .skill-card.mr { border-top-color: var(--accent); }
+  .skill-card.dr { border-top-color: var(--blue); }
+  .skill-card.tr { border-top-color: var(--green); }
+  .skill-card .sc-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 8px; }
+  .skill-card .sc-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .skill-card .sc-desc { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; margin-bottom: 14px; }
+  .skill-card a.sc-link { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--paper); background: var(--ink); padding: 4px 12px; border: none; text-decoration: none; }
+  .skill-card.mr a.sc-link { background: var(--accent); }
+  .skill-card.dr a.sc-link { background: var(--blue); }
+  .skill-card.tr a.sc-link { background: var(--green); }
+  .skill-card a.sc-link:hover { opacity: 0.85; }
+
+  /* ── Notice box ───────────────────────────────── */
+  .notice { border: 1px solid var(--rule); background: var(--paper-warm); padding: 14px 18px; margin: 0 0 24px; font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+  .notice strong { color: var(--accent); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .skill-cards { grid-template-columns: 1fr; }
+    .flow-step { grid-template-columns: 36px 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad BMM · Phase 01 Analysis + Phase 03 Dev</span>
+        <span>Skill Group · Research Trio · 01·B</span>
+        <span>Agents · Mary (Analyst) · Dev / Tech Lead</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Research Trio <em>· Pre-Commitment Validation</em></h1>
+    <p class="subtitle">Three orthogonal research tracks — Market, Domain, Technical — used before Brainstorming or PRD to validate assumptions. Each skill runs 6 steps with parallel web search, step gating, and a resumable output document.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill group</dt><dd>01 · B</dd></div>
+      <div><dt>Skills</dt><dd>3 (MR · DR · TR)</dd></div>
+      <div><dt>Input</dt><dd>Assumption/question to validate (per track)</dd></div>
+      <div><dt>Trigger</dt><dd>"market research" (MR) / "domain research" (DR) / "technical research report" (TR)</dd></div>
+      <div><dt>Agent (MR · DR)</dt><dd>Mary (Analyst)</dd></div>
+      <div><dt>Agent (TR)</dt><dd>Dev · Tech Lead</dd></div>
+      <div><dt>Steps per skill</dt><dd>6</dd></div>
+      <div><dt>Phase (MR · DR)</dt><dd>01 · Analysis</dd></div>
+      <div><dt>Phase (TR)</dt><dd>03 · Dev</dd></div>
+      <div><dt>Resumable</dt><dd>Yes</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Group Overview</a>
+      <a href="#three-tracks" class="toc-sub">Three Research Tracks</a>
+      <a href="#decision-matrix" class="toc-sub">Decision Matrix</a>
+      <a href="#execution-order" class="toc-sub">Execution Order</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-research">Why Research Before PRD?</a>
+      <a href="#blind-spots" class="toc-sub">Three Blind Spots</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#how-steps">Before Calling the Skills</a>
+      <a href="#mr-setup" class="toc-sub">Market Research Setup</a>
+      <a href="#dr-setup" class="toc-sub">Domain Research Setup</a>
+      <a href="#tr-setup" class="toc-sub">Technical Research Setup</a>
+
+      <div class="toc-section-label">Applied Toolkit</div>
+      <a href="#toolkit">Toolkit Overview</a>
+      <a href="#mr-coverage" class="toc-sub">Market · Data Sources</a>
+      <a href="#mr-sectors" class="toc-sub">Market · Sector Coverage</a>
+      <a href="#dr-domains" class="toc-sub">Domain · Taxonomy (25)</a>
+      <a href="#tr-tech" class="toc-sub">Technical · Domain Coverage</a>
+      <a href="#shared-mechanics" class="toc-sub">Shared Mechanics</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Research Trio — <em>What does this Skill Group do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill group</dt><dd><code>01 · B</code> — Three optional research skills used before Brainstorm or PRD</dd>
+        <dt>Market Research</dt><dd><span class="menu-codes"><code>bmad-market-research</code></span> · Phase 01 · Agent: Mary (Analyst)</dd>
+        <dt>Domain Research</dt><dd><span class="menu-codes"><code>bmad-domain-research</code></span> · Phase 01 · Agent: Mary (Analyst)</dd>
+        <dt>Technical Research</dt><dd><span class="menu-codes"><code>bmad-technical-research</code></span> · Phase 03 · Agent: Dev / Tech Lead</dd>
+        <dt>Output pattern</dt><dd><code>_bmad-output/planning-artifacts/research/{type}-{topic}-research-{date}.md</code></dd>
+        <dt>Hard prerequisite</dt><dd>Web search must be enabled — no fallback to training data alone</dd>
+      </dl>
+
+      <p>The Research Trio covers three orthogonal failure modes. Market Research validates who the customers are and what the competitive landscape looks like. Domain Research maps the industry's vocabulary, regulations, and expert mental models. Technical Research evaluates technology feasibility, stack alternatives, and architecture patterns. Each skill is independent — run one, two, or all three depending on what the team doesn't yet know.</p>
+
+      <section id="three-tracks">
+        <h3 class="skill-heading">
+          <span class="code-name">three-tracks</span>
+          Three Research Tracks
+        </h3>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Track Overview</span>
+            <span class="data-source">Research Trio · 01·B</span>
+          </div>
+          <table>
+            <thead><tr><th>Track</th><th>Skill</th><th>What it answers</th><th>Agent</th><th>Phase</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Market</td>
+                <td><code>bmad-market-research</code></td>
+                <td>Who are the customers? What do competitors offer? What is the market size and growth rate? What are the unmet needs?</td>
+                <td>Mary (Analyst)</td>
+                <td>01 · Analysis</td>
+              </tr>
+              <tr>
+                <td class="key-col">Domain</td>
+                <td><code>bmad-domain-research</code></td>
+                <td>What vocabulary do experts use? What regulations apply? What is the value chain? What are the industry's mental models?</td>
+                <td>Mary (Analyst)</td>
+                <td>01 · Analysis</td>
+              </tr>
+              <tr>
+                <td class="key-col">Technical</td>
+                <td><code>bmad-technical-research</code></td>
+                <td>Is the architecture feasible? What are the stack alternatives? What are the integration patterns? What are the performance and security constraints?</td>
+                <td>Dev / Tech Lead</td>
+                <td>03 · Dev</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="decision-matrix">
+        <h3 class="skill-heading">
+          <span class="code-name">decision-matrix</span>
+          When to Run Which Skill
+        </h3>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Decision Matrix</span>
+            <span class="data-source">Research Trio · skill selection</span>
+          </div>
+          <table>
+            <thead><tr><th>Situation</th><th>Skill to run</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Team unfamiliar with this industry</td><td><strong>Domain Research</strong> — learn the vocabulary, regulations, and mental models before writing a word of the PRD</td></tr>
+              <tr><td class="key-col">New customer segment never served before</td><td><strong>Market Research</strong> — validate who the customers are, what they pay, and who already serves them</td></tr>
+              <tr><td class="key-col">Novel technology or architecture to evaluate</td><td><strong>Technical Research</strong> — confirm feasibility, compare stack options, surface integration patterns</td></tr>
+              <tr><td class="key-col">All three above simultaneously</td><td>Run Market → Domain → Technical in order (see Execution Order below)</td></tr>
+              <tr><td class="key-col">Known domain, existing segment, decided stack</td><td><strong>Skip Research Trio</strong> — proceed directly to Brainstorming or PRD</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="execution-order">
+        <h3 class="skill-heading">
+          <span class="code-name">order</span>
+          Recommended Execution Order
+        </h3>
+        <p class="lede">When running more than one skill, the order matters — each skill's output informs the next.</p>
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="flow-step-num mr">1</div>
+            <div class="flow-step-body">
+              <div class="flow-step-tag">Market Research · first</div>
+              <div class="flow-step-title">Understand the commercial landscape</div>
+              <div class="flow-step-desc">Run first to confirm the segment exists, understand who the customers are, and see what competitors already offer. The findings define scope for Domain Research — you know which regulations and vocabulary are relevant because you know which market you're entering.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num dr">2</div>
+            <div class="flow-step-body">
+              <div class="flow-step-tag">Domain Research · second</div>
+              <div class="flow-step-title">Map the industry's expert mental models</div>
+              <div class="flow-step-desc">Run second to learn the regulations, vocabulary, and value chain of the domain the market research identified. The regulatory findings directly affect which technology constraints Technical Research needs to evaluate.</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num tr">3</div>
+            <div class="flow-step-body">
+              <div class="flow-step-tag">Technical Research · third</div>
+              <div class="flow-step-title">Confirm feasibility against real constraints</div>
+              <div class="flow-step-desc">Run last — after you know what market you're building for and what regulations apply. Technical Research then evaluates architecture options against those real constraints rather than in the abstract.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-research">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Research Before PRD?
+      </h2>
+
+      <p class="lede">Writing a PRD before researching is writing fiction. Each research track removes a specific class of blind spots that are expensive to discover in Phase 4 or after launch.</p>
+
+      <section id="blind-spots">
+        <h3 class="skill-heading">
+          <span class="code-name">blind-spots</span>
+          Three Blind Spots — One Per Track
+        </h3>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Dimension skipped</th>
+              <th>Blind spot</th>
+              <th>Typical failure</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Skip Market Research</td>
+              <td>Wrong customer assumptions, no competitor visibility, pricing in the dark</td>
+              <td>Pricing users won't accept; discovering a competitor had the same feature two years ago; building for a persona that does not exist in the actual customer base</td>
+            </tr>
+            <tr>
+              <td>Skip Domain Research</td>
+              <td>Wrong vocabulary, missing regulations, expert mental models unknown</td>
+              <td>Healthcare app using marketer language that doctors reject; HIPAA violation discovered at launch; product design that conflicts with a fundamental industry workflow</td>
+            </tr>
+            <tr>
+              <td>Skip Technical Research</td>
+              <td>Wrong feasibility estimate, vendor lock-in, missed stack alternatives</td>
+              <td>Phase 4 discovering the chosen database doesn't meet compliance requirements; epic rewrite because the architecture doesn't scale; integration that took 2 weeks estimated takes 6 months</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p><strong>Compounding effect:</strong> All three blind spots compound. A team that doesn't know the market can't write a useful domain glossary. A team that doesn't know the domain can't write accurate regulatory constraints for the architect. An architect without constraints designs for the wrong system. Research Trio breaks this compounding cycle before it starts.</p>
+      </section>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW — Before Calling the Skills
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="how-steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skills
+      </h2>
+
+      <p class="lede">Everything to have ready before invoking any Research Trio skill. Gathering this upfront produces richer, more targeted output — the agent can only surface constraints it knows about.</p>
+
+      <div class="notice">
+        <strong>Universal prerequisite:</strong> Web search must be active in your Claude Code session. All three research skills require live web search — they do not fall back to training data alone. The agent will confirm search availability in Step 1 of each skill.
+      </div>
+
+      <!-- Market Research Setup -->
+      <section id="mr-setup">
+        <h3 class="skill-heading">
+          <span class="code-name" style="background:var(--accent);">bmad-market-research</span>
+          Market Research — What to Prepare
+        </h3>
+
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Preparation Checklist</span>
+            <span class="data-source">bmad-market-research · before session</span>
+          </div>
+          <table>
+            <thead><tr><th>Item</th><th>What's needed</th><th>Priority</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Research topic</td><td>Precise statement: which customer segment, which geography, which use-case. The more specific, the richer the output.</td><td><strong>Required</strong></td></tr>
+              <tr><td class="key-col">Research goals</td><td>2–3 concrete questions to answer: "What do I want to know?" e.g. "What is the TAM and who are the top 5 competitors?"</td><td><strong>Required</strong></td></tr>
+              <tr><td class="key-col">Scope</td><td>Broad (whole market) or deep (one segment)? Global or one region?</td><td><strong>Required</strong></td></tr>
+              <tr><td class="key-col">Known competitors</td><td>Names already known — Step 5 will go deep on these plus discover unknown players.</td><td>Helpful</td></tr>
+              <tr><td class="key-col">Hypotheses to test</td><td>"I think our primary customer is X" — research confirms or refutes.</td><td>Optional, high-value</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="step-heading">Skills That Help Market Research Go Smoothly</h4>
+        <ul class="step-detail">
+          <li><strong class="label">JTBD thinking</strong>Understanding why a customer "hires" a product — not demographics but jobs. Helps you ask sharper research questions and interpret the output more precisely.</li>
+          <li><strong class="label">Pain vs. symptom</strong>"Customers complain about slow loading" = symptom. "Can't close deals without live data" = pain point. Knowing the difference helps you frame the research question correctly.</li>
+          <li><strong class="label">Competitive intel</strong>Familiarity with App Store / G2 reviews, LinkedIn job postings, annual reports. These are the sources the agent draws from most — knowing how to read them speeds interpretation.</li>
+        </ul>
+
+        <h4 class="step-heading">Market Research — 6-Step Process</h4>
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num mr">1</div><div class="flow-step-body"><div class="flow-step-tag">Initialization</div><div class="flow-step-title">Confirm topic, goals, and scope</div><div class="flow-step-desc">No web search yet. Agent confirms the 3 setup items and presents them back for approval before any research begins.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num mr">2</div><div class="flow-step-body"><div class="flow-step-tag">Customer Behavior &amp; Segments · 4 parallel searches</div><div class="flow-step-title">Behavior patterns, demographics, psychographics, adoption drivers</div><div class="flow-step-desc">Four simultaneous web searches covering different angles of the customer. Sources: industry association reports, government data, product review platforms, journalism.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num mr">3</div><div class="flow-step-body"><div class="flow-step-tag">Pain Points &amp; Needs · 4 parallel searches</div><div class="flow-step-title">Challenges, frustrations, unmet needs, adoption barriers</div><div class="flow-step-desc">Four simultaneous searches on what the customer struggles with. Primary source: G2 / Capterra / App Store reviews, Reddit threads, community discussions.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num mr">4</div><div class="flow-step-body"><div class="flow-step-tag">Decision Journey · 4 parallel searches</div><div class="flow-step-title">Decision processes, buying criteria, journey mapping</div><div class="flow-step-desc">Four simultaneous searches on how customers evaluate and choose solutions. Sources: analyst reports, vendor case studies, B2B buying research.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num mr">5</div><div class="flow-step-body"><div class="flow-step-tag">Competitive Analysis</div><div class="flow-step-title">Key players, market share, positioning, SWOT</div><div class="flow-step-desc">Deep dive on competitors — both known players and newly discovered ones. Sources: SEC filings, earnings calls, product websites, G2 comparisons.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num mr">6</div><div class="flow-step-body"><div class="flow-step-tag">Research Completion</div><div class="flow-step-title">Strategic synthesis → 11-section document</div><div class="flow-step-desc">Synthesizes all prior steps into a structured document with executive summary, customer profiles, competitive map, and strategic recommendations. User selects [C] to save.</div></div></div>
+        </div>
+      </section>
+
+      <!-- Domain Research Setup -->
+      <section id="dr-setup">
+        <h3 class="skill-heading">
+          <span class="code-name" style="background:var(--blue);">bmad-domain-research</span>
+          Domain Research — What to Prepare
+        </h3>
+
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Preparation Checklist</span>
+            <span class="data-source">bmad-domain-research · before session</span>
+          </div>
+          <table>
+            <thead><tr><th>Item</th><th>What's needed</th><th>Priority</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Domain statement</td><td>"We are building [product] in the [X] industry" — specific industry name, not "tech" or "enterprise".</td><td><strong>Required</strong></td></tr>
+              <tr><td class="key-col">Known unknowns</td><td>What do you know you don't know about this domain? List them explicitly — the agent will target these.</td><td><strong>Required</strong></td></tr>
+              <tr><td class="key-col">Geographic scope</td><td>Regulations vary by region. US, EU, SEA, global, or a specific country.</td><td><strong>Required</strong></td></tr>
+              <tr><td class="key-col">Regulatory hunches</td><td>"I think this involves HIPAA" or "I don't know what applies" — both are valid starting points.</td><td>Helpful</td></tr>
+              <tr><td class="key-col">Time budget</td><td>Complex regulated domains (healthcare, finance, insurance) take 2–4 hours for a thorough session.</td><td>Planning</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="step-heading">Skills That Help Domain Research Go Smoothly</h4>
+        <ul class="step-detail">
+          <li><strong class="label">Industry classification</strong>Knowing whether the domain is regulated vs. high-growth tech vs. emerging helps calibrate depth expectations before starting.</li>
+          <li><strong class="label">Value chain awareness</strong>Understanding that regulations often sit at specific handoff points in the value chain speeds up Step 4 (Regulatory Focus).</li>
+          <li><strong class="label">Regulatory literacy</strong>Knowing the difference between a regulation (legal requirement) and a standard (voluntary best practice) prevents misclassifying findings in the output.</li>
+        </ul>
+
+        <h4 class="step-heading">Domain Research — 6-Step Process</h4>
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num dr">1</div><div class="flow-step-body"><div class="flow-step-tag">Domain Scope Confirmation</div><div class="flow-step-title">Confirm 5 research areas — no web search yet</div><div class="flow-step-desc">Agent defines the 5 areas: Industry Analysis, Competitive Landscape, Regulatory Focus, Technical Trends, Synthesis. User approves before research begins.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num dr">2</div><div class="flow-step-body"><div class="flow-step-tag">Industry Analysis · 4 parallel searches</div><div class="flow-step-title">Market size, growth dynamics, industry structure, trends</div><div class="flow-step-desc">Four simultaneous searches. Sources: industry association reports, government statistical agencies, analyst press releases, business journalism.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num dr">3</div><div class="flow-step-body"><div class="flow-step-tag">Competitive Landscape · 4 parallel searches</div><div class="flow-step-title">Key players, strategies, business models, ecosystem</div><div class="flow-step-desc">Four simultaneous searches on who is in the industry and how they compete. Sources: company websites, LinkedIn, Crunchbase, earnings calls.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num dr">4</div><div class="flow-step-body"><div class="flow-step-tag">Regulatory Focus · 3 searches</div><div class="flow-step-title">Regulations, standards, data privacy requirements</div><div class="flow-step-desc">Three searches targeting regulations, industry standards, and data privacy rules. Sources: government websites, regulatory bodies, legal commentary.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num dr">5</div><div class="flow-step-body"><div class="flow-step-tag">Technical Trends · 3 searches</div><div class="flow-step-title">Emerging tech, digital transformation, future outlook</div><div class="flow-step-desc">Three searches on technology adoption in the industry. Sources: analyst reports, industry association tech publications, conference proceedings.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num dr">6</div><div class="flow-step-body"><div class="flow-step-tag">Research Synthesis</div><div class="flow-step-title">10-section document with strategic recommendations</div><div class="flow-step-desc">Synthesizes all steps into a structured domain reference covering industry overview, regulations, competitive landscape, and strategic insights. User selects [C] to save.</div></div></div>
+        </div>
+      </section>
+
+      <!-- Technical Research Setup -->
+      <section id="tr-setup">
+        <h3 class="skill-heading">
+          <span class="code-name" style="background:var(--green);">bmad-technical-research</span>
+          Technical Research — What to Prepare
+        </h3>
+
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Preparation Checklist</span>
+            <span class="data-source">bmad-technical-research · before session</span>
+          </div>
+          <table>
+            <thead><tr><th>Item</th><th>What's needed</th><th>Priority</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Technology question</td><td>Specific: "Compare GraphQL vs REST for our use case" — not "research about APIs." The more precise, the more actionable the output.</td><td><strong>Required</strong></td></tr>
+              <tr><td class="key-col">Architecture context</td><td>The Architecture Document from Phase 3, or a description of the current/planned architecture.</td><td><strong>Required</strong></td></tr>
+              <tr><td class="key-col">Constraints</td><td>Language/framework constraints, team expertise limits, licensing requirements, compliance constraints from Domain Research.</td><td><strong>Required</strong></td></tr>
+              <tr><td class="key-col">Comparison candidates</td><td>List specific technologies to compare — the agent will parallel-analyze each one explicitly.</td><td><strong>Required</strong></td></tr>
+              <tr><td class="key-col">Decision deadline</td><td>Technical Research feeds into Solution Design — knowing the deadline helps the agent calibrate depth vs. speed.</td><td>Helpful</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="step-heading">Skills That Help Technical Research Go Smoothly</h4>
+        <ul class="step-detail">
+          <li><strong class="label">Architecture literacy</strong>Knowing the difference between monolith, microservices, and serverless patterns means the agent can skip introductory framing and go straight to your specific trade-off question.</li>
+          <li><strong class="label">Integration thinking</strong>Understanding that most systems integrate with existing services helps define the constraint space before the session starts.</li>
+          <li><strong class="label">Performance baseline</strong>Having rough performance requirements (e.g. "p99 &lt; 200ms", "10k concurrent users") lets the agent evaluate scalability patterns against real targets.</li>
+        </ul>
+
+        <h4 class="step-heading">Technical Research — 6-Step Process</h4>
+        <div class="flow-steps">
+          <div class="flow-step"><div class="flow-step-num tr">1</div><div class="flow-step-body"><div class="flow-step-tag">Technical Scope Confirmation</div><div class="flow-step-title">Confirm 5 areas: Architecture, Implementation, Stack, Integration, Performance</div><div class="flow-step-desc">No web search yet. Agent defines the research scope across 5 technical dimensions. User approves before research begins.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num tr">2</div><div class="flow-step-body"><div class="flow-step-tag">Technology Stack Analysis · 4 parallel searches</div><div class="flow-step-title">Languages, frameworks, databases, cloud services</div><div class="flow-step-desc">Four simultaneous searches comparing technologies on the candidate list. Sources: official docs, Stack Overflow surveys, GitHub activity, Hacker News discussions.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num tr">3</div><div class="flow-step-body"><div class="flow-step-tag">Integration Patterns · 4 parallel searches</div><div class="flow-step-title">API patterns, protocols, microservices, event-driven</div><div class="flow-step-desc">Four simultaneous searches on integration and communication patterns relevant to the architecture context.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num tr">4</div><div class="flow-step-body"><div class="flow-step-tag">Architectural Patterns · 3 searches</div><div class="flow-step-title">Architecture patterns, design principles, scalability</div><div class="flow-step-desc">Three searches targeting known architectural patterns and their trade-offs at the scale and context described in the architecture document.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num tr">5</div><div class="flow-step-body"><div class="flow-step-tag">Implementation Research · 3 searches</div><div class="flow-step-title">Adoption strategies, DevOps practices, operational considerations</div><div class="flow-step-desc">Three searches on how teams implement and operate the technologies in practice. Sources: engineering blogs, conference talks, case studies.</div></div></div>
+          <div class="flow-step"><div class="flow-step-num tr">6</div><div class="flow-step-body"><div class="flow-step-tag">Research Synthesis</div><div class="flow-step-title">12-section document with implementation roadmap and risk assessment</div><div class="flow-step-desc">Synthesizes all prior steps into a structured technical reference covering stack analysis, architecture patterns, integration, security, and strategic recommendations. User selects [C] to save.</div></div></div>
+        </div>
+      </section>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         Applied Toolkit
+         ══════════════════════════════════════════════ -->
+    <span id="toolkit" aria-hidden="true"></span>
+    <section id="toolkit-section">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+        <span class="code-tag">reference</span>
+      </h3>
+      <p class="lede">Detailed coverage profiles for each of the three research skills. Click a card to jump to the relevant section.</p>
+
+      <div class="skill-cards">
+        <div class="skill-card mr">
+          <div class="sc-code">Market Research · bmad-market-research</div>
+          <div class="sc-name">Data Sources &amp; Sector Coverage</div>
+          <div class="sc-desc">Where the agent sources market data, what it can and cannot access, and which industry sectors produce the richest output.</div>
+          <a href="#mr-coverage" class="sc-link">→ View Coverage</a>
+        </div>
+        <div class="skill-card dr">
+          <div class="sc-code">Domain Research · bmad-domain-research</div>
+          <div class="sc-name">Domain Taxonomy — 25 Domains</div>
+          <div class="sc-desc">All 25 industry domains the agent covers, with tier classification and trigger keywords that activate each domain's specialized research depth.</div>
+          <a href="#dr-domains" class="sc-link">→ View Taxonomy</a>
+        </div>
+        <div class="skill-card tr">
+          <div class="sc-code">Technical Research · bmad-technical-research</div>
+          <div class="sc-name">Technology Domain Coverage</div>
+          <div class="sc-desc">All technology domains covered across three depth tiers: Expert (15 domains), Strong (9 domains), Adequate (6 domains).</div>
+          <a href="#tr-tech" class="sc-link">→ View Coverage</a>
+        </div>
+      </div>
+
+      <!-- ── Market Research Coverage ── -->
+      <section id="mr-coverage">
+        <h3 class="skill-heading">
+          <span class="code-name" style="background:var(--accent);">bmad-market-research</span>
+          Market Data Sources
+        </h3>
+        <p>The agent has no private database. Every data point comes from live web search at session time.</p>
+
+        <h4 class="step-heading">Accessible Sources</h4>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Accessible — Live Web Search</span>
+            <span class="data-source">bmad-market-research · data sourcing</span>
+          </div>
+          <table>
+            <thead><tr><th>Source type</th><th>Examples</th><th>What you get</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Market research free tiers &amp; summaries</td><td>Statista (free charts), Grand View Research / MarketsandMarkets press releases, Gartner/Forrester public summaries</td><td>Headline market-size numbers, CAGR figures, top-level segment breakdowns</td></tr>
+              <tr><td class="key-col">Industry association reports</td><td>NRF (retail), HIMSS (healthcare IT), CB Insights fintech, Shopify/BigCommerce state-of-commerce, CBRE (real estate)</td><td>Sector-specific statistics published freely; often the most reliable first-party data</td></tr>
+              <tr><td class="key-col">Public company filings</td><td>SEC 10-K / 10-Q, earnings call transcripts, annual reports</td><td>Revenue by segment, customer counts, competitor commentary in their own words</td></tr>
+              <tr><td class="key-col">Business journalism</td><td>Reuters, Bloomberg (free), Financial Times, Forbes, TechCrunch, VentureBeat</td><td>Funding rounds, M&amp;A events, competitive moves, expert commentary</td></tr>
+              <tr><td class="key-col">Product review platforms</td><td>G2, Capterra, Trustpilot, App Store / Play Store reviews</td><td>Customer pain points, feature comparisons, NPS proxies, complaints at scale</td></tr>
+              <tr><td class="key-col">Government statistical agencies</td><td>US Census, BLS, EU Eurostat, World Bank Open Data, OECD</td><td>Demographics, employment by industry, trade volumes, GDP by sector</td></tr>
+              <tr><td class="key-col">Academic abstracts</td><td>Google Scholar, PubMed, SSRN, arXiv</td><td>Research findings — abstract is free even when the full paper is paywalled</td></tr>
+              <tr><td class="key-col">Community &amp; social platforms</td><td>Reddit (r/[industry]), LinkedIn job postings, Hacker News</td><td>Authentic user frustrations, tech adoption signals, hiring priorities as market signals</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="step-heading">NOT Accessible</h4>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Not Accessible — Paywalled / Proprietary</span>
+            <span class="data-source">bmad-market-research · limitations</span>
+          </div>
+          <table>
+            <thead><tr><th>Source type</th><th>Examples</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Full paid analyst reports</td><td>Gartner Magic Quadrant full document, Forrester Wave full report, IDC Market Tracker subscriptions</td></tr>
+              <tr><td class="key-col">Proprietary BI platforms</td><td>Bloomberg Terminal, PitchBook full data, Nielsen Syndicated Data</td></tr>
+              <tr><td class="key-col">Private company financials</td><td>Revenue, margin, customer counts from non-public companies without public disclosures</td></tr>
+              <tr><td class="key-col">Real-time transactional data</td><td>Live pricing, live sales volumes, live inventory, real-time competitor dashboards</td></tr>
+              <tr><td class="key-col">Paywalled academic journals</td><td>Full-text papers behind institutional paywall (abstract only)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="notice">
+          <strong>Calibration note:</strong> Numbers cited by the agent (e.g., "$12.4B by 2028, CAGR 14.3%") come from a publicly available summary — not a purchased analyst report. Treat all market size figures as directional estimates suitable for PRD context-setting, not for investor decks or strategic commitments.
+        </div>
+
+        <section id="mr-sectors">
+          <h4 class="step-heading">Sector Coverage — Where Output Is Richest</h4>
+          <div class="data-callout">
+            <div class="data-head">
+              <span class="data-label">Sector Coverage Tiers</span>
+              <span class="data-source">bmad-market-research · output quality by sector</span>
+            </div>
+            <table>
+              <thead><tr><th>Tier</th><th>Sector</th><th>Why data is rich</th><th>What you get</th></tr></thead>
+              <tbody>
+                <tr class="tier-best"><td class="key-col">Best</td><td><strong>Technology / SaaS</strong></td><td>Gartner &amp; Forrester public summaries, G2/Capterra, Crunchbase, Statista tech charts</td><td>Market size with CAGR, competitor feature comparisons, pain points from reviews, funding landscape</td></tr>
+                <tr class="tier-best"><td class="key-col">Best</td><td><strong>Consumer Mobile / Apps</strong></td><td>App Store charts, Sensor Tower public summaries, data.ai reports, social analytics, Reddit</td><td>Category rankings, DAU/MAU benchmarks, retention benchmarks, monetization comparisons</td></tr>
+                <tr class="tier-best"><td class="key-col">Best</td><td><strong>E-commerce / Retail</strong></td><td>Shopify State of Commerce, Adobe Digital Economy Index, NRF reports, eMarketer summaries</td><td>GMV figures, conversion benchmarks, category growth rates, consumer behavior shifts</td></tr>
+                <tr class="tier-best"><td class="key-col">Best</td><td><strong>Fintech / Payments</strong></td><td>Central bank publications, regulatory filings, CB Insights, Visa/Mastercard presentations</td><td>Payment volumes, adoption rates, regulatory requirements, market breakdown by segment</td></tr>
+                <tr class="tier-strong"><td class="key-col">Strong</td><td><strong>Healthcare / MedTech</strong></td><td>CDC/WHO/NIH data, FDA approval databases, hospital association reports, PubMed abstracts</td><td>Patient statistics, regulatory pathway descriptions, market sizes, tech adoption in care settings</td></tr>
+                <tr class="tier-strong"><td class="key-col">Strong</td><td><strong>Media / Streaming</strong></td><td>Publicly reported subscriber counts (earnings), Nielsen press releases, MPA/RIAA data</td><td>Subscriber counts, time-spent metrics, content investment, advertising market sizes</td></tr>
+                <tr class="tier-strong"><td class="key-col">Strong</td><td><strong>Logistics / Supply Chain</strong></td><td>World Bank logistics index, Freightos Baltic Index, 3PL reports, FedEx/UPS earnings calls</td><td>Shipping volume trends, freight rates, digitization adoption, last-mile economics</td></tr>
+                <tr class="tier-strong"><td class="key-col">Strong</td><td><strong>EdTech / Education</strong></td><td>UNESCO, NCES, Coursera/LinkedIn Learning annual reports, HolonIQ data</td><td>Enrollment data, e-learning adoption rates, market sizes, top platform share</td></tr>
+                <tr class="tier-moderate"><td class="key-col">Moderate</td><td><strong>Manufacturing / Industry 4.0</strong></td><td>McKinsey public research, Deloitte manufacturing studies, industry associations</td><td>Macro adoption trends; unit economics typically behind paywall</td></tr>
+                <tr class="tier-moderate"><td class="key-col">Moderate</td><td><strong>Real Estate / PropTech</strong></td><td>NAR reports, Zillow Research, CBRE/JLL public data</td><td>Transaction volumes, price trends, platform adoption; quality varies significantly by geography</td></tr>
+                <tr class="tier-moderate"><td class="key-col">Moderate</td><td><strong>Insurance</strong></td><td>OECD Insurance Statistics, AM Best public data, regulatory filings</td><td>Premium volumes, loss ratios at market level; pricing and actuarial data rarely public</td></tr>
+                <tr class="tier-thin"><td class="key-col">Thin</td><td><strong>Niche B2B Industrial</strong></td><td>Limited analyst coverage; trade press exists but sparse in English</td><td>Directional framing with ranges; hard numbers require paid sources</td></tr>
+                <tr class="tier-thin"><td class="key-col">Thin</td><td><strong>Emerging Market Niches</strong></td><td>Regional sources exist; analyst coverage in English is limited</td><td>General narrative with ranges; country-level data requires local-language sources</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- ── Domain Research Taxonomy ── -->
+      <section id="dr-domains">
+        <h3 class="skill-heading">
+          <span class="code-name" style="background:var(--blue);">bmad-domain-research</span>
+          Domain Taxonomy — 25 Domains
+        </h3>
+        <p>The agent uses live web search to research any domain. These 25 domains have the richest publicly available material and produce the most actionable output.</p>
+
+        <h5>Regulated Industries — Highest Research Depth (13 domains)</h5>
+        <div class="module-grid">
+          <div class="module-card"><div class="card-code">Regulated · 01</div><div class="card-name">Healthcare / MedTech</div><div class="card-body"><ul><li>patient, clinical, EHR, EMR, PHI, telehealth</li><li>diagnosis, prescription, hospital, medical device</li><li>lab, radiology, doctor, nurse, health record</li></ul></div><div class="card-footer">HIPAA · FDA · HL7 / FHIR</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 02</div><div class="card-name">Financial Services / Fintech</div><div class="card-body"><ul><li>banking, lending, investment, trading, portfolio</li><li>brokerage, wealth management, credit, loan, mortgage</li><li>fund, financial advisor, GAAP, IFRS</li></ul></div><div class="card-footer">SEC · FINRA · Basel III · SOX</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 03</div><div class="card-name">Payment / Transactions</div><div class="card-body"><ul><li>payment, checkout, POS, card processing, wallet</li><li>transaction, settlement, remittance, money transfer</li><li>billing, invoice, subscription billing</li></ul></div><div class="card-footer">PCI DSS · EMVCo · AML · KYC</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 04</div><div class="card-name">Insurance</div><div class="card-body"><ul><li>premium, policy, claim, underwriting, actuarial</li><li>coverage, risk assessment, insurer, broker</li><li>reinsurance</li></ul></div><div class="card-footer">NAIC · Solvency II · state licensing</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 05</div><div class="card-name">HR / Payroll / Employment</div><div class="card-body"><ul><li>payroll, employee, benefits, compensation, timesheet</li><li>onboarding, offboarding, recruitment, workforce</li><li>contractor, W-2, tax withholding, PTO, FMLA</li></ul></div><div class="card-footer">FLSA · ERISA · ACA · GDPR (EU payroll)</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 06</div><div class="card-name">Education / EdTech</div><div class="card-body"><ul><li>student, learning, curriculum, assessment, LMS</li><li>academic, classroom, tuition, enrollment, course</li><li>grade, transcript, training, certification</li></ul></div><div class="card-footer">FERPA · COPPA · state accreditation</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 07</div><div class="card-name">Government / Public Sector</div><div class="card-body"><ul><li>government, federal, municipal, citizen service</li><li>public procurement, grant, compliance audit</li><li>regulatory filing, e-government</li></ul></div><div class="card-footer">FedRAMP · FISMA · ATO · 508 compliance</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 08</div><div class="card-name">Legal / LegalTech</div><div class="card-body"><ul><li>contract, litigation, legal document, e-signature</li><li>compliance, court, attorney, law firm, case management</li><li>discovery, IP, patent</li></ul></div><div class="card-footer">ABA Model Rules · bar licensing · eDiscovery</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 09</div><div class="card-name">Telecommunications / Messaging</div><div class="card-body"><ul><li>telco, SMS, carrier, network, broadband, mobile operator</li><li>MVNO, messaging, push notification</li><li>marketing email, opt-in, opt-out</li></ul></div><div class="card-footer">TCPA · CAN-SPAM · FCC · GDPR</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 10</div><div class="card-name">Real Estate / PropTech</div><div class="card-body"><ul><li>property, mortgage, rental, tenant, lease</li><li>real estate agent, title, escrow, HOA</li><li>construction permit, building code</li></ul></div><div class="card-footer">RESPA · Fair Housing Act · state licensing</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 11</div><div class="card-name">Energy / Utilities / CleanTech</div><div class="card-body"><ul><li>energy, power grid, renewable, solar, electricity</li><li>utility, emissions, carbon, grid management</li><li>metering, smart grid</li></ul></div><div class="card-footer">NERC CIP · FERC · EPA · ISO/IEC 62443</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 12</div><div class="card-name">Food / Beverage / FoodTech</div><div class="card-body"><ul><li>restaurant, food delivery, recipe, nutrition, FMCG</li><li>hospitality, food safety, supply chain traceability</li><li>allergen, FDA food</li></ul></div><div class="card-footer">FDA FSMA · HACCP · EU Food Safety</div></div>
+          <div class="module-card"><div class="card-code">Regulated · 13</div><div class="card-name">Agriculture / AgriTech</div><div class="card-body"><ul><li>crop, farm, irrigation, precision agriculture, soil</li><li>livestock, harvest, supply chain, agri-input, farmer</li></ul></div><div class="card-footer">EPA pesticides · USDA · traceability</div></div>
+        </div>
+
+        <h5 class="blue">High-Growth Tech Industries — Rich Analyst Coverage (9 domains)</h5>
+        <div class="module-grid">
+          <div class="module-card"><div class="card-code blue">Tech · 01</div><div class="card-name">E-commerce / Retail</div><div class="card-body"><ul><li>marketplace, cart, checkout, merchant, storefront</li><li>inventory, fulfillment, D2C, dropship, SKU</li><li>returns, logistics</li></ul></div><div class="card-footer">Shopify · NRF · Stripe · logistics partners</div></div>
+          <div class="module-card"><div class="card-code blue">Tech · 02</div><div class="card-name">SaaS / B2B Software</div><div class="card-body"><ul><li>subscription, MRR, ARR, churn, onboarding</li><li>enterprise software, seat-based, PLG, product-led growth</li><li>SLA, multi-tenant</li></ul></div><div class="card-footer">SOC 2 · CSA STAR · SLAs</div></div>
+          <div class="module-card"><div class="card-code blue">Tech · 03</div><div class="card-name">Consumer Apps / Mobile</div><div class="card-body"><ul><li>app store, DAU, MAU, retention, push notification</li><li>freemium, in-app purchase, mobile-first</li><li>social feature, feed, engagement loop</li></ul></div><div class="card-footer">App Store guidelines · COPPA · GDPR</div></div>
+          <div class="module-card"><div class="card-code blue">Tech · 04</div><div class="card-name">Logistics / Supply Chain</div><div class="card-body"><ul><li>shipping, warehouse, fleet, fulfillment center</li><li>last mile, freight, 3PL, carrier, routing</li><li>inventory management, WMS, TMS</li></ul></div><div class="card-footer">Customs · IATA · DOT carrier regs</div></div>
+          <div class="module-card"><div class="card-code blue">Tech · 05</div><div class="card-name">Manufacturing / Industry 4.0</div><div class="card-body"><ul><li>factory, production, quality control, IoT sensor, ERP</li><li>assembly line, OEE, defect tracking, MES</li><li>preventive maintenance</li></ul></div><div class="card-footer">ISO 9001 · OSHA · IEC 62443</div></div>
+          <div class="module-card"><div class="card-code blue">Tech · 06</div><div class="card-name">Travel / Hospitality</div><div class="card-body"><ul><li>hotel, booking, airline, OTA, travel agent</li><li>vacation rental, tourism, itinerary, GDS</li><li>loyalty program, PMS</li></ul></div><div class="card-footer">IATA · PCI DSS · PSD2 (EU payments)</div></div>
+          <div class="module-card"><div class="card-code blue">Tech · 07</div><div class="card-name">Media / Entertainment</div><div class="card-body"><ul><li>streaming, content, subscription media, creator</li><li>podcast, gaming, publishing, DRM, rights management</li><li>ad-supported</li></ul></div><div class="card-footer">DMCA · GDPR · COPPA · MPAA</div></div>
+          <div class="module-card"><div class="card-code blue">Tech · 08</div><div class="card-name">Construction / ConTech</div><div class="card-body"><ul><li>project management, BIM, general contractor</li><li>subcontractor, site safety, permit, RFI</li><li>change order, punch list</li></ul></div><div class="card-footer">OSHA · AIA contracts · building codes</div></div>
+          <div class="module-card"><div class="card-code blue">Tech · 09</div><div class="card-name">Automotive / Mobility</div><div class="card-body"><ul><li>vehicle, fleet management, EV, connected car</li><li>ride-sharing, autonomous driving, telematics</li><li>dealership, OEM</li></ul></div><div class="card-footer">NHTSA · ISO 26262 · UNECE WP.29</div></div>
+        </div>
+
+        <h5 class="green">Emerging &amp; Specialized (3 domains)</h5>
+        <div class="module-grid">
+          <div class="module-card"><div class="card-code green">Emerging · 01</div><div class="card-name">Cybersecurity</div><div class="card-body"><ul><li>threat, vulnerability, penetration testing, SOC, SIEM</li><li>zero trust, identity management, firewall</li><li>incident response, audit log</li></ul></div><div class="card-footer">NIST CSF · ISO 27001 · SOC 2</div></div>
+          <div class="module-card"><div class="card-code green">Emerging · 02</div><div class="card-name">AI / ML Platform</div><div class="card-body"><ul><li>model training, inference, MLOps, LLM, vector database</li><li>embedding, fine-tuning, dataset, GPU, model serving</li></ul></div><div class="card-footer">EU AI Act · NIST AI RMF · model cards</div></div>
+          <div class="module-card"><div class="card-code green">Emerging · 03</div><div class="card-name">Non-profit / Social Impact</div><div class="card-body"><ul><li>donation, volunteer, grant, impact measurement</li><li>NGO, charity, fundraising, beneficiary, program outcomes</li></ul></div><div class="card-footer">IRS 501(c)(3) · GDPR · grant reporting</div></div>
+        </div>
+
+        <div class="notice">
+          <strong>Multi-domain products:</strong> When a product spans multiple domains (e.g., a healthcare payment platform = Regulated·01 + Regulated·02 + Regulated·03), run one Domain Research session scoped to the primary domain, then explicitly include secondary domains in Step 4 (Regulatory Focus) and Step 5 (Technical Trends).
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- ── Technical Research Coverage ── -->
+      <section id="tr-tech">
+        <h3 class="skill-heading">
+          <span class="code-name" style="background:var(--green);">bmad-technical-research</span>
+          Technology Domain Coverage
+        </h3>
+        <p>Coverage comes from: (1) training knowledge through August 2025; (2) live web search for current adoption data, release notes, and community consensus. The agent flags areas where web search confirmation is particularly critical.</p>
+
+        <h5 class="green">Tier 1 — Expert Depth (15 domains)</h5>
+        <div class="module-grid">
+          <div class="module-card"><div class="card-code green">Tier 1 · 01</div><div class="card-name">Web Frontend</div><div class="card-body">React, Vue, Angular, Next.js, Nuxt.js, TypeScript, Tailwind CSS, Vite, state management (Redux/Zustand/Pinia), SSR vs CSR vs SSG, Core Web Vitals</div><div class="card-footer">Trade-off analysis · bundle optimization</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 02</div><div class="card-name">Backend / Server-side</div><div class="card-body">Node.js (Express/Fastify/NestJS), Python (FastAPI/Django/Flask), Java/Spring Boot, Go (Gin/Echo/Fiber), Rust (Actix/Axum) — language trade-offs, app structure, background jobs</div><div class="card-footer">Language selection · scaling patterns</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 03</div><div class="card-name">Mobile</div><div class="card-body">React Native (Expo &amp; bare), Flutter/Dart, Swift/SwiftUI/UIKit (iOS), Kotlin/Jetpack Compose (Android) — cross-platform vs native, navigation, state, push notifications</div><div class="card-footer">Platform trade-offs · App Store guidelines</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 04</div><div class="card-name">Cloud Platforms</div><div class="card-body">AWS (IAM/EC2/ECS/EKS/Lambda/S3/RDS/Aurora/DynamoDB/SQS/SNS/CloudFront/CDK), GCP (GKE/Cloud Run/BigQuery/Firebase), Azure (AKS/Functions/Cosmos DB/Service Bus/Azure AD)</div><div class="card-footer">Multi-cloud · vendor lock-in analysis</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 05</div><div class="card-name">Containers &amp; Orchestration</div><div class="card-body">Docker (multi-stage builds), Kubernetes (pod design/ingress/RBAC/HPA/Helm), ArgoCD/Flux GitOps, Istio/Linkerd service mesh</div><div class="card-footer">GitOps · service mesh trade-offs</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 06</div><div class="card-name">Relational Databases</div><div class="card-body">PostgreSQL, MySQL, SQL Server — schema design, indexing (B-tree/GIN/partial), query optimization, migrations (Flyway/Alembic), connection pooling, replication</div><div class="card-footer">Schema design · migration safety</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 07</div><div class="card-name">NoSQL &amp; Caching</div><div class="card-body">MongoDB (document modeling, aggregation), Redis (data structures/pub-sub/streams/cluster), DynamoDB (single-table design/GSI), Cassandra, Elasticsearch/OpenSearch</div><div class="card-footer">Data modeling · consistency trade-offs</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 08</div><div class="card-name">API Design</div><div class="card-body">REST (versioning/pagination/HATEOAS), GraphQL (Apollo/N+1/DataLoader/subscriptions), gRPC (protobuf/streaming), WebSockets, Webhooks (delivery/retry/idempotency)</div><div class="card-footer">API versioning · N+1 · idempotency</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 09</div><div class="card-name">Auth &amp; Authorization</div><div class="card-body">OAuth 2.0 flows (auth code/PKCE/client credentials), OpenID Connect, JWT (expiry/rotation/revocation), RBAC/ABAC, SAML 2.0, API key management</div><div class="card-footer">Token lifecycle · SSO patterns</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 10</div><div class="card-name">CI/CD &amp; DevOps</div><div class="card-body">GitHub Actions, GitLab CI, CircleCI, Jenkins — pipeline design, blue-green/canary/rolling deployments, feature flags, rollback patterns</div><div class="card-footer">Deployment strategies · feature flags</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 11</div><div class="card-name">Infrastructure as Code</div><div class="card-body">Terraform (state/modules/workspaces), Pulumi, AWS CDK (L1/L2/L3 constructs), Ansible</div><div class="card-footer">State management · module design</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 12</div><div class="card-name">Microservices Patterns</div><div class="card-body">API Gateway (Kong/NGINX), Service Discovery (Consul), Circuit Breaker (Resilience4j), Saga (choreography vs orchestration), CQRS, Outbox, Strangler Fig</div><div class="card-footer">Saga · CQRS · Outbox patterns</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 13</div><div class="card-name">Messaging &amp; Event Streaming</div><div class="card-body">Kafka (topic design/partitioning/consumer groups/exactly-once/Kafka Streams), RabbitMQ (exchange types/DLQ), SQS/SNS, Redis Pub/Sub and Streams</div><div class="card-footer">At-least-once · exactly-once semantics</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 14</div><div class="card-name">Observability</div><div class="card-body">Prometheus (PromQL/alerting), Grafana, OpenTelemetry (traces/metrics/logs), Datadog (APM/synthetics), Jaeger/Zipkin, ELK/EFK stack</div><div class="card-footer">SLI/SLO/SLA · distributed tracing</div></div>
+          <div class="module-card"><div class="card-code green">Tier 1 · 15</div><div class="card-name">Testing</div><div class="card-body">Unit (Jest/Pytest/JUnit/Go testing), Integration (Testcontainers), E2E (Cypress/Playwright/Selenium), Load (k6/Locust/JMeter), Contract (Pact), test pyramid</div><div class="card-footer">Test pyramid · contract testing</div></div>
+        </div>
+
+        <h5 class="blue">Tier 2 — Strong Coverage (9 domains)</h5>
+        <div class="module-grid">
+          <div class="module-card"><div class="card-code blue">Tier 2 · 01</div><div class="card-name">Data Engineering</div><div class="card-body">Apache Spark (RDD/DataFrame/streaming), Airflow (DAG design/operators/XCom), dbt (models/tests/macros), Fivetran/Airbyte, Delta Lake/Apache Iceberg/Hudi</div><div class="card-footer">ETL/ELT · lakehouse patterns</div></div>
+          <div class="module-card"><div class="card-code blue">Tier 2 · 02</div><div class="card-name">Data Warehousing</div><div class="card-body">Snowflake (virtual warehouses/Time Travel), BigQuery (partitioning/clustering/slots), Redshift (distribution/sort keys), dimensional modeling (Kimball/data vault)</div><div class="card-footer">Dimensional modeling · cost optimization</div></div>
+          <div class="module-card"><div class="card-code blue">Tier 2 · 03</div><div class="card-name">AI / ML Platform</div><div class="card-body">TensorFlow, PyTorch, scikit-learn, Hugging Face, LangChain/LlamaIndex, OpenAI API (function calling/embeddings), RAG architecture, vector DBs (Pinecone/Weaviate/Chroma/pgvector), MLflow/W&amp;B</div><div class="card-footer">RAG · MLOps · vector search</div></div>
+          <div class="module-card"><div class="card-code blue">Tier 2 · 04</div><div class="card-name">Serverless / Edge</div><div class="card-body">AWS Lambda (cold start mitigation/layers/power tuning), Vercel/Netlify (edge functions/ISR), Cloudflare Workers (KV/R2/Durable Objects), Azure Functions</div><div class="card-footer">Cold start · edge vs. origin trade-offs</div></div>
+          <div class="module-card"><div class="card-code blue">Tier 2 · 05</div><div class="card-name">Search</div><div class="card-body">Elasticsearch/OpenSearch (index mapping/query DSL/dense vector semantic search), Typesense (faceting/typo tolerance), Algolia (instant search/ranking)</div><div class="card-footer">Relevance tuning · semantic search</div></div>
+          <div class="module-card"><div class="card-code blue">Tier 2 · 06</div><div class="card-name">Payment &amp; Billing</div><div class="card-body">Stripe API (PaymentIntents/subscriptions/webhooks/Connect), Braintree, Adyen, PayPal — PCI DSS patterns, webhook idempotency, subscription lifecycle</div><div class="card-footer">PCI DSS · webhook idempotency</div></div>
+          <div class="module-card"><div class="card-code blue">Tier 2 · 07</div><div class="card-name">Notifications</div><div class="card-body">Email: SendGrid/Mailgun/SES (deliverability/SPF/DKIM/DMARC); SMS: Twilio; Push: Firebase FCM/APNs — opt-in management, suppression lists</div><div class="card-footer">Deliverability · TCPA · CAN-SPAM</div></div>
+          <div class="module-card"><div class="card-code blue">Tier 2 · 08</div><div class="card-name">Identity Platforms</div><div class="card-body">Auth0 (actions/M2M), Okta (workforce/CIAM), AWS Cognito, Firebase Auth, Clerk — SSO, MFA, social login patterns</div><div class="card-footer">CIAM vs. workforce IAM</div></div>
+          <div class="module-card"><div class="card-code blue">Tier 2 · 09</div><div class="card-name">Security Engineering</div><div class="card-body">OWASP Top 10, HashiCorp Vault/AWS Secrets Manager, WAF patterns, SAST/DAST (SonarQube/Snyk/ZAP), security headers, TLS configuration</div><div class="card-footer">OWASP · secrets management · WAF</div></div>
+        </div>
+
+        <h5>Tier 3 — Adequate for Scope &amp; Trade-off Evaluation (6 domains)</h5>
+        <div class="module-grid">
+          <div class="module-card"><div class="card-code">Tier 3 · 01</div><div class="card-name">IoT &amp; Edge</div><div class="card-body">MQTT (QoS levels/broker selection: Mosquitto/HiveMQ/EMQX), AWS IoT Core, Azure IoT Hub, edge vs. cloud processing, FOTA, InfluxDB/TimescaleDB</div><div class="card-footer">QoS tradeoffs · FOTA patterns</div></div>
+          <div class="module-card"><div class="card-code">Tier 3 · 02</div><div class="card-name">Blockchain / Web3</div><div class="card-body">Ethereum architecture, Solidity basics, Hardhat/Foundry, ERC-20/721/1155, gas optimization, ethers.js/web3.js, Layer 2 (Optimism/Arbitrum/Polygon)</div><div class="card-footer">Gas optimization · L2 trade-offs</div></div>
+          <div class="module-card"><div class="card-code">Tier 3 · 03</div><div class="card-name">AR / VR / XR</div><div class="card-body">ARKit (iOS), ARCore (Android), WebXR API, Unity for XR — scene anchoring, spatial audio, performance constraints; Unreal Engine basics</div><div class="card-footer">Frame budget · spatial anchoring</div></div>
+          <div class="module-card"><div class="card-code">Tier 3 · 04</div><div class="card-name">Embedded / Firmware</div><div class="card-body">C/C++ for microcontrollers, Arduino, Raspberry Pi (Linux-based), FreeRTOS, I2C/SPI/UART protocols, power management patterns</div><div class="card-footer">RTOS · power management</div></div>
+          <div class="module-card"><div class="card-code">Tier 3 · 05</div><div class="card-name">Low-code / No-code</div><div class="card-body">Bubble, Webflow, Retool (internal tools), Airtable as backend, AppSheet — capability boundaries, when to switch to custom code, REST API integration patterns</div><div class="card-footer">Platform ceiling · escape hatches</div></div>
+          <div class="module-card"><div class="card-code">Tier 3 · 06</div><div class="card-name">Game Development</div><div class="card-body">Unity (MonoBehaviour lifecycle/ScriptableObjects/ECS/DOTS), Godot (node system/GDScript), Unreal Engine — networking models (authoritative server/client prediction), asset pipeline</div><div class="card-footer">Client prediction · ECS/DOTS</div></div>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- ── Shared Mechanics ── -->
+      <section id="shared-mechanics">
+        <h3 class="skill-heading">
+          <span class="code-name">shared-mechanics</span>
+          Shared Mechanics — All Three Skills
+        </h3>
+        <p class="lede">All Research Trio skills share the same execution model. Understanding these mechanics helps you predict the session flow for any of the three skills.</p>
+
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Execution Mechanics</span>
+            <span class="data-source">Research Trio · all 3 skills</span>
+          </div>
+          <table>
+            <thead><tr><th>Mechanic</th><th>How it works</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Step gating</td><td>User must select <code>[C] Continue</code> to advance each step. The agent never proceeds automatically. This lets you review findings before the next search layer begins.</td></tr>
+              <tr><td class="key-col">Document continuity</td><td>Output file is created from <code>research.template.md</code> at Step 1. Each step appends its findings to the document — content is never held in memory and written at the end.</td></tr>
+              <tr><td class="key-col">Frontmatter tracking</td><td><code>stepsCompleted: []</code> in the output file's YAML frontmatter is updated after each step. On re-activation, the agent reads this value and offers to resume from the last completed step.</td></tr>
+              <tr><td class="key-col">Parallel web search</td><td>Steps 2–5 in all three skills execute multiple web searches simultaneously. Market and Domain Research run 4 parallel searches per step; Technical Research runs 3–4. This is the main speed driver.</td></tr>
+              <tr><td class="key-col">Immediate write</td><td>Content is written to the document as it is generated — not buffered until <code>[C]</code>. If the session is interrupted, findings from completed steps are already saved.</td></tr>
+              <tr><td class="key-col">Source verification</td><td>Every factual claim carries a URL citation. When two sources conflict, the conflict is presented explicitly rather than resolved silently — the user decides which to trust.</td></tr>
+              <tr><td class="key-col">Output path</td><td><code>_bmad-output/planning-artifacts/research/{type}-{topic-slug}-research-{date}.md</code> where <code>{type}</code> is <code>market</code>, <code>domain</code>, or <code>technical</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

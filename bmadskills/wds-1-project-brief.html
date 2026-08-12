@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Brief</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #6741d9;
+    --accent-soft:#7950e8;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 18px 22px; margin: 16px 0 24px; overflow-x: auto; border: 1px solid var(--rule); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>WDS · Phase 1 · embeds in BMM Phase 01 Analysis</span>
+        <span>Skill · wds-1-project-brief</span>
+        <span>Agent · Saga 📚 (WDS Analyst)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Project Brief <em>· the North Star</em></h1>
+    <p class="subtitle">Establish the complete strategic foundation every downstream WDS phase reads. Three modes — Workshop / Suggest / Dream — adapt to time and existing documentation. A 36-step facilitated flow that captures vision, users, business model, visual direction, and content strategy.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>wds-1-project-brief</dd></div>
+      <div><dt>Menu code</dt><dd>PB</dd></div>
+      <div><dt>Agent</dt><dd>Saga (WDS Analyst)</dd></div>
+      <div><dt>Phase</dt><dd>WDS Phase 1</dd></div>
+      <div><dt>Output</dt><dd>A-Product-Brief/project-brief.md</dd></div>
+      <div><dt>Modes</dt><dd>Workshop · Suggest · Dream</dd></div>
+      <div><dt>Input</dt><dd>Project description (+ Phase 0 pitch, optional)</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#three-modes">3 Modes</a>
+      <a href="#mode-workshop" class="toc-sub">Workshop</a>
+      <a href="#mode-suggest" class="toc-sub">Suggest</a>
+      <a href="#mode-dream" class="toc-sub">Dream</a>
+      <a href="#flow">36-Step Flow</a>
+      <a href="#brief-sections">Brief Sections</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-northstar">Why a North Star?</a>
+      <a href="#why-visual">Why Visual Direction Early?</a>
+      <a href="#why-modes">Why 3 Modes?</a>
+      <a href="#why-suggest">Why Suggest Mode Wins</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#steps">Before Calling the Skill</a>
+      <a href="#steps" class="toc-sub">1 · WDS / BMAD Setup</a>
+      <a href="#steps" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#steps" class="toc-sub">3 · Mode Selection</a>
+      <a href="#steps" class="toc-sub">4 · Per-Section Preparation</a>
+      <a href="#step-group-init" class="toc-sub">Steps 01–01a · Init &amp; Profile</a>
+      <a href="#step-group-strategy" class="toc-sub">Steps 02–12 · Strategy &amp; Brief</a>
+      <a href="#step-group-content" class="toc-sub">Steps 13–18 · Content &amp; Language</a>
+      <a href="#step-group-visual" class="toc-sub">Steps 19–26 · Visual Direction</a>
+      <a href="#step-group-platform" class="toc-sub">Steps 27–32 · Platform</a>
+      <a href="#step-group-close" class="toc-sub">Steps 33–36 · Analysis &amp; Close</a>
+      <a href="#applied-toolkit">Applied Toolkit</a>
+      <a href="#downstream" class="toc-sub">Downstream Dependencies</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Project Brief — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>wds-1-project-brief</code></dd>
+        <dt>Menu code</dt><dd><span class="menu-codes"><code>PB</code></span> (invoked via <code>/wds-agent-saga-analyst</code> → PB, or <code>/wds-1-project-brief</code>)</dd>
+        <dt>Role</dt><dd>Strategic foundation facilitator — produces the North Star document that every upstream and downstream phase reads.</dd>
+        <dt>Replaces</dt><dd>This is the WDS-native equivalent of <code>bmad-product-brief</code>; Saga replaces Mary when WDS is installed.</dd>
+        <dt>Continuity</dt><dd>Writes to <code>_progress/00-design-log.md</code> on completion so any later session resumes from the recorded state.</dd>
+      </dl>
+
+      <p>This skill establishes the complete strategic foundation for the product. The <strong>Project Brief is the North Star</strong> — upstream phases use it to stay aligned, and every downstream phase (Trigger Mapping, Scenarios, UX Design, Asset Generation, Design System) reads it to extract business context, user profiles, visual direction, and constraints. It is the single most consequential document in the WDS pipeline: a thin brief produces generic design; a rich brief produces work that is strategically grounded.</p>
+
+      <p>Use it at the beginning of any new WDS project, before Trigger Mapping or any UX work, and when onboarding a brownfield project into the WDS pipeline (via Suggest mode, feeding existing docs to Saga).</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- 3 Modes -->
+    <section id="three-modes">
+      <h3 class="skill-heading">
+        <span class="code-name">modes</span>
+        3 Modes
+      </h3>
+      <p class="lede">Same skill, three ways in — the mode adapts to how much you already have and how much time you can spend.</p>
+
+      <div class="module-grid">
+        <div class="module-card" id="mode-workshop">
+          <div class="card-code">Mode 01</div>
+          <div class="card-name">Workshop</div>
+          <div class="card-body">
+            <ul>
+              <li>Interactive interview — Saga asks, you answer</li>
+              <li>One question at a time, listens deeply</li>
+              <li>Richest discovery; most conversation turns</li>
+              <li>Best for new greenfield projects</li>
+              <li>Highest token cost of the three modes</li>
+            </ul>
+          </div>
+          <div class="card-footer">New projects · rich discovery</div>
+        </div>
+        <div class="module-card" id="mode-suggest">
+          <div class="card-code">Mode 02</div>
+          <div class="card-name">Suggest</div>
+          <div class="card-body">
+            <ul>
+              <li>Saga drafts from your existing docs; you review</li>
+              <li>Extracts ~60–70% from a PRFAQ or PRD</li>
+              <li>Self-review generation loop before presenting</li>
+              <li>Best when discovery material already exists</li>
+              <li>Fewer turns, dramatically less time</li>
+            </ul>
+          </div>
+          <div class="card-footer">When docs already exist</div>
+        </div>
+        <div class="module-card" id="mode-dream">
+          <div class="card-code">Mode 03</div>
+          <div class="card-name">Dream</div>
+          <div class="card-body">
+            <ul>
+              <li>Saga generates fully from minimal input</li>
+              <li>You review and correct after the fact</li>
+              <li>Autonomous draft; batched reasoning</li>
+              <li>Best for time-constrained situations</li>
+              <li>Lowest interaction, you own the correction pass</li>
+            </ul>
+          </div>
+          <div class="card-footer">Time-constrained · review after</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- 36-Step Flow -->
+    <section id="flow">
+      <h3 class="skill-heading">
+        <span class="code-name">flow</span>
+        Complete Brief Flow
+        <span class="code-tag">36 steps</span>
+      </h3>
+      <p>The Workshop path walks 36 micro-steps. Suggest and Dream modes batch many of these into self-reviewed generation passes, but the same section coverage is preserved.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Step Groups</span>
+          <span class="data-source">wds-1-project-brief · 36 steps</span>
+        </div>
+        <table>
+          <thead><tr><th>Step Group</th><th>Steps</th><th>Content</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Init &amp; Client Profile</td><td>01–01a</td><td>Load context, confirm readiness, capture client profile</td></tr>
+            <tr><td class="key-col">Vision</td><td>02</td><td>Project vision exploration</td></tr>
+            <tr><td class="key-col">Positioning</td><td>03</td><td>Market positioning</td></tr>
+            <tr><td class="key-col">Business Model</td><td>05</td><td>Revenue model, business model type</td></tr>
+            <tr><td class="key-col">Business Customers</td><td>06</td><td>B2B customer identification</td></tr>
+            <tr><td class="key-col">Target Users</td><td>07</td><td>End-user definition</td></tr>
+            <tr><td class="key-col">Product Concept</td><td>07a</td><td>Product concept clarification</td></tr>
+            <tr><td class="key-col">Success Criteria</td><td>08</td><td>Measurable success metrics</td></tr>
+            <tr><td class="key-col">Competitive Landscape</td><td>09</td><td>Competition analysis</td></tr>
+            <tr><td class="key-col">Constraints</td><td>10</td><td>Project constraints documentation</td></tr>
+            <tr><td class="key-col">Platform Strategy</td><td>10a</td><td>Platform approach</td></tr>
+            <tr><td class="key-col">Tone of Voice</td><td>11</td><td>Brand voice establishment</td></tr>
+            <tr><td class="key-col">Create Product Brief</td><td>12</td><td>Document generation</td></tr>
+            <tr><td class="key-col">Content &amp; Language</td><td>13–18</td><td>Brand personality, tone, languages, SEO keywords, content structure</td></tr>
+            <tr><td class="key-col">Visual Direction</td><td>19–26</td><td>Analyze inspiration, existing brand, references, design style, layout, imagery</td></tr>
+            <tr><td class="key-col">Platform Requirements</td><td>27–32</td><td>Tech stack, integrations, contact strategy, multilingual needs</td></tr>
+            <tr><td class="key-col">Analysis &amp; Summary</td><td>33–36</td><td>Review, summarize, update design log</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Brief Sections -->
+    <section id="brief-sections">
+      <h3 class="skill-heading">
+        <span class="code-name">output</span>
+        Brief Sections
+        <span class="code-tag">canonical</span>
+      </h3>
+      <p>Every brief produced by this skill follows the same output structure, written to <code>A-Product-Brief/project-brief.md</code>.</p>
+
+      <ul class="step-detail">
+        <li><strong class="label">Overview</strong>Problem, solution, and vision — the case for building, stated up front.</li>
+        <li><strong class="label">Target Groups</strong>End users and business customers; the seed for Phase 2 personas.</li>
+        <li><strong class="label">Business Model</strong>Revenue model and business-model type.</li>
+        <li><strong class="label">Success Criteria</strong>Measurable signals; avoids vanity metrics.</li>
+        <li><strong class="label">Competitive Landscape</strong>Who else serves this space, and how this differs.</li>
+        <li><strong class="label">Constraints</strong>Technical, regulatory, format, and timeline boundaries.</li>
+        <li><strong class="label">Platform Reqs</strong>Tech stack, integrations, multilingual needs.</li>
+        <li><strong class="label">Content &amp; Language</strong>Brand personality, languages, SEO keywords, content structure.</li>
+        <li><strong class="label">Visual Direction</strong>Inspiration, brand, references, design style, layout, imagery.</li>
+        <li><strong class="label">Tone of Voice</strong>The brand voice every later asset and copy decision inherits.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-northstar">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why a Project Brief? — <em>The reasoning behind each design choice</em>
+      </h2>
+
+      <h3 class="skill-heading">
+        <span class="code-name">why-north-star</span>
+        Why a North Star Document?
+      </h3>
+      <p>WDS divides creative conversations into focused dialogues so the AI's context window is preserved across the whole pipeline. That only works if there is one canonical document every later phase can read instead of re-deriving context. The brief is that document. Trigger Mapping reads it for business goals and target groups; Scenarios reads it for users and SEO; UX Design reads it for visual direction; Asset Generation reads it for brand and style; the Design System reads it for tokens. A weak brief silently degrades every phase after it.</p>
+
+      <h3 class="skill-heading" id="why-visual">
+        <span class="code-name">why-visual-direction</span>
+        Why Capture Visual Direction This Early?
+      </h3>
+      <p>Visual Direction (steps 19–26) is gathered in Phase 1 — long before any pixels are produced — because it influences three later phases at once: Phase 4 UX Design, Phase 6 Asset Generation, and Phase 7 Design System. AI image and UI generation drift from a brand without explicit references. Capturing brand guidelines, reference screenshots, and style preferences here means every downstream generation step is anchored to the same visual intent rather than re-guessing it each time.</p>
+
+      <h3 class="skill-heading" id="why-modes">
+        <span class="code-name">why-three-modes</span>
+        Why 3 Modes?
+      </h3>
+      <p>Discovery effort should match the situation. <strong>Workshop</strong> is for a new concept that genuinely needs to be talked through. <strong>Suggest</strong> is for when a PRFAQ, PRD, or research already encodes most of the answer — re-interviewing the user would waste their time and tokens. <strong>Dream</strong> is for when time is the binding constraint and a fast autonomous draft to react to beats a blank page. The same skill and output format underlies all three, so the brief is consistent regardless of how it was produced.</p>
+
+      <h3 class="skill-heading" id="why-suggest">
+        <span class="code-name">why-suggest-wins</span>
+        Why Suggest Mode Usually Wins
+      </h3>
+      <p>If you already have a PRFAQ or PRD, Suggest mode extracts roughly 60–70% of the brief content directly from those documents, then asks only about the genuine gaps. This is both faster and cheaper than Workshop — Workshop is interactive and produces many turns, while Suggest batches reasoning into fewer, longer responses. Offering existing documentation up front is the single highest-leverage thing you can do to reduce time and token consumption on this phase.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/wds-agent-saga-analyst → PB</code>. The richer your inputs, the fewer gaps Saga has to assume — and the more downstream phases inherit a grounded foundation.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · WDS / BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all WDS skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all WDS skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">BMAD + WDS installed</td><td>WDS requires BMM v6.8+ with WDS skills installed in a compatible AI coding environment (Claude Code, Cursor, Codex, etc.). Install via <code>npx bmad-method install</code> → select WDS, or ask Claude to install <code>whiteport-design-studio</code> from GitHub.</td></tr>
+            <tr><td class="key-col">Agent-first invocation</td><td>Activate Saga with <code>/wds-agent-saga-analyst</code>, then select <code>PB</code>. Routing through the agent loads Saga's micro-guides and quality standards.</td></tr>
+            <tr><td class="key-col">Design log present</td><td>WDS writes state to <code>_progress/00-design-log.md</code>. On a brand-new project this is created here; on a resumed project Saga reads it first.</td></tr>
+            <tr><td class="key-col">Reference materials</td><td>Collect brand guidelines, competitor references, and any prior documentation before starting — they unlock Suggest mode and enrich Visual Direction.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to wds-1-project-brief. Having these clear before starting keeps the session moving.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">wds-1-project-brief · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Project description</td><td>What you are building, in your own words. The seed for the whole session.</td></tr>
+            <tr><td class="key-col">Existing discovery docs</td><td>PRFAQ, PRD, research notes — hand these to Saga to unlock Suggest mode (extracts ~60–70%).</td></tr>
+            <tr><td class="key-col">Visual references</td><td>Brand guidelines, reference screenshots, competitor sites, style preferences — these drive steps 19–26 and Phases 4/6/7.</td></tr>
+            <tr><td class="key-col">SEO keywords</td><td>If known, the target keywords (step 17) feed directly into Phase 3 scenario planning and Phase 4 page specs.</td></tr>
+            <tr><td class="key-col">Constraints</td><td>Tech stack, integrations, multilingual needs, timeline — anything already decided.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">mode-pick</span>
+        3 · Mode Selection
+      </h3>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Which Mode?</span>
+          <span class="data-source">wds-1-project-brief · session quality</span>
+        </div>
+        <table>
+          <thead><tr><th>Situation</th><th>Pick</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">New, fuzzy concept</td><td><strong>Workshop</strong> — talk it through; Saga asks one question at a time.</td></tr>
+            <tr><td class="key-col">Have PRFAQ / PRD</td><td><strong>Suggest</strong> — hand over docs; review Saga's extracted draft.</td></tr>
+            <tr><td class="key-col">Time-constrained</td><td><strong>Dream</strong> — minimal input, autonomous draft, you correct after.</td></tr>
+            <tr><td class="key-col">Brownfield onboarding</td><td><strong>Suggest</strong> — feed existing product docs to map into the WDS brief format.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-section</span>
+        4 · Per-Section Preparation
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">A few sections reward preparation more than others. Invest your time here.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">High-Leverage Sections</span>
+          <span class="data-source">wds-1-project-brief</span>
+        </div>
+        <table>
+          <thead><tr><th>Section</th><th>What to have ready</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Visual Direction</td><td>3–5 reference images, brand colors/fonts if any, screenshots of products whose look you admire. This is the highest-leverage section — it anchors Phases 4, 6, and 7.</td></tr>
+            <tr><td class="key-col">Target Users</td><td>Who specifically uses this, their current workflow, and what success looks like for them — the seed for Phase 2 personas and driving forces.</td></tr>
+            <tr><td class="key-col">SEO Keywords</td><td>The terms users would search to find this — they propagate into Phase 3 and Phase 4.</td></tr>
+            <tr><td class="key-col">Business Model</td><td>How this makes money (or justifies its cost) — calibrates how hard Saga pushes on success criteria and competitive positioning.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── STEP-BY-STEP WALKTHROUGH ────────────── -->
+
+      <h3 class="skill-heading" id="step-group-init">
+        <span class="code-name">steps 01–01a</span>
+        Init &amp; Client Profile
+        <span class="code-tag">2 steps</span>
+      </h3>
+      <p class="lede">Saga orients itself to the project and the people behind it before any strategic work begins.</p>
+
+      <h4 class="step-heading">Step 01 · Welcome &amp; Init</h4>
+      <p>Saga welcomes the user, explains the full scope of the Product Brief workflow (vision, users, success criteria, competitive landscape, constraints), and sets a 30–60 minute time expectation. The agent gathers any existing context — prior research, documents, or constraints already decided — and records a project metadata entry in the dialog context file before proceeding.</p>
+
+      <h4 class="step-heading">Step 01a · Client Profile</h4>
+      <p>Saga builds a picture of the client as an organisation and as people — not their product, but themselves: company type and size, who is commissioning the work, who makes decisions, and what internally triggered this project. This context shapes the facilitation tone and is written to <code>dialog/client-profile.md</code> for later phases to reference.</p>
+
+      <!-- ── Strategy group ── -->
+      <h3 class="skill-heading" id="step-group-strategy">
+        <span class="code-name">steps 02–12</span>
+        Strategy &amp; Product Brief
+        <span class="code-tag">11 steps</span>
+      </h3>
+      <p class="lede">The core strategic discovery that produces the canonical product brief — vision, positioning, users, business model, competitive landscape, and tone of voice all flow into a single narrative document.</p>
+
+      <h4 class="step-heading">Step 02 · Vision</h4>
+      <p>Saga opens an exploratory conversation about what the product is and why it matters, listening for purpose, impact, and aspiration rather than prompting the user to write a vision statement. After exploring through four substeps (open, explore, reflect, synthesize), Saga produces a vision statement from the conversation and confirms it with the user before proceeding.</p>
+
+      <h4 class="step-heading">Step 03 · Positioning</h4>
+      <p>A structured dialogue surfaces all six positioning components — target, need, category, benefit, alternatives, and differentiator — through open conversation about market fit. Saga synthesizes these into a positioning statement (which the user never has to write directly) and records it with full rationale in the dialog log.</p>
+
+      <h4 class="step-heading">Step 05 · Business Model</h4>
+      <p>Rather than simply asking "B2B or B2C?", Saga explores who pays, who uses, and what that means for strategy through a real conversation about customers and buyers. The outcome is a documented business model with rationale and implications, plus conditional routing: B2B or mixed models proceed to Step 06, B2C-only projects skip directly to Step 07.</p>
+
+      <h4 class="step-heading">Step 06 · Business Customers <em style="font-weight:300;font-style:italic;font-size:0.85em;">(B2B / Both only)</em></h4>
+      <p>For B2B or mixed-model products, Saga identifies the ideal business customer profile — company size, industry, decision-making structure, and buying roles. The agent explicitly builds on the positioning segment already identified in Step 03, avoiding re-asking questions the user has already answered. The buyer-versus-end-user distinction is always surfaced.</p>
+
+      <h4 class="step-heading">Step 07 · Target Users</h4>
+      <p>Saga guides the user to describe their primary and secondary users with behavioral depth — not just demographics, but daily experience, frustrations, goals, and current workarounds. Vague demographic descriptions are pushed back on; the agent asks until motivations and pain points are clear enough to seed Phase 2 persona work.</p>
+
+      <h4 class="step-heading">Step 07a · Product Concept</h4>
+      <p>This step surfaces the structural idea behind the product — the founding principle that defines how it works and feels — as distinct from a feature list. Saga asks what the big organizing idea is, explores why this structural approach serves users better than alternatives, and confirms a documented concept that includes core idea, implementation principle, and a concrete example.</p>
+
+      <h4 class="step-heading">Step 08 · Success Criteria</h4>
+      <p>Saga explores success from four angles — user behavior, business outcomes, experience quality, and timeline — asking questions that naturally produce SMART criteria without ever naming the framework. Primary and secondary metrics are prioritized, then reflected back to the user for confirmation before being documented in the product brief.</p>
+
+      <h4 class="step-heading">Step 09 · Competitive Landscape</h4>
+      <p>Saga opens with "what do people do today?" — including manual workarounds and the do-nothing option — rather than a named competitor list. For each alternative the agent explores why users might stay with it, where it falls short, and what makes this product genuinely better. The session closes by stress-testing the unfair advantage: what if the main alternative simply adds your key feature?</p>
+
+      <h4 class="step-heading">Step 10 · Constraints</h4>
+      <p>Constraints are framed positively as design parameters rather than blockers. Saga explores four categories — timeline, budget, technical, and brand — and explicitly identifies what is flexible as well as what is fixed. The result is a constraint inventory that downstream phases use to avoid proposing work that cannot be built or approved.</p>
+
+      <h4 class="step-heading">Step 10a · Platform Strategy</h4>
+      <p>Saga presents platform options (Responsive Web, Native Mobile, PWA, Desktop, Cross-Platform, Multi-Platform) with trade-offs explained at the user's technical level, then documents the chosen strategy with device priority, interaction models, and rationale. This decision constrains UX design choices across every later phase.</p>
+
+      <h4 class="step-heading">Step 11 · Tone of Voice</h4>
+      <p>Rather than asking the user to define a tone, Saga analyzes the product context — vision, users, positioning, competitive landscape — and suggests 3–5 tone attributes with rationale. Side-by-side microcopy examples (form labels, button text, error messages) show the tone in action, and the user refines until it feels right. The result governs UI writing across all downstream phases.</p>
+
+      <h4 class="step-heading">Step 12 · Create Product Brief</h4>
+      <p>Saga presents everything captured as a coherent strategic narrative — not a checklist — giving the user a chance to spot gaps or corrections before the document is written. Once confirmed, the full <code>project-brief.md</code> is generated in natural, readable language and saved to <code>A-Product-Brief/</code>. All dialog files are finalized at this point.</p>
+
+      <!-- ── Content group ── -->
+      <h3 class="skill-heading" id="step-group-content">
+        <span class="code-name">steps 13–18</span>
+        Content &amp; Language
+        <span class="code-tag">6 steps</span>
+      </h3>
+      <p class="lede">Brand personality, tone spectrums, language strategy, SEO keywords, and content structure — the guidelines every writer and UX author references through Phases 4 and 6.</p>
+
+      <h4 class="step-heading">Step 13 · Content Init</h4>
+      <p>Saga initializes the <code>content-language.md</code> output document, welcomes the user into the content and language phase, and checks whether any existing brand guidelines or tone of voice documentation already exists. If guidelines are present, they are documented and refined; if not, the session builds them from scratch. The user is given a brief preview of the four areas to be covered.</p>
+
+      <h4 class="step-heading">Step 14 · Brand Personality</h4>
+      <p>Using the "if this brand were a person" prompt, Saga elicits 3–5 personality attributes — each with a meaning and a description of how it is expressed in communication. The agent connects each attribute to the target user's expectations and avoids generic traits without substantive rationale. Personality informs tone but is distinct from it.</p>
+
+      <h4 class="step-heading">Step 15 · Tone of Voice (Content)</h4>
+      <p>Tone is defined through four spectrums — formality, mood, complexity, and energy — each scored 1–5 with the user positioned on each axis. Saga then generates "We Say / We Don't Say" contrasting examples to validate that the positions feel authentic. This tone applies to all written content, complementing the UI microcopy tone established in Step 11.</p>
+
+      <h4 class="step-heading">Step 16 · Language Strategy</h4>
+      <p>Saga identifies all languages the product must support, assigns each a priority (primary, secondary, tertiary), and determines the translation approach — full translation, priority pages only, machine plus review, or professional translation. Localization considerations beyond word-for-word translation (date formats, currency, cultural formality norms) are also captured.</p>
+
+      <h4 class="step-heading">Step 17 · SEO Keywords</h4>
+      <p>Keywords are gathered and organized by intent — service, location, problem, brand, informational — then mapped to planned pages in a page-keyword table that Phase 4 page specifications reference directly. URL structure patterns are agreed, and for local businesses Saga collects full NAP (Name, Address, Phone) data and a structured data plan for Schema.org markup.</p>
+
+      <h4 class="step-heading">Step 17a · Content Structure</h4>
+      <p>Saga surfaces the client's mental model for product structure — what pages are critical versus secondary, what navigation principles matter ("services findable from any page"), and what should explicitly not be included. The level of client clarity is noted so later phases know how much latitude they have in structuring content.</p>
+
+      <h4 class="step-heading">Step 18 · Create Content Document</h4>
+      <p>Saga compiles content type guidelines (microcopy, marketing, informational), documents content ownership and update cadence, and produces a writing checklist. A summary table is presented to the user for confirmation before the complete <code>content-language.md</code> is finalized and saved. The agent signals readiness to move to Visual Direction.</p>
+
+      <!-- ── Visual group ── -->
+      <h3 class="skill-heading" id="step-group-visual">
+        <span class="code-name">steps 19–26</span>
+        Visual Direction
+        <span class="code-tag">8 steps</span>
+      </h3>
+      <p class="lede">The visual foundation that anchors Phase 4 UX Design, Phase 6 Asset Generation, and Phase 7 Design System — capturing inspiration, existing brand assets, design style, layout approach, and photography direction.</p>
+
+      <h4 class="step-heading">Step 19 · Inspiration Workshop</h4>
+      <p>Saga collects 2–4 reference URLs from the client — sites they find inspiring for any reason — and analyzes each together using WebFetch or browser tools. For every site, the agent asks open-ended questions first, then probes specific elements, always capturing the WHY behind preferences rather than just like or dislike. Findings are organized into design principles and documented in <code>inspiration-analysis.md</code>.</p>
+
+      <h4 class="step-heading">Step 20 · Visual Init</h4>
+      <p>Saga initializes the <code>visual-direction.md</code> document and <code>visual-references/</code> folder, welcomes the user into the visual phase, explains the three-input approach (existing brand, references, style preferences), and checks whether any existing visual identity exists. This step sets the creative context without yet making design decisions.</p>
+
+      <h4 class="step-heading">Step 21 · Existing Brand Assets</h4>
+      <p>A systematic inventory of logo, colors, typography, and photography determines what exists and what condition it is in — then assigns each asset a keep / refresh / replace / create status. Partnership or franchise visual requirements that cannot be overridden are explicitly documented as design constraints. Assets are collected into <code>visual-references/existing/</code>.</p>
+
+      <h4 class="step-heading">Step 22 · Visual References</h4>
+      <p>Saga requests reference sites and probes each for specifics: layout, color palette, typography weight, imagery style, and overall feel. Negative references ("styles we definitely don't want") are equally valuable and explicitly collected. The session closes by synthesizing 3–5 mood keywords — validated with the user — that anchor the design direction statement.</p>
+
+      <h4 class="step-heading">Step 23 · Design Style</h4>
+      <p>Using the WDS Design Nomenclature vocabulary, Saga recommends a UI visual style (Flat, Material, Neobrutalism, Glassmorphism, Minimal) and design aesthetic (Minimalism, Mid-Century Modern, Corporate, Local/Artisan) with rationale drawn from the references and mood. Color direction (palette type, warm/cool, saturation) and typography direction (geometric, humanist, serif) are also documented at this step.</p>
+
+      <h4 class="step-heading">Step 24 · Layout &amp; Effects</h4>
+      <p>Saga walks through hero section type (full-bleed, split, text-focused, video), content layout pattern (card-based, single column, grid, bento box), navigation approach (simple top nav, hamburger mobile, mega menu), and visual effects usage levels (shadows, animations, parallax, hover). Performance implications — especially for mobile users — are explicitly considered before any effect level is confirmed.</p>
+
+      <h4 class="step-heading">Step 25 · Photography &amp; Imagery</h4>
+      <p>Photography style direction is set (authentic/documentary, professional/polished, lifestyle, product-focused) and existing photos are assessed for quality and usability. Saga identifies what needs to be shot, discusses stock photography guidelines for gaps, and if needed documents icon and illustration style preferences. The result is a sourcing plan alongside image quality standards.</p>
+
+      <h4 class="step-heading">Step 26 · Create Visual Document</h4>
+      <p>All visual decisions are compiled into a scannable Visual DNA summary — style, colors, typography, mood, and key element in five lines — and a completeness check ensures every section is populated. Key decisions are validated with the user before <code>visual-direction.md</code> is finalized. This document is the primary reference for every designer and generator in downstream phases.</p>
+
+      <!-- ── Platform group ── -->
+      <h3 class="skill-heading" id="step-group-platform">
+        <span class="code-name">steps 27–32</span>
+        Platform Requirements
+        <span class="code-tag">6 steps</span>
+      </h3>
+      <p class="lede">Technical decisions that constrain what UX designers can propose and what developers need to know — CMS choice, integrations, contact strategy, multilingual setup, and SEO technical requirements.</p>
+
+      <h4 class="step-heading">Step 27 · Platform Init</h4>
+      <p>Saga initializes <code>platform-requirements.md</code>, contextualizes why technical decisions matter for UX design, and assesses the user's technical familiarity level before proceeding. Any technical decisions already made (hosting provider, CMS choice, framework) are captured first so the subsequent steps only address genuinely open questions.</p>
+
+      <h4 class="step-heading">Step 28 · Tech Stack</h4>
+      <p>Saga presents CMS and framework options (WordPress, Next.js/React, static HTML, or other) with trade-offs explained at the user's assessed technical level, then documents the chosen stack with styling approach (Gutenberg, Tailwind, custom CSS) and rationale. Client maintenance implications are always explicitly addressed.</p>
+
+      <h4 class="step-heading">Step 29 · Integrations &amp; Plugins</h4>
+      <p>Common integration categories are walked through — analytics, maps, forms, email, social, payment, CRM — and for each integration the agent captures what it does, why it is needed, specific requirements, and who owns the account. For WordPress projects a standard plugin stack is recommended. Future integration plans with architecture implications are also noted.</p>
+
+      <h4 class="step-heading">Step 30 · Contact Strategy</h4>
+      <p>Saga identifies the primary contact method (phone, form, email, booking, chat, or combination) and documents the UX implications of that choice — phone visibility requirements, form field needs, spam protection, and response expectations. If relevant, AI-assisted call handling is introduced as a future integration option. UX constraints are written explicitly for designers.</p>
+
+      <h4 class="step-heading">Step 31 · Multilingual &amp; SEO</h4>
+      <p>Language requirements are determined, and for multilingual products Saga recommends URL structure patterns, plugin options (Polylang, WPML, TranslatePress), and translation workflows. Technical SEO requirements are documented — meta tags, structured data schema by page type, sitemap, robots.txt, canonical URLs, hreflang tags, and Core Web Vitals performance targets.</p>
+
+      <h4 class="step-heading">Step 32 · Create Platform Document</h4>
+      <p>All sections are reviewed for completeness and maintenance ownership is documented — who handles content updates, technical maintenance, and plugin updates after launch. A summary table is presented to the user for confirmation before <code>platform-requirements.md</code> is finalized. Development handoff notes capturing any special environment or deployment considerations are added at this point.</p>
+
+      <!-- ── Close group ── -->
+      <h3 class="skill-heading" id="step-group-close">
+        <span class="code-name">steps 33–36</span>
+        Analysis &amp; Close
+        <span class="code-tag">4 steps</span>
+      </h3>
+      <p class="lede">The Phase 1 close — completeness review, handover summary, design log update, and activation instructions for Phase 2 Trigger Mapping.</p>
+
+      <h4 class="step-heading">Step 33 · Analyze Brief</h4>
+      <p>Saga performs a silent review of the complete product brief, extracting the five elements Phase 2 needs: vision statement, target users, success criteria, key differentiator, and positioning statement. A completeness check flags any gaps — is the vision clear and inspiring? Are users identified? Is success measurable? Is differentiation articulated? — before the handover summary is prepared.</p>
+
+      <h4 class="step-heading">Step 34 · Create Handover Summary</h4>
+      <p>A concise five-line handover package is presented to the user — vision, primary audience, key differentiator, top success metric, and positioning summary — followed by an explanation of what Phase 2 Trigger Mapping will produce: business goals, detailed personas with psychological drivers, strategic feature priorities, and a visual trigger map diagram.</p>
+
+      <h4 class="step-heading">Step 35 · Update Design Log</h4>
+      <p>Saga appends a Phase 1 completion entry to <code>_progress/00-design-log.md</code>, listing every artifact file individually (no summarizing with "etc."), writing a project-specific summary that mentions business context and key constraints, and recording significant decisions in the key decisions table. This log entry is what any future session reads to resume from the correct state.</p>
+
+      <h4 class="step-heading">Step 36 · Provide Activation</h4>
+      <p>The final step presents clear activation instructions for Phase 2 — direct workflow load or Saga agent activation — along with a time estimate of 60–90 minutes and a preview of what Trigger Mapping will create. The user is asked whether to proceed immediately or resume in a later session. Phase 1 is complete when this step is confirmed.</p>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="applied-toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Applied Toolkit</span>
+          <span class="data-source">wds-1-project-brief</span>
+        </div>
+        <table>
+          <thead><tr><th>Category</th><th>Items</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Skill</td><td><code>wds-1-project-brief</code></td></tr>
+            <tr><td class="key-col">Agent</td><td>Saga 📚 — WDS Analyst</td></tr>
+            <tr><td class="key-col">Output</td><td><code>A-Product-Brief/project-brief.md</code></td></tr>
+            <tr><td class="key-col">Micro-guides</td><td><code>discovery-conversation.md</code> · <code>strategic-documentation.md</code> · <code>dream-up-approach.md</code></td></tr>
+            <tr><td class="key-col">Modes</td><td>Workshop · Suggest · Dream (Dream-Up mode selection on entry)</td></tr>
+            <tr><td class="key-col">Adjacent skills</td><td><code>bmad-brainstorming</code> (BP) · <code>bmad-market-research</code> (RS) · <code>bmad-document-project</code> (DP, brownfield)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section id="downstream">
+        <h5>Downstream Dependencies</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Phase</th><th>What it reads from the brief</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Phase 2 · Trigger Map</td><td>Business goals and target groups — the inputs to driving-force mapping and personas.</td></tr>
+              <tr><td class="key-col">Phase 3 · Scenarios</td><td>Users and SEO keywords — to plan scenario coverage.</td></tr>
+              <tr><td class="key-col">Phase 4 · UX Design</td><td>Visual direction and tone of voice — to make grounded page-spec decisions.</td></tr>
+              <tr><td class="key-col">Phase 6 · Assets</td><td>Brand, style references, and content strategy — to anchor generation prompts.</td></tr>
+              <tr><td class="key-col">Phase 7 · Design System</td><td>Visual direction — as the seed for design tokens.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>

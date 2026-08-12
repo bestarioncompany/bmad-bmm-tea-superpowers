@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Brief — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 18px 22px; margin: 16px 0 24px; overflow-x: auto; border: 1px solid var(--rule); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad BMM · Phase 01 Analysis</span>
+        <span>Skill · bmad-product-brief</span>
+        <span>Agent · Mary (Business Analyst)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Product Brief</h1>
+    <p class="subtitle">Outcome-driven facilitator — 3 intents: Create / Update / Validate. Fast path (batch gaps → draft) + Coaching path (section by section). 3-file output with decision log.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-product-brief</dd></div>
+      <div><dt>Menu code</dt><dd>CB</dd></div>
+      <div><dt>Input</dt><dd>User intent / raw idea (Create) or existing brief.md (Update/Validate)</dd></div>
+      <div><dt>Agent</dt><dd>Mary (Analyst)</dd></div>
+      <div><dt>Intents</dt><dd>Create / Update / Validate</dd></div>
+      <div><dt>Modes</dt><dd>Fast · Coaching · Headless</dd></div>
+      <div><dt>Output</dt><dd>brief.md + addendum.md + .decision-log.md</dd></div>
+      <div><dt>Resumable</dt><dd>Yes</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#three-intents">3 Intents</a>
+      <a href="#intent-create" class="toc-sub">Create</a>
+      <a href="#intent-update" class="toc-sub">Update</a>
+      <a href="#intent-validate" class="toc-sub">Validate</a>
+      <a href="#output-structure">Output Structure</a>
+      <a href="#eight-sections">8-Section Template</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-brief">Why a Brief Before PRD?</a>
+      <a href="#why-short">Why 1–2 Pages?</a>
+      <a href="#why-log">Why a Decision Log?</a>
+      <a href="#why-intents">Why 3 Intents?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#how-steps">Before Calling the Skill</a>
+      <a href="#how-steps" class="toc-sub">1 · General BMAD Setup</a>
+      <a href="#how-steps" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#how-steps" class="toc-sub">3 · Skills That Help</a>
+      <a href="#how-steps" class="toc-sub">4 · Per-Step Preparation</a>
+      <a href="#toolkit">Applied Toolkit</a>
+      <a href="#technique-descriptions" class="toc-sub">Technique Descriptions</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT — What is this Skill?
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Product Brief — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-product-brief</code></dd>
+        <dt>Menu code</dt><dd><span class="menu-codes"><code>CB</code></span> (invoked via <code>/bmad-agent-analyst</code> → CB)</dd>
+        <dt>Role</dt><dd>Strategic document facilitator — produces a 1–2 page brief for go/no-go decisions.</dd>
+        <dt>Flags</dt><dd><code>--headless</code> / <code>-H</code> — skip interactive coaching, auto-produce brief from available inputs; halt with <code>blocked</code> if intent is ambiguous.</dd>
+        <dt>Continuity</dt><dd>If a draft from a prior session exists → offer resume before starting fresh.</dd>
+      </dl>
+
+      <p>This skill turns a conversation (or existing source material) into a concise, decision-ready Product Brief. It facilitates discovery, infers answers from any source artifacts provided, calibrates rigor to the stakes of the effort, and writes a brief that a stakeholder can read in 5 minutes and make a go/no-go call from. All decisions, changes, and overrides are written to a real-time decision log that serves as institutional memory.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- 3 Intents -->
+    <section id="three-intents">
+      <h3 class="skill-heading">
+        <span class="code-name">intents</span>
+        3 Intents
+      </h3>
+      <p class="lede">Same skill, three entry points — the artifact evolves as the concept evolves.</p>
+
+      <div class="module-grid">
+        <div class="module-card" id="intent-create">
+          <div class="card-code">Intent 01</div>
+          <div class="card-name">Create</div>
+          <div class="card-body">
+            <ul>
+              <li>Build brief from scratch via conversation</li>
+              <li>Workspace created immediately when intent confirmed</li>
+              <li>Run folder + brief.md skeleton + .decision-log.md</li>
+              <li>Supports Fast path and Coaching path</li>
+              <li>Web research subagents spawned during brain dump</li>
+            </ul>
+          </div>
+          <div class="card-footer">Starting point for new concepts</div>
+        </div>
+        <div class="module-card" id="intent-update">
+          <div class="card-code">Intent 02</div>
+          <div class="card-name">Update</div>
+          <div class="card-body">
+            <ul>
+              <li>Reconcile existing brief with a change signal</li>
+              <li>Reads brief + addendum + .decision-log BEFORE proposing</li>
+              <li>If change is fundamental → offer Create instead of patch</li>
+              <li>Every change recorded in decision log</li>
+              <li>Addendum updated with reconciled depth content</li>
+            </ul>
+          </div>
+          <div class="card-footer">Evolving concepts and pivots</div>
+        </div>
+        <div class="module-card" id="intent-validate">
+          <div class="card-code">Intent 03</div>
+          <div class="card-name">Validate</div>
+          <div class="card-body">
+            <ul>
+              <li>Honest critique against the brief's own stated purpose</li>
+              <li>Cite specific lines — no vague feedback</li>
+              <li>Always offer to roll findings into an Update</li>
+              <li>Checks each of the 8 sections for completeness</li>
+              <li>Flags thin assumptions and fabricated moats</li>
+            </ul>
+          </div>
+          <div class="card-footer">Before PRD hand-off or stakeholder review</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Output Structure -->
+    <section id="output-structure">
+      <h3 class="skill-heading">
+        <span class="code-name">output-structure</span>
+        Output Structure
+      </h3>
+      <p>Three files are created for every brief. The workspace is created at intent confirmation — not at the end of the session.</p>
+
+      <pre class="code-block">_bmad-output/planning-artifacts/briefs/brief-{project}-{date}/
+├── brief.md           ← primary brief document (1-2 pages)
+├── addendum.md        ← depth for downstream (personas, market data,
+│                         rejected rationale, parked roadmap)
+└── .decision-log.md   ← canonical memory: every decision, change,
+                          override recorded real-time</pre>
+
+      <ul class="step-detail">
+        <li><strong class="label">brief.md</strong>Primary stakeholder artifact. Strictly 1–2 pages. Executive-ready. Written for go/no-go decisions, not engineering intake.</li>
+        <li><strong class="label">addendum.md</strong>Overflow and depth document for downstream teams. Holds detailed personas, market data, rejected rationale, and parked roadmap items that would bloat the brief.</li>
+        <li><strong class="label">.decision-log.md</strong>Canonical institutional memory. Every choice, pivot, override, and assumption is timestamped and recorded here in real-time. Prefixed with <code>.</code> to signal it is a meta-artifact, not a deliverable.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- 8-Section Template -->
+    <section id="eight-sections">
+      <h3 class="skill-heading">
+        <span class="code-name">template</span>
+        8-Section Brief Template
+        <span class="code-tag">canonical</span>
+      </h3>
+      <p>Every brief produced by this skill follows the same 8-section structure. Content that would push the brief beyond 2 pages is moved to <code>addendum.md</code>.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">8-Section Template</span>
+          <span class="data-source">Target length: 1–2 pages</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Section</th><th>Contents</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Executive Summary</td>
+              <td>What this is · what problem it solves · why it matters · why now. 2–3 paragraphs. Must stand alone — a reader who reads only this section should understand the case for building.</td>
+            </tr>
+            <tr>
+              <td class="key-col">The Problem</td>
+              <td>Who feels the pain · how they cope today · cost of status quo. Real scenarios, not abstractions. Written so the reader feels the problem, not just understands it.</td>
+            </tr>
+            <tr>
+              <td class="key-col">The Solution</td>
+              <td>Experience and outcome, not implementation. How it solves the problem described above. No technology choices. No architecture. Pure value.</td>
+            </tr>
+            <tr>
+              <td class="key-col">What Makes This Different</td>
+              <td>Key differentiators and unfair advantage. Honest — no fabricated moats. If differentiation is thin, say so and suggest where to develop it.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Who This Serves</td>
+              <td>Primary users (vivid but brief) · secondary users if relevant · what success looks like for each. Detailed personas → addendum.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Success Criteria</td>
+              <td>User success signals + business objectives. Measurable. Avoids vanity metrics. Grounded in the problem statement above.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Scope</td>
+              <td>What is in for v1 · what is explicitly out. A boundary document, not a feature list. Out-of-scope items move to addendum roadmap if they have future potential.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Vision</td>
+              <td>Where this goes in 2–3 years if it succeeds. Inspiring but grounded. Should feel like a natural extension of the problem and solution, not a separate ambition.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY — Why use this Skill?
+         ══════════════════════════════════════════════ -->
+    <section id="why-brief">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why a Product Brief? — <em>The reasoning behind each design choice</em>
+      </h2>
+
+      <h3 class="skill-heading" id="why-short">
+        <span class="code-name">why-brief-before-prd</span>
+        Why a Brief Before a PRD?
+      </h3>
+      <p>A PRD covers <em>requirements</em> — what must be built and how it should behave. A brief covers <em>why to build it at all</em>. These are different audiences, different decisions, and different timeframes. The brief is written for executives and stakeholders making a go/no-go call. The PRD is written for the product and engineering teams implementing the decision. Conflating the two produces documents that satisfy neither audience.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">why-one-two-pages</span>
+        Why 1–2 Pages?
+      </h3>
+      <p>Stakeholders make go/no-go decisions in 5 minutes — a long document is a signal that the concept is not clear yet. If you cannot explain the business case in two pages, the concept needs more thinking, not more writing. The 1–2 page constraint forces clarity. Longer supporting content lives in <code>addendum.md</code> for teams that need the depth.</p>
+
+      <h3 class="skill-heading" id="why-log">
+        <span class="code-name">why-decision-log</span>
+        Why a Decision Log?
+      </h3>
+      <p>After 6 months, no one remembers why the scope was scoped the way it was, why a differentiator was called out or removed, or why the vision statement changed. The decision log is the institutional memory of the brief's evolution. It records every choice, change, override, and assumption in real-time — not as a retrospective. When the brief is later updated or validated, the log is the first thing read.</p>
+
+      <h3 class="skill-heading" id="why-intents">
+        <span class="code-name">why-three-intents</span>
+        Why 3 Intents?
+      </h3>
+      <p>The same underlying skill serves the full lifecycle of a product concept. <strong>Create</strong> is for when the concept is new. <strong>Update</strong> is for when the concept has evolved, pivoted, or received new signal. <strong>Validate</strong> is for when the brief needs an honest critique before it moves downstream to PRD or stakeholder review. Using the same skill across all three ensures the output format and decision log are consistent throughout the concept's life.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW — Before Calling the Skill
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="how-steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/bmad-agent-analyst → CB</code>. The richer your inputs, the fewer <code>[ASSUMPTION]</code> tags in the brief. For step-by-step execution details, see the Applied Toolkit section below.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · General BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all BMAD skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">BMAD installed</td>
+              <td>Latest version required. Verify before starting: <code>npx bmad-method --version</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Claude Code running</td>
+              <td>Open a terminal and run <code>claude</code> first. All skill invocations happen inside an active Claude Code session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent-first invocation</td>
+              <td>Always <code>/bmad-agent-analyst → select CB</code>. Never invoke the skill directly — routing through the wrong agent reduces output quality.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Full context upfront</td>
+              <td>The agent infers from what you bring in. Investing in preparation saves significant effort in all later steps.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to bmad-product-brief. Have these clear before starting the session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">bmad-product-brief · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">What is being built</td>
+              <td>A 1–2 sentence description of the feature or module. This is the opening brain dump seed — be specific.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Who requested it and why</td>
+              <td>Context on the stakeholder ask — client name, business driver, urgency level.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Primary users</td>
+              <td>Who will actually use this feature, their current workflow, and what they need from it.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Known constraints</td>
+              <td>Technical limitations, integration requirements, format restrictions that are already decided.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Existing artifacts</td>
+              <td>Notes, emails, discussion threads, designs, or prior specs. Optional but high-value — the agent infers from whatever you bring in.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">skills</span>
+        3 · Skills That Help This Session
+      </h3>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Facilitator Mindset</span>
+          <span class="data-source">bmad-product-brief · session quality</span>
+        </div>
+        <table>
+          <thead><tr><th>Skill</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Concise description</td>
+              <td>The agent opens with "tell me everything" — but a 1–2 sentence seed is more useful than a 10-paragraph dump. Lead with the core concept, then add detail when probed.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Stakeholder fluency</td>
+              <td>Know who requested this feature and why — the agent uses this to calibrate rigor and positioning language in the brief.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Stakes awareness</td>
+              <td>Know in advance whether this brief is for internal use, an investor pitch, or a public launch. Stakes determine how hard the agent pushes on market positioning and differentiator claims.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Decision readiness</td>
+              <td>The session flows fastest when you know: Fast Path (draft quickly, react) or Coaching Path (walk together)? Choose based on whether the concept is clear or still forming.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-step</span>
+        4 · Per-Step Preparation
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Within the session, each phase has a readiness moment. Having these answers ready prevents pauses that break flow.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Phase-Level Readiness</span>
+          <span class="data-source">bmad-product-brief · create intent</span>
+        </div>
+        <table>
+          <thead><tr><th>Phase</th><th>What to have ready</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Brain Dump</td>
+              <td>Everything you know: feature concept, source material, research notes, prior briefs, stakeholder emails. Don't edit yourself — the agent filters, infers, and asks about gaps.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Infer Phase</td>
+              <td>Gather all related artifacts before the session — brainstorming output, PRFAQ if run, design discussions. The more you provide, the fewer clarifying questions the agent needs to ask.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Stakes Read</td>
+              <td>Decide in advance: passion project · internal pitch · investor input · public launch. This calibrates rigor on market positioning, success criteria, and differentiation claims.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Working Mode</td>
+              <td>Fast Path if you have a well-defined concept and time is the constraint. Coaching Path if the concept is still forming or you've never authored a brief before.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Discovery (Coaching Path)</td>
+              <td>Prepare answers for three areas: <strong>(1) Problem and context</strong> — what, why now, who asked; <strong>(2) Users</strong> — who specifically, current workflow, what success looks like; <strong>(3) Solution shape</strong> — high-level concept is sufficient at this stage.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Applied Toolkit</span>
+          <span class="data-source">bmad-product-brief</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Category</th><th>Items</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Skill</td>
+              <td><code>bmad-product-brief</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent</td>
+              <td>Mary — Business Analyst</td>
+            </tr>
+            <tr>
+              <td class="key-col">Output</td>
+              <td><code>brief.md</code> + <code>addendum.md</code> + <code>.decision-log.md</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Frameworks</td>
+              <td>Geoffrey Moore positioning template · Jobs-to-be-Done (JTBD) · PAIN framework · Value Proposition Canvas · HEART metrics</td>
+            </tr>
+            <tr>
+              <td class="key-col">Editorial</td>
+              <td><code>bmad-editorial-review-structure</code> · <code>bmad-editorial-review-prose</code> (run in parallel; brief first, addendum after)</td>
+            </tr>
+            <tr>
+              <td class="key-col">MCP Tools</td>
+              <td><code>bmad-help</code> · <code>bmad-advanced-elicitation</code> · <code>bmad-party-mode</code> · web research subagents</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section id="technique-descriptions">
+        <h5>Technique Descriptions</h5>
+
+        <h5>Brain Dump Technique</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Element</th><th>Detail</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Opening</td>
+                <td>Freeform invitation — paste concept description, source material, research notes, prior briefs, stakeholder emails. No filtering. The agent handles sorting.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Mandatory gate</td>
+                <td>"Anything else?" must be asked before the agent narrows inquiry. Skipping this misses late-arriving context that changes the brief's shape.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Parallel subagents</td>
+                <td>Web research spawns during Brain Dump — landscape scan, comparables, market data. Research runs in parallel without blocking the conversation; findings fold into the brief and addendum.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Assumption tagging</td>
+                <td>When the agent infers a gap without explicit user input, it tags the inference with <code>[ASSUMPTION]</code>. User confirms or corrects at draft review.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Stakes Read — 4-Option Calibration</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Stakes Level</th><th>Effect on Session Rigor</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Passion project</td>
+                <td>Light touch on market positioning and moat claims. Success criteria are personal. Differentiation section is optional.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Internal pitch</td>
+                <td>Moderate rigor. Focus on stakeholder ROI and resource justification. Market positioning matters if competing for budget.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Investor input</td>
+                <td>Full rigor on differentiation, competitive moat, and market sizing. Every claim tested for defensibility. No weasel words accepted.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Public launch</td>
+                <td>Maximum rigor. Assumes real users and real consequences. Compliance flags raised. Success metrics must be measurable from day one.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Working Mode — Fast Path vs Coaching Path</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Dimension</th><th>Fast Path</th><th>Coaching Path</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Process</td>
+                <td>Batch all remaining gaps into 1–2 consolidated questions, then draft the full brief</td>
+                <td>Walk each brief section collaboratively; push back on thin assumptions as they arise; draft section by section</td>
+              </tr>
+              <tr>
+                <td class="key-col">Assumption handling</td>
+                <td>Tagged with <code>[ASSUMPTION]</code> throughout — user reviews draft and iterates on specific sections</td>
+                <td>Each section confirmed before moving on; fewer assumptions survive</td>
+              </tr>
+              <tr>
+                <td class="key-col">Best for</td>
+                <td>Known concepts · time pressure · users who prefer to react to a draft</td>
+                <td>New or fuzzy concepts · first-time brief authors · when the problem is not fully understood yet</td>
+              </tr>
+              <tr>
+                <td class="key-col">Advanced tools</td>
+                <td>Not available</td>
+                <td>User may invoke <code>bmad-party-mode</code> (multi-agent perspectives) or <code>bmad-advanced-elicitation</code> at any point</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Finalize — 4-Step Protocol</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Step</th><th>What Happens</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Decision Log Audit</td>
+                <td>Walk <code>.decision-log.md</code> entry by entry. Confirm each decision is captured in the brief or addendum, or explicitly set aside with a reason. The log is the institutional memory — do not skip.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Polish</td>
+                <td>Two parallel editorial passes: <code>bmad-editorial-review-structure</code> (section order, internal consistency, logical flow) + <code>bmad-editorial-review-prose</code> (tone, clarity, readability). Brief first; addendum after.</td>
+              </tr>
+              <tr>
+                <td class="key-col">External Handoffs</td>
+                <td>Route brief to configured external destinations (Confluence, Notion, or other configured tools). If a destination is unavailable or unconfigured, skip and flag — do not block finalization.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Suggest Next Steps</td>
+                <td>Invoke <code>bmad-help</code> to suggest the next skill. Typical next: if go/no-go is affirmative → <code>bmad-create-prd</code> or <code>bmad-prfaq</code>. If concept still developing → <code>bmad-market-research</code> or <code>bmad-domain-research</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>

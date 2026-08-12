@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alignment &amp; Signoff</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #6741d9;
+    --accent-soft:#7950e8;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 18px 22px; margin: 16px 0 24px; overflow-x: auto; border: 1px solid var(--rule); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>WDS · Phase 0 · optional · pre-project</span>
+        <span>Skill · wds-0-alignment-signoff</span>
+        <span>Agent · Saga 📚 (WDS Analyst)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Alignment &amp; Signoff <em>· secure agreement before you build</em></h1>
+    <p class="subtitle">Before any design or development begins, get every stakeholder on the same page — in writing. A collaborative discovery flow produces an alignment "pitch" across ten sections, then optionally hardens it into a formal contract or an internal signoff document. Run it whenever misaligned expectations would be costly.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>wds-0-alignment-signoff</dd></div>
+      <div><dt>Menu code</dt><dd>AS</dd></div>
+      <div><dt>Agent</dt><dd>Saga (WDS Analyst)</dd></div>
+      <div><dt>Phase</dt><dd>WDS Phase 0 · optional</dd></div>
+      <div><dt>Input</dt><dd>Project idea + stakeholder context</dd></div>
+      <div><dt>Output</dt><dd>A-Product-Brief/pitch.md</dd></div>
+      <div><dt>Also produces</dt><dd>Contract · Signoff doc</dd></div>
+      <div><dt>Feeds</dt><dd>Phase 1 Project Brief</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#sub-phases">6 Sub-Phases</a>
+      <a href="#alignment-sections">The 10 Alignment Sections</a>
+      <a href="#output">Output</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-align">Why Align Before Building?</a>
+      <a href="#why-written">Why a Written Pitch?</a>
+      <a href="#why-framing">Why Cost-of-Inaction + Commitment?</a>
+      <a href="#why-optional">Why This Phase Is Optional</a>
+
+      <div class="toc-section-label">§ STEPS</div>
+      <a href="#steps">Step-by-Step Walkthrough</a>
+      <a href="#steps" class="toc-sub">Phase A · Start &amp; Understand</a>
+      <a href="#steps" class="toc-sub">Phase B · Explore Sections</a>
+      <a href="#steps" class="toc-sub">Phase C · Synthesize &amp; Present</a>
+      <a href="#steps" class="toc-sub">Phase D · Generate Signoff</a>
+      <a href="#steps" class="toc-sub">Phase E · Build Contract</a>
+      <a href="#steps" class="toc-sub">Phase F · Internal Signoff</a>
+      <a href="#applied-toolkit">Applied Toolkit</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Alignment &amp; Signoff — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>wds-0-alignment-signoff</code></dd>
+        <dt>Menu code</dt><dd><span class="menu-codes"><code>AS</code></span> (invoked via <code>/wds-agent-saga-analyst</code> → AS, or <code>/wds-0-alignment-signoff</code>)</dd>
+        <dt>Role</dt><dd>Pre-project alignment facilitator — secures documented agreement between stakeholders before any design or development begins.</dd>
+        <dt>Phase</dt><dd>WDS Phase 0 — <strong>optional</strong> and pre-project. Saga owns it, but because it precedes the pipeline any agent can run it.</dd>
+        <dt>Continuity</dt><dd>Produces the alignment <code>pitch.md</code> that Phase 1 Project Brief can read as starting context; the pitch becomes input, not a re-derivation.</dd>
+      </dl>
+
+      <p>This skill secures <strong>formal alignment between all stakeholders before any design or development begins</strong>. It is for the moment when multiple parties — client and supplier, manager and employee, board and team — need a documented agreement on scope, approach, and commitment. Saga runs a collaborative discovery conversation, synthesizes what she hears into a structured "pitch", and then optionally hardens that pitch into a formal contract or an internal signoff document.</p>
+
+      <p>Use it when a consultant or agency is proposing a solution to a client, when an internal team is seeking budget or executive approval, or in any scenario where misaligned expectations would later prove costly. It is the WDS entry point <em>before</em> the Project Brief — establishing that everyone has agreed to proceed, on the same terms.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- 6 Sub-Phases -->
+    <section id="sub-phases">
+      <h3 class="skill-heading">
+        <span class="code-name">flow</span>
+        6 Sub-Phases
+        <span class="code-tag">A–F</span>
+      </h3>
+      <p class="lede">From first contact to a signed agreement — six phases move from understanding, through exploration and synthesis, into formal signoff.</p>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">Phase A · 01a–01e</div>
+          <div class="card-name">Start &amp; Understand</div>
+          <div class="card-body">
+            <ul>
+              <li>Agent assesses the context</li>
+              <li>Determines if an alignment doc is needed</li>
+              <li>Extracts core project information</li>
+            </ul>
+          </div>
+          <div class="card-footer">Context &amp; readiness</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Phase B · 02a–02k</div>
+          <div class="card-name">Explore Sections</div>
+          <div class="card-body">
+            <ul>
+              <li>Collaborative exploration</li>
+              <li>Walks the 10 alignment sections</li>
+              <li>One question at a time</li>
+            </ul>
+          </div>
+          <div class="card-footer">The 10 sections</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Phase C · 03a–03d</div>
+          <div class="card-name">Synthesize &amp; Present</div>
+          <div class="card-body">
+            <ul>
+              <li>Reflects back understanding</li>
+              <li>Synthesizes the document</li>
+              <li>Presents for user approval</li>
+            </ul>
+          </div>
+          <div class="card-footer">→ pitch.md</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Phase D · 04a–04b</div>
+          <div class="card-name">Generate Signoff</div>
+          <div class="card-body">
+            <ul>
+              <li>Choose the signoff format</li>
+              <li>Determine the business model</li>
+            </ul>
+          </div>
+          <div class="card-footer">Format selection</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Phase E · 05a–05l</div>
+          <div class="card-name">Build Contract</div>
+          <div class="card-body">
+            <ul>
+              <li>Create a formal service agreement</li>
+              <li>11 structured contract sections</li>
+              <li>For external client engagements</li>
+            </ul>
+          </div>
+          <div class="card-footer">Formal contract</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Phase F · 06a–06b</div>
+          <div class="card-name">Internal Signoff</div>
+          <div class="card-body">
+            <ul>
+              <li>Create an internal approval document</li>
+              <li>For budget / executive sign-off</li>
+            </ul>
+          </div>
+          <div class="card-footer">Internal approval</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- The 10 Alignment Sections -->
+    <section id="alignment-sections">
+      <h3 class="skill-heading">
+        <span class="code-name">02a–02k</span>
+        The 10 Alignment Sections
+        <span class="code-tag">Phase B</span>
+      </h3>
+      <p>Phase B explores the project through ten sections, each a focused part of the conversation. Together they move from the problem that triggered the work, through the recommendation and its value, to an explicit statement of commitment — the spine of the alignment pitch.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Alignment Sections</span>
+          <span class="data-source">wds-0-alignment-signoff · 02a–02k</span>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Section</th><th>What it captures</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">1</td><td>The Realization</td><td>What problem triggered this project</td></tr>
+            <tr><td class="key-col">2</td><td>The Solution</td><td>What we're building</td></tr>
+            <tr><td class="key-col">3</td><td>Why It Matters</td><td>Strategic importance</td></tr>
+            <tr><td class="key-col">4</td><td>How We See It Working</td><td>High-level approach</td></tr>
+            <tr><td class="key-col">5</td><td>Paths Explored</td><td>Alternatives considered</td></tr>
+            <tr><td class="key-col">6</td><td>Recommended Solution</td><td>Our specific recommendation</td></tr>
+            <tr><td class="key-col">7</td><td>Path Forward</td><td>What happens next</td></tr>
+            <tr><td class="key-col">8</td><td>Value Created</td><td>ROI and expected outcomes</td></tr>
+            <tr><td class="key-col">9</td><td>Cost of Inaction</td><td>Risk of not proceeding</td></tr>
+            <tr><td class="key-col">10</td><td>Our Commitment</td><td>Accountabilities and guarantees</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Output -->
+    <section id="output">
+      <h3 class="skill-heading">
+        <span class="code-name">output</span>
+        Output
+        <span class="code-tag">pitch + signoff</span>
+      </h3>
+      <p>The skill's primary artifact is the alignment pitch. Depending on the signoff format chosen in Phase D, it can also produce a formal external contract or an internal approval document.</p>
+
+      <ul class="step-detail">
+        <li><strong class="label">Pitch</strong>Written to <code>A-Product-Brief/pitch.md</code> — the alignment document spanning the ten sections; the shared reference all parties agree to.</li>
+        <li><strong class="label">Contract</strong>Optional formal service agreement (Phase E, 11 sections) for external client or supplier engagements.</li>
+        <li><strong class="label">Signoff Doc</strong>Optional internal approval document (Phase F) for budget or executive sign-off.</li>
+        <li><strong class="label">Feeds Phase 1</strong>The pitch becomes starting context for <code>wds-1-project-brief</code> — the Project Brief reads it rather than re-deriving the problem and solution.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-align">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Alignment &amp; Signoff? — <em>The reasoning behind each design choice</em>
+      </h2>
+
+      <h3 class="skill-heading">
+        <span class="code-name">why-align-first</span>
+        Why Align Before Building?
+      </h3>
+      <p>Misaligned expectations are the costliest failure mode in any project. When a client and a supplier — or a board and a team — believe they agreed to different things, the gap surfaces only after work is done, when changing course is expensive and trust is already strained. Securing alignment up front, while nothing has been built yet, is the cheapest possible moment to discover and resolve a disagreement. WDS puts this phase before the Project Brief precisely so that the people footing the bill and the people doing the work confirm they mean the same thing before a single decision compounds.</p>
+
+      <h3 class="skill-heading" id="why-written">
+        <span class="code-name">why-written-pitch</span>
+        Why a Written Pitch Document?
+      </h3>
+      <p>A verbal agreement lives only in the memories of whoever was in the room — and memories diverge. A written pitch becomes a <strong>shared reference</strong> every party can return to, and it survives turnover: when a stakeholder leaves or a new team member joins, the document still says what was agreed. Writing it also forces the implicit to become explicit. The act of stating the solution, the value, and the commitment in plain words exposes assumptions that would otherwise stay hidden until they caused a problem.</p>
+
+      <h3 class="skill-heading" id="why-framing">
+        <span class="code-name">why-framing</span>
+        Why the Cost-of-Inaction + Commitment Framing?
+      </h3>
+      <p>Most proposals describe what will be built. Fewer make the case for why <em>not</em> acting is itself a decision with a price. Section 9, <strong>Cost of Inaction</strong>, names that price — it reframes the choice from "spend or save" to "act or absorb the risk", which is usually what actually moves a stakeholder to commit. Section 10, <strong>Our Commitment</strong>, closes the loop: it states the accountabilities and guarantees the supplier or team is willing to stand behind. Together they turn a pitch from a description into a mutual agreement — each side knows what it is getting and what it is owed.</p>
+
+      <h3 class="skill-heading" id="why-optional">
+        <span class="code-name">why-optional</span>
+        Why This Phase Is Optional
+      </h3>
+      <p>Phase 0 exists for the specific situation where separate parties need to agree before work starts. When there are no such parties — a solo founder building their own product, or a team that already has a green light — there is nothing to align and no one to sign off, so the phase adds ceremony without value. WDS makes it optional so that the pipeline starts at the Project Brief by default, and the alignment phase is reached for only when documented agreement between stakeholders genuinely matters.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § STEPS
+         ══════════════════════════════════════════════ -->
+    <span id="steps" aria-hidden="true"></span>
+    <section id="steps-section">
+      <h2 class="agent-heading">
+        <span class="marker">§ STEPS</span>
+        Step-by-Step Walkthrough
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/wds-agent-saga-analyst → AS</code>, followed by a complete walkthrough of all 35 steps across 6 phases. The clearer the stakeholder context and the more existing material you bring, the less Saga has to assume — and the faster the pitch reaches agreement.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · WDS / BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all WDS skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all WDS skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">BMAD + WDS installed</td><td>WDS requires BMM v6.8+ with WDS skills installed in a compatible AI coding environment (Claude Code, Cursor, Codex, etc.). Install via <code>npx bmad-method install</code> → select WDS, or ask Claude to install <code>whiteport-design-studio</code> from GitHub.</td></tr>
+            <tr><td class="key-col">Invocation</td><td>Activate Saga with <code>/wds-agent-saga-analyst</code>, then select <code>AS</code> — or call <code>/wds-0-alignment-signoff</code> directly. Because this phase is pre-project, any agent can run it, but Saga owns it.</td></tr>
+            <tr><td class="key-col">Pre-project status</td><td>Phase 0 runs before the WDS pipeline begins. No prior phase artifacts are required to start.</td></tr>
+            <tr><td class="key-col">Reference materials</td><td>Collect any existing briefs, RFPs, or discovery notes before starting — they let Saga draft faster and ground the pitch in what already exists.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to wds-0-alignment-signoff. Having these clear before starting keeps the conversation moving.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">wds-0-alignment-signoff · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Project idea</td><td>Your description of what the project is, in your own words — the problem it addresses and what you propose to build.</td></tr>
+            <tr><td class="key-col">Stakeholder context</td><td>Who the parties are and what each needs to agree to — client and supplier, manager and employee, board and team. This determines the signoff format.</td></tr>
+            <tr><td class="key-col">Existing documents</td><td>Optional briefs, RFPs, or discovery notes. Hand these to Saga so she can extract context rather than re-asking for it.</td></tr>
+            <tr><td class="key-col">Commercial terms</td><td>If a contract is likely, any decided scope, pricing, or business-model details — these feed Phases D and E.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">when-to-run</span>
+        3 · When to Run This Phase
+      </h3>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Run It / Skip It</span>
+          <span class="data-source">wds-0-alignment-signoff · optional phase</span>
+        </div>
+        <table>
+          <thead><tr><th>Situation</th><th>Decision</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Agency → client</td><td><strong>Run it</strong> — a consultant or agency proposing a solution; produce a pitch and likely a formal contract.</td></tr>
+            <tr><td class="key-col">Team → approval</td><td><strong>Run it</strong> — an internal team seeking budget or executive sign-off; produce a pitch and an internal signoff doc.</td></tr>
+            <tr><td class="key-col">Costly misalignment</td><td><strong>Run it</strong> — any scenario where parties holding different expectations would later be expensive to reconcile.</td></tr>
+            <tr><td class="key-col">No separate parties</td><td><strong>Skip it</strong> — solo builder or an already-approved team; start at Phase 1 Project Brief.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-section</span>
+        4 · Per-Section Preparation
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">A few of the ten sections reward preparation more than others. Invest your thinking here.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">High-Leverage Sections</span>
+          <span class="data-source">wds-0-alignment-signoff</span>
+        </div>
+        <table>
+          <thead><tr><th>Section</th><th>What to have ready</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">The Realization</td><td>The specific problem or event that triggered this project — a sharp, concrete trigger makes the whole pitch land.</td></tr>
+            <tr><td class="key-col">Value Created</td><td>The expected outcomes and, where possible, the ROI — numbers or measurable results that justify proceeding.</td></tr>
+            <tr><td class="key-col">Cost of Inaction</td><td>What it costs to do nothing — the risk, lost opportunity, or compounding problem that not acting leaves in place.</td></tr>
+            <tr><td class="key-col">Our Commitment</td><td>The accountabilities and guarantees you are willing to stand behind — this is what converts a proposal into an agreement.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Phase A ──────────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">Phase A</span>
+        Start &amp; Understand · 01a–01e
+        <span class="code-tag">5 steps</span>
+      </h3>
+
+      <h4 class="step-heading">01a · Understand Situation</h4>
+      <p>Saga opens by asking the user to clarify their role and situation before any content is generated — are they a consultant proposing to a client, a business owner hiring suppliers, a manager seeking internal approval, or a solo builder who may not need alignment at all? This initial assessment ensures every subsequent step is routed correctly. The user must answer before the workflow proceeds.</p>
+
+      <h4 class="step-heading">01b · Determine If Alignment Is Needed</h4>
+      <p>Based on the user's stated situation, Saga determines whether the alignment and signoff workflow is genuinely needed or whether the user should skip directly to the Project Brief. Users with full autonomy and no separate stakeholders are offered an early exit. Those who need alignment receive a brief overview of what the process produces and how it will work.</p>
+
+      <h4 class="step-heading">01c · Offer to Extract from Existing Documents</h4>
+      <p>Saga offers the user an optional shortcut: paste or upload existing email threads, chat logs, briefs, or RFPs, and Saga will extract the relevant context rather than starting from scratch. The step is optional — users without existing materials skip directly to detecting the starting point. No pressure is applied to produce documents.</p>
+
+      <h4 class="step-heading">01d · Extract Information from Documents</h4>
+      <p>If the user provides existing communications or documents, Saga extracts and maps the relevant details to the alignment sections — realizations mentioned, requirements discussed, concerns raised, timeline hints, and budget signals. Extracted content is summarised and confirmed with the user before being carried into the exploration phase. Verbatim copying and sensitive or irrelevant details are explicitly excluded.</p>
+
+      <h4 class="step-heading">01e · Detect Starting Point</h4>
+      <p>Saga asks where the user naturally wants to begin: with a problem they've noticed (a realization-first approach) or with a solution they already have in mind (a solution-first approach). The answer determines which exploration step is loaded first — the workflow is flexible and follows the user's lead rather than forcing a fixed linear order.</p>
+
+      <!-- ── Phase B ──────────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">Phase B</span>
+        Explore Sections · 02a–02k
+        <span class="code-tag">11 steps</span>
+      </h3>
+
+      <h4 class="step-heading">02a · Explore The Realization</h4>
+      <p>Saga helps the user articulate what they have realized needs attention — the trigger that caused this project to exist. The agent asks probing questions to surface the underlying observation, then helps the user identify both soft evidence (testimonials, complaints, patterns) and hard evidence (metrics, analytics, test results) that support the realization. The goal is a 2–3 sentence statement backed by at least one piece of evidence.</p>
+
+      <h4 class="step-heading">02b · Explore The Solution</h4>
+      <p>For users who start with a solution idea rather than a problem, Saga captures the solution first and then works backwards to uncover the underlying realization it addresses. The agent connects the solution to the problem, explores why it matters, and briefly examines other possible approaches — setting up the recommended-solution section that comes later without critiquing the user's idea prematurely.</p>
+
+      <h4 class="step-heading">02c · Explore Why It Matters</h4>
+      <p>Saga guides the user to articulate the strategic importance of the project — who is affected, what they are trying to accomplish (jobs), what pain points the project relieves, and what gains it creates. The questions focus on specific people and groups rather than abstract value, keeping the section brief and human-centred.</p>
+
+      <h4 class="step-heading">02d · Explore How We See It Working</h4>
+      <p>Saga draws out the user's high-level vision for how the solution operates — the general approach and core concept, not detailed specifications or technical requirements. The questions are deliberately flexible and work for software, processes, services, products, and strategies alike. The output is a brief, accessible overview that stakeholders without technical backgrounds can understand.</p>
+
+      <h4 class="step-heading">02e · Explore Paths We Explored</h4>
+      <p>Saga asks the user to articulate alternative approaches they considered before settling on the recommendation. Showing that other paths were evaluated demonstrates thorough thinking to stakeholders and makes the recommendation more credible. If the user only has one path, that is explicitly fine — the agent accepts a single-path answer rather than fabricating alternatives.</p>
+
+      <h4 class="step-heading">02f · Explore Recommended Solution</h4>
+      <p>Saga asks the user which approach they prefer and, crucially, why they prefer it over the alternatives explored in the previous step. The reasoning is captured alongside the recommendation itself. The agent does not choose the solution for the user — the user owns the recommendation, and the agent's role is to help articulate the case for it clearly.</p>
+
+      <h4 class="step-heading">02g · Explore The Path Forward</h4>
+      <p>Saga explores the practical work approach — which WDS phases are likely needed, how the work will flow (research to design to handoff, or abbreviated), what level of design detail is required, and how the work will be handed off for implementation. The output is a high-level plan, not a detailed project schedule.</p>
+
+      <h4 class="step-heading">02h · Explore Value We Will Create</h4>
+      <p>Saga shifts to a positive, forward-looking frame: what happens if the project succeeds? The user articulates their ambition, the expected outcomes, and the specific metrics that will indicate success. The agent encourages a confident "we're committed to this" tone paired with measurable success criteria — enthusiastic and scientific rather than hedged or vague.</p>
+
+      <h4 class="step-heading">02i · Explore Cost of Inaction</h4>
+      <p>Saga frames the opposite question: what happens if the project does not proceed? The user explores the financial cost, opportunity cost, competitive risk, and operational impact of doing nothing. This section makes the case that inaction is itself a decision with a price — the most persuasive framing for stakeholders who are weighing whether to commit.</p>
+
+      <h4 class="step-heading">02j · Explore Our Commitment</h4>
+      <p>Saga helps the user articulate the resources, time, budget, and team being committed to make the project happen, along with the potential risks or challenges that should be acknowledged upfront. Rough estimates are explicitly accepted — the agent does not pressure for precision the user does not yet have. Risks are treated as honest acknowledgements, not disqualifying weaknesses.</p>
+
+      <h4 class="step-heading">02k · Explore Summary</h4>
+      <p>After all ten sections have been explored, Saga helps the user distil the key takeaways into a brief summary — the main points stakeholders should walk away remembering. The summary is deliberately concise and leaves readers to draw their own conclusion rather than over-interpreting on their behalf. This closes Phase B before the synthesis phase begins.</p>
+
+      <!-- ── Phase C ──────────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">Phase C</span>
+        Synthesize &amp; Present · 03a, 03b, 03d
+        <span class="code-tag">3 steps</span>
+      </h3>
+
+      <h4 class="step-heading">03a · Reflect Back</h4>
+      <p>Before writing a single word of the document, Saga reflects back everything captured across all ten sections and asks the user to confirm accuracy. Each section is summarised in plain language, and the user is invited to correct, adjust, or clarify anything that does not match their intent. This reflection is a mandatory quality gate — Saga will not proceed to synthesis until the user confirms the reflected understanding is correct.</p>
+
+      <h4 class="step-heading">03b · Synthesize Document</h4>
+      <p>With confirmed content in hand, Saga crystallises the conversation into the alignment pitch document — a clear, compelling narrative readable in 2–3 minutes, structured across all ten sections. The agent applies framework thinking to ensure the document flows logically (realization → why it matters → solution → value → cost of inaction → commitment) and saves the result to <code>docs/wds-1-project-brief/pitch.md</code>. No content is added that was not confirmed in the reflection step.</p>
+
+      <h4 class="step-heading">03d · Present for Approval</h4>
+      <p>Saga presents the completed pitch document and walks the user through the stakeholder review process: share the document, gather feedback, iterate until everyone is on board, and only then move to the signoff step. The agent explicitly supports negotiation and revision — the alignment phase is collaborative. Signoff is not offered until the user confirms the pitch has been accepted by all parties.</p>
+
+      <!-- ── Phase D ──────────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">Phase D</span>
+        Generate Signoff · 04a, 04b
+        <span class="code-tag">2 steps</span>
+      </h3>
+
+      <h4 class="step-heading">04a · Offer Signoff Document</h4>
+      <p>Once the alignment pitch is accepted, Saga presents the three signoff formats: a Project Contract (for consultants whose client approved the pitch), a Service Agreement (for founders or owners whose suppliers approved), and an internal Project Signoff Document (for internal teams seeking budget or executive approval). A skip option is also available. The user's choice routes the workflow either to Phase E (external contract) or Phase F (internal signoff).</p>
+
+      <h4 class="step-heading">04b · Determine Business Model</h4>
+      <p>Before building any contract section, Saga determines the payment structure — Fixed-Price, Hourly/Time-Based, Retainer, or Hybrid. Each option is presented with a clear description, example pricing, and an explanation of what it means for the contract structure. The selected model shapes every subsequent contract section, particularly scope boundaries, payment terms, and the not-to-exceed clause.</p>
+
+      <!-- ── Phase E ──────────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">Phase E</span>
+        Build Contract · 05a–05l
+        <span class="code-tag">12 steps</span>
+      </h3>
+
+      <h4 class="step-heading">05a · Contract Section 1 — Project Overview</h4>
+      <p>Saga pulls the realization and recommended solution from the accepted alignment pitch and builds the contract's Project Overview section. This establishes what the project is about and why it exists, setting shared context at the top of the legal document. Content is drawn directly from the pitch — nothing is invented.</p>
+
+      <h4 class="step-heading">05b · Contract Section 2 — Business Model</h4>
+      <p>Saga formalises the business model selected in step 04b into contract language, specifying the payment model name and its key terms. For fixed-price projects this means the total price and what it includes; for hourly work, the rate and billing frequency; for retainers, the monthly amount, minimum hours, and overage rate. This section is the financial foundation for all subsequent contract sections.</p>
+
+      <h4 class="step-heading">05c · Contract Section 3 — Scope of Work</h4>
+      <p>Saga builds explicit IN-scope and OUT-of-scope definitions to prevent disputes later. The path forward and deliverables list are pulled from the alignment pitch, and the user is then asked directly what work is included and what would require a separate change order. Scope boundaries are adapted to the business model — fixed-price contracts demand the sharpest boundaries.</p>
+
+      <h4 class="step-heading">05d · Contract Section 4 — Payment Terms</h4>
+      <p>Saga builds the payment schedule and terms tailored to the selected business model. For fixed-price contracts, the agent presents payment-split options (50/50, 100% upfront, milestone-based) and explains why upfront payment is fair when the supplier is bearing cost-overrun risk. For hourly and retainer models, billing frequency, invoice format, and due dates are gathered from the user.</p>
+
+      <h4 class="step-heading">05e · Contract Section 5 — Timeline</h4>
+      <p>Saga defines the project timeline by extracting milestone and delivery date information from the alignment pitch and filling in any gaps with the user. Key milestones, delivery dates, and critical deadlines are documented. At the end of this step, the workflow branches: retainer contracts continue to the Availability section (05f); all other models skip ahead to Confidentiality (05g).</p>
+
+      <h4 class="step-heading">05f · Contract Section 6 — Availability (Retainer Only)</h4>
+      <p>For retainer contracts only, Saga builds an Availability section defining when the contractor is reachable, typical response times, meeting availability, and how urgent requests are handled. This section sets realistic expectations so retainer clients know when work will be done and when responses can be expected. It is skipped entirely for fixed-price and hourly models.</p>
+
+      <h4 class="step-heading">05g · Contract Section 7 — Confidentiality</h4>
+      <p>Saga builds a mutual confidentiality clause protecting sensitive information shared by both parties during the project. The user chooses the confidentiality level (standard mutual, limited, or one-way) and the duration, and Saga explains the exceptions that are never confidential by law. The mutual framing is emphasised — both parties are protected equally, which builds trust rather than creating an adversarial dynamic.</p>
+
+      <h4 class="step-heading">05h · Contract Section 8 — Not-to-Exceed (Conditional)</h4>
+      <p>Saga adds a not-to-exceed clause based on the business model: required for fixed-price contracts (where it equals the total project price), optional for hourly engagements (where the user may choose to cap total spend), and not applicable for retainer contracts (which already have a monthly cap). The clause is paired with a change-order process so both parties have a clear path for authorising work beyond the cap.</p>
+
+      <h4 class="step-heading">05i · Contract Section 9 — Work Initiation</h4>
+      <p>Saga specifies exactly when work may begin — upon contract signing, on a specific date, after the initial payment is received, after written authorisation, or after particular conditions are met. The user selects from these options. This clause protects both parties: the contractor is not doing unpaid work, and the client is not being charged before they have given the go-ahead.</p>
+
+      <h4 class="step-heading">05j · Contract Section 10 — Terms and Conditions</h4>
+      <p>Saga builds the legal framework covering how scope changes are handled (change orders), how the contract may be terminated by either party, who owns the intellectual property produced, how disputes will be resolved, and which jurisdiction's laws govern the agreement. The user is asked to specify governing jurisdiction and the contract language — both are required, not optional.</p>
+
+      <h4 class="step-heading">05k · Contract Section 11 — Approval</h4>
+      <p>Saga creates the formal signature block for both parties — client and contractor (or owner and service provider, depending on the document type selected in Phase D). Party names and roles are gathered from the user rather than assumed, and date fields are included alongside each signature line to make the document legally binding upon signing.</p>
+
+      <h4 class="step-heading">05l · Finalize Contract</h4>
+      <p>Saga reviews the complete contract with the user section by section, asks for any final adjustments, and confirms readiness before signing. The document is saved to <code>docs/wds-1-project-brief/contract.md</code> (or <code>service-agreement.md</code>). Once signed, alignment is achieved, commitment is secured, and the workflow is ready to proceed to the Phase 1 Project Brief.</p>
+
+      <!-- ── Phase F ──────────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">Phase F</span>
+        Internal Signoff · 06a, 06b
+        <span class="code-tag">2 steps</span>
+      </h3>
+
+      <h4 class="step-heading">06a · Build Internal Signoff Document</h4>
+      <p>For internal company projects that do not require an external contract, Saga builds a structured approval document covering project goals and success metrics, budget and resource allocation, ownership and decision-making authority, the approval workflow and required sign-off stages, and the project timeline with key milestones. Optional sections cover risks, confidentiality, and a high-level path forward. If the company has an existing signoff template, Saga offers to adapt the document to match it.</p>
+
+      <h4 class="step-heading">06b · Finalize Signoff Document</h4>
+      <p>Saga presents the completed internal signoff document, explains the approval workflow (share with stakeholders, collect required signatures, follow the company's process), and asks for any final adjustments before the document enters the approval chain. Once approved, internal alignment is achieved, budget and resources are committed, and the project is ready to proceed to the Phase 1 Project Brief workflow.</p>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="applied-toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Applied Toolkit</span>
+          <span class="data-source">wds-0-alignment-signoff</span>
+        </div>
+        <table>
+          <thead><tr><th>Category</th><th>Items</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Skill</td><td><code>wds-0-alignment-signoff</code></td></tr>
+            <tr><td class="key-col">Agent</td><td>Saga 📚 — WDS Analyst (pre-project; any agent may run this phase)</td></tr>
+            <tr><td class="key-col">Output</td><td><code>A-Product-Brief/pitch.md</code> · optional formal contract · optional internal signoff doc</td></tr>
+            <tr><td class="key-col">Techniques</td><td>Collaborative discovery (one question at a time) · Document-from-conversation synthesis · Formal contract structure generation</td></tr>
+            <tr><td class="key-col">Phase</td><td>WDS Phase 0 — optional, pre-project</td></tr>
+            <tr><td class="key-col">Feeds into</td><td><code>wds-1-project-brief</code> (PB) — the pitch becomes Project Brief starting context</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>

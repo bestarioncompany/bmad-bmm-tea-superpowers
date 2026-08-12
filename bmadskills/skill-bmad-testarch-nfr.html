@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFR Assessment — Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #fafaf8;
+    --paper-warm: #f5f3ef;
+    --accent: #c84b31;
+    --highlight: #e8b84b;
+    --rule: #e2ddd8;
+    --muted: #8a8480;
+    --code-bg: #f0ede8;
+    --green: #2d6a4f;
+    --green-bg: #d8f3dc;
+    --red-bg: #ffe8e3;
+    --blue: #1d3557;
+    --blue-bg: #e8f0f8;
+    --orange-bg: #fff3cd;
+    --purple: #5e3a8c;
+    --purple-bg: #ede7f6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .page-wrap { display: flex; min-height: 100vh; }
+
+  aside.toc {
+    position: sticky; top: 0; height: 100vh;
+    width: 280px; min-width: 280px;
+    background: var(--ink); color: var(--paper);
+    overflow-y: auto; padding: 28px 0;
+  }
+  aside.toc .toc-brand { padding: 0 22px 22px; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 16px; }
+  aside.toc .toc-brand .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--highlight); display: block; margin-bottom: 4px; }
+  aside.toc .toc-brand h2 { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; line-height: 1.3; }
+  aside.toc nav a { display: block; padding: 7px 22px; text-decoration: none; color: rgba(255,255,255,.7); font-size: 13px; line-height: 1.4; border-left: 3px solid transparent; transition: all .15s; }
+  aside.toc nav a:hover { color: var(--paper); border-left-color: var(--highlight); background: rgba(255,255,255,.05); }
+  aside.toc nav .toc-section-label { padding: 16px 22px 6px; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.35); font-family: 'JetBrains Mono', monospace; }
+
+  main.content { flex: 1; min-width: 0; padding: 56px 64px 80px; max-width: 900px; }
+
+  .page-header { margin-bottom: 48px; padding-bottom: 36px; border-bottom: 2px solid var(--rule); }
+  .page-header .skill-chip { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; background: var(--ink); color: var(--highlight); padding: 4px 10px; display: inline-block; margin-bottom: 16px; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 38px; font-weight: 700; line-height: 1.15; margin-bottom: 14px; }
+  .page-header .subtitle { font-size: 17px; color: var(--muted); line-height: 1.6; max-width: 680px; }
+  .page-header .meta-row { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .page-header .meta-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .page-header .meta-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  section { margin-bottom: 52px; }
+
+  /* ── Section headings WHAT / WHY / HOW ────────── */
+  h2.section-what { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--ink); display: flex; align-items: baseline; gap: 12px; }
+  h2.section-what .s-marker { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--ink); padding: 2px 9px; vertical-align: 2px; }
+  h2.section-why  { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--accent); display: flex; align-items: baseline; gap: 12px; }
+  h2.section-why .s-marker  { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--accent); color: var(--accent); padding: 2px 9px; vertical-align: 2px; }
+  h2.section-how  { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--blue); display: flex; align-items: baseline; gap: 12px; }
+  h2.section-how .s-marker  { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--blue); color: var(--blue); padding: 2px 9px; vertical-align: 2px; }
+
+  h3.sub-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; margin: 28px 0 12px; }
+  p { margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 600; }
+  em { font-style: italic; color: var(--accent); }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; background: var(--code-bg); padding: 2px 6px; border-radius: 3px; }
+
+  .section-divider { border: none; border-top: 1px solid var(--rule); margin: 48px 0; }
+
+  /* ── Persona block ─────────────────────────────── */
+  .persona-block { border: 1px solid var(--rule); margin: 0 0 28px; display: grid; grid-template-columns: max-content 1fr; }
+  .persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .15em; color: var(--muted); padding: 9px 14px; border-bottom: 1px dotted var(--rule); border-right: 1px solid var(--rule); background: var(--paper-warm); white-space: nowrap; }
+  .persona-block dd { font-size: 13px; padding: 9px 14px; border-bottom: 1px dotted var(--rule); color: var(--ink); line-height: 1.55; }
+  .persona-block dt:last-of-type, .persona-block dd:last-child { border-bottom: none; }
+
+  /* ── Compare table ──────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 22%; }
+  .compare-table th:nth-child(2) { background: var(--red-bg); color: var(--accent); width: 39%; }
+  .compare-table th:nth-child(3) { background: var(--green-bg); color: var(--green); width: 39%; }
+  .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.5; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--muted); }
+  .compare-table td:nth-child(3) { background: var(--paper); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Stats banner ───────────────────────────────── */
+  .stats-banner { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--rule); margin-bottom: 32px; background: var(--paper-warm); }
+  .stat-cell { padding: 18px 20px; border-right: 1px solid var(--rule); text-align: center; }
+  .stat-cell:last-child { border-right: none; }
+  .stat-cell .val { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; color: var(--accent); display: block; line-height: 1; margin-bottom: 5px; }
+  .stat-cell .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── Steps ─────────────────────────────────────── */
+  .steps-list { display: flex; flex-direction: column; gap: 20px; margin: 20px 0; }
+  .step-item { border: 1px solid var(--rule); overflow: hidden; }
+  .step-item .step-head { background: var(--ink); color: var(--paper); padding: 12px 18px; display: flex; align-items: center; gap: 14px; }
+  .step-item .step-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--highlight); color: var(--ink); padding: 2px 8px; font-weight: 600; white-space: nowrap; }
+  .step-item .step-title { font-size: 14px; font-weight: 600; }
+  .step-item .step-file { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,.5); margin-left: auto; white-space: nowrap; }
+  .step-item .step-body { padding: 16px 18px; background: var(--paper-warm); }
+  .step-item .step-body ul { list-style: none; padding: 0; margin: 0; }
+  .step-item .step-body ul li { font-size: 13px; padding: 4px 0 4px 16px; position: relative; line-height: 1.5; }
+  .step-item .step-body ul li::before { content: '·'; position: absolute; left: 4px; color: var(--accent); font-weight: bold; }
+
+  /* ── NFR domain cards ───────────────────────────── */
+  .domain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+  .domain-card { border: 2px solid var(--rule); overflow: hidden; }
+  .domain-card.sec  { border-color: #c84b31; }
+  .domain-card.perf { border-color: #2d6a4f; }
+  .domain-card.rel  { border-color: #1d3557; }
+  .domain-card.scal { border-color: #5e3a8c; }
+  .domain-card .dom-head { padding: 14px 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .domain-card.sec  .dom-head { background: var(--red-bg); }
+  .domain-card.perf .dom-head { background: var(--green-bg); }
+  .domain-card.rel  .dom-head { background: var(--blue-bg); }
+  .domain-card.scal .dom-head { background: var(--purple-bg); }
+  .domain-card .dom-head .dom-info .dom-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 4px; }
+  .domain-card.sec  .dom-head .dom-tag { color: var(--accent); }
+  .domain-card.perf .dom-head .dom-tag { color: var(--green); }
+  .domain-card.rel  .dom-head .dom-tag { color: var(--blue); }
+  .domain-card.scal .dom-head .dom-tag { color: var(--purple); }
+  .domain-card .dom-head h4 { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; }
+  .domain-card .dom-head .dom-file { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; }
+  .domain-card .dom-body { padding: 14px 16px; background: var(--paper); }
+  .domain-card .dom-body .cat-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+  .domain-card .dom-body ul { list-style: none; padding: 0; margin: 0 0 10px; }
+  .domain-card .dom-body ul li { font-size: 12px; padding: 3px 0 3px 14px; position: relative; line-height: 1.4; border-bottom: 1px solid var(--rule); }
+  .domain-card .dom-body ul li:last-child { border-bottom: none; }
+  .domain-card .dom-body ul li::before { content: '–'; position: absolute; left: 0; color: var(--muted); font-size: 11px; }
+
+  /* ── Status badges ──────────────────────────────── */
+  .status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 16px 0; }
+  .status-card { border: 1px solid var(--rule); padding: 16px 14px; text-align: center; background: var(--paper-warm); }
+  .status-card .st-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 3px 10px; font-weight: 700; margin-bottom: 8px; border-radius: 2px; }
+  .st-pass    { background: var(--green-bg); color: var(--green); }
+  .st-concern { background: var(--orange-bg); color: #8a6914; }
+  .st-fail    { background: var(--red-bg); color: var(--accent); }
+  .st-na      { background: var(--code-bg); color: var(--muted); }
+  .status-card .st-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+  /* ── Risk levels ────────────────────────────────── */
+  .risk-flow { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--rule); margin: 16px 0; overflow: hidden; }
+  .risk-cell { padding: 18px 14px; text-align: center; border-right: 1px solid var(--rule); }
+  .risk-cell:last-child { border-right: none; }
+  .risk-cell .r-label { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px; letter-spacing: .05em; }
+  .risk-cell .r-rule { font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .risk-cell.rnone { background: var(--paper-warm); }
+  .risk-cell.rnone .r-label { color: var(--muted); }
+  .risk-cell.rlow  { background: var(--green-bg); }
+  .risk-cell.rlow  .r-label { color: var(--green); }
+  .risk-cell.rmed  { background: var(--orange-bg); }
+  .risk-cell.rmed  .r-label { color: #8a6914; }
+  .risk-cell.rhigh { background: var(--red-bg); }
+  .risk-cell.rhigh .r-label { color: var(--accent); }
+
+  /* ── ADR grid ───────────────────────────────────── */
+  .adr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule); margin: 16px 0; overflow: hidden; }
+  .adr-item { padding: 16px 18px; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); background: var(--paper); }
+  .adr-item:nth-child(even) { border-right: none; }
+  .adr-item:nth-last-child(-n+2) { border-bottom: none; }
+  .adr-item .adr-cat { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin-bottom: 4px; }
+  .adr-item h5 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .adr-item .adr-count { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+  .adr-item ul { list-style: none; padding: 0; margin: 0; }
+  .adr-item ul li { font-size: 13px; padding: 6px 0 6px 16px; position: relative; border-top: 1px solid var(--rule); line-height: 1.4; }
+  .adr-item ul li::before { content: '–'; position: absolute; left: 0; color: var(--muted); }
+  /* ── ADR scoring table ──────────────────────────── */
+  .adr-scoring { width: 100%; border-collapse: collapse; font-size: 13px; margin: 20px 0 0; }
+  .adr-scoring .scoring-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); padding: 12px 0 6px; display: block; }
+  .adr-scoring th { background: var(--ink); color: var(--paper); padding: 9px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .adr-scoring td { padding: 10px 14px; border-bottom: 1px solid var(--rule); background: var(--paper-warm); vertical-align: top; }
+  .adr-scoring tr:last-child td { border-bottom: none; }
+  .adr-scoring .score-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .adr-scoring .score-pct { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  /* ── Cross-domain risk table ────────────────────── */
+  .cross-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .cross-table th { background: var(--ink); color: var(--paper); padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .cross-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); background: var(--paper-warm); vertical-align: top; }
+  .cross-table tr:nth-child(even) td { background: var(--paper); }
+  .cross-table tr:last-child td { border-bottom: none; }
+
+  /* ── Compliance badges ──────────────────────────── */
+  .compliance-grid { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+  .comp-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 5px 12px; border: 1px solid var(--rule); background: var(--paper-warm); font-weight: 600; letter-spacing: .05em; }
+
+  /* ── Evidence sources ───────────────────────────── */
+  .evidence-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 16px 0; }
+  .evidence-card { border: 1px solid var(--rule); overflow: hidden; }
+  .evidence-card .ev-head { background: var(--ink); color: var(--paper); padding: 10px 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .05em; }
+  .evidence-card .ev-head .ev-domain { color: var(--highlight); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; display: block; margin-bottom: 2px; }
+  .evidence-card .ev-body { padding: 12px 14px; background: var(--paper-warm); font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* ── Rule boxes ─────────────────────────────────── */
+  .rule-box { border-left: 4px solid var(--accent); background: var(--paper-warm); padding: 14px 18px; margin: 16px 0; }
+  .rule-box.green { border-left-color: var(--green); }
+  .rule-box.blue  { border-left-color: var(--blue); }
+  .rule-box.orange{ border-left-color: #d97706; }
+  .rule-box .rule-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+  .rule-box ul { list-style: none; padding: 0; margin: 0; }
+  .rule-box ul li { font-size: 13px; padding: 3px 0 3px 16px; position: relative; line-height: 1.5; }
+  .rule-box ul li::before { content: '·'; position: absolute; left: 4px; color: var(--accent); font-weight: bold; }
+  .rule-box p { font-size: 13px; margin: 0; line-height: 1.6; }
+
+  /* ── Output table ───────────────────────────────── */
+  .output-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .output-table th { background: var(--ink); color: var(--paper); padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .output-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); background: var(--paper-warm); vertical-align: top; }
+  .output-table tr:nth-child(even) td { background: var(--paper); }
+  .output-table tr:last-child td { border-bottom: none; }
+  .output-table .path { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; font-size: 12px; margin-bottom: 32px; font-family: 'JetBrains Mono', monospace; letter-spacing: .05em; transition: color .15s; }
+  .back-link:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<aside class="toc">
+  <div class="toc-brand">
+    <span class="label">TEA Skill Guide</span>
+    <h2>bmad-testarch-nfr</h2>
+  </div>
+  <nav>
+    <div class="toc-section-label">§ WHAT</div>
+    <a href="#what-overview">Overview &amp; Identity</a>
+    <a href="#workers">4 Assessment Workers</a>
+
+    <div class="toc-section-label">§ WHY</div>
+    <a href="#why-nfr">Why NFR Assessment?</a>
+    <a href="#why-domains">Why These 4 Domains?</a>
+    <a href="#when-to-use">When to Use</a>
+
+    <div class="toc-section-label">§ HOW</div>
+    <a href="#steps">Workflow Steps (5 Steps)</a>
+    <a href="#status">Status Values</a>
+    <a href="#risk-levels">Risk Levels &amp; Aggregation</a>
+    <a href="#output">Output Files</a>
+  </nav>
+</aside>
+
+<main class="content">
+  <a href="bmad-ecosystem-v671-research-v1.html" class="back-link">← Ecosystem Overview</a>
+
+  <div class="page-header">
+    <span class="skill-chip">bmad-testarch-nfr · NF</span>
+    <h1>NFR Assessment</h1>
+    <p class="subtitle">Assesses Non-Functional Requirements — Security, Performance, Reliability, and Scalability — using evidence-based validation before release. Four parallel workers evaluate each domain independently and produce a risk-rated report with compliance status and actionable remediation steps.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="dot"></span>Tags: qa, nfr, test-architect, performance, security, reliability</div>
+      <div class="meta-item"><span class="dot"></span>Output: <code>nfr-assessment.md</code></div>
+    </div>
+  </div>
+
+  <div class="stats-banner">
+    <div class="stat-cell"><span class="val">4</span><span class="lbl">NFR Domains</span></div>
+    <div class="stat-cell"><span class="val">5+1</span><span class="lbl">Steps C+resume</span></div>
+    <div class="stat-cell"><span class="val">8</span><span class="lbl">ADR Categories</span></div>
+    <div class="stat-cell"><span class="val">4</span><span class="lbl">Risk Levels</span></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       § WHAT — What is this Skill?
+       ══════════════════════════════════════════════════ -->
+
+  <section id="what-overview">
+    <h2 class="section-what"><span class="s-marker">§ WHAT</span> NFR Assessment — <em>What does this Skill do?</em></h2>
+
+    <dl class="persona-block">
+      <dt>Skill code</dt><dd><code>bmad-testarch-nfr</code> &nbsp;·&nbsp; Menu code: <code>NF</code></dd>
+      <dt>Goal</dt><dd>Validate whether a system meets its Non-Functional Requirements before a release gate — gathering real evidence (test results, metrics, logs, security scans) and dispatching four parallel workers to assess each domain independently.</dd>
+      <dt>Role</dt><dd>Master Test Architect acting as a pre-release quality auditor. Looks at <strong>system behaviour</strong> — not test code quality (that is <code>test-review</code>). Answers: <em>Is this system fast enough? Secure enough? Reliable enough? Does it scale?</em></dd>
+      <dt>Output</dt><dd><code>nfr-assessment.md</code> — overall risk level, per-domain breakdown, evidence summary, remediation actions with urgency, compliance matrix, gate-ready YAML snippet</dd>
+      <dt>Prerequisites</dt><dd>Implementation must be accessible. Evidence sources must be available (test results, metrics, logs, scans). <strong>Skill HALTS</strong> if either is missing — prompts user for the missing inputs before proceeding.</dd>
+    </dl>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="workers">
+    <h3 class="sub-title">4 Assessment Workers — Architecture Overview</h3>
+    <p>Step 4 dispatches all four workers in parallel. Each evaluates one NFR domain independently and outputs a domain risk level (NONE/LOW/MEDIUM/HIGH) plus PASS/CONCERN/FAIL per sub-category. Step 4E aggregates all four results using the worst-case rule.</p>
+
+    <div class="domain-grid">
+
+      <div class="domain-card sec">
+        <div class="dom-head">
+          <div class="dom-info">
+            <span class="dom-tag">Worker A · Security</span>
+            <h4>Authentication, Data &amp; API Security</h4>
+          </div>
+          <span class="dom-file">step-04a<br>subagent-security</span>
+        </div>
+        <div class="dom-body">
+          <div class="cat-label">Assessment Categories</div>
+          <ul>
+            <li>Authentication &amp; Authorisation (OAuth2, JWT, MFA, RBAC)</li>
+            <li>Data Protection (encryption at rest, in transit, PII handling)</li>
+            <li>Input Validation (SQL injection, XSS, CSRF, sanitisation)</li>
+            <li>API Security (rate limiting, CORS, security headers)</li>
+            <li>Secrets Management (env vars, no hardcoded credentials, rotation)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="domain-card perf">
+        <div class="dom-head">
+          <div class="dom-info">
+            <span class="dom-tag">Worker B · Performance</span>
+            <h4>Response Times, Throughput &amp; Optimisation</h4>
+          </div>
+          <span class="dom-file">step-04b<br>subagent-performance</span>
+        </div>
+        <div class="dom-body">
+          <div class="cat-label">Assessment Categories</div>
+          <ul>
+            <li>Response Times (API &lt;200ms, page load &lt;2s, TTI &lt;3s)</li>
+            <li>Throughput (req/s capacity, concurrent user support)</li>
+            <li>Resource Usage (memory, CPU, DB connection pooling)</li>
+            <li>Optimisation (caching, CDN, code splitting, DB indexing)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="domain-card rel">
+        <div class="dom-head">
+          <div class="dom-info">
+            <span class="dom-tag">Worker C · Reliability</span>
+            <h4>Error Handling, Monitoring &amp; Fault Tolerance</h4>
+          </div>
+          <span class="dom-file">step-04c<br>subagent-reliability</span>
+        </div>
+        <div class="dom-body">
+          <div class="cat-label">Assessment Categories</div>
+          <ul>
+            <li>Error Handling (try-catch, graceful degradation, circuit breakers, retry)</li>
+            <li>Monitoring &amp; Observability (logging, Sentry/Datadog, health checks, alerting)</li>
+            <li>Fault Tolerance (DB failover, service redundancy, backup strategy, DR plan)</li>
+            <li>Uptime &amp; Availability (SLA targets, historical uptime, incident response)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="domain-card scal">
+        <div class="dom-head">
+          <div class="dom-info">
+            <span class="dom-tag">Worker D · Scalability</span>
+            <h4>Horizontal, Vertical &amp; Data Scaling</h4>
+          </div>
+          <span class="dom-file">step-04d<br>subagent-scalability</span>
+        </div>
+        <div class="dom-body">
+          <div class="cat-label">Assessment Categories</div>
+          <ul>
+            <li>Horizontal Scaling (stateless arch, load balancer, K8s, auto-scaling)</li>
+            <li>Vertical Scaling (resource allocation, DB size limits, memory management)</li>
+            <li>Data Scaling (partitioning/sharding, read replicas, caching layers, archival)</li>
+            <li>Traffic Handling (CDN, rate limiting, queues for async work, WebSocket scaling)</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       § WHY — Why use this Skill?
+       ══════════════════════════════════════════════════ -->
+
+  <section id="why-nfr">
+    <h2 class="section-why"><span class="s-marker">§ WHY</span> Why NFR Assessment?</h2>
+
+    <p>A system that passes all its unit and integration tests may still fail in production on load, expose security vulnerabilities, or go down when a dependency fails. NFR Assessment fills the gap between <em>"tests are green"</em> and <em>"system is production-ready."</em></p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Without NFR Assessment</th>
+          <th>With NFR Assessment (NF)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Release decision</td>
+          <td>Based on unit/integration test results — green CI is assumed sufficient</td>
+          <td>Evidence-based: performance metrics, security scans, burn-in results assessed before release gate</td>
+        </tr>
+        <tr>
+          <td>Security posture</td>
+          <td>Security issues discovered via external pentest or in production — expensive and public</td>
+          <td>Auth, data protection, input validation, API security assessed against evidence before any deployment</td>
+        </tr>
+        <tr>
+          <td>Performance evidence</td>
+          <td>"Works on my machine" — no measured SLO validation against defined thresholds</td>
+          <td>P95 response times, throughput, resource utilisation compared against thresholds from tech-spec</td>
+        </tr>
+        <tr>
+          <td>Cross-domain risks</td>
+          <td>Single-domain checks — a performance PASS doesn't reveal that it degrades under load at scale</td>
+          <td>Cross-domain detection: Perf+Scalability compound risk, Sec+Reliability cascade risk — explicitly flagged</td>
+        </tr>
+        <tr>
+          <td>Compliance status</td>
+          <td>Ad-hoc — hope that requirements (SOC2, GDPR, HIPAA) were met during development</td>
+          <td>Per-domain compliance matrix (SOC2/GDPR/HIPAA/PCI-DSS) automatically generated with PASS/PARTIAL/FAIL</td>
+        </tr>
+        <tr>
+          <td>Missing evidence</td>
+          <td>Missing data is treated as "no issue found" — a silent false positive</td>
+          <td>Missing evidence = automatic CONCERNS status — forces an explicit decision before release</td>
+        </tr>
+        <tr>
+          <td>CI integration</td>
+          <td>No structured output — release decisions stay in documents and chat</td>
+          <td>Gate-ready YAML snippet output — directly usable as a CI pipeline release gate condition</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="why-domains">
+    <h3 class="sub-title">Why These 4 Domains?</h3>
+    <p>The four domains cover all production failure modes that are invisible to functional tests:</p>
+
+    <table class="output-table">
+      <thead><tr><th>Domain</th><th>Failure mode it catches</th><th>Why it needs its own worker</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Security</strong></td>
+          <td>Auth bypass, data exposure, injection attacks, leaked secrets</td>
+          <td>Security evidence (scan reports, RBAC config, HTTPS audits) requires specialist interpretation — not just "does it work"</td>
+        </tr>
+        <tr>
+          <td><strong>Performance</strong></td>
+          <td>SLO breaches under real load, memory leaks, unindexed queries</td>
+          <td>Functional tests use small datasets and never hit throughput limits — performance evidence requires load test results</td>
+        </tr>
+        <tr>
+          <td><strong>Reliability</strong></td>
+          <td>Silent failures, missing observability, no circuit breakers, DR gaps</td>
+          <td>Reliability is about what happens <em>when things go wrong</em> — not covered by happy-path or unit tests</td>
+        </tr>
+        <tr>
+          <td><strong>Scalability</strong></td>
+          <td>Architecture that works at 100 users but fails at 10,000</td>
+          <td>Scaling requires architectural evidence (K8s config, sharding plan, read replicas) — not testable by running tests</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="when-to-use">
+    <h3 class="sub-title">When to Use</h3>
+    <p>Run as a <strong>pre-release gate check</strong> — after implementation is complete and functional tests pass, but before deploying to production.</p>
+
+    <table class="output-table">
+      <thead><tr><th>Trigger phrase</th><th>Context</th></tr></thead>
+      <tbody>
+        <tr><td>"let's assess NFRs"</td><td>Pre-release review or sprint review</td></tr>
+        <tr><td>"evaluate non-functional requirements"</td><td>After a major feature lands</td></tr>
+        <tr><td>"is the system production-ready?"</td><td>Release gate decision</td></tr>
+        <tr><td>"check security posture"</td><td>Security audit or compliance review</td></tr>
+        <tr><td>"validate performance targets"</td><td>After load testing runs</td></tr>
+        <tr><td>Select <code>NF</code> from TEA menu</td><td>Direct menu invocation</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ══════════════════════════════════════════════════
+       § HOW — How to Execute
+       ══════════════════════════════════════════════════ -->
+
+  <section id="steps">
+    <h2 class="section-how"><span class="s-marker">§ HOW</span> Workflow Steps (5 Steps)</h2>
+
+    <p>NFR has <strong>5 steps</strong>. Steps 1–3 run sequentially to prepare context and evidence before evaluation begins. Step 4 fans out to 4 parallel domain workers. Step 5 aggregates all results into the final report.</p>
+
+    <div class="steps-list">
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 01</span>
+          <span class="step-title">Load Context &amp; Knowledge Base</span>
+          <span class="step-file">step-01-load-context.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>① <strong>Check prerequisites</strong> — confirm that the implementation is accessible and evidence sources are available. <strong>HALT and prompt the user if either is missing</strong> — do not proceed until both are confirmed.</li>
+            <li>② <strong>Load knowledge base</strong> — read <code>adr-quality-readiness-checklist.md</code>, <code>ci-burn-in.md</code>, <code>test-quality.md</code>, <code>playwright-config.md</code>, <code>error-handling.md</code>.</li>
+            <li>③ <strong>Load context artifacts</strong> — read NFR thresholds from <code>tech-spec.md</code> (primary) → <code>PRD.md</code> (secondary) → story or test-design (feature-level). Summarise which sources were found and what evidence is available.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 02</span>
+          <span class="step-title">Define NFR Categories &amp; Thresholds</span>
+          <span class="step-file">step-02-define-thresholds.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>① <strong>Select categories</strong> — use the 8 standard ADR categories plus any <code>custom_nfr_categories</code> configured in the workflow: Testability · Data Strategy · Scalability · Disaster Recovery · Security · Observability · Quality of Service · Deployability.</li>
+            <li>② <strong>Extract thresholds</strong> — for each category, pull the threshold from the sources loaded in Step 1, in priority order: tech-spec → PRD → story/test-design. Never guess a threshold.</li>
+            <li>③ <strong>Build the NFR matrix</strong> — for each category, record the threshold or mark it <strong>UNKNOWN</strong>. Any UNKNOWN threshold means that category will be reported as <strong>CONCERNS</strong> in Step 4.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 03</span>
+          <span class="step-title">Gather Evidence</span>
+          <span class="step-file">step-03-gather-evidence.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>① <strong>Collect evidence per category</strong> — scan for measurable data: performance metrics (P95 response times, throughput), security scan reports (OWASP ZAP, Snyk), error rate history, burn-in run results, DR drill records.</li>
+            <li>② <strong>Optional browser capture</strong> — if <code>tea_browser_automation</code> is <code>cli</code> or <code>auto</code>, open the target URL, capture network response times, payload sizes, and a screenshot. Store outputs in <code>{test_artifacts}/nfr/</code>. Close the session after capture — never use <code>close-all</code>.</li>
+            <li>③ <strong>Flag missing evidence</strong> — any category without concrete evidence is automatically marked <strong>CONCERNS</strong>. Missing data is never treated as "no issue found."</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 04</span>
+          <span class="step-title">Orchestrate NFR Evaluation (4 Workers in Parallel)</span>
+          <span class="step-file">step-04-evaluate-and-score.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>① <strong>Resolve execution mode</strong> — check config to determine how workers run: <code>agent-team</code> (full parallel subagents) → <code>subagent</code> (single subagent) → <code>sequential</code> (fallback, one at a time).</li>
+            <li>② <strong>Dispatch 4 domain workers</strong> — run in parallel: Worker A · Security (04a), Worker B · Performance (04b), Worker C · Reliability (04c), Worker D · Scalability (04d). Each worker independently assesses its domain and outputs a risk level (NONE / LOW / MEDIUM / HIGH) plus PASS / CONCERN / FAIL per sub-category.</li>
+            <li>③ <strong>Sub-step 4E — Aggregate results</strong> — read all 4 worker outputs. Apply the worst-case rule: the overall risk level equals the highest risk among the 4 workers. Detect cross-domain risks (e.g. Performance + Scalability compound risk). Compile the prioritised remediation action list.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 05</span>
+          <span class="step-title">Generate Report &amp; Validate</span>
+          <span class="step-file">step-05-generate-report.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>① <strong>Write <code>nfr-assessment.md</code></strong> — include: per-category results with evidence summary, overall risk level, remediation actions with urgency (URGENT / HIGH / MEDIUM / LOW), compliance matrix (SOC2 / GDPR / HIPAA / PCI-DSS), and a gate-ready YAML snippet for CI integration.</li>
+            <li>② <strong>Validate the report</strong> — check against <code>checklist.md</code>: remove duplicates, verify consistency, fill any N/A sections. Fix all gaps before marking complete.</li>
+            <li>③ <strong>Summarise and recommend next steps</strong> — state the overall NFR status, list any critical blockers or waivers required, and recommend the next workflow: run <code>bmad-testarch-trace</code> for coverage gate, or proceed to release gate if NFR is PASS.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="status">
+    <h3 class="sub-title">Status Values (per Finding)</h3>
+    <p>Each sub-category within a domain receives one of four statuses. Evidence must back every non-N/A finding.</p>
+
+    <div class="status-grid">
+      <div class="status-card">
+        <span class="st-badge st-pass">PASS</span>
+        <div class="st-desc">Properly implemented and verified by evidence. No action required.</div>
+      </div>
+      <div class="status-card">
+        <span class="st-badge st-concern">CONCERN</span>
+        <div class="st-desc">Partially implemented, weak, or evidence is missing. Remediation recommended before release.</div>
+      </div>
+      <div class="status-card">
+        <span class="st-badge st-fail">FAIL</span>
+        <div class="st-desc">Not implemented or a critical vulnerability exists. Blocker — must fix before release.</div>
+      </div>
+      <div class="status-card">
+        <span class="st-badge st-na">N/A</span>
+        <div class="st-desc">Not applicable to this system type. Excluded from risk calculation.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="risk-levels">
+    <h3 class="sub-title">Risk Levels &amp; Aggregation</h3>
+    <p>Each worker assigns a risk level to its domain. Step 4E aggregates them using the <strong>worst-case rule</strong> — the overall risk is whichever domain has the highest risk level.</p>
+
+    <div class="risk-flow">
+      <div class="risk-cell rnone">
+        <span class="r-label">NONE</span>
+        <div class="r-rule">All sub-categories PASS or N/A. No concerns identified.</div>
+      </div>
+      <div class="risk-cell rlow">
+        <span class="r-label">LOW</span>
+        <div class="r-rule">Minor concerns only. No FAIL findings. Acceptable for release with monitoring.</div>
+      </div>
+      <div class="risk-cell rmed">
+        <span class="r-label">MEDIUM</span>
+        <div class="r-rule">Some CONCERN findings. Review and plan remediation. Conditional release.</div>
+      </div>
+      <div class="risk-cell rhigh">
+        <span class="r-label">HIGH</span>
+        <div class="r-rule">One or more FAIL findings. Release blocked until addressed.</div>
+      </div>
+    </div>
+
+    <div class="rule-box">
+      <div class="rule-title">Aggregation Rule (Worst-Case)</div>
+      <ul>
+        <li>If <strong>any</strong> domain is HIGH → overall is <strong>HIGH</strong></li>
+        <li>If any domain is MEDIUM (and none HIGH) → overall is <strong>MEDIUM</strong></li>
+        <li>If all domains are LOW or NONE → overall is <strong>LOW</strong></li>
+      </ul>
+    </div>
+
+    <div class="rule-box blue" style="margin-top: 12px;">
+      <div class="rule-title">Cross-Domain Risk Detection</div>
+      <p style="margin-bottom: 10px;">Step 4E also checks for risks that span two domains. When both domains have CONCERN or FAIL findings, the combined impact is higher than either domain alone — these are elevated to the top of the remediation list.</p>
+      <ul>
+        <li><strong>Performance + Scalability</strong> → HIGH — performance problems worsen under load; an API slow at 100 users may be unusable at 10,000.</li>
+        <li><strong>Security + Reliability</strong> → CRITICAL — a security breach combined with poor recovery means an attack can cascade into a prolonged outage that is hard to contain.</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="output">
+    <h3 class="sub-title">Output Files</h3>
+
+    <table class="output-table">
+      <thead><tr><th>File</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="path">{test_artifacts}/nfr-assessment.md</span></td>
+          <td>Primary output — overall risk level, per-domain breakdown (PASS/CONCERN/FAIL per category), evidence summary, remediation actions with urgency, compliance matrix, gate-ready YAML snippet, recommended next workflow</td>
+        </tr>
+        <tr>
+          <td><span class="path">/tmp/tea-nfr-security-{ts}.json</span></td>
+          <td>Worker A output — security risk level, findings per category, compliance status, priority actions</td>
+        </tr>
+        <tr>
+          <td><span class="path">/tmp/tea-nfr-performance-{ts}.json</span></td>
+          <td>Worker B output — performance risk level, response time findings, throughput findings, optimisation gaps</td>
+        </tr>
+        <tr>
+          <td><span class="path">/tmp/tea-nfr-reliability-{ts}.json</span></td>
+          <td>Worker C output — reliability risk level, error handling, monitoring gaps, fault tolerance status</td>
+        </tr>
+        <tr>
+          <td><span class="path">/tmp/tea-nfr-scalability-{ts}.json</span></td>
+          <td>Worker D output — scalability risk level, scaling capacity findings (e.g. "PASS at 1M users, CONCERN at 10M")</td>
+        </tr>
+        <tr>
+          <td><span class="path">/tmp/tea-nfr-summary-{ts}.json</span></td>
+          <td>Step 4E aggregated summary — overall risk, cross-domain risks, compliance matrix, prioritised actions (URGENT first)</td>
+        </tr>
+        <tr>
+          <td><span class="path">{test_artifacts}/nfr/perf-*.png</span></td>
+          <td>Browser performance screenshots (when <code>tea_browser_automation</code> is <code>cli</code> or <code>auto</code>)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-title">Gate-Ready YAML Snippet</h3>
+    <p>The report includes a YAML block usable as a release gate condition in CI pipelines — listing which NFR categories passed, which have open concerns, and what waivers (if any) are required for release.</p>
+
+    <div class="rule-box green">
+      <div class="rule-title">After the NFR Report — Next Actions</div>
+      <ul>
+        <li>Overall <strong>LOW / NONE</strong> → proceed to release; optionally run <code>trace</code> for coverage gate</li>
+        <li>Overall <strong>MEDIUM</strong> → review CONCERNs, decide which to waive vs fix; conditional release</li>
+        <li>Overall <strong>HIGH</strong> → release blocked; fix all FAIL findings and re-run NFR assessment</li>
+        <li>FAIL in Security → treat as URGENT; must fix before any other domain concerns are addressed</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+</body>
+</html>

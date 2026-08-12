@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Story — Guide</title>
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.65;
+    font-size: 0.9375rem;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .5;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "masthead masthead" "toc article";
+    max-width: 1340px; margin: 0 auto; min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ── Masthead ─────────────────────────────────── */
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute);
+    margin-bottom: 14px; flex-wrap: wrap; gap: 6px;
+  }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title {
+    font-family: Georgia, 'Palatino Linotype', Palatino, serif;
+    font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700;
+    letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px;
+  }
+  h1.title em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Headings ─────────────────────────────────── */
+  h2.agent-heading {
+    font-family: Georgia, 'Palatino Linotype', Palatino, serif;
+    font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em;
+    color: var(--ink); margin-bottom: 20px; line-height: 1.15;
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  }
+  h2.agent-heading .marker { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.35rem; font-weight: 700; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 160px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.1rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Step detail ──────────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline list ──────────────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Checklist ────────────────────────────────── */
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li { padding: 6px 0 6px 24px; position: relative; font-size: 0.875rem; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.5; }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: '□'; position: absolute; left: 0; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; color: var(--ink-mute); }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  /* ── Disaster prevention grid — distinctive visual ── */
+  .disaster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 20px 0 32px; }
+  .disaster-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .disaster-card { background: var(--paper); padding: 16px 18px; }
+  .disaster-card .dc-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .dc-label .dc-mistake-tag { color: #991b1b; background: #fee2e2; padding: 1px 7px; }
+  .dc-label .dc-fix-tag { color: #166534; background: #dcfce7; padding: 1px 7px; font-size: 9px; }
+  .disaster-card .dc-mistake { font-weight: 700; color: var(--ink); font-size: 0.875rem; margin-bottom: 6px; border-left: 3px solid #fca5a5; padding-left: 10px; line-height: 1.4; }
+  .disaster-card .dc-fix { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; border-left: 3px solid #86efac; padding-left: 10px; }
+
+  /* ── Story file template visual ──────────────── */
+  .template-block { border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .template-block .tb-head { background: var(--ink); color: var(--paper); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .tb-head .tb-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .tb-head .tb-file { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; color: rgba(244,237,224,.75); }
+  .tb-row { display: grid; grid-template-columns: 200px 1fr 1fr; border-bottom: 1px dotted rgba(42,34,26,.18); }
+  .tb-row:last-child { border-bottom: none; }
+  .tb-row.tb-header { background: var(--paper-warm); }
+  .tb-cell { padding: 9px 14px; font-size: 12.5px; vertical-align: top; line-height: 1.45; }
+  .tb-cell:not(:last-child) { border-right: 1px dotted rgba(42,34,26,.18); }
+  .tb-row.tb-header .tb-cell { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); font-weight: 700; }
+  .tb-section { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; color: var(--ink); }
+  .tb-content { color: var(--ink-soft); font-size: 12px; }
+  .tb-source { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; color: var(--ink-mute); }
+
+  /* ── Input files grid ─────────────────────────── */
+  .input-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 24px; }
+  .input-card { background: var(--paper-warm); padding: 14px 16px; box-shadow: 0 0 0 1px var(--rule); }
+  .input-card .ic-name { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; }
+  .input-card .ic-path { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; color: var(--ink-mute); margin-bottom: 8px; }
+  .input-card .ic-strategy { display: inline-block; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 8px; margin-bottom: 8px; }
+  .selective { background: var(--highlight); color: var(--ink); border: 1px solid #ca8a04; }
+  .full-load  { background: #dbeafe; color: #1e3a5f; border: 1px solid #93c5fd; }
+  .input-card .ic-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+
+  /* ── JIT callout ──────────────────────────────── */
+  .jit-callout { display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: #fff7ed; border: 1px solid #fdba74; border-left: 4px solid var(--accent); margin: 20px 0 28px; font-size: 13px; line-height: 1.55; color: var(--ink-soft); }
+  .jit-callout strong { color: var(--accent); display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* ── Auto-discover flow ───────────────────────── */
+  .discover-flow { border: 1px solid var(--rule); margin: 16px 0 24px; background: var(--paper); }
+  .discover-flow .df-head { background: var(--ink); color: var(--paper); padding: 8px 16px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--highlight); font-weight: 700; }
+  .df-step { display: flex; align-items: flex-start; gap: 14px; padding: 10px 16px; border-bottom: 1px dotted rgba(42,34,26,.15); font-size: 13px; line-height: 1.5; }
+  .df-step:last-child { border-bottom: none; }
+  .df-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; color: var(--paper); background: var(--accent); padding: 2px 7px; flex-shrink: 0; margin-top: 1px; }
+  .df-text { color: var(--ink-soft); }
+  .df-text strong { color: var(--ink); }
+
+  /* ── Colophon ─────────────────────────────────── */
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .module-grid { grid-template-columns: 1fr; }
+    .disaster-grid { grid-template-columns: 1fr; }
+    .tb-row { grid-template-columns: 1fr; }
+    .tb-cell:not(:last-child) { border-right: none; border-bottom: 1px dotted rgba(42,34,26,.18); }
+    .input-grid { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad · Create Story</span>
+        <span>Skill · bmad-create-story</span>
+        <span>Phase 4 · Developer Role</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Create Story <em>· Story Context Engine</em></h1>
+    <p class="subtitle">Produces a comprehensive story file that gives the dev agent everything needed for flawless implementation. Exhaustive artifact analysis, architecture guardrails, previous story intelligence, and web research — assembled just-in-time, one story at a time.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-create-story</dd></div>
+      <div><dt>Menu code</dt><dd>CS</dd></div>
+      <div><dt>Input</dt><dd>Epic + architecture + previous story context (auto-gathered)</dd></div>
+      <div><dt>Trigger</dt><dd>"create the next story"</dd></div>
+      <div><dt>Agent</dt><dd>Developer (Amelia)</dd></div>
+      <div><dt>Automation</dt><dd>Full auto · Zero input</dd></div>
+      <div><dt>Steps</dt><dd>6 · Just-in-time</dd></div>
+      <div><dt>Output</dt><dd>{story_key}.md</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#key-capabilities">Key Capabilities</a>
+      <a href="#input-files">Input Files</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-create">Why Create Story?</a>
+      <a href="#jit">Just-in-Time Principle</a>
+      <a href="#mistake-prevention">Mistake Prevention Grid</a>
+      <a href="#when-to-use">When to Use</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#workflow">6-Step Workflow</a>
+      <a href="#step-01" class="toc-sub">Step 1 · Determine Target</a>
+      <a href="#step-02" class="toc-sub">Step 2 · Load Artifacts</a>
+      <a href="#step-03" class="toc-sub">Step 3 · Architecture Guardrails</a>
+      <a href="#step-04" class="toc-sub">Step 4 · Web Research</a>
+      <a href="#step-05" class="toc-sub">Step 5 · Write Story File</a>
+      <a href="#step-06" class="toc-sub">Step 6 · Update &amp; Finalize</a>
+      <a href="#auto-discover">Auto-Discovery Logic</a>
+      <a href="#output-template">Output: Story File Template</a>
+      <a href="#validation">Validation Checklist</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Create Story <em>· What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-create-story</code></dd>
+        <dt>Trigger phrases</dt><dd>
+          <div class="menu-codes">
+            <code>create the next story</code>
+            <code>create story [id]</code>
+          </div>
+        </dd>
+        <dt>Agent</dt><dd>Story Context Engine — prevents LLM developer mistakes by front-loading all context the dev agent needs before a single line of code is written.</dd>
+        <dt>Core principle</dt><dd>Purpose is NOT to copy content from epics. It is to synthesize, cross-reference, and enrich — creating a single, optimized developer brief the dev agent can act on without consulting any other document.</dd>
+        <dt>Automation</dt><dd>Full auto except for initial story selection. If no story is specified, auto-discovers the first <code>backlog</code> story from <code>sprint-status.yaml</code>.</dd>
+        <dt>Output</dt><dd><code>{implementation_artifacts}/{story_key}.md</code> — comprehensive story file. Sprint status updated: <code>backlog → ready-for-dev</code>.</dd>
+        <dt>Upstream</dt><dd><code>bmad-sprint-planning</code> has run and <code>sprint-status.yaml</code> exists. Epic files exist in <code>planning_artifacts</code>.</dd>
+        <dt>Downstream</dt><dd><code>bmad-dev-story</code> reads this file as its sole input. The dev agent receives no other context — everything must be in this one file.</dd>
+      </dl>
+
+      <p>Every Phase 4 implementation failure traces back to information the developer didn't have when they started. Create Story makes that failure impossible by building a complete developer brief from every available artifact — epics, architecture docs, UX specs, previous story learnings, and live web research — assembled at the moment it is needed, not upfront.</p>
+    </section>
+
+    <section id="key-capabilities">
+      <h3 class="skill-heading">
+        <span class="code-name">key-capabilities</span>
+        Key Capabilities
+      </h3>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">Capability · 01</div>
+          <div class="card-name">Story Discovery</div>
+          <div class="card-body">
+            <ul>
+              <li>Auto-discover: first <code>backlog</code> story in sprint-status.yaml</li>
+              <li>User-specified: parse epic-story path (e.g. <code>1-2</code>)</li>
+              <li>Epic activation: <code>backlog → in-progress</code> on first story</li>
+              <li>Guards against creating in a completed epic</li>
+            </ul>
+          </div>
+          <div class="card-footer">Reads sprint-status.yaml</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 02</div>
+          <div class="card-name">Artifact Analysis</div>
+          <div class="card-body">
+            <ul>
+              <li>Epic: full story requirements and ACs</li>
+              <li>PRD: business context and constraints</li>
+              <li>Architecture: technical stack and patterns</li>
+              <li>UX: design requirements and flows</li>
+            </ul>
+          </div>
+          <div class="card-footer">Exhaustive — no skimming</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 03</div>
+          <div class="card-name">Story Intelligence</div>
+          <div class="card-body">
+            <ul>
+              <li>Loads previous story file (story_num − 1)</li>
+              <li>Extracts: approved patterns, encountered mistakes</li>
+              <li>Git history: last 5 commits, file patterns</li>
+              <li>Propagates learnings forward automatically</li>
+            </ul>
+          </div>
+          <div class="card-footer">Continuity across stories</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 04</div>
+          <div class="card-name">Architecture Guardrails</div>
+          <div class="card-body">
+            <ul>
+              <li>Naming conventions and file structure</li>
+              <li>API patterns and data contracts</li>
+              <li>Reads every UPDATE file the story will touch</li>
+              <li>Documents current state + what must be preserved</li>
+            </ul>
+          </div>
+          <div class="card-footer">Prevents regression</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 05</div>
+          <div class="card-name">Web Research</div>
+          <div class="card-body">
+            <ul>
+              <li>Identifies libraries/frameworks from architecture</li>
+              <li>Latest API docs and breaking changes</li>
+              <li>Security advisories and deprecations</li>
+              <li>Embeds findings directly into Dev Notes</li>
+            </ul>
+          </div>
+          <div class="card-footer">Prevents outdated implementations</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 06</div>
+          <div class="card-name">Story File Generation</div>
+          <div class="card-body">
+            <ul>
+              <li>Initializes from <code>template.md</code></li>
+              <li>Validates against <code>checklist.md</code></li>
+              <li>Token-efficient, actionable, unambiguous</li>
+              <li>Updates sprint-status.yaml on completion</li>
+            </ul>
+          </div>
+          <div class="card-footer">Ready for dev-story</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="input-files">
+      <h3 class="skill-heading">
+        <span class="code-name">input-files</span>
+        Input Files
+      </h3>
+      <p>All inputs use a smart discovery protocol (<code>discover-inputs.md</code>) that supports both whole-document and sharded formats. Each input is loaded selectively — only the sections relevant to the target story are loaded.</p>
+
+      <div class="input-grid">
+        <div class="input-card">
+          <div class="ic-name">Epics</div>
+          <div class="ic-path">{planning_artifacts}/*epic*.md</div>
+          <span class="ic-strategy selective">Selective Load</span>
+          <div class="ic-desc">Primary source. User story, acceptance criteria, cross-story context, technical requirements.</div>
+        </div>
+        <div class="input-card">
+          <div class="ic-name">PRD</div>
+          <div class="ic-path">{planning_artifacts}/*prd*.md</div>
+          <span class="ic-strategy selective">Selective Load</span>
+          <div class="ic-desc">Fallback for business context — epics file should contain most content already.</div>
+        </div>
+        <div class="input-card">
+          <div class="ic-name">Architecture</div>
+          <div class="ic-path">{planning_artifacts}/*architecture*.md</div>
+          <span class="ic-strategy selective">Selective Load</span>
+          <div class="ic-desc">Technical stack, code structure, API patterns, security requirements, testing standards.</div>
+        </div>
+        <div class="input-card">
+          <div class="ic-name">UX Design</div>
+          <div class="ic-path">{planning_artifacts}/*ux*.md</div>
+          <span class="ic-strategy selective">Selective Load</span>
+          <div class="ic-desc">User experience requirements and flows. Prevents UX violations in implementation.</div>
+        </div>
+        <div class="input-card">
+          <div class="ic-name">Previous Story</div>
+          <div class="ic-path">{implementation_artifacts}/{epic}-{n-1}-*.md</div>
+          <span class="ic-strategy full-load">Full Load</span>
+          <div class="ic-desc">Loaded when story_num &gt; 1. Dev notes, review feedback, established patterns.</div>
+        </div>
+        <div class="input-card">
+          <div class="ic-name">Project Context</div>
+          <div class="ic-path">**/project-context.md</div>
+          <span class="ic-strategy full-load">Full Load</span>
+          <div class="ic-desc">Loaded as persistent facts on activation. Project-wide conventions and standards.</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-create">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Create Story?
+      </h2>
+
+      <p class="lede">Without a story context file, the dev agent starts implementation with nothing but an epic header and a list of acceptance criteria — the same information that caused every previous implementation failure.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Without Create Story</th>
+            <th>With Create Story</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Technical context</td>
+            <td>Developer re-derives architecture patterns from scratch — may choose wrong library or pattern</td>
+            <td>Architecture guardrails pre-extracted: correct libraries, naming conventions, file locations embedded in story</td>
+          </tr>
+          <tr>
+            <td>Continuity</td>
+            <td>Each story starts with no memory of previous work — same mistakes repeated, patterns reinvented</td>
+            <td>Previous story intelligence (dev notes, review feedback, established patterns) propagated forward</td>
+          </tr>
+          <tr>
+            <td>Library currency</td>
+            <td>Developer uses whatever version they know — may hit breaking changes or security vulnerabilities</td>
+            <td>Web research embeds latest API docs, deprecations, and security advisories at time of creation</td>
+          </tr>
+          <tr>
+            <td>Regression risk</td>
+            <td>UPDATE files read mid-implementation — current state and preserved behaviors often missed</td>
+            <td>Every UPDATE file read and documented upfront: current state, what changes, what must be preserved</td>
+          </tr>
+          <tr>
+            <td>UX compliance</td>
+            <td>Developer implements functional behavior, UX requirements discovered in review</td>
+            <td>UX design requirements extracted and embedded — violations caught before a line of code is written</td>
+          </tr>
+          <tr>
+            <td>Dev agent focus</td>
+            <td>Dev agent must load and parse multiple documents mid-implementation — context spread, inconsistent</td>
+            <td>One file, one context. Dev agent acts without consulting any other document.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="jit">
+      <h3 class="skill-heading">
+        <span class="code-name">just-in-time</span>
+        The Just-in-Time Principle
+      </h3>
+
+      <div class="jit-callout">
+        <div>
+          <strong>Why Not Bulk-Prep All Stories Upfront?</strong>
+          Preparing 10 stories at the start of a sprint means the last 5 are written before the first 5 reveal architectural discoveries, pattern shifts, and implementation learnings. By the time dev reaches story 7, story 7's file reflects the project understanding from sprint day 1 — not from the day dev actually starts it. Just-in-time preparation means every story reflects current understanding at the moment it is needed.
+        </div>
+      </div>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Bulk-Prep vs. Just-in-Time</span>
+          <span class="data-source">04-B-create-story.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Timing</th><th>Bulk-Prep (all stories upfront)</th><th>Just-in-Time (one story before dev)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Story freshness</td>
+              <td>Stories 6–10 reflect sprint-day-1 understanding</td>
+              <td>Every story reflects understanding at the moment dev starts it</td>
+            </tr>
+            <tr>
+              <td class="key-col">Pattern propagation</td>
+              <td>Patterns from story 1 not yet known when stories 2–10 are written</td>
+              <td>Every story inherits learnings from the one before it</td>
+            </tr>
+            <tr>
+              <td class="key-col">Rework cost</td>
+              <td>Stale stories must be rewritten as architecture evolves</td>
+              <td>No rework — stories are always written against current reality</td>
+            </tr>
+            <tr>
+              <td class="key-col">Web research</td>
+              <td>Library docs from sprint start — may miss critical updates shipped mid-sprint</td>
+              <td>Research run at dev time — catches latest changes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistake-prevention">
+      <h3 class="skill-heading">
+        <span class="code-name">mistake-prevention</span>
+        Mistake Prevention Grid
+        <span class="code-tag">8 categories</span>
+      </h3>
+      <p class="lede">The checklist names eight LLM developer mistakes explicitly. Create Story is designed to make each one impossible — not by reminding the developer, but by pre-loading the context that removes the opportunity for error.</p>
+
+      <div class="disaster-grid">
+        <div class="disaster-card">
+          <div class="dc-label"><span class="dc-mistake-tag">Mistake 01</span></div>
+          <div class="dc-mistake">Reinventing wheels — creating duplicate functionality instead of reusing existing</div>
+          <div class="dc-fix">Architecture analysis extracts every reusable component, utility, and pattern. The dev agent sees what already exists before writing a line.</div>
+        </div>
+        <div class="disaster-card">
+          <div class="dc-label"><span class="dc-mistake-tag">Mistake 02</span></div>
+          <div class="dc-mistake">Wrong libraries — using incorrect frameworks, versions, or dependencies</div>
+          <div class="dc-fix">Web research step identifies the exact library versions specified in the architecture and fetches current API docs — version mismatches caught before implementation.</div>
+        </div>
+        <div class="disaster-card">
+          <div class="dc-label"><span class="dc-mistake-tag">Mistake 03</span></div>
+          <div class="dc-mistake">Wrong file locations — violating project structure and organization</div>
+          <div class="dc-fix">Architecture guardrails extraction maps every file the story will touch to its correct path and naming convention.</div>
+        </div>
+        <div class="disaster-card">
+          <div class="dc-label"><span class="dc-mistake-tag">Mistake 04</span></div>
+          <div class="dc-mistake">Breaking regressions — changes that break existing functionality</div>
+          <div class="dc-fix">Every UPDATE file is read completely. Current behavior, what the story changes, and what must be preserved are all documented in Dev Notes before dev begins.</div>
+        </div>
+        <div class="disaster-card">
+          <div class="dc-label"><span class="dc-mistake-tag">Mistake 05</span></div>
+          <div class="dc-mistake">Ignoring UX — implementing functionality without user experience requirements</div>
+          <div class="dc-fix">UX design file is loaded and relevant requirements extracted into the story. UX violations require ignorance of explicitly stated requirements — made impossible.</div>
+        </div>
+        <div class="disaster-card">
+          <div class="dc-label"><span class="dc-mistake-tag">Mistake 06</span></div>
+          <div class="dc-mistake">Vague implementations — unclear or ambiguous implementation guidance</div>
+          <div class="dc-fix">Checklist validates for LLM optimization: clarity over verbosity, actionable instructions, unambiguous language. Every sentence must guide implementation.</div>
+        </div>
+        <div class="disaster-card">
+          <div class="dc-label"><span class="dc-mistake-tag">Mistake 07</span></div>
+          <div class="dc-mistake">Lying about completion — implementing incorrectly or incompletely and marking done</div>
+          <div class="dc-fix">Acceptance criteria are BDD-formatted and testable. Dev Agent Record section requires the agent to list every file it created or modified.</div>
+        </div>
+        <div class="disaster-card">
+          <div class="dc-label"><span class="dc-mistake-tag">Mistake 08</span></div>
+          <div class="dc-mistake">Not learning from past work — ignoring previous story learnings and patterns</div>
+          <div class="dc-fix">Previous story intelligence is loaded explicitly: dev notes, review corrections, approved patterns, and encountered problems from the prior story.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="when-to-use">
+      <h3 class="skill-heading">
+        <span class="code-name">when-to-use</span>
+        When to Use This Skill
+      </h3>
+      <ul class="step-detail">
+        <li><strong class="label">Phrase 1</strong>"create the next story" — auto-discovers first backlog story</li>
+        <li><strong class="label">Phrase 2</strong>"create story 1-2" / "create story epic 2 story 4" — targets specific story</li>
+        <li><strong class="label">Timing</strong>Immediately before a developer starts work on that story — never in advance</li>
+        <li><strong class="label">Prerequisite</strong><code>sprint-status.yaml</code> must exist (run <code>bmad-sprint-planning</code> first) OR user provides explicit story path</li>
+        <li><strong class="label">Frequency</strong>Once per story. Re-run only if epic file has changed significantly since the story was created.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <section id="workflow">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        How to Execute <em>· 6-Step Workflow</em>
+      </h2>
+
+      <h4 class="step-heading" id="step-01">Step 1 · Determine Target Story</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Identify which story to create — from user input or by scanning <code>sprint-status.yaml</code>.</li>
+        <li><strong class="label">User-provided</strong>If user gives a story path (e.g. <code>1-2</code>, <code>1-2-user-auth</code>), parse it directly into <code>epic_num</code>, <code>story_num</code>, <code>story_key</code>.</li>
+        <li><strong class="label">Auto-discover</strong>Read the FULL <code>sprint-status.yaml</code> from beginning to end. Find the first entry matching the pattern <code>N-N-name</code> with status <code>backlog</code>.</li>
+        <li><strong class="label">Epic activation</strong>If this is the first story in its epic (story_num = 1) and the epic status is <code>backlog</code>, update it to <code>in-progress</code>.</li>
+        <li><strong class="label">Halt conditions</strong>No backlog stories found · Epic is already <code>done</code> · No sprint-status.yaml and no explicit story path provided.</li>
+      </ul>
+
+      <h4 class="step-heading" id="step-02">Step 2 · Load and Analyze Core Artifacts</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Build complete context from all available project documents. Exhaustive — no skimming.</li>
+        <li><strong class="label">Discovery</strong>Follow <code>discover-inputs.md</code> protocol: try sharded version first, fall back to whole document, load all matching files.</li>
+        <li><strong class="label">Epic analysis</strong>Extract: epic objectives, all stories (cross-story context), target story's user statement, acceptance criteria, technical constraints, dependencies.</li>
+        <li><strong class="label">Previous story</strong>If story_num &gt; 1, load the prior story file. Extract dev notes, review feedback, established patterns, and problems encountered.</li>
+        <li><strong class="label">Git history</strong>If prior story exists and a git repo is detected, analyze last 5 commits: files modified, libraries added, testing approaches used.</li>
+      </ul>
+
+      <h4 class="step-heading" id="step-03">Step 3 · Architecture Analysis for Developer Guardrails</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Extract everything the developer MUST follow — non-negotiable technical constraints embedded directly in the story file.</li>
+        <li><strong class="label">Architecture scan</strong>For each architecture section: technical stack with versions, code structure and naming, API patterns and data contracts, database schemas, security requirements, testing standards, deployment patterns.</li>
+        <li><strong class="label">File reading</strong>For every file the story will touch (marked UPDATE in architecture), read it completely. Document: current state, what this story changes, what must be preserved.</li>
+        <li><strong class="label">Non-negotiable</strong>A story implementation must leave the system working end-to-end — not just satisfy stated ACs. Behaviors required for correctness in the existing system are implicit requirements, whether or not explicitly written.</li>
+      </ul>
+
+      <h4 class="step-heading" id="step-04">Step 4 · Web Research for Latest Technical Specifics</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Prevent outdated implementations by embedding current API knowledge at the moment of story creation.</li>
+        <li><strong class="label">Scope</strong>From the architecture analysis, identify every library, framework, or external API the story will interact with.</li>
+        <li><strong class="label">Research</strong>For each critical technology: latest stable version, breaking changes, security vulnerabilities, performance improvements, deprecations.</li>
+        <li><strong class="label">Embed</strong>Include in the story file: specific library versions, API endpoints with parameters, recent security patches, migration considerations.</li>
+      </ul>
+
+      <h4 class="step-heading" id="step-05">Step 5 · Create Comprehensive Story File</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Write the complete developer brief — the single file the dev agent will use for the entire implementation.</li>
+        <li><strong class="label">Initialize</strong>Start from <code>template.md</code>, writing to <code>{implementation_artifacts}/{story_key}.md</code>.</li>
+        <li><strong class="label">LLM optimization</strong>Clarity over verbosity. Every sentence guides implementation. Scannable structure. Token-efficient — no content that doesn't directly help the developer.</li>
+        <li><strong class="label">Status</strong>Set story Status to <code>ready-for-dev</code> in the file header.</li>
+        <li><strong class="label">Save questions</strong>If clarifications arise during analysis, hold them until after the complete story is written — do not interrupt the workflow to ask.</li>
+      </ul>
+
+      <h4 class="step-heading" id="step-06">Step 6 · Update Sprint Status and Finalize</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Validate the story file, save it unconditionally, and update sprint tracking.</li>
+        <li><strong class="label">Validation</strong>Run the story file against <code>checklist.md</code>. Apply any required fixes before saving.</li>
+        <li><strong class="label">Sprint update</strong>Load the FULL <code>sprint-status.yaml</code>. Find the matching <code>story_key</code> entry. Update its status from <code>backlog</code> to <code>ready-for-dev</code>. Update <code>last_updated</code>. Preserve ALL comments and structure.</li>
+        <li><strong class="label">Report</strong>Story ID, story key, file path, status. Next steps: review file → run <code>dev-story</code> → run <code>code-review</code> when complete.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Auto-Discovery -->
+    <section id="auto-discover">
+      <h3 class="skill-heading">
+        <span class="code-name">auto-discover</span>
+        Auto-Discovery Logic
+      </h3>
+      <p>When no story is specified, the skill reads the entire <code>sprint-status.yaml</code> from top to bottom and picks the first eligible story. Order in the file is order of work.</p>
+
+      <div class="discover-flow">
+        <div class="df-head">Story Selection Flow — No User Input</div>
+        <div class="df-step">
+          <span class="df-num">1</span>
+          <span class="df-text">Check if <code>sprint-status.yaml</code> exists. If not: offer three options — run sprint-planning, provide explicit story path, or quit.</span>
+        </div>
+        <div class="df-step">
+          <span class="df-num">2</span>
+          <span class="df-text">Read the COMPLETE file from line 1 to end. Parse the <strong>full</strong> <code>development_status</code> block — do not skip any content.</span>
+        </div>
+        <div class="df-step">
+          <span class="df-num">3</span>
+          <span class="df-text">Find the FIRST entry where: key matches <code>N-N-name</code> pattern (not <code>epic-X</code> or <code>epic-X-retrospective</code>) AND status equals <code>backlog</code>.</span>
+        </div>
+        <div class="df-step">
+          <span class="df-num">4</span>
+          <span class="df-text">Parse the key: <code>epic_num</code> = first segment · <code>story_num</code> = second segment · <code>story_title</code> = remainder. Set <code>story_id</code> = <code>{epic_num}.{story_num}</code>.</span>
+        </div>
+        <div class="df-step">
+          <span class="df-num">5</span>
+          <span class="df-text">If this is the first story in its epic (<code>story_num = 1</code>): check epic status. If <code>backlog</code> or <code>contexted</code> → update to <code>in-progress</code>. If <code>done</code> → HALT with error.</span>
+        </div>
+      </div>
+
+      <ul class="inline-list">
+        <li>If no backlog story is found: halt with options — refresh sprint-planning, add stories via PM correct-course, or check if sprint is complete</li>
+        <li>Legacy status <code>contexted</code> is treated as equivalent to <code>backlog</code> for backward compatibility</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Output Template -->
+    <section id="output-template">
+      <h3 class="skill-heading">
+        <span class="code-name">output-template</span>
+        Output: Story File Template
+      </h3>
+      <p class="lede">The story file is the dev agent's complete implementation guide. Every section is populated from a specific artifact source. Nothing is left for the dev agent to look up.</p>
+
+      <div class="template-block">
+        <div class="tb-head">
+          <span class="tb-label">Story File Structure</span>
+          <span class="tb-file">{story_key}.md · template.md</span>
+        </div>
+        <div class="tb-row tb-header">
+          <div class="tb-cell">Section</div>
+          <div class="tb-cell">Content</div>
+          <div class="tb-cell">Source Artifact</div>
+        </div>
+        <div class="tb-row">
+          <div class="tb-cell tb-section">Header &amp; Status</div>
+          <div class="tb-cell tb-content">Story title, epic/story number, status: <code>ready-for-dev</code></div>
+          <div class="tb-cell tb-source">Generated · sprint-status.yaml</div>
+        </div>
+        <div class="tb-row">
+          <div class="tb-cell tb-section">Story</div>
+          <div class="tb-cell tb-content">As a {role}, I want {action}, so that {benefit}</div>
+          <div class="tb-cell tb-source">Epic file — story user statement</div>
+        </div>
+        <div class="tb-row">
+          <div class="tb-cell tb-section">Acceptance Criteria</div>
+          <div class="tb-cell tb-content">BDD-formatted, numbered, testable. All ACs from the epic.</div>
+          <div class="tb-cell tb-source">Epic file — story acceptance criteria</div>
+        </div>
+        <div class="tb-row">
+          <div class="tb-cell tb-section">Tasks / Subtasks</div>
+          <div class="tb-cell tb-content">Checklist of implementation tasks with AC references. <code>- [ ] Task (AC: #)</code></div>
+          <div class="tb-cell tb-source">Derived from ACs + architecture analysis</div>
+        </div>
+        <div class="tb-row">
+          <div class="tb-cell tb-section">Dev Notes</div>
+          <div class="tb-cell tb-content">Architecture patterns, guardrails, previous story intelligence, web research findings, anti-patterns to avoid</div>
+          <div class="tb-cell tb-source">Architecture · Previous story · Web research</div>
+        </div>
+        <div class="tb-row">
+          <div class="tb-cell tb-section">Project Structure Notes</div>
+          <div class="tb-cell tb-content">Exact file paths, module names, naming conventions. Detected conflicts with rationale.</div>
+          <div class="tb-cell tb-source">Architecture — code structure section</div>
+        </div>
+        <div class="tb-row">
+          <div class="tb-cell tb-section">References</div>
+          <div class="tb-cell tb-content">All technical details cited with source path and section: <code>[Source: docs/file.md#Section]</code></div>
+          <div class="tb-cell tb-source">All artifact sources</div>
+        </div>
+        <div class="tb-row">
+          <div class="tb-cell tb-section">Dev Agent Record</div>
+          <div class="tb-cell tb-content">Agent model used · Debug log references · Completion notes · File list (all created/modified files)</div>
+          <div class="tb-cell tb-source">Filled by dev agent during implementation</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Validation -->
+    <section id="validation">
+      <h3 class="skill-heading">
+        <span class="code-name">validation</span>
+        Validation Checklist
+      </h3>
+      <p class="lede">Step 6 validates the story file against <code>checklist.md</code> before saving. Gaps are fixed before the file is finalized — not after.</p>
+
+      <h5>Disaster Prevention Gaps</h5>
+      <ul class="checklist">
+        <li>No wheel-reinvention: existing components and utilities identified and referenced in Dev Notes</li>
+        <li>No wrong libraries: correct library versions from architecture, validated against latest web research</li>
+        <li>No wrong file locations: all file paths match architecture's folder structure conventions</li>
+        <li>No regression risk: every UPDATE file documented with current state + what must be preserved</li>
+        <li>No UX violations: UX requirements from design file extracted and referenced</li>
+      </ul>
+
+      <h5>Acceptance Criteria Quality</h5>
+      <ul class="checklist">
+        <li>All ACs from the epic file are present — none omitted</li>
+        <li>Each AC is testable and has a corresponding task or subtask</li>
+        <li>Tasks reference their AC by number: <code>(AC: #1)</code>, <code>(AC: #2)</code></li>
+      </ul>
+
+      <h5>LLM Optimization (Dev Agent Readability)</h5>
+      <ul class="checklist">
+        <li>Clarity over verbosity: no filler sentences, no restating the obvious</li>
+        <li>Actionable instructions: every sentence either constrains, guides, or informs an implementation decision</li>
+        <li>No ambiguity: requirements have no room for multiple valid interpretations</li>
+        <li>Token-efficient: maximum guidance per word — no verbosity without value</li>
+      </ul>
+
+      <h5>Completeness</h5>
+      <ul class="checklist">
+        <li>Story status set to <code>ready-for-dev</code> in the file header</li>
+        <li>Dev Notes cover architecture patterns, previous story learnings (if applicable), and latest tech notes (if researched)</li>
+        <li>All technical details cited with source path and section in References</li>
+        <li><code>sprint-status.yaml</code> updated: story status <code>backlog → ready-for-dev</code>, <code>last_updated</code> refreshed</li>
+      </ul>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRFAQ Challenge — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* Sidebar */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* Article */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* Section headings */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* Persona block */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* Data callout */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 160px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* Module grid */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* Mode grid */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* Risk score colors */
+  .risk-high { background: #fee2e2; color: #991b1b; font-weight: 700; text-align: center; }
+  .risk-med  { background: #fef3c7; color: #92400e; font-weight: 700; text-align: center; }
+  .risk-low  { background: #dcfce7; color: #166534; font-weight: 700; text-align: center; }
+
+  /* Priority badges */
+  .p-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; padding: 2px 8px; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+  .p0 { background: #1a1612; color: #f4ede0; }
+  .p1 { background: #c2410c; color: #f4ede0; }
+  .p2 { background: var(--highlight); color: var(--ink); border: 1px solid #ca8a04; }
+  .p3 { background: var(--paper-warm); color: var(--ink-mute); border: 1px solid rgba(42,34,26,.3); }
+
+  /* Step detail list */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* Inline / checklist */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li { padding: 6px 0 6px 24px; position: relative; font-size: 0.875rem; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.5; }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: '□'; position: absolute; left: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-mute); }
+
+  /* Compare table */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* Section divider */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  /* Stage number badge */
+  .stage-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: var(--accent); color: var(--paper); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+
+  /* Verdict cards */
+  .verdict-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .verdict-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .verdict-card { background: var(--paper); padding: 18px 20px; }
+  .verdict-card .verdict-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 8px; }
+  .verdict-card .verdict-name { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin-bottom: 8px; letter-spacing: -0.01em; }
+  .verdict-card .verdict-desc { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .verdict-forged .verdict-label { color: #166534; }
+  .verdict-heat .verdict-label { color: #92400e; }
+  .verdict-cracks .verdict-label { color: #991b1b; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+    .verdict-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad BMM · Phase 01 Analysis</span>
+        <span>Skill · bmad-prfaq</span>
+        <span>Agent · Mary (Business Analyst)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">PRFAQ Challenge <em>· Working Backwards</em></h1>
+    <p class="subtitle">Working Backwards discipline — press release + customer FAQ + internal FAQ. 5-stage structured process to stress-test a concept before committing to PRD.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-prfaq</dd></div>
+      <div><dt>Menu code</dt><dd>WB</dd></div>
+      <div><dt>Input</dt><dd>Product/feature concept (user-provided)</dd></div>
+      <div><dt>Trigger</dt><dd>"create a PRFAQ" / "work backwards" / "run the PRFAQ challenge"</dd></div>
+      <div><dt>Agent</dt><dd>Mary (Analyst)</dd></div>
+      <div><dt>Stages</dt><dd>5</dd></div>
+      <div><dt>Customer FAQ</dt><dd>6-10 Q</dd></div>
+      <div><dt>Internal FAQ</dt><dd>6-10 Q</dd></div>
+      <div><dt>Headless</dt><dd>Yes</dd></div>
+      <div><dt>Resumable</dt><dd>Yes</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#concept-detection" class="toc-sub">Concept Type Detection</a>
+      <a href="#five-stages">5-Stage Process</a>
+      <a href="#stage-1" class="toc-sub">Stage 1 — Ignition</a>
+      <a href="#stage-2" class="toc-sub">Stage 2 — Press Release</a>
+      <a href="#stage-3" class="toc-sub">Stage 3 — Customer FAQ</a>
+      <a href="#stage-4" class="toc-sub">Stage 4 — Internal FAQ</a>
+      <a href="#stage-5" class="toc-sub">Stage 5 — Verdict</a>
+      <a href="#distillate">Distillate Output</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-working-backwards">Why Working Backwards?</a>
+      <a href="#why-press-release" class="toc-sub">Why Press Release Format?</a>
+      <a href="#why-two-faqs" class="toc-sub">Why Both FAQs?</a>
+      <a href="#why-6-10" class="toc-sub">Why 6-10 Questions?</a>
+      <a href="#why-distillate" class="toc-sub">Why Distillate?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#how-steps">Before Calling the Skill</a>
+      <a href="#how-steps" class="toc-sub">1 · General BMAD Setup</a>
+      <a href="#how-steps" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#how-steps" class="toc-sub">3 · Skills That Help</a>
+      <a href="#how-steps" class="toc-sub">4 · Per-Stage Preparation</a>
+      <a href="#toolkit">Applied Toolkit</a>
+      <a href="#technique-descriptions" class="toc-sub">Technique Descriptions</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- § WHAT -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        PRFAQ Challenge — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Invocation</dt><dd><code>/bmad-agent-analyst</code> → select <strong>WB</strong> from menu</dd>
+        <dt>Input</dt><dd>Concept in one paragraph, user context, existing artifacts</dd>
+        <dt>Flags</dt><dd><code>--headless</code> / <code>-H</code> — skip interactive, auto-produce first-draft PRFAQ from available inputs; halts <code>blocked</code> if intent is ambiguous</dd>
+        <dt>Output files</dt><dd>
+          <code>_bmad-output/planning-artifacts/</code><br>
+          <code style="margin-left:14px;">prfaq-{name}.md</code> — full PRFAQ document (updated through all stages)<br>
+          <code style="margin-left:14px;">prfaq-{name}-distillate.md</code> — token-efficient summary for PRD creation
+        </dd>
+        <dt>Resume</dt><dd>If <code>prfaq-{name}.md</code> exists → reads frontmatter <code>stage</code> field → offers to resume from next stage</dd>
+      </dl>
+
+      <p>This skill applies Amazon's Working Backwards methodology to stress-test any product concept before committing to a PRD. Mary (Business Analyst) guides you through five structured stages — from concept clarity through press release, customer skeptic FAQ, internal stakeholder FAQ, and final verdict — producing a distillate ready for immediate PRD creation.</p>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">Stage 1</div>
+          <div class="card-name">Ignition</div>
+          <div class="card-body">
+            <ul>
+              <li>4 essentials: customer, problem, stakes, solution</li>
+              <li>Fast-track for fully-formed concepts</li>
+              <li>Parallel: Artifact Analyzer + Web Researcher</li>
+              <li>Graceful redirect to bmad-brainstorming</li>
+            </ul>
+          </div>
+          <div class="card-footer">Concept clarity gate</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Stage 2</div>
+          <div class="card-name">Press Release</div>
+          <div class="card-body">
+            <ul>
+              <li>9 sections: Headline to Getting Started</li>
+              <li>Draft → self-challenge → invite → deepen cycle</li>
+              <li>Mom test + "so what?" test</li>
+              <li>No jargon, no weasel words</li>
+            </ul>
+          </div>
+          <div class="card-footer">Launch-day clarity forcing function</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Stage 3</div>
+          <div class="card-name">Customer FAQ</div>
+          <div class="card-body">
+            <ul>
+              <li>6-10 questions across 5 angles</li>
+              <li>Agent plays customer skeptic</li>
+              <li>Concrete answers with escape hatches</li>
+              <li>The hard question they hope nobody asks</li>
+            </ul>
+          </div>
+          <div class="card-footer">External objection surface</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Stage 4</div>
+          <div class="card-name">Internal FAQ</div>
+          <div class="card-body">
+            <ul>
+              <li>6-10 questions across 6 angles</li>
+              <li>Agent plays stakeholder panel</li>
+              <li>Pre-mortem protocol embedded</li>
+              <li>5-dimension risk register output</li>
+            </ul>
+          </div>
+          <div class="card-footer">Internal blind spot surface</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Stage 5</div>
+          <div class="card-name">Verdict</div>
+          <div class="card-body">
+            <ul>
+              <li>Candid narrative (not a score)</li>
+              <li>3 assessment categories</li>
+              <li>Distillate production follows</li>
+              <li>Feeds directly into PRD creation</li>
+            </ul>
+          </div>
+          <div class="card-footer">Go / iterate / stop decision</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Output</div>
+          <div class="card-name">Distillate</div>
+          <div class="card-body">
+            <ul>
+              <li>Dense bullet points by theme</li>
+              <li>Rejected framings + open questions</li>
+              <li>Token-efficient LLM consumption</li>
+              <li>Replaces Product Brief for PRD</li>
+            </ul>
+          </div>
+          <div class="card-footer">PRD creation input</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Concept Type Detection -->
+    <section id="concept-detection">
+      <h3 class="skill-heading">
+        <span class="code-name">concept-detection</span>
+        Concept Type Detection
+      </h3>
+      <p class="lede">Runs automatically in Stage 1. The agent identifies the concept type early to calibrate the questions asked in Stages 3 and 4.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Concept Types &amp; Calibration</span>
+          <span class="data-source">Stage 1 · Auto-detection</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Type</th><th>Stage 3 Customer FAQ calibration</th><th>Stage 4 Internal FAQ calibration</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Commercial product</td>
+              <td>Full skeptic mode — price sensitivity, competitors, trust signals, switching costs</td>
+              <td>Full stakeholder panel — unit economics, competitive moat, first 100 customers, CAC/LTV</td>
+            </tr>
+            <tr>
+              <td class="key-col">Internal tool</td>
+              <td>Adoption friction, workflow disruption, learning curve, existing workaround adequacy</td>
+              <td>Build vs. buy, maintenance burden, team capacity, IT governance — NOT unit economics or first 100 customers</td>
+            </tr>
+            <tr>
+              <td class="key-col">Open-source</td>
+              <td>Sustainability, contributor trust, licensing clarity, enterprise readiness</td>
+              <td>Governance model, community building, monetization pathway (if any), maintainer burn-out risk</td>
+            </tr>
+            <tr>
+              <td class="key-col">Community / nonprofit</td>
+              <td>Mission clarity, beneficiary trust, access equity, long-term sustainability</td>
+              <td>Funding model, volunteer capacity, mission drift risk, impact measurement</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- 5-Stage Process -->
+    <section id="five-stages">
+      <h3 class="skill-heading">
+        <span class="code-name">five-stages</span>
+        5-Stage Process
+        <span class="code-tag">core workflow</span>
+      </h3>
+      <p class="lede">Each stage builds on the last. The document file is updated after each stage so work is never lost. Progress is tracked in frontmatter for resumable sessions.</p>
+
+      <div class="data-callout" id="stage-1">
+        <div class="data-head">
+          <span class="data-label">Stage 1 — Ignition</span>
+          <span class="data-source">Concept clarity + parallel research</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Element</th><th>Detail</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">4 Essentials</td>
+              <td>Customer (specific persona, not "users") · Problem (concrete, not vague) · Stakes (consequences if unsolved) · Solution concept (rough is fine)</td>
+            </tr>
+            <tr>
+              <td class="key-col">Fast-track</td>
+              <td>If user opens with a concept that clearly addresses all 4 essentials → skip extended discovery, proceed directly to Stage 2</td>
+            </tr>
+            <tr>
+              <td class="key-col">Graceful redirect</td>
+              <td>After 2-3 exchanges still unable to articulate a clear concept → agent offers: "You may benefit from running bmad-brainstorming first. Want me to redirect?"</td>
+            </tr>
+            <tr>
+              <td class="key-col">Parallel subagents</td>
+              <td><strong>Artifact Analyzer</strong> — scans <code>planning_artifacts/</code> and user-provided docs for relevant context<br><strong>Web Researcher</strong> — covers market landscape, competitors, analogous products, market data</td>
+            </tr>
+            <tr>
+              <td class="key-col">Pushback rule</td>
+              <td>Agent does not accept vague answers — pushes back on "small businesses" (too broad), "saves time" (not a concrete problem), "AI-powered" (not a solution concept)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="data-callout" id="stage-2">
+        <div class="data-head">
+          <span class="data-label">Stage 2 — Press Release</span>
+          <span class="data-source">Draft → self-challenge → invite → deepen</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Section</th><th>Content expected</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Headline</td>
+              <td>Single-sentence product name + core benefit. No jargon. A non-expert reader understands it immediately.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Subheadline</td>
+              <td>Expands headline: who it's for + what it does differently.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Opening paragraph</td>
+              <td>City/date dateline. Describes the product launch and key customer impact in 2-3 sentences.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Problem</td>
+              <td>The specific pain the product solves. Concrete. Stakes included. No exaggeration.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Solution</td>
+              <td>How the product solves the problem. What it does, not how it works internally.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Leader quote</td>
+              <td>Attributed to a named, titled person at the company. Explains why we built this — authentic, not marketing copy.</td>
+            </tr>
+            <tr>
+              <td class="key-col">How It Works</td>
+              <td>3-5 concrete steps a customer takes. Specific enough that the reader can picture themselves doing it.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Customer quote</td>
+              <td>Attributed to a specific type of customer persona. Describes the real impact on their life or work.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Getting Started</td>
+              <td>URL, first action, pricing signal (if any). Closes the loop: what does the reader do next?</td>
+            </tr>
+            <tr>
+              <td class="key-col">Quality tests</td>
+              <td><strong>Mom test</strong> — would a non-technical parent understand this? <strong>"So what?" test</strong> — does every sentence earn its place? <strong>Weasel word scan</strong> — flags "significantly", "revolutionary", "best-in-class", "leading", "world-class"</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="data-callout" id="stage-3">
+        <div class="data-head">
+          <span class="data-label">Stage 3 — Customer FAQ</span>
+          <span class="data-source">Agent plays customer skeptic · 6-10 questions · 5 angles</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Angle</th><th>What gets surfaced</th><th>Example question</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Skepticism</td>
+              <td>Why this over existing alternatives? What makes it genuinely different?</td>
+              <td>"We already use [X tool] for this — why would we switch?"</td>
+            </tr>
+            <tr>
+              <td class="key-col">Trust</td>
+              <td>Data handling, company viability, who is behind this, track record</td>
+              <td>"What happens to my data if the company shuts down?"</td>
+            </tr>
+            <tr>
+              <td class="key-col">Practical concerns</td>
+              <td>Cost, setup time, integrations, migration effort, support model</td>
+              <td>"How long does it take to set up and what do I need from my IT team?"</td>
+            </tr>
+            <tr>
+              <td class="key-col">Edge cases</td>
+              <td>Uncommon but real scenarios — what breaks at the edges?</td>
+              <td>"What happens when I have [unusual data format / special permission model / offline scenario]?"</td>
+            </tr>
+            <tr>
+              <td class="key-col">The hard question</td>
+              <td>The question the team hopes nobody asks — the weakest point of the offering</td>
+              <td>"Why should I trust a product that's only been on the market for 3 months with our production data?"</td>
+            </tr>
+            <tr>
+              <td class="key-col">Answer protocol</td>
+              <td>2-4 lines per answer · Direct and concrete · Quantify where possible · Include escape hatch if the answer is incomplete ("We don't support X yet — our roadmap targets Q3")</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="data-callout" id="stage-4">
+        <div class="data-head">
+          <span class="data-label">Stage 4 — Internal FAQ + Pre-mortem</span>
+          <span class="data-source">Agent plays stakeholder panel · 6-10 questions · 6 angles</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Angle</th><th>What gets surfaced</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Feasibility</td>
+              <td>What is the hardest technical problem? What unknowns remain? What do we need to prove before we can build confidently?</td>
+            </tr>
+            <tr>
+              <td class="key-col">Business viability</td>
+              <td>Unit economics (calibrated to concept type), competitive moat, sustainable differentiation, pricing model validity</td>
+            </tr>
+            <tr>
+              <td class="key-col">Resource reality</td>
+              <td>Do we have the team? The timeline? What are the unavoidable trade-offs if resources are constrained?</td>
+            </tr>
+            <tr>
+              <td class="key-col">Risk</td>
+              <td>What kills this? Worst-case scenario? What are the assumptions that, if wrong, invalidate the entire approach?</td>
+            </tr>
+            <tr>
+              <td class="key-col">Strategic fit</td>
+              <td>Why us? Why now? Why not in 12 months? What happens if a larger player launches this first?</td>
+            </tr>
+            <tr>
+              <td class="key-col">The avoided question</td>
+              <td>The question the founder or PM avoids bringing up — usually about a known weakness, a competitor advantage, or a dependency they haven't solved</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 class="step-heading">Pre-mortem Protocol (embedded in Stage 4)</h4>
+      <ul class="step-detail">
+        <li><strong class="label">Step 1</strong>Assume the product has <strong>failed</strong> in 12 months. This is not a hypothesis — it is the premise.</li>
+        <li><strong class="label">Step 2</strong>Tell the story of WHY it failed. A narrative, not a list. Forces specificity.</li>
+        <li><strong class="label">Step 3</strong>Extract the top 5 failure reasons from that narrative. Ranked by likelihood × severity.</li>
+        <li><strong class="label">Step 4</strong>Convert to a structured risk register — categorized across 5 dimensions.</li>
+      </ul>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Risk Register — 5 Dimensions</span>
+          <span class="data-source">Gary Klein pre-mortem · PRFAQ Stage 4</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Dimension</th><th>Covers</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Market</td>
+              <td>Demand assumptions that may not hold · timing risk · competitive response · market size miscalculation</td>
+            </tr>
+            <tr>
+              <td class="key-col">Technical</td>
+              <td>Feasibility gaps · scalability assumptions · vendor / API dependency · integration complexity underestimation</td>
+            </tr>
+            <tr>
+              <td class="key-col">Regulatory</td>
+              <td>Compliance requirements · data privacy jurisdiction · licensing constraints · sector-specific rules</td>
+            </tr>
+            <tr>
+              <td class="key-col">Team</td>
+              <td>Skill gaps · capacity constraints · motivation / alignment · key-person dependencies</td>
+            </tr>
+            <tr>
+              <td class="key-col">Execution</td>
+              <td>Scope creep · coordination failures · timeline compression · dependency sequencing errors</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="data-callout" id="stage-5">
+        <div class="data-head">
+          <span class="data-label">Stage 5 — Verdict</span>
+          <span class="data-source">Candid assessment · 3 categories · not a score</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Category</th><th>Meaning</th><th>What follows</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col risk-low">Forged in Steel</td>
+              <td>Concept is clear, compelling, and defensible. Customer need is concrete. Internal risks are identified and have credible mitigations.</td>
+              <td>Proceed to PRD creation. Distillate is the primary input.</td>
+            </tr>
+            <tr>
+              <td class="key-col risk-med">Needs More Heat</td>
+              <td>Promising but underdeveloped. Core insight is sound, but significant gaps remain in customer clarity, competitive differentiation, or internal viability.</td>
+              <td>Address specific gaps identified in the verdict, then re-run selected stages or proceed with known constraints documented.</td>
+            </tr>
+            <tr>
+              <td class="key-col risk-high">Cracks in the Foundation</td>
+              <td>Fundamental risks or contradictions present that must be resolved before a PRD would be valuable. Building on this foundation risks wasted sprint cycles.</td>
+              <td>Stop. Address root-cause gaps — may require going back to brainstorming or pivoting the concept significantly.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Distillate -->
+    <section id="distillate">
+      <h3 class="skill-heading">
+        <span class="code-name">distillate</span>
+        Distillate Output
+      </h3>
+      <p class="lede">After Stage 5, <code>prfaq-{name}-distillate.md</code> is produced automatically. Dense bullet points by theme — designed for LLM consumption in the next downstream step.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Distillate Structure</span>
+          <span class="data-source">prfaq-{name}-distillate.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Theme</th><th>What gets captured</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Rejected framings</td>
+              <td>Concepts, headlines, or positioning angles considered and discarded during the PRFAQ — prevents re-litigating in the PRD</td>
+            </tr>
+            <tr>
+              <td class="key-col">Requirements signals</td>
+              <td>Concrete feature and constraint signals surfaced through FAQ answers — directly feeds PRD functional requirements</td>
+            </tr>
+            <tr>
+              <td class="key-col">Technical constraints</td>
+              <td>Feasibility boundaries, integration requirements, and architectural assumptions identified in Stage 4</td>
+            </tr>
+            <tr>
+              <td class="key-col">Competitive intel</td>
+              <td>Competitors identified by Web Researcher + positioning gaps + differentiation angles that held up to scrutiny</td>
+            </tr>
+            <tr>
+              <td class="key-col">Open questions</td>
+              <td>Unresolved questions that Stage 3 or 4 exposed but could not answer — must be addressed in PRD or discovery phase</td>
+            </tr>
+            <tr>
+              <td class="key-col">Scope signals</td>
+              <td>What is explicitly in-scope vs. deferred — derived from Stage 3 edge case handling and Stage 4 resource reality</td>
+            </tr>
+            <tr>
+              <td class="key-col">Resource estimates</td>
+              <td>Rough effort signals from Stage 4 feasibility and resource angles — directional, not binding</td>
+            </tr>
+            <tr>
+              <td class="key-col">Verdict findings</td>
+              <td>Stage 5 verdict category + key supporting evidence + specific conditions that must be met before PRD creation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="inline-list">
+        <li>The distillate <strong>replaces the Product Brief</strong> as the primary input to the Create PRD step</li>
+        <li>Narrative structure (full PRFAQ) is preserved in <code>prfaq-{name}.md</code> for human reading</li>
+        <li>Distillate is optimized for token efficiency — no prose, no context, only signal</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- § WHY -->
+    <section id="why-working-backwards">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why This Approach?
+      </h2>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Without PRFAQ</th>
+            <th>With PRFAQ Challenge</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="why-press-release">Why Working Backwards?</td>
+            <td>Teams start with technology or features, then search for customers to fit what was built</td>
+            <td>Start with the customer experience — work backwards to what must be built. Forces customer-first clarity before any implementation investment</td>
+          </tr>
+          <tr>
+            <td>Why press release format?</td>
+            <td>Teams describe the product in vague, internal language that sounds good but commits to nothing</td>
+            <td>Writing for "launch day" forces concrete success definition — vague products cannot produce clear press releases. The PR surfaces gaps before PRD writing begins</td>
+          </tr>
+          <tr>
+            <td id="why-two-faqs">Why both Customer FAQ AND Internal FAQ?</td>
+            <td>Teams address external objections but skip internal blind spots — fatal flaws discovered in Sprint 3</td>
+            <td>Customer FAQ surfaces external objections. Internal FAQ surfaces internal blind spots. Both are required: teams that skip Internal FAQ regularly discover fatal flaws after development has started</td>
+          </tr>
+          <tr>
+            <td id="why-6-10">Why 6-10 questions per FAQ?</td>
+            <td>5 questions = too soft (misses the hard ones). 15 questions = unfocused (dilutes the critical ones)</td>
+            <td>6-10 hits the confidence/concreteness sweet spot — enough to cover all critical angles without producing noise that buries the important findings</td>
+          </tr>
+          <tr>
+            <td id="why-distillate">Why distillate instead of the full doc?</td>
+            <td>PRD authors receive a long narrative document and must extract the relevant signals themselves — slow and lossy</td>
+            <td>PRDs need dense signal, not narrative structure. The distillate is token-efficient and optimized for LLM consumption in the next step — preserving all signal with none of the prose overhead</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- § HOW — Before Calling the Skill -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="how-steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/bmad-agent-analyst → WB</code>. PRFAQ and Product Brief are alternatives — pick one, not both. For the 5-stage execution details, see the Applied Toolkit section below.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · General BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all BMAD skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">BMAD installed</td>
+              <td>Latest version required. Verify before starting: <code>npx bmad-method --version</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Claude Code running</td>
+              <td>Open a terminal and run <code>claude</code> first. All skill invocations happen inside an active Claude Code session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent-first invocation</td>
+              <td>Always <code>/bmad-agent-analyst → select WB</code>. The agent enters Stage 1 immediately — no warm-up.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Full context upfront</td>
+              <td>The agent spawns parallel subagents between Stage 1 and Stage 2 to read all artifacts and research the competitive landscape. More input = richer research.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to bmad-prfaq. Have these clear before starting the session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">bmad-prfaq · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">The concept in one paragraph</td>
+              <td>Who the users are, what problem they face, and what the feature does about it. This is the Stage 1 seed — the more specific, the faster the agent gets to the press release.</td>
+            </tr>
+            <tr>
+              <td class="key-col">User context</td>
+              <td>Who specifically uses this — their role, current workflow, and what success looks like for them. "Accountant who processes payroll for 15 clients every Friday" is a valid persona. "Users" is not.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Existing artifacts</td>
+              <td>Any relevant documents — brainstorming notes, prior specs, UX designs, or discussions. These feed the Artifact Analyzer subagent that runs between Stage 1 and Stage 2.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">skills</span>
+        3 · Skills That Help This Session
+      </h3>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Facilitator Mindset</span>
+          <span class="data-source">bmad-prfaq · session quality</span>
+        </div>
+        <table>
+          <thead><tr><th>Skill</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Persona specificity</td>
+              <td>Stage 1 asks who is being hurt by what problem. The agent pushes back on vague personas. Prepare a named, grounded persona before the session starts.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Comfortable with honest gaps</td>
+              <td>Customer FAQ (Stage 3) and Internal FAQ (Stage 4) probe the weakest points. "We don't know yet" is a valid answer — it becomes an explicit gap, not a hidden assumption. Defensive answers get flagged.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Strategic ambiguity tolerance</td>
+              <td>Internal FAQ forces commitment to decisions like "why us, why now." Committing to "we will decide X before launch" is acceptable. Pretending X doesn't need to be decided is not.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Key differentiator clarity</td>
+              <td>Stage 2 (Press Release) asks what makes this worth building versus the status quo. Know this before the session — the agent challenges its own draft and will push on differentiators that don't hold up.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-step</span>
+        4 · Per-Stage Preparation
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Each stage has a specific readiness moment. Having these ready prevents pauses that break the Working Backwards flow.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Stage-Level Readiness</span>
+          <span class="data-source">bmad-prfaq · 5-stage process</span>
+        </div>
+        <table>
+          <thead><tr><th>Stage</th><th>What to have ready</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Stage 1 · Ignition</td>
+              <td>The specific problem statement in terms of a real person's daily pain — not a technology or solution framing. "The accountant spends 3 hours every Friday reconciling X" beats "there's a data automation problem".</td>
+            </tr>
+            <tr>
+              <td class="key-col">Stage 2 · Press Release</td>
+              <td>A sense of the key differentiator — the one thing that makes this worth building versus the status quo. The agent challenges its own draft; you need a real answer when it asks "why can't a competitor copy this in 6 months?"</td>
+            </tr>
+            <tr>
+              <td class="key-col">Stage 3 · Customer FAQ</td>
+              <td>Prepare honest answers to the hardest customer questions: failure modes, scope of claims, edge cases, trust concerns. "We don't know yet" is valid — it becomes an explicit gap. Vague answers are flagged as evidence of a gap.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Stage 4 · Internal FAQ</td>
+              <td>Be ready to address: hardest technical problem, unit economics (or build vs buy for internal tools), resource reality, and "why us, why now." The agent plays skeptical stakeholder — not an ally.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Stage 5 · Verdict</td>
+              <td>No preparation needed — the agent synthesizes. After the verdict, the distillate is auto-produced. Plan to use <code>prfaq-{name}-distillate.md</code> as the primary input to Create PRD.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Toolkit Reference</span>
+          <span class="data-source">bmad-prfaq · v6.10.0</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Dimension</th><th>Detail</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Skill</td>
+              <td><code>bmad-prfaq</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent</td>
+              <td>Mary — Business Analyst</td>
+            </tr>
+            <tr>
+              <td class="key-col">Output</td>
+              <td><code>prfaq-{name}.md</code> + <code>prfaq-{name}-distillate.md</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Method</td>
+              <td>Working Backwards (Amazon PR/FAQ methodology)</td>
+            </tr>
+            <tr>
+              <td class="key-col">Pre-mortem</td>
+              <td>Gary Klein's pre-mortem technique — prospective hindsight to surface failure modes</td>
+            </tr>
+            <tr>
+              <td class="key-col">Risk register</td>
+              <td>5 dimensions: Market · Technical · Regulatory · Team · Execution</td>
+            </tr>
+            <tr>
+              <td class="key-col">MCP Tools</td>
+              <td><code>bmad-help</code> · Artifact Analyzer subagent · Web Researcher subagent</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section id="technique-descriptions">
+        <h5>Technique Descriptions</h5>
+
+        <h5>Working Backwards — Amazon PR/FAQ Methodology</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Principle</th><th>Detail</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Core premise</td>
+                <td>Write the press release for the finished product before building anything. If you cannot write a compelling press release, the concept is not clear enough to build.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Stress-test from both sides</td>
+                <td>Customer FAQ forces answers to the hardest questions users will ask. Internal FAQ forces feasibility, ROI, and strategic risk questions. Both must be answered before committing to development.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Competitive research built in</td>
+                <td>The skill automatically spawns subagents to research the competitive landscape between Stage 1 and Stage 2. Training data ages fast — live web research is always run.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Explicit verdict</td>
+                <td>The final stage delivers a structured judgment: <em>Forged in Steel</em> (solid), <em>Needs More Heat</em> (promising but gaps remain), or <em>Cracks in the Foundation</em> (fundamental risks must be resolved before PRD).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Press Release Quality Tests</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Test</th><th>What It Checks</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Mom test</td>
+                <td>Would a non-technical parent understand what this product does, who it's for, and why it matters? If not, the headline and opening need rewriting.</td>
+              </tr>
+              <tr>
+                <td class="key-col">"So what?" test</td>
+                <td>Every sentence must earn its place. Any sentence that does not directly serve customer understanding or credibility is cut or rewritten.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Weasel word scan</td>
+                <td>Flags and removes: "significantly", "revolutionary", "world-class", "best-in-class", "leading", "powerful", "robust", "seamless", "cutting-edge", "innovative".</td>
+              </tr>
+              <tr>
+                <td class="key-col">Jargon scan</td>
+                <td>Any term requiring industry knowledge is either explained in plain language or replaced with a simpler equivalent.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Gary Klein's Pre-mortem — 4-Step Flow</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Step</th><th>What Happens</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Premise</td>
+                <td>It is 12 months from now. The product has failed. This is not a possibility — it is the assumed outcome for this exercise. Prospective hindsight surfaces failure modes that forward-looking planning misses.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Narrative</td>
+                <td>Write the story of why it failed. Present tense. Specific. "In month 3, the key integration partner changed their API pricing, making our unit economics negative. The team couldn't pivot fast enough."</td>
+              </tr>
+              <tr>
+                <td class="key-col">Extraction</td>
+                <td>From the narrative, extract the top 5 failure reasons. Ranked by likelihood × severity. These are the real risks — not the risks that sound sophisticated, but the ones the narrative exposed as plausible.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Risk register</td>
+                <td>Convert to structured register across 5 dimensions: <strong>Market · Technical · Regulatory · Team · Execution</strong>. Each entry: risk description, likelihood signal, impact signal, mitigation or monitoring approach.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

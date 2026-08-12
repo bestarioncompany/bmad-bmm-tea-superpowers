@@ -1,0 +1,1759 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teach Me Testing — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ====== DESIGN TOKENS ====== */
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter Tight', sans-serif;
+    line-height: 1.65;
+    font-size: 0.9375rem;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .5;
+  }
+
+  /* ====== LAYOUT ====== */
+  .layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "masthead masthead"
+      "toc      article";
+    max-width: 1340px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ====== MASTHEAD ====== */
+  header.masthead {
+    grid-area: masthead;
+    border-bottom: 2px solid var(--rule);
+    padding: 28px 40px 24px;
+    background: var(--paper-warm);
+  }
+
+  .masthead-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-mute);
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+
+  .masthead-top .preview-badge {
+    background: var(--accent);
+    color: var(--paper);
+    padding: 2px 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+  }
+
+  h1.title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 4vw, 2.9rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  p.subtitle {
+    font-size: 0.96rem;
+    color: var(--ink-soft);
+    max-width: 700px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+
+  dl.meta-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    border: 1px solid var(--rule);
+    border-right: none;
+  }
+
+  dl.meta-grid > div {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 16px;
+    border-right: 1px solid var(--rule);
+    min-width: 130px;
+  }
+
+  dl.meta-grid dt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-mute);
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  dl.meta-grid dd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* ====== TOC SIDEBAR ====== */
+  aside.toc {
+    grid-area: toc;
+    border-right: 1px solid var(--rule);
+    padding: 32px 0 60px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--paper-warm);
+  }
+
+  .toc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    font-weight: 700;
+    padding: 0 24px 12px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 16px;
+  }
+
+  aside.toc ol {
+    list-style: none;
+    padding: 0 0 0 24px;
+  }
+
+  aside.toc ol > li {
+    margin-bottom: 4px;
+  }
+
+  aside.toc ol > li > a {
+    display: block;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 4px 0;
+    border-bottom: none;
+    transition: color 0.15s;
+  }
+
+  aside.toc ol > li > a:hover { color: var(--accent); }
+
+  aside.toc ol > li > ul {
+    list-style: none;
+    padding: 2px 0 4px 12px;
+    border-left: 1px solid rgba(42,34,26,.2);
+    margin: 2px 0 4px 4px;
+  }
+
+  aside.toc ol > li > ul > li > a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    text-decoration: none;
+    display: block;
+    padding: 2px 0;
+    transition: color 0.15s;
+  }
+
+  aside.toc ol > li > ul > li > a:hover { color: var(--accent); }
+
+  .toc-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 700;
+    padding: 16px 24px 6px;
+    margin-top: 8px;
+    display: block;
+    border-top: 1px dashed rgba(42,34,26,.2);
+  }
+
+  /* ====== ARTICLE ====== */
+  main.article {
+    grid-area: article;
+    padding: 48px 56px 80px;
+    max-width: 860px;
+  }
+
+  /* ====== HEADINGS ====== */
+  h2.agent-heading {
+    font-family: 'Fraunces', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--ink);
+    margin: 0 0 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 12px;
+  }
+
+  h2.agent-heading .marker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid var(--accent);
+    padding: 2px 8px;
+    vertical-align: 6px;
+    white-space: nowrap;
+  }
+
+  h2.agent-heading em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+
+  h3.skill-heading {
+    font-family: 'Fraunces', serif;
+    font-size: 1.45rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin: 48px 0 12px;
+    padding-left: 16px;
+    border-left: 3px solid var(--accent);
+    line-height: 1.25;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  h3.skill-heading .code-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2px 10px;
+    letter-spacing: 0.04em;
+    vertical-align: 2px;
+    white-space: nowrap;
+  }
+
+  h3.skill-heading .code-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--accent);
+    color: var(--paper);
+    padding: 2px 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    vertical-align: 2px;
+  }
+
+  h4.step-heading {
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 28px 0 10px;
+    letter-spacing: -0.005em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  h4.step-heading::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    flex-shrink: 0;
+    transform: rotate(45deg);
+  }
+
+  h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin: 20px 0 8px;
+  }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.83em;
+    background: var(--paper-warm);
+    border: 1px solid rgba(42,34,26,.2);
+    padding: 1px 5px;
+    color: var(--ink-soft);
+    border-radius: 1px;
+  }
+
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ====== STEP-DETAIL LIST ====== */
+  ul.step-detail {
+    list-style: none;
+    margin: 0 0 18px;
+    border: 1px solid rgba(42,34,26,.15);
+    background: var(--paper);
+  }
+
+  ul.step-detail li {
+    padding: 9px 14px;
+    border-bottom: 1px dotted rgba(42,34,26,.14);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  ul.step-detail li:last-child { border-bottom: none; }
+
+  ul.step-detail .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    display: inline-block;
+    min-width: 90px;
+    margin-right: 8px;
+  }
+
+  /* ====== INLINE LIST ====== */
+  ul.inline-list {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+  }
+
+  ul.inline-list li {
+    padding: 4px 0 4px 18px;
+    position: relative;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  ul.inline-list li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 10px;
+    top: 6px;
+  }
+
+  /* ====== PERSONA BLOCK ====== */
+  dl.persona-block {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0;
+    margin: 0 0 32px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+  }
+
+  dl.persona-block dt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-mute);
+    padding: 9px 14px;
+    border-bottom: 1px dotted rgba(42,34,26,.18);
+    border-right: 1px solid rgba(42,34,26,.18);
+    background: var(--paper-warm);
+    white-space: nowrap;
+    vertical-align: top;
+  }
+
+  dl.persona-block dd {
+    font-size: 0.875rem;
+    padding: 9px 14px;
+    border-bottom: 1px dotted rgba(42,34,26,.18);
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  dl.persona-block dt:last-of-type,
+  dl.persona-block dd:last-child {
+    border-bottom: none;
+  }
+
+  .menu-codes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .menu-codes code {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 0;
+  }
+
+  /* ====== DATA CALLOUT (table card) ====== */
+  .data-callout {
+    margin: 24px 0 32px;
+    border: 1px solid var(--rule);
+    background: var(--paper-warm);
+    position: relative;
+  }
+
+  .data-callout .data-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--ink);
+    color: var(--paper);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .data-callout .data-head .data-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--highlight);
+    font-weight: 700;
+  }
+
+  .data-callout .data-head .data-source {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--paper);
+    opacity: 0.7;
+  }
+
+  .data-callout .data-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 12px 16px 4px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .data-callout table {
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 1px solid var(--rule);
+    font-size: 13px;
+    line-height: 1.45;
+    background: var(--paper);
+  }
+
+  .data-callout th {
+    text-align: left;
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    font-weight: 700;
+    border-bottom: 2px solid var(--rule);
+    background: var(--paper-warm);
+  }
+
+  .data-callout td {
+    padding: 9px 12px;
+    border-bottom: 1px dotted rgba(26, 22, 18, 0.18);
+    vertical-align: top;
+    color: var(--ink);
+  }
+
+  .data-callout tr:last-child td { border-bottom: none; }
+
+  .data-callout td.num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 12px;
+    white-space: nowrap;
+    width: 36px;
+  }
+
+  .data-callout td .session-name {
+    font-weight: 700;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .data-callout td .session-sub {
+    font-size: 12px;
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+
+  .data-callout td .dur-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 2px 7px;
+    border: 1px solid var(--rule);
+    color: var(--ink-soft);
+    background: var(--paper-warm);
+    white-space: nowrap;
+  }
+
+  .data-callout td .diff-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 2px 7px;
+    white-space: nowrap;
+    margin-left: 4px;
+  }
+
+  .diff-tag.beginner  { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .diff-tag.intermediate { background: var(--highlight); color: var(--ink); border: 1px solid #ca8a04; }
+  .diff-tag.advanced  { background: var(--accent); color: var(--paper); border: 1px solid var(--accent); }
+
+  .data-callout td ul {
+    margin: 0; padding: 0 0 0 14px;
+    font-size: 12px; color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* ====== MODULE GRID (role cards) ====== */
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    margin: 16px 0 32px;
+  }
+
+  .module-card {
+    background: var(--paper);
+    padding: 16px 18px;
+    box-shadow: 0 0 0 1px var(--rule);
+  }
+
+  .module-card .card-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .module-card .card-name {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+
+  .module-card .card-body {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  .module-card .card-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .module-card .card-body li {
+    padding: 3px 0 3px 14px;
+    position: relative;
+    font-size: 12px;
+    border-bottom: 1px dotted rgba(42,34,26,.12);
+  }
+
+  .module-card .card-body li:last-child { border-bottom: none; }
+
+  .module-card .card-body li::before {
+    content: '›';
+    position: absolute; left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .module-card .card-footer {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(42,34,26,.2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-mute);
+  }
+
+  /* ====== FRAGMENT GRID (Session 7 categories) ====== */
+  .fragment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    margin: 16px 0 32px;
+  }
+  .fragment-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+
+  .fragment-card {
+    background: var(--paper);
+    padding: 0;
+  }
+
+  .fragment-card .fc-head {
+    background: var(--paper-warm);
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(42,34,26,.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .fragment-card .fc-head .fc-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--accent);
+  }
+
+  .fragment-card .fc-head .fc-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-mute);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 1px 6px;
+    font-weight: 700;
+  }
+
+  .fragment-card .fc-body {
+    padding: 10px 14px 12px;
+  }
+
+  .fragment-card .fc-body code {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    background: transparent;
+    border: none;
+    padding: 1px 0;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  .fragment-card .fc-body code::before { content: '· '; color: var(--accent); }
+
+  /* ====== PATH BLOCK (learning paths) ====== */
+  .path-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    margin: 16px 0 32px;
+  }
+  .path-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+
+  .path-card {
+    background: var(--paper);
+    padding: 16px 18px;
+  }
+
+  .path-card .path-level {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    padding: 2px 8px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+
+  .path-card .path-level.beginner     { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .path-card .path-level.intermediate { background: var(--highlight); color: var(--ink); border: 1px solid #ca8a04; }
+  .path-card .path-level.experienced  { background: var(--accent); color: var(--paper); }
+
+  .path-card .path-seq {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 2;
+    margin-bottom: 10px;
+  }
+
+  .path-card .path-seq .s-num {
+    font-weight: 700;
+    color: var(--accent);
+    margin-right: 4px;
+  }
+
+  .path-card .path-note {
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    font-style: italic;
+    border-top: 1px dashed rgba(42,34,26,.2);
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+
+  /* ====== QUIZ CALLOUT ====== */
+  .quiz-callout {
+    margin: 24px 0;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+  }
+
+  .quiz-callout .qz-head {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .quiz-callout .qz-head .qz-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--highlight);
+    font-weight: 700;
+  }
+
+  .quiz-callout .qz-head .qz-pass {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--paper);
+    opacity: 0.8;
+  }
+
+  .quiz-callout table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .quiz-callout th {
+    text-align: left;
+    padding: 8px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    font-weight: 700;
+    border-bottom: 2px solid var(--rule);
+    background: var(--paper-warm);
+  }
+
+  .quiz-callout td {
+    padding: 9px 12px;
+    border-bottom: 1px dotted rgba(26,22,18,.15);
+    vertical-align: top;
+  }
+
+  .quiz-callout tr:last-child td { border-bottom: none; }
+
+  .quiz-callout td.session-col {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+    white-space: nowrap;
+    width: 110px;
+  }
+
+  .quiz-callout td .answer-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    background: var(--accent);
+    color: var(--paper);
+    padding: 1px 5px;
+    margin-left: 4px;
+  }
+
+  /* ====== ARTIFACT BLOCK ====== */
+  .artifact-block {
+    margin: 16px 0 28px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+  }
+
+  .artifact-block .ab-head {
+    background: var(--paper-warm);
+    padding: 8px 14px;
+    border-bottom: 1px solid rgba(42,34,26,.2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .artifact-block table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+
+  .artifact-block td {
+    padding: 8px 14px;
+    border-bottom: 1px dotted rgba(26,22,18,.14);
+    vertical-align: top;
+  }
+
+  .artifact-block tr:last-child td { border-bottom: none; }
+
+  .artifact-block td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    white-space: nowrap;
+    width: 140px;
+  }
+
+  .artifact-block td:last-child code {
+    font-size: 11px;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border: none;
+    padding: 2px 7px;
+  }
+
+  /* ====== SECTION DIVIDER ====== */
+  hr.section-divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 56px 0;
+    position: relative;
+    text-align: center;
+  }
+
+  hr.section-divider::after {
+    content: '◆ ◆ ◆';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--paper);
+    padding: 0 12px;
+    font-size: 8px;
+    color: var(--ink-mute);
+    letter-spacing: 6px;
+  }
+
+  /* ====== COLOPHON ====== */
+  footer.colophon {
+    grid-column: 1 / -1;
+    border-top: 2px solid var(--rule);
+    padding: 20px 40px;
+    background: var(--paper-warm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-mute);
+  }
+
+  footer.colophon strong { color: var(--accent); }
+
+  /* ====== RESPONSIVE ====== */
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+      grid-template-areas: "masthead" "article";
+    }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .path-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ============ MASTHEAD ============ -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad TEA · Test Architecture Enterprise</span>
+        <span>Skill · bmad-teach-me-testing</span>
+        <span>Module · tea-skills</span>
+      </div>
+      <div class="right"><span class="preview-badge">Section Preview</span></div>
+    </div>
+    <h1 class="title">Teach Me Testing <em>· TEA Academy</em></h1>
+    <p class="subtitle">A self-paced, multi-session learning companion that teaches testing fundamentals through advanced practices — designed to onboard new team members without requiring instructor time.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-teach-me-testing</dd></div>
+      <div><dt>Menu code</dt><dd>TMT</dd></div>
+      <div><dt>Input</dt><dd>Learner's current testing knowledge (self-assessed)</dd></div>
+      <div><dt>Trigger</dt><dd>"lets learn testing" / "I want to study test practices"</dd></div>
+      <div><dt>Agent</dt><dd>Murat (Test Architect)</dd></div>
+      <div><dt>Sessions</dt><dd>7 structured sessions</dd></div>
+      <div><dt>Duration</dt><dd>~6 hours total</dd></div>
+      <div><dt>Passing score</dt><dd>≥ 70% per session</dd></div>
+      <div><dt>Resumable</dt><dd>Yes · state persisted</dd></div>
+    </dl>
+  </header>
+
+  <!-- ============ TOC SIDEBAR ============ -->
+  <aside class="toc">
+    <div class="toc-label">Contents</div>
+    <ol>
+      <li><a href="#what">§ WHAT — What is this Skill?</a>
+        <ul>
+          <li><a href="#overview">Overview &amp; Architecture</a></li>
+          <li><a href="#curriculum">7-Session Curriculum</a></li>
+          <li><a href="#fragments">Session 7 · Fragment Explorer</a></li>
+        </ul>
+      </li>
+      <li><a href="#why">§ WHY — Why use TMT?</a>
+        <ul>
+          <li><a href="#why-comparison">TMT vs Ad-hoc Self-learning</a></li>
+          <li><a href="#audience">Role Adaptation · 4 roles</a></li>
+          <li><a href="#learning-paths">Learning Paths by Experience</a></li>
+          <li><a href="#assessment">Assessment System</a></li>
+        </ul>
+      </li>
+      <li><a href="#how">§ HOW — How to Execute</a>
+        <ul>
+          <li><a href="#activation">Activation &amp; 3 modes</a></li>
+          <li><a href="#steps">Workflow Steps</a></li>
+          <li><a href="#artifacts">Progress &amp; Artifacts</a></li>
+          <li><a href="#extend">Extending the Curriculum</a></li>
+        </ul>
+      </li>
+    </ol>
+  </aside>
+
+  <!-- ============ ARTICLE ============ -->
+  <main class="article">
+
+    <!-- =====================================================
+         § WHAT — What is this Skill?
+         ===================================================== -->
+    <section id="what">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Teach Me Testing — <em>What does this Skill do?</em>
+      </h2>
+
+      <!-- OVERVIEW -->
+      <section id="overview">
+        <h3 class="skill-heading">
+          <span class="code-name">overview</span>
+          Overview &amp; Architecture
+        </h3>
+
+        <dl class="persona-block">
+          <dt>Skill code</dt><dd><code>bmad-teach-me-testing</code></dd>
+          <dt>Menu code</dt><dd><span class="menu-codes"><code>TMT</code></span></dd>
+          <dt>Goal</dt><dd>Deliver a self-paced, multi-session curriculum that teaches testing from fundamentals to advanced practices — scalable across an entire team without consuming senior engineer time.</dd>
+          <dt>Murat's Role</dt><dd>Master Test Architect and Teaching Guide — this is a collaborative learning partnership, not a one-way lecture. Murat brings TEA expertise; the learner brings real project context.</dd>
+          <dt>Architecture</dt><dd>Continuable sessions with state persistence — pause and resume at any time. Uses step-file architecture: micro-files, just-in-time loading, mandatory sequential enforcement.</dd>
+          <dt>Knowledge base</dt><dd>51 TEA knowledge fragments · 9 workflow references · content adapts to role (QA / Dev / Lead / VP)</dd>
+          <dt>Output</dt><dd>Session notes (×7) · Progress file (YAML) · <strong>TEA Academy Completion Certificate</strong></dd>
+        </dl>
+
+        <p class="lede">TEA Academy turns deep testing expertise into something every team member can access — no waiting for a senior to teach, no need to be in the same room.</p>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- CURRICULUM -->
+      <section id="curriculum">
+        <h3 class="skill-heading">
+          <span class="code-name">curriculum</span>
+          7-Session Curriculum
+          <span class="code-tag">~6 hrs total</span>
+        </h3>
+
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Session Map</span>
+            <span class="data-source">curriculum.yaml · session-content-map.yaml</span>
+          </div>
+          <div class="data-title">7 Sessions — Objectives, Key Concepts &amp; Knowledge Fragments</div>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Session</th>
+                <th>Duration · Level</th>
+                <th>Key Concepts</th>
+                <th>Knowledge Fragments</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="s1">
+                <td class="num">S1</td>
+                <td><span class="session-name">Quick Start</span><span class="session-sub">Get immediate value by seeing TEA in action</span></td>
+                <td><span class="dur-tag">30 min</span><span class="diff-tag beginner">Beginner</span></td>
+                <td><ul>
+                  <li>What is TEA — 9 workflows, 51 knowledge fragments</li>
+                  <li>5 Engagement Models: Lite / Solo / Integrated / Enterprise / Brownfield</li>
+                  <li>P0-P3 risk matrix introduction</li>
+                  <li>Definition of Done (quality standards overview)</li>
+                  <li>Automate workflow — conceptual walkthrough</li>
+                </ul></td>
+                <td>—</td>
+              </tr>
+              <tr id="s2">
+                <td class="num">S2</td>
+                <td><span class="session-name">Core Concepts</span><span class="session-sub">Understand the WHY behind TEA principles</span></td>
+                <td><span class="dur-tag">45 min</span><span class="diff-tag beginner">Beginner</span></td>
+                <td><ul>
+                  <li>Testing as Engineering philosophy</li>
+                  <li>P0-P3 risk matrix — full classification with examples</li>
+                  <li>Probability × Impact scoring (score 1–9)</li>
+                  <li>Definition of Done — 7 execution principles</li>
+                </ul></td>
+                <td><code>test-quality.md</code><br><code>probability-impact.md</code></td>
+              </tr>
+              <tr id="s3">
+                <td class="num">S3</td>
+                <td><span class="session-name">Architecture &amp; Patterns</span><span class="session-sub">Understand TEA patterns and framework design</span></td>
+                <td><span class="dur-tag">60 min</span><span class="diff-tag intermediate">Intermediate</span></td>
+                <td><ul>
+                  <li>Fixture composition — pure functions first, then wrap</li>
+                  <li>Network-first pattern — intercept before navigate</li>
+                  <li>Data factory pattern — dynamic, collision-free test data</li>
+                  <li>Step-file architecture — micro-files, just-in-time loading</li>
+                </ul></td>
+                <td><code>fixture-architecture.md</code><br><code>network-first.md</code><br><code>data-factories.md</code></td>
+              </tr>
+              <tr id="s4">
+                <td class="num">S4</td>
+                <td><span class="session-name">Test Design</span><span class="session-sub">Learn risk assessment and coverage planning</span></td>
+                <td><span class="dur-tag">60 min</span><span class="diff-tag intermediate">Intermediate</span></td>
+                <td><ul>
+                  <li>Test Design workflow — plan before you write</li>
+                  <li>Risk and testability assessment</li>
+                  <li>Coverage planning with test levels</li>
+                  <li>P0 → Unit + Integration + E2E (comprehensive)</li>
+                </ul></td>
+                <td><code>test-levels-framework.md</code><br><code>test-priorities-matrix.md</code></td>
+              </tr>
+              <tr id="s5">
+                <td class="num">S5</td>
+                <td><span class="session-name">ATDD &amp; Automate</span><span class="session-sub">Generate tests with TDD red-green approach</span></td>
+                <td><span class="dur-tag">60 min</span><span class="diff-tag intermediate">Intermediate</span></td>
+                <td><ul>
+                  <li>ATDD workflow — red phase (write failing tests first)</li>
+                  <li>TDD red-green-refactor cycle</li>
+                  <li>Automate workflow — coverage expansion for existing code</li>
+                  <li>API testing without browser — faster, more stable</li>
+                </ul></td>
+                <td><code>component-tdd.md</code><br><code>api-testing-patterns.md</code><br><code>api-request.md</code></td>
+              </tr>
+              <tr id="s6">
+                <td class="num">S6</td>
+                <td><span class="session-name">Quality &amp; Trace</span><span class="session-sub">Audit quality and ensure traceability</span></td>
+                <td><span class="dur-tag">45 min</span><span class="diff-tag intermediate">Intermediate</span></td>
+                <td><ul>
+                  <li>Test Review — 5 dimensions (Determinism, Isolation, Assertions, Structure, Performance)</li>
+                  <li>Quality scoring 0–100</li>
+                  <li>Trace workflow — requirements traceability matrix</li>
+                  <li>Release gate decisions — PASS / CONCERNS / FAIL / WAIVED</li>
+                </ul></td>
+                <td>—</td>
+              </tr>
+              <tr id="s7">
+                <td class="num">S7</td>
+                <td><span class="session-name">Advanced Patterns</span><span class="session-sub">Menu-driven deep-dive into 42 knowledge fragments</span></td>
+                <td><span class="dur-tag">Ongoing</span><span class="diff-tag advanced">Advanced</span></td>
+                <td><ul>
+                  <li>6 fragment categories — self-directed exploration</li>
+                  <li>No quiz — completion-based (score = 100)</li>
+                  <li>Just-in-time deep-dive on any specific topic</li>
+                </ul></td>
+                <td>42 fragments · 6 categories — see below</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- FRAGMENT EXPLORER -->
+      <section id="fragments">
+        <h3 class="skill-heading">
+          <span class="code-name">session-07</span>
+          Session 7 · Advanced Fragment Explorer
+          <span class="code-tag">42 fragments</span>
+        </h3>
+
+        <p>Session 7 is an open-ended, menu-driven exploration of all TEA knowledge fragments organized into 6 thematic categories. There is no prescribed sequence — learners pick topics based on their current need. No quiz; session completes when the learner marks it done.</p>
+
+        <div class="fragment-grid">
+          <div class="fragment-card">
+            <div class="fc-head"><span class="fc-cat">Testing Patterns</span><span class="fc-count">9</span></div>
+            <div class="fc-body">
+              <code>fixture-architecture</code><br><code>fixtures-composition</code><br><code>network-first</code><br><code>data-factories</code><br><code>component-tdd</code><br><code>api-testing-patterns</code><br><code>test-healing-patterns</code><br><code>selector-resilience</code><br><code>timing-debugging</code>
+            </div>
+          </div>
+          <div class="fragment-card">
+            <div class="fc-head"><span class="fc-cat">Playwright Utils</span><span class="fc-count">17</span></div>
+            <div class="fc-body">
+              <code>overview</code><br><code>api-request</code><br><code>network-recorder</code><br><code>intercept-network-call</code><br><code>recurse</code><br><code>log</code><br><code>file-utils</code><br><code>burn-in</code><br><code>network-error-monitor</code><br><code>contract-testing</code><br><code>pactjs-utils-overview</code><br><code>pactjs-utils-consumer-helpers</code><br><code>pactjs-utils-provider-verifier</code><br><code>pactjs-utils-request-filter</code><br><code>pact-mcp</code><br><code>pact-consumer-framework-setup</code><br><code>pact-consumer-di</code>
+            </div>
+          </div>
+          <div class="fragment-card">
+            <div class="fc-head"><span class="fc-cat">Configuration &amp; Governance</span><span class="fc-count">6</span></div>
+            <div class="fc-body">
+              <code>playwright-config</code><br><code>ci-burn-in</code><br><code>selective-testing</code><br><code>feature-flags</code><br><code>risk-governance</code><br><code>adr-quality-readiness-checklist</code>
+            </div>
+          </div>
+          <div class="fragment-card">
+            <div class="fc-head"><span class="fc-cat">Quality Frameworks</span><span class="fc-count">5</span></div>
+            <div class="fc-body">
+              <code>test-quality</code><br><code>test-levels-framework</code><br><code>test-priorities-matrix</code><br><code>probability-impact</code><br><code>nfr-criteria</code>
+            </div>
+          </div>
+          <div class="fragment-card">
+            <div class="fc-head"><span class="fc-cat">Auth &amp; Security</span><span class="fc-count">3</span></div>
+            <div class="fc-body">
+              <code>email-auth</code><br><code>auth-session</code><br><code>error-handling</code>
+            </div>
+          </div>
+          <div class="fragment-card">
+            <div class="fc-head"><span class="fc-cat">Browser Automation</span><span class="fc-count">1</span></div>
+            <div class="fc-body"><code>playwright-cli</code></div>
+          </div>
+        </div>
+
+        <p>Also available in Session 7: <code>visual-debugging</code> (Playwright Trace Viewer, HAR capture, Inspector) — a cross-category utility used in both testing patterns and browser automation.</p>
+      </section>
+
+    </section><!-- /what -->
+
+    <hr class="section-divider">
+
+    <!-- =====================================================
+         § WHY — Why use TMT?
+         ===================================================== -->
+    <section id="why">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHY</span>
+        Why TEA Academy?
+      </h2>
+
+      <!-- WHY COMPARISON TABLE -->
+      <section id="why-comparison">
+        <h3 class="skill-heading">
+          <span class="code-name">vs</span>
+          TMT vs Ad-hoc Self-learning
+        </h3>
+
+        <p class="lede">No senior engineer needed to teach directly. A new team member can reach the team's testing standard in 1–2 weeks without affecting anyone else's capacity.</p>
+
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Comparison</span>
+            <span class="data-source">skill · bmad-teach-me-testing</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Dimension</th><th>Without TMT</th><th>With TMT (TEA Academy)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Testing onboarding</td><td>Senior engineer teaches directly — costs 4–8 hours of expert time</td><td>Self-paced, no instructor needed — 7 sessions, ~6 hours at own pace</td></tr>
+              <tr><td>Knowledge standard</td><td>Everyone learns differently, hard to keep consistent</td><td>Standardized 7-session curriculum — everyone covers the same material</td></tr>
+              <tr><td>Role fit</td><td>Generic, no distinction between QA / Dev / Lead</td><td>4 separate role paths — different examples and session priorities per role</td></tr>
+              <tr><td>Continuable</td><td>Must remember everything after a session — can't resume where you stopped</td><td>Pause &amp; resume at any time — progress file preserves full state</td></tr>
+              <tr><td>Assessment</td><td>None — no way to know who understood what</td><td>3-question quiz per session, 70% pass threshold, scores recorded</td></tr>
+              <tr><td>Measurable outcome</td><td>None</td><td>TEA Academy Completion Certificate + session notes + progress YAML</td></tr>
+              <tr><td>Scale</td><td>Bottleneck at senior — 1 senior can teach 1–2 people per sprint</td><td>Unlimited — whole team learns in parallel simultaneously</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Why Continuable Sessions?</span>
+            <span class="data-source">step-file architecture</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Feature</th><th>Why It Matters</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Pause &amp; resume at any time</td><td>Each session is 30–60 minutes — easily interrupted by daily work</td></tr>
+              <tr><td>State saved to progress file (YAML)</td><td>Progress is not lost even if Claude is closed or context is switched</td></tr>
+              <tr><td>Non-linear session access</td><td>Experienced learners can jump directly to S7 to look up a specific topic</td></tr>
+              <tr><td>Score always recorded</td><td>Even on quiz failure — data is still captured to track re-learning</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- AUDIENCE -->
+      <section id="audience">
+        <h3 class="skill-heading">
+          <span class="code-name">audience</span>
+          Role Adaptation — 4 Roles
+          <span class="code-tag">distinct examples &amp; paths</span>
+        </h3>
+
+        <p>Content, examples, and session order are automatically adapted to the learner's role. Each role has distinct focus areas — the same concept is taught from a different angle.</p>
+
+        <div class="module-grid">
+          <div class="module-card" id="role-qa">
+            <div class="card-code">Role · QA</div>
+            <div class="card-name">QA Engineer</div>
+            <div class="card-body">
+              <ul>
+                <li>Practical testing workflow usage</li>
+                <li>Test framework setup &amp; maintenance</li>
+                <li>Test quality và coverage metrics</li>
+                <li>CI/CD pipeline integration</li>
+              </ul>
+            </div>
+            <div class="card-footer">Priority: S1 → S2 → S3 → S5 → S6</div>
+          </div>
+          <div class="module-card" id="role-dev">
+            <div class="card-code">Role · Dev</div>
+            <div class="card-name">Software Developer</div>
+            <div class="card-body">
+              <ul>
+                <li>Integration testing perspective</li>
+                <li>TDD red-green-refactor approach</li>
+                <li>Tests alongside feature development</li>
+                <li>API and business logic testing</li>
+              </ul>
+            </div>
+            <div class="card-footer">Priority: S1 → S2 → S5 → S3 → S4</div>
+          </div>
+          <div class="module-card" id="role-lead">
+            <div class="card-code">Role · Lead</div>
+            <div class="card-name">Tech Lead / Eng Manager</div>
+            <div class="card-body">
+              <ul>
+                <li>Test architecture decisions</li>
+                <li>Team testing patterns &amp; standards</li>
+                <li>Framework và tooling choices</li>
+                <li>Quality standards enforcement</li>
+              </ul>
+            </div>
+            <div class="card-footer">Priority: S1 → S3 → S4 → S6 → S7</div>
+          </div>
+          <div class="module-card" id="role-vp">
+            <div class="card-code">Role · VP</div>
+            <div class="card-name">VP Engineering / Director</div>
+            <div class="card-body">
+              <ul>
+                <li>Testing strategy và ROI</li>
+                <li>Quality metrics that matter</li>
+                <li>Team scalability without headcount</li>
+                <li>Risk management through testing</li>
+              </ul>
+            </div>
+            <div class="card-footer">Priority: S1 → S2 → S4 → S6</div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- LEARNING PATHS -->
+      <section id="learning-paths">
+        <h3 class="skill-heading">
+          <span class="code-name">learning-paths</span>
+          Learning Paths by Experience Level
+        </h3>
+
+        <p>The skill detects the learner's experience level on first run and recommends an appropriate session order. Skipping S1 (for Intermediate/Experienced learners) is allowed but forfeits certificate eligibility.</p>
+
+        <div class="path-grid">
+          <div class="path-card">
+            <span class="path-level beginner">Beginner</span>
+            <div class="path-seq">
+              <span class="s-num">S1</span>Quick Start<br>
+              <span class="s-num">S2</span>Core Concepts<br>
+              <span class="s-num">S3</span>Architecture<br>
+              <span class="s-num">S4</span>Test Design<br>
+              <span class="s-num">S5</span>ATDD &amp; Automate<br>
+              <span class="s-num">S6</span>Quality &amp; Trace<br>
+              <span class="s-num">S7</span>Advanced Patterns
+            </div>
+            <div class="path-note">Full path — all 7 sessions in order. Certificate eligible.</div>
+          </div>
+          <div class="path-card">
+            <span class="path-level intermediate">Intermediate</span>
+            <div class="path-seq">
+              <span class="s-num" style="color:var(--ink-mute)">(S1)</span><span style="color:var(--ink-mute)">Quick Start — optional</span><br>
+              <span class="s-num">S2</span>Core Concepts<br>
+              <span class="s-num">S3</span>Architecture<br>
+              <span class="s-num">S4</span>Test Design<br>
+              <span class="s-num">S5</span>ATDD &amp; Automate<br>
+              <span class="s-num">S6</span>Quality &amp; Trace<br>
+              <span class="s-num">S7</span>Advanced Patterns
+            </div>
+            <div class="path-note">S1 optional. Skipping S1 forfeits certificate eligibility.</div>
+          </div>
+          <div class="path-card">
+            <span class="path-level experienced">Experienced</span>
+            <div class="path-seq">
+              <span class="s-num">S2</span>Core Concepts<br>
+              <span class="s-num">S3</span>Architecture<br>
+              <span class="s-num">S4</span>Test Design<br>
+              <span class="s-num">S5</span>ATDD &amp; Automate<br>
+              <span class="s-num">S6</span>Quality &amp; Trace<br>
+              <span class="s-num">S7</span>Advanced Patterns
+            </div>
+            <div class="path-note">Start at S2. Jump to S7 at any time to look up a specific topic.</div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- ASSESSMENT -->
+      <section id="assessment">
+        <h3 class="skill-heading">
+          <span class="code-name">assessment</span>
+          Assessment System
+          <span class="code-tag">quiz · 70% pass</span>
+        </h3>
+
+        <p>Each session (S1–S6) ends with a <strong>3-question multiple-choice quiz</strong>. Session 7 is completion-based (no quiz). Passing threshold is <strong>≥ 70%</strong> (2 of 3 correct). On failure, the learner can review content or continue — the score is always recorded.</p>
+
+      </section>
+
+    </section><!-- /why -->
+
+    <hr class="section-divider">
+
+    <!-- =====================================================
+         § HOW — How to Execute
+         ===================================================== -->
+    <section id="how">
+      <h2 class="agent-heading">
+        <span class="marker">§ HOW</span>
+        How to Activate &amp; Execute
+      </h2>
+
+      <!-- ACTIVATION & MODES -->
+      <section id="activation">
+        <h3 class="skill-heading">
+          <span class="code-name">activation</span>
+          Activation &amp; 3 Operation Modes
+        </h3>
+
+        <h4 class="step-heading">Trigger phrases</h4>
+        <ul class="inline-list">
+          <li><code>"lets learn testing"</code> — start or continue a learning session</li>
+          <li><code>"I want to study test practices"</code></li>
+          <li>Select <code>[TMT]</code> from the TEA agent menu (after "talk to Murat")</li>
+        </ul>
+
+        <h4 class="step-heading">3 Operation Modes</h4>
+        <ul class="step-detail">
+          <li>
+            <strong class="label">Create · C</strong>
+            Start a new session or resume existing progress. Trigger: "learn", "start", "resume", "continue". Entry point: <code>steps-c/step-01-init.md</code>
+          </li>
+          <li>
+            <strong class="label">Validate · V</strong>
+            Review workflow quality and generate a validation report. Trigger: "validate", "review", <code>--validate</code>. Entry: <code>steps-v/step-v-01-validate.md</code>
+          </li>
+          <li>
+            <strong class="label">Edit · E</strong>
+            Modify workflow content or session structure. Trigger: "edit", "modify", <code>--edit</code>. Entry: <code>steps-e/step-e-01-assess-workflow.md</code>
+          </li>
+        </ul>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- WORKFLOW STEPS -->
+      <section id="steps">
+        <h3 class="skill-heading">
+          <span class="code-name">workflow-steps</span>
+          Workflow Steps
+          <span class="code-tag">3 branches</span>
+        </h3>
+
+        <p>Uses <strong>step-file architecture</strong> — each step is a standalone instruction file loaded only when its turn arrives (just-in-time). Steps are organized into 3 branches by operation mode. Execution order is mandatory — no skipping or reordering.</p>
+
+        <h5 id="steps-c">Branch · <code>steps-c</code> · Create mode</h5>
+        <ul class="step-detail">
+          <li><strong class="label">step-01-init</strong>Greet the learner, detect existing progress from prior sessions, route to continuation (progress found) or fresh assessment (first run).</li>
+          <li><strong class="label">step-01b-continue</strong>Resume the workflow from a prior session — load the progress file, display the session dashboard with completion status, route to the session menu hub.</li>
+          <li><strong class="label">step-02-assess</strong>Collect role (QA / Dev / Lead / VP), experience level, learning goals, and pain points to customize examples and session order throughout the curriculum.</li>
+          <li><strong class="label">step-03-session-menu</strong>Central hub — displays all 7 sessions with completion status and scores, allows non-sequential session selection, routes to a session or the completion ceremony. All sessions return here after completing.</li>
+          <li><strong class="label">step-04-session-01</strong><em>Session 1 · Quick Start (30 min)</em> — TEA Lite intro, Automate workflow walkthrough, 3-question quiz, generates session notes, updates progress file.</li>
+          <li><strong class="label">step-04-session-02</strong><em>Session 2 · Core Concepts (45 min)</em> — Testing as engineering philosophy, P0–P3 risk matrix, Probability × Impact scoring, Definition of Done (7 principles).</li>
+          <li><strong class="label">step-04-session-03</strong><em>Session 3 · Architecture &amp; Patterns (60 min)</em> — Fixture composition, network-first pattern, data factories, step-file architecture.</li>
+          <li><strong class="label">step-04-session-04</strong><em>Session 4 · Test Design (60 min)</em> — Test Design workflow, risk and testability assessment, coverage planning by test levels.</li>
+          <li><strong class="label">step-04-session-05</strong><em>Session 5 · ATDD &amp; Automate (60 min)</em> — ATDD red-green TDD cycle, Automate workflow for existing code, API testing without browser.</li>
+          <li><strong class="label">step-04-session-06</strong><em>Session 6 · Quality &amp; Trace (45 min)</em> — Test Review 5 dimensions, quality scoring 0–100, Trace workflow, release gate decisions.</li>
+          <li><strong class="label">step-04-session-07</strong><em>Session 7 · Advanced Patterns (ongoing)</em> — Menu-driven exploration of 42 TEA knowledge fragments across 6 categories. No quiz; completion-based (score = 100).</li>
+          <li><strong class="label">step-05-completion</strong>Generate the TEA Academy completion certificate with session scores, skills checklist, and artifact paths. Requires all 7 sessions completed with average ≥ 70%.</li>
+        </ul>
+
+        <h5 id="steps-e" style="margin-top:24px;">Branch · <code>steps-e</code> · Edit mode</h5>
+        <ul class="step-detail">
+          <li><strong class="label">step-e-01-assess</strong>Identify what needs editing in the workflow — gather requirements, scope modifications, assess impact on existing session content or step sequence.</li>
+          <li><strong class="label">step-e-02-apply</strong>Apply approved edits to workflow files while maintaining step-file integrity, sequential enforcement rules, and BMAD quality standards.</li>
+        </ul>
+
+        <h5 id="steps-v" style="margin-top:24px;">Branch · <code>steps-v</code> · Validate mode</h5>
+        <ul class="step-detail">
+          <li><strong class="label">step-v-01-validate</strong>Validate the workflow against BMAD quality standards — check step sequencing, content accuracy, quiz correctness, progress tracking logic — and generate a validation report.</li>
+        </ul>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- PROGRESS & ARTIFACTS -->
+      <section id="artifacts">
+        <h3 class="skill-heading">
+          <span class="code-name">artifacts</span>
+          Progress Tracking &amp; Output Artifacts
+        </h3>
+
+        <p>Progress is automatically saved after each session. The workflow detects existing progress on restart and resumes where the learner left off — no data is lost on interruption.</p>
+
+        <div class="artifact-block">
+          <div class="ab-head">Output Artifacts</div>
+          <table>
+            <tr><td>Progress file</td><td><code>{test_artifacts}/teaching-progress/{user_name}-tea-progress.yaml</code></td></tr>
+            <tr><td>Session notes × 7</td><td><code>{test_artifacts}/tea-academy/{user_name}/session-{N}-notes.md</code></td></tr>
+            <tr><td>Completion certificate</td><td><code>{test_artifacts}/tea-academy/{user_name}/tea-completion-certificate.md</code></td></tr>
+          </table>
+        </div>
+
+        <h4 class="step-heading">Progress file tracks</h4>
+        <ul class="inline-list">
+          <li>Per-session status: <code>not-started</code> / <code>in-progress</code> / <code>completed</code></li>
+          <li>Per-session score (0–100) and completion date</li>
+          <li>Overall completion percentage <code>(sessions_completed / 7) × 100</code></li>
+          <li>Learner role and experience level (set on first run)</li>
+          <li>Next recommended session</li>
+          <li><code>stepsCompleted</code> array — full audit trail of executed steps</li>
+        </ul>
+
+        <h4 class="step-heading">Completion certificate includes</h4>
+        <ul class="inline-list">
+          <li>Session completion dates and quiz scores per session</li>
+          <li>Skills acquired checklist — aligned to TEA methodology</li>
+          <li>Learning artifact paths (notes files)</li>
+          <li>Recommended next steps after Academy completion</li>
+        </ul>
+
+        <h4 class="step-heading">Completion requirements</h4>
+        <ul class="step-detail">
+          <li><strong class="label">Sessions</strong>All 7 sessions must be completed (minimum)</li>
+          <li><strong class="label">Passing score</strong>≥ 70% per session quiz</li>
+          <li><strong class="label">Average score</strong>≥ 70% across all sessions to receive certificate</li>
+          <li><strong class="label">Skip penalty</strong>Skipping S1 (Intermediate/Experienced) forfeits certificate eligibility</li>
+        </ul>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- EXTENDING THE CURRICULUM -->
+      <section id="extend">
+        <h3 class="skill-heading">
+          <span class="code-name">extend</span>
+          Extending the Curriculum — Adding a New Session
+          <span class="code-tag">8 steps</span>
+        </h3>
+
+        <p class="lede">The TMT curriculum is fully modular. Each session is defined across four data files plus one step file — you can add a new session without touching any existing session logic.</p>
+
+        <p>The example below adds <strong>Session 8: Contract Testing</strong> as an optional advanced session. Adapt the values to your topic. All file paths are relative to <code>.claude/skills/bmad-teach-me-testing/</code>.</p>
+
+        <h4 class="step-heading">Optional vs. Mandatory — decide first</h4>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Decision Table</span>
+            <span class="data-source">affects Steps 2, 5, 8</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Item</th><th>Optional session</th><th>Mandatory session</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>minimum_sessions</code> in <code>curriculum.yaml</code></td><td>Leave unchanged (7)</td><td>Increment to 8</td></tr>
+              <tr><td>Certificate eligibility</td><td>Still requires original 7 sessions</td><td>Now requires all 8 sessions</td></tr>
+              <tr><td><code>step-05-completion.md</code></td><td>No change needed</td><td>Update session count references</td></tr>
+              <tr><td><code>role-paths.yaml</code> sequences</td><td>Add to relevant roles only</td><td>Add to all role sequences</td></tr>
+              <tr><td>Learner impact</td><td>Can skip without losing certificate</td><td>Must complete to receive certificate</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="step-heading" id="extend-plan">Step 1 · Plan the session content</h4>
+        <p>Before touching any file, define the following. Having these answers ready makes all subsequent steps straightforward.</p>
+        <ul class="step-detail">
+          <li><strong class="label">Session ID</strong>Kebab-case identifier used as key across all data files. Convention: <code>session-NN-topic-name</code>. Example: <code>session-08-contract-testing</code></li>
+          <li><strong class="label">Name</strong>Display name shown in the session menu. Example: <code>"Contract Testing"</code></li>
+          <li><strong class="label">Duration</strong>Estimated learner time. Match one of the existing patterns: <code>"30 min"</code>, <code>"45 min"</code>, <code>"60 min"</code>, or <code>"ongoing"</code></li>
+          <li><strong class="label">Difficulty</strong>One of: <code>beginner</code>, <code>intermediate</code>, <code>advanced</code></li>
+          <li><strong class="label">Objective</strong>One sentence — what the learner can do after this session. Example: <code>"Learn consumer-driven contract testing with Pact.js"</code></li>
+          <li><strong class="label">Knowledge fragments</strong>Which <code>.md</code> files in <code>resources/knowledge/</code> cover this topic? List 2–4 files. If none exist, create them first.</li>
+          <li><strong class="label">Quiz questions</strong>Draft 3 multiple-choice questions (A/B/C/D) with correct answers and explanations. Write these before creating the step file — they drive the teaching structure.</li>
+          <li><strong class="label">Prerequisites</strong>Which sessions should be completed first? Example: <code>session-05-atdd-automate</code></li>
+          <li><strong class="label">Target roles</strong>Which roles benefit most? QA / Dev / Lead / VP (can be all four)</li>
+          <li><strong class="label">Mandatory or optional?</strong>See the decision table above</li>
+        </ul>
+
+        <h4 class="step-heading" id="extend-curriculum">Step 2 · Register in <code>data/curriculum.yaml</code></h4>
+        <p>Add a new entry to the <code>sessions:</code> array. Place it after the last existing session. Also update <code>learning_paths</code> for each experience level that should include the new session.</p>
+        <pre style="background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;padding:18px 20px;overflow-x:auto;margin:12px 0 20px;border:1px solid var(--rule);"># ADD to the sessions: array (after session-07-advanced)
+  - id: session-08-contract-testing
+    name: "Contract Testing"
+    duration: "60 min"
+    difficulty: advanced
+    objective: "Learn consumer-driven contract testing with Pact.js"
+    description: "Pact.js setup, consumer contracts, provider verification, CI integration"
+    recommended_for:
+      - experienced
+    prerequisites:
+      - session-05-atdd-automate
+
+# UPDATE learning_paths — add to sequences that should include this session
+  experienced:
+    recommended_sequence:
+      - session-02-concepts
+      - ...
+      - session-07-advanced
+      - session-08-contract-testing   # ← add here
+
+# If MANDATORY — also update:
+# completion:
+#   minimum_sessions: 8   # was 7</pre>
+
+        <h4 class="step-heading" id="extend-content-map">Step 3 · Map content in <code>data/session-content-map.yaml</code></h4>
+        <p>Add a new top-level key matching the session ID. List the knowledge fragments the agent will load just-in-time during teaching, plus the key concepts to cover.</p>
+        <pre style="background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;padding:18px 20px;overflow-x:auto;margin:12px 0 20px;border:1px solid var(--rule);">session-08-contract-testing:
+  knowledge_fragments:
+    - path: "/src/agents/bmad-tea/resources/knowledge/contract-testing.md"
+      title: "Contract Testing with Pact.js"
+    - path: "...pactjs-utils-overview.md"
+      title: "Pact.js Utils Overview"
+  key_concepts:
+    - "Consumer-driven contract testing (CDCT)"
+    - "Pact.js consumer test generation"
+    - "Provider verification setup"
+    - "CI integration with can-i-deploy"</pre>
+
+        <h4 class="step-heading" id="extend-quiz">Step 4 · Write quiz questions in <code>data/quiz-questions.yaml</code></h4>
+        <p>Add exactly <strong>3 questions</strong> for the new session. Each question needs 4 options (A/B/C/D), one correct answer, and an explanation shown when the learner answers incorrectly.</p>
+        <pre style="background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;padding:18px 20px;overflow-x:auto;margin:12px 0 20px;border:1px solid var(--rule);">session-08-contract-testing:
+  passing_score: 70
+  questions:
+    - id: q1-cdct-benefit
+      question: "What is the main benefit of contract testing over traditional integration testing?"
+      options:
+        A: "It is faster to write"
+        B: "It decouples consumer and provider — each verifies independently"
+        C: "It replaces all other test types"
+        D: "It only works for REST APIs"
+      correct: B
+      explanation: "Contract testing decouples services: consumers define expectations (pact files), providers verify independently."</pre>
+        <ul class="inline-list">
+          <li>Questions should test <em>understanding</em>, not memory — focus on <em>why</em> and <em>when</em>, not syntax</li>
+          <li>Wrong-answer explanations are shown immediately on an incorrect response — make them instructive</li>
+          <li>Score is calculated as <code>(correct / 3) × 100</code> — 2 correct = 67% (fail), 3 correct = 100% (pass)</li>
+        </ul>
+
+        <h4 class="step-heading" id="extend-roles">Step 5 · Update <code>data/role-paths.yaml</code></h4>
+        <p>Add the new session to <code>recommended_sessions</code> and <code>teaching_adaptations</code> for each role that benefits from it. You do not need to add it to every role — only where it is genuinely relevant.</p>
+        <pre style="background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;padding:18px 20px;overflow-x:auto;margin:12px 0 20px;border:1px solid var(--rule);">  qa:
+    recommended_sessions:
+      - ...
+      - session-08-contract-testing   # ← add here
+    teaching_adaptations:
+      session-08-contract-testing: "Focus on consumer test generation and CI can-i-deploy gate"
+
+  dev:
+    teaching_adaptations:
+      session-08-contract-testing: "Connect to TDD — write contract tests alongside feature code"</pre>
+
+        <h4 class="step-heading" id="extend-step-file">Step 6 · Create <code>steps-c/step-04-session-08.md</code></h4>
+        <p>This is the most important file — the agent's execution script for the new session. Copy an existing session file (e.g. <code>step-04-session-02.md</code>) and replace the content. The structure must follow the mandatory sequence exactly.</p>
+        <pre style="background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;padding:18px 20px;overflow-x:auto;margin:12px 0 20px;border:1px solid var(--rule);">---
+name: 'step-04-session-08'
+progressFile: '{test_artifacts}/teaching-progress/{user_name}-tea-progress.yaml'
+sessionNotesFile: '{test_artifacts}/tea-academy/{user_name}/session-08-notes.md'
+nextStepFile: '{skill-root}/steps-c/step-03-session-menu.md'
+---
+
+# Step 4: Session 8 - Contract Testing
+
+## MANDATORY SEQUENCE
+### 1. Session Welcome
+### 2. Update Progress File (Session Started)
+### 3–5. Teaching: [concepts, load knowledge fragments one at a time]
+### 6. Quiz: Validate Understanding
+### 7. Generate Session Notes
+### 8. Update Progress File (Session Complete)
+### 9. Session Complete Message
+### 10. Present MENU OPTIONS → return to step-03-session-menu.md</pre>
+        <ul class="inline-list">
+          <li>Load knowledge fragments <strong>one at a time</strong> as each teaching section needs them — not all at the start</li>
+          <li>The <code>stepsCompleted</code> entry must match the file name exactly: <code>'step-04-session-08'</code></li>
+          <li>Always return to <code>step-03-session-menu.md</code> at the end — never skip directly to another session</li>
+        </ul>
+
+        <h4 class="step-heading" id="extend-menu">Step 7 · Add to the session menu in <code>steps-c/step-03-session-menu.md</code></h4>
+        <p>Open <code>step-03-session-menu.md</code> and find the section that lists all sessions for display. Add the new session entry following the same format as the existing entries, then add the routing logic.</p>
+        <pre style="background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;padding:18px 20px;overflow-x:auto;margin:12px 0 20px;border:1px solid var(--rule);">| S8 | Contract Testing | {status} | {score}% | 60 min | Advanced |
+
+# Routing logic:
+# IF user selects S8:
+#   Load {skill-root}/steps-c/step-04-session-08.md</pre>
+
+        <h4 class="step-heading" id="extend-completion">Step 8 · Update completion (mandatory sessions only)</h4>
+        <p>Only required if the new session is <strong>mandatory</strong>. Skip this step for optional sessions.</p>
+        <ul class="step-detail">
+          <li><strong class="label">curriculum.yaml</strong>Change <code>minimum_sessions: 7</code> to <code>minimum_sessions: 8</code> under the <code>completion:</code> block.</li>
+          <li><strong class="label">step-05-completion.md</strong>Find all references to "7 sessions" and update to "8 sessions". Update <code>(sessions_completed / 7)</code> to <code>/ 8</code>.</li>
+          <li><strong class="label">role-paths.yaml</strong>Add the new session to <em>all</em> role sequences — not just the roles where it was relevant as an optional session.</li>
+        </ul>
+
+        <h4 class="step-heading" id="extend-checklist">Checklist — verify before testing</h4>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Pre-test Checklist</span>
+            <span class="data-source">8 bước</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>File</th><th>What to verify</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>data/curriculum.yaml</code></td><td>New entry exists · <code>id</code> matches exactly · <code>learning_paths</code> updated for relevant levels</td></tr>
+              <tr><td><code>data/session-content-map.yaml</code></td><td>Key matches <code>curriculum.yaml</code> id · all <code>knowledge_fragments</code> paths point to real files</td></tr>
+              <tr><td><code>data/quiz-questions.yaml</code></td><td>Exactly 3 questions · all options A/B/C/D present · correct answer and explanation filled</td></tr>
+              <tr><td><code>data/role-paths.yaml</code></td><td>Session added to <code>recommended_sessions</code> and <code>teaching_adaptations</code> for each relevant role</td></tr>
+              <tr><td><code>steps-c/step-04-session-08.md</code></td><td>YAML frontmatter correct · all 10 mandatory sequence steps present · stepsCompleted key matches filename</td></tr>
+              <tr><td><code>steps-c/step-03-session-menu.md</code></td><td>Session 8 visible in menu · routing to <code>step-04-session-08.md</code> wired up</td></tr>
+              <tr><td><code>steps-c/step-05-completion.md</code></td><td>(Mandatory only) Session count updated from 7 to 8 in display text and percentage calculation</td></tr>
+              <tr><td><code>curriculum.yaml</code> completion block</td><td>(Mandatory only) <code>minimum_sessions</code> incremented to 8</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="step-heading">How to test the new session end-to-end</h4>
+        <ul class="step-detail">
+          <li><strong class="label">1. Start TMT</strong>"talk to Murat" → select TMT → Create mode. In the session menu, verify Session 8 appears with the correct name, duration, and difficulty.</li>
+          <li><strong class="label">2. Enter session</strong>Select Session 8. Verify the welcome message shows the correct objective. Verify the teaching content loads the right knowledge fragments (not all at once).</li>
+          <li><strong class="label">3. Complete quiz</strong>Answer all 3 questions — test both pass (correct) and fail (incorrect) paths. Verify score: 2 correct = 67% (below 70%, should offer review or continue).</li>
+          <li><strong class="label">4. Check artifacts</strong>Verify <code>session-08-notes.md</code> is created at the correct path. Verify the progress file shows <code>session-08-contract-testing: completed</code> with score and date.</li>
+          <li><strong class="label">5. Resume test</strong>Exit and re-enter TMT. Verify Session 8 shows as completed in the dashboard. Verify <code>stepsCompleted</code> array contains <code>'step-04-session-08'</code>.</li>
+        </ul>
+
+      </section>
+
+    </section><!-- /how -->
+
+  </main>
+
+
+</div><!-- /.layout -->
+
+</body>
+</html>

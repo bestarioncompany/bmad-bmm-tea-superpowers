@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UX Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2255c;
+    --accent-soft:#e64980;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a.toc-sub2 { padding-left: 52px; font-size: 11px; color: var(--ink-mute); opacity: 0.8; }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 18px 22px; margin: 16px 0 24px; overflow-x: auto; border: 1px solid var(--rule); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>WDS · Phase 4 · the core design phase</span>
+        <span>Skill · wds-4-ux-design</span>
+        <span>Agent · Freya 🎨 (WDS Designer)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">UX Design <em>· the spec is the new code</em></h1>
+    <p class="subtitle">Transform scenario outlines into detailed, development-ready visual specifications. The core design phase. Output is written spec documents — not Figma files, not code — structured text that tells a developer exactly what to build. A non-linear activity menu lets you conceptualize, sketch, suggest, dream, specify, validate, and hand over in any order the work demands.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>wds-4-ux-design</dd></div>
+      <div><dt>Menu codes</dt><dd>UX · SP · SA</dd></div>
+      <div><dt>Agent</dt><dd>Freya (WDS Designer)</dd></div>
+      <div><dt>Phase</dt><dd>WDS Phase 4</dd></div>
+      <div><dt>Output</dt><dd>C-UX-Scenarios/NN-[scenario]/</dd></div>
+      <div><dt>Activities</dt><dd>C · K · S · D · P · V · W · M · H</dd></div>
+      <div><dt>Input</dt><dd>Phase 1–3 artifacts</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#activity-menu">Activity Menu</a>
+      <a href="#page-spec">Page Specification</a>
+      <a href="#workflow">Design Workflow</a>
+      <a href="#design-log">Design Log</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-specs">Why Written Specs?</a>
+      <a href="#why-validate">Why Validate Before Handoff?</a>
+      <a href="#why-registry">Why the Object Registry?</a>
+      <a href="#why-trigger-map">Why Load the Trigger Map?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#workflows">Before Calling the Skill</a>
+      <a href="#workflows" class="toc-sub">1 · WDS / BMAD Setup</a>
+      <a href="#workflows" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#workflows" class="toc-sub">3 · Pick the Activity</a>
+      <a href="#workflows" class="toc-sub">4 · Per-Activity Tips</a>
+      <a href="#workflow-conceptualize" class="toc-sub">Conceptualize</a>
+      <a href="#workflow-dream" class="toc-sub">Dream</a>
+      <a href="#workflow-sketch" class="toc-sub">Sketch</a>
+      <a href="#workflow-suggest" class="toc-sub">Suggest</a>
+      <a href="#workflow-specify" class="toc-sub">Specify</a>
+      <a href="#workflow-validate" class="toc-sub">Validate</a>
+      <a href="#workflow-visual" class="toc-sub">Visual Design</a>
+      <a href="#workflow-design-system" class="toc-sub">Design System</a>
+      <a href="#workflow-handover" class="toc-sub">Handover</a>
+      <a href="#applied-toolkit">Applied Toolkit</a>
+      <a href="#downstream" class="toc-sub">Downstream Dependencies</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        UX Design — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>wds-4-ux-design</code></dd>
+        <dt>Menu codes</dt><dd><span class="menu-codes"><code>UX</code><code>SP</code><code>SA</code></span> (invoked via <code>/wds-agent-freya-ux</code> → UX / SP / SA, or <code>/wds-4-ux-design</code>)</dd>
+        <dt>Role</dt><dd>The core design phase — turns scenario outlines into development-ready written specifications a developer can build from without further design calls.</dd>
+        <dt>Replaces</dt><dd>This is the WDS-native equivalent of <code>bmad-ux</code>; Freya replaces Sally (BMM UX Designer) when WDS is installed.</dd>
+        <dt>Continuity</dt><dd>Writes page specs, storyboards, and an updated design log so any later session resumes from the recorded state.</dd>
+      </dl>
+
+      <p>This skill produces the documents development is built from. The output is deliberately <strong>written spec documents — not Figma files, not code</strong>: structured text describing exactly what every page contains, how each section behaves, and what every state looks like. Freya transforms the scenario outlines from Phase 3 into per-page specifications stored within <code>C-UX-Scenarios/NN-[scenario]/</code>, alongside storyboard specifications and an updated design log.</p>
+
+      <p>Use it after Phase 3 Scenarios, once user flows are outlined and the Trigger Map and Project Brief are in place. Because the activity menu is non-linear, you can drop into conceptualization, sketch interpretation, specification, validation, or handover in whatever order the page in front of you needs — Freya reads the design log on activation to suggest where to go next.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Activity Menu -->
+    <section id="activity-menu">
+      <h3 class="skill-heading">
+        <span class="code-name">activities</span>
+        Activity Menu
+        <span class="code-tag">non-linear</span>
+      </h3>
+      <p class="lede">One skill, nine activities — picked in any order the work demands rather than walked top to bottom.</p>
+
+      <p>The menu is intentionally non-linear. A page might go Conceptualize → Specify → Validate; another might start from a photographed sketch; a third might only need a handover pass. Each activity routes to its own workflow.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Activity Menu</span>
+          <span class="data-source">wds-4-ux-design · 9 activities</span>
+        </div>
+        <table>
+          <thead><tr><th>Code</th><th>Activity</th><th>Skill</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">C</td><td>Conceptualize / Discuss</td><td><code>workflow-conceptualize</code></td><td>Creative dialog, wireframe thinking, iterate on ideas</td></tr>
+            <tr><td class="key-col">K</td><td>Analyse Sketches</td><td><code>workflow-sketch</code></td><td>Interpret hand-drawn sketches into digital specs</td></tr>
+            <tr><td class="key-col">S</td><td>Suggest Design</td><td><code>workflow-suggest</code></td><td>Freya proposes design, user confirms each step</td></tr>
+            <tr><td class="key-col">D</td><td>Dream Up Design</td><td><code>workflow-dream</code></td><td>Fully autonomous — Freya creates everything, user reviews</td></tr>
+            <tr><td class="key-col">P</td><td>Write Specifications</td><td><code>workflow-specify</code></td><td>Write content, interaction, spacing, typography specs</td></tr>
+            <tr><td class="key-col">V</td><td>Validate Specs</td><td><code>workflow-validate</code></td><td>Audit spec completeness and quality against rubric</td></tr>
+            <tr><td class="key-col">W</td><td>Visual Design</td><td><code>workflow-visual</code></td><td>Generate assets using Nano Banana, Stitch</td></tr>
+            <tr><td class="key-col">M</td><td>Design System</td><td><code>workflow-design-system</code></td><td>Extract or update shared components</td></tr>
+            <tr><td class="key-col">H</td><td>Design Delivery / Handover</td><td><code>workflow-handover</code></td><td>Package for development handoff</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px;color:var(--ink-soft);">The agent menu codes <code>UX</code> (conceptualize), <code>SP</code> (specify), and <code>SA</code> (audit/validate) are the entry points Freya exposes from <code>/wds-agent-freya-ux</code>; they route into the activities above.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Page Specification -->
+    <section id="page-spec">
+      <h3 class="skill-heading">
+        <span class="code-name">output</span>
+        What a Page Specification Contains
+        <span class="code-tag">canonical</span>
+      </h3>
+      <p>Every page spec produced by this skill follows the same structure, written within <code>C-UX-Scenarios/NN-[scenario]/</code>. A complete spec covers metadata, overview, ordered sections, and a full per-section breakdown.</p>
+
+      <ul class="step-detail">
+        <li><strong class="label">Page Metadata</strong>Name, URL, scenario context, and SEO title / description / keywords.</li>
+        <li><strong class="label">Page Overview</strong>Purpose of the page, where the user is arriving from, and where they leave to.</li>
+        <li><strong class="label">Sections</strong>Every section on the page, listed in order.</li>
+        <li><strong class="label">Content</strong>Per section — exact copy or a content brief.</li>
+        <li><strong class="label">Interaction</strong>Per section — what happens on hover, click, form submit, and error.</li>
+        <li><strong class="label">Spacing</strong>Relative guidance ("generous", "tight") or design token references.</li>
+        <li><strong class="label">Typography</strong>Hierarchy, weight, and size — described relatively.</li>
+        <li><strong class="label">State Variations</strong>Empty, loading, error, and success states for each section.</li>
+        <li><strong class="label">Object Registry</strong>Named components referenced in the spec — the seed for Phase 7.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Design Workflow -->
+    <section id="workflow">
+      <h3 class="skill-heading">
+        <span class="code-name">flow</span>
+        Design Workflow
+      </h3>
+      <p>The activities are non-linear, but a typical page moves through a recognisable arc — strategic conceptualization, a proposed direction, a complete written spec, a self-audit, and a packaged handover to Mimir for development.</p>
+
+      <pre class="code-block">[C] Conceptualize → Freya asks strategic WHY questions
+         ↓
+[S/D] Suggest/Dream → Freya proposes structure and content direction
+         ↓
+[P] Specify → Freya writes complete written spec
+         ↓
+[V] Validate → Freya self-audits against quality rubric
+         ↓
+[H] Handover → Package for Mimir (development)</pre>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Design Log -->
+    <section id="design-log">
+      <h3 class="skill-heading">
+        <span class="code-name">memory</span>
+        Design Log — The Phase 4 Memory
+      </h3>
+      <p>Freya reads the design log on <strong>every activation</strong> and uses it to suggest the next logical action at the start of each session — which page to specify, what to validate, what is ready for handover.</p>
+
+      <ul class="step-detail">
+        <li><strong class="label">Backlog</strong>Pages and scenarios not yet designed.</li>
+        <li><strong class="label">Current</strong>The active work in progress.</li>
+        <li><strong class="label">Loop Status</strong>A per-page progress table tracking each page through the design loop.</li>
+        <li><strong class="label">Log</strong>An append-only history of what happened, session by session.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-specs">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why UX Design This Way? — <em>The reasoning behind each design choice</em>
+      </h2>
+
+      <h3 class="skill-heading">
+        <span class="code-name">why-written-specs</span>
+        Why Written Specs Instead of Pixels?
+      </h3>
+      <p>The WDS principle is that <strong>the spec is the new code</strong>. AI generates code readily but struggles to <em>change</em> it — once a feature is implemented, re-prompting toward a moving target is brittle and expensive. So the written specification, not the generated artifact, becomes the source of truth. A page spec describes content, interaction, spacing, typography, and every state in structured text a developer (or Mimir) can implement directly. Because it is text, it is reviewable, diffable, and durable: when something needs to change, you change the spec and regenerate, rather than wrestling the code. Figma files and pixels are downstream of the spec, not a substitute for it.</p>
+
+      <h3 class="skill-heading" id="why-validate">
+        <span class="code-name">why-validate</span>
+        Why Validate ([SA]) Before Handoff?
+      </h3>
+      <p>The Validate activity is Freya's self-audit against a quality rubric, run before anything reaches Mimir. It catches the failures that otherwise surface as implementation ambiguity: <strong>missing content</strong>, <strong>undefined interactions</strong>, <strong>empty-state gaps</strong>, <strong>navigation errors</strong>, and <strong>SEO incompleteness</strong>. Each of these, left in a spec, forces the developer to guess — and a guess made during implementation is far more costly to unwind than a gap closed during specification. Validating before handoff is how Phase 4 keeps its promise that Mimir can build without coming back with design questions.</p>
+
+      <h3 class="skill-heading" id="why-registry">
+        <span class="code-name">why-object-registry</span>
+        Why the Object Registry Matters
+      </h3>
+      <p>Named components registered in a page spec are not a formality — they are the mechanism by which <strong>Phase 7 (Design System) knows what to extract</strong>. The design system grows organically from actual usage rather than upfront planning, which means it can only harvest components that were named and registered as they appeared in real specs. Skip the registry and the Phase 7 extraction has nothing to work from; maintain it diligently and the design system assembles itself from the work already done.</p>
+
+      <h3 class="skill-heading" id="why-trigger-map">
+        <span class="code-name">why-trigger-map</span>
+        Why Always Load the Trigger Map First?
+      </h3>
+      <p>Freya's first principle is strategy before design — design without strategic context produces generic results. The Trigger Map carries the business goals and user psychology that should drive every design choice; loading it first means each section, each piece of copy, and each interaction is anchored to a reason rather than decoration. Freya loads it automatically as her first action, but it is worth verifying it exists — if the Trigger Map is missing, the design has nothing strategic to connect to.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="workflows">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/wds-agent-freya-ux → UX / SP / SA</code>. The richer your Phase 1–3 artifacts, the more grounded — and less generic — every page spec becomes.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · WDS / BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all WDS skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all WDS skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">BMAD + WDS installed</td><td>WDS requires BMM v6.8+ with WDS skills installed in a compatible AI coding environment (Claude Code, Cursor, Codex, etc.). Install via <code>npx bmad-method install</code> → select WDS, or ask Claude to install <code>whiteport-design-studio</code> from GitHub.</td></tr>
+            <tr><td class="key-col">Agent-first invocation</td><td>Activate Freya with <code>/wds-agent-freya-ux</code>, then select <code>UX</code>, <code>SP</code>, or <code>SA</code>. Routing through the agent loads Freya's micro-guides and quality standards.</td></tr>
+            <tr><td class="key-col">Design log present</td><td>Freya reads the design log on every activation to resume state and suggest the next action. On a new scenario it is created here; on a resumed one she reads it first.</td></tr>
+            <tr><td class="key-col">Phase 1–3 complete</td><td>Project Brief, Trigger Map, and Scenarios should exist — they are the strategic inputs Phase 4 reads. Freya loads the Trigger Map as her first action.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to wds-4-ux-design. Having these in place before starting keeps the session grounded.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">wds-4-ux-design · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Phase 1–3 artifacts</td><td>Project Brief (visual direction, tone), Trigger Map (goals, psychology), and Scenario outlines (the flows being designed). These are the required inputs.</td></tr>
+            <tr><td class="key-col">UI screenshots</td><td>For Suggest / Dream — existing UI screenshots Freya can read and propose from.</td></tr>
+            <tr><td class="key-col">Sketches</td><td>For the Sketch activity ([K]) — photographed hand-drawn layouts Freya interprets into structured specs.</td></tr>
+            <tr><td class="key-col">SEO keywords</td><td>From the brief / scenarios — they populate per-page metadata (title, description, keywords).</td></tr>
+            <tr><td class="key-col">Target scenario</td><td>Which scenario folder (<code>NN-[scenario]</code>) this session is designing for.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">activity-pick</span>
+        3 · Pick the Right Activity
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">The menu is non-linear — match the activity to where this page actually is.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Which Activity?</span>
+          <span class="data-source">wds-4-ux-design · session focus</span>
+        </div>
+        <table>
+          <thead><tr><th>Situation</th><th>Pick</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Fuzzy, need direction</td><td><strong>[C] Conceptualize</strong> — creative dialog and wireframe thinking before committing.</td></tr>
+            <tr><td class="key-col">Have paper sketches</td><td><strong>[K] Analyse Sketches</strong> — photograph them; Freya reads layouts and handwriting.</td></tr>
+            <tr><td class="key-col">Want a proposal to react to</td><td><strong>[S] Suggest</strong> (confirm each step) or <strong>[D] Dream</strong> (autonomous, review after).</td></tr>
+            <tr><td class="key-col">Ready to write the spec</td><td><strong>[P] Specify</strong> — content, interaction, spacing, typography, states.</td></tr>
+            <tr><td class="key-col">Before handing to Mimir</td><td><strong>[V] Validate</strong> — self-audit against the rubric, then <strong>[H] Handover</strong>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-activity</span>
+        4 · Per-Activity Tips
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">A few activities reward preparation more than others. Invest your time here.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">High-Leverage Tips</span>
+          <span class="data-source">wds-4-ux-design</span>
+        </div>
+        <table>
+          <thead><tr><th>Activity</th><th>Tip</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Trigger Map first</td><td>Always load the Trigger Map before designing — Freya does this automatically, but verify; design without strategic context produces generic results.</td></tr>
+            <tr><td class="key-col">Sketch input [K]</td><td>Photograph sketches in good lighting. Freya interprets rough layouts, arrows, and handwritten labels into structured specs.</td></tr>
+            <tr><td class="key-col">Validate [SA]</td><td>Run it before handoff. It checks for missing content, undefined interactions, empty-state handling, navigation correctness, and SEO completeness.</td></tr>
+            <tr><td class="key-col">Object Registry</td><td>Register named components in every spec — this is how the Phase 7 Design System knows what to extract.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h5>The Design Log Suggests Your Next Move</h5>
+      <p>Because Freya reads the design log on every activation, she does not need you to remember where you left off. The log's <strong>Backlog / Current / Design Loop Status / Log</strong> structure lets her open a session by proposing the next logical action — the page to specify next, the spec ready to validate, or the flow ready for handover. Trust that suggestion as your starting point.</p>
+
+      <hr class="section-divider">
+
+      <!-- ═══════════════════════════════════════════
+           SUB-WORKFLOWS
+           ═══════════════════════════════════════════ -->
+
+      <!-- Conceptualize -->
+      <h3 class="skill-heading" id="workflow-conceptualize">
+        <span class="code-name">workflow-conceptualize</span>
+        Conceptualize / Discuss
+        <span class="code-tag">1 step</span>
+      </h3>
+      <p>The default design starting point. Lead a focused creative dialog for each page — what does it need, can we simplify it, then visualize and specify. Use this whenever a page needs design thinking before anything is committed to spec. Freya asks two anchor questions (D1: what is the main action; D2: can we simplify or eliminate this step entirely), then continues a natural discussion grounded in the Trigger Map before offering wireframe, sketch, or direct-to-spec visualization options.</p>
+
+      <h4 class="step-heading">Step 1 · Page Design Dialog</h4>
+      <p>Sets the scene from the scenario context (device, arrival state, driving forces), runs the D1/D2 dialog, facilitates a natural design discussion, then presents wireframe / sketch / spec options. After each completed stage a two-option transition offers either the next logical step on this page or the next scenario page. The design log is updated at every transition — status values progress through <code>discussed</code> → <code>wireframed</code> → <code>specified</code>.</p>
+
+      <hr class="section-divider">
+
+      <!-- Dream -->
+      <h3 class="skill-heading" id="workflow-dream">
+        <span class="code-name">workflow-dream</span>
+        Dream Up Design
+        <span class="code-tag">autonomous</span>
+      </h3>
+      <p>Uses the same step sequence as Suggest but with autonomous execution — Freya creates all pages in the scenario flow without waiting for confirmation at each step, then presents the complete result for user review. Best when the user trusts Freya to make reasonable decisions and prefers to react to a finished proposal rather than approve each move. The user can type <strong>stop</strong> or <strong>pause</strong> at any time to interrupt and switch to Suggest mode for finer control.</p>
+      <p>Requires an existing Phase 3 scenario — Freya will not invent a scenario here. If none exists, she routes back to Phase 3 to outline it first. After completion Freya presents a summary table of all pages created and key decisions made, then offers to start building or explore responsive/storyboard detail.</p>
+
+      <hr class="section-divider">
+
+      <!-- Sketch -->
+      <h3 class="skill-heading" id="workflow-sketch">
+        <span class="code-name">workflow-sketch</span>
+        Analyse Sketches
+        <span class="code-tag">1 step</span>
+      </h3>
+      <p>Interprets user-provided sketches — photos, screenshots, hand-drawn wireframes, or verbal descriptions — and translates them into structured page specifications. Use this when the user has already sketched something and wants Freya to read and formalize it rather than propose a fresh design. Freya reads holistically first, calibrates scale against previously analysed pages, identifies sections, and cross-references established patterns from the project before going section-by-section.</p>
+
+      <h4 class="step-heading">Step 1 · Sketch Analysis</h4>
+      <p>Reads the sketch holistically to establish scale and identify sections, presents the interpreted structure for user confirmation, then goes section-by-section to identify objects top-left to bottom-right. For each section Freya presents her interpretation, the user confirms or refines, then content and translations are gathered before a batch specification is generated for that section. After all sections are complete the workflow returns to the main design loop.</p>
+
+      <hr class="section-divider">
+
+      <!-- Suggest -->
+      <h3 class="skill-heading" id="workflow-suggest">
+        <span class="code-name">workflow-suggest</span>
+        Suggest Design
+        <span class="code-tag">8 steps</span>
+      </h3>
+      <p>Collaborative step-by-step page creation — Freya proposes each step and waits for user confirmation before moving on. Use this when you want collaborative control over structure and direction before writing the full specification. Requires an existing Phase 3 scenario. After each page, Freya checks for complexity (responsive states, storyboard items, forms) and presents a two-option transition: explore that complexity or move to the next scenario page.</p>
+
+      <h4 class="step-heading">Step 8 · Page Context</h4>
+      <p>Routes the user to the appropriate page-creation workflow based on what they have available — a sketch or wireframe triggers the sketch analysis path; a verbal concept triggers the discussion path. Establishes the "page first, visualization second" principle and confirms what materials exist before proceeding.</p>
+
+      <h4 class="step-heading">Step 9 · Page Name</h4>
+      <p>Agrees on the page's canonical name — the handle used in the scenario folder, design log, and all cross-references. Names are kept short and descriptive so the log table stays readable.</p>
+
+      <h4 class="step-heading">Step 10 · Page Purpose</h4>
+      <p>Defines the page's single primary purpose in one sentence. Forces clarity on what the page is for before any structure is proposed — a page without a clear purpose is a candidate for elimination or merger.</p>
+
+      <h4 class="step-heading">Step 11 · Entry Point</h4>
+      <p>Establishes where users arrive from — which page, link, notification, or external source brings the user here. Entry point context drives the assumed knowledge and mental state the page must accommodate.</p>
+
+      <h4 class="step-heading">Step 12 · Mental State</h4>
+      <p>Captures what the user is thinking, feeling, and hoping for when they land on this page — drawn from the scenario's Q4 answers (hopes and worries). All design decisions made from here are anchored to this mental state.</p>
+
+      <h4 class="step-heading">Step 13 · Desired Outcome</h4>
+      <p>Defines what success looks like for both the user and the business when the user leaves this page. The desired outcome is the design's north star — every section, piece of copy, and call-to-action should serve it.</p>
+
+      <h4 class="step-heading">Step 14 · Variants</h4>
+      <p>Identifies page variants — authenticated vs. unauthenticated states, empty vs. populated data, different user types, or A/B test candidates. Variants that require significantly different layouts become separate page specs; minor differences become state variations within a single spec.</p>
+
+      <h4 class="step-heading">Step 15 · Create Page Structure</h4>
+      <p>Creates the initial page folder and boilerplate specification file within the scenario's folder, seeded with the metadata gathered in steps 8–14. This is the blank canvas the Specify workflow (steps-p/) will fill in during the next activity.</p>
+
+      <hr class="section-divider">
+
+      <!-- Specify -->
+      <h3 class="skill-heading" id="workflow-specify">
+        <span class="code-name">workflow-specify</span>
+        Write Specifications
+        <span class="code-tag">9 steps</span>
+      </h3>
+      <p>Creates a complete, implementation-ready page specification — the full written document Mimir (or a developer) builds from. Use this when a page structure already exists (from Suggest, Dream, or Sketch) and needs every detail filled in: content, interactions, component definitions, states, validation, spacing, and typography. The nine steps are sequential and must not be skipped. After completion the design log status advances to <code>specified</code>.</p>
+
+      <h4 class="step-heading">Step 1 · Page Basics</h4>
+      <p>Captures fundamental page information — title, URL/route, user goal in one sentence, entry and exit points, and SEO data (primary keyword, secondary keywords, URL slug) for public pages. SEO fields are mandatory for any page that will be publicly indexed.</p>
+
+      <h4 class="step-heading">Step 2 · Layout Sections</h4>
+      <p>Defines the page's section structure in order — what sections exist, their purpose, and their sequence on the page. Section order is a design decision: it reflects the information hierarchy and the path the user's eye should travel.</p>
+
+      <h4 class="step-heading">Step 3 · Components and Objects</h4>
+      <p>Defines the components and objects within each section — type, ID, hierarchy (parent/child), and whether a component is page-specific or a candidate for the design system. Objects are named here and registered for Phase 7 extraction.</p>
+
+      <h4 class="step-heading">Step 4 · Content and Languages</h4>
+      <p>Writes the actual content for every text element — headings, body copy, button labels, placeholder text, error messages — across all supported languages. This step produces the copy that will appear in the built product, not placeholder text.</p>
+
+      <h4 class="step-heading">Step 5 · Interactions</h4>
+      <p>Defines user interactions for every interactive element — hover states, click behaviors, form submissions, navigation triggers, and dynamic content loading. The developer should be able to implement every interaction from this step without making design decisions.</p>
+
+      <h4 class="step-heading">Step 6 · States</h4>
+      <p>Specifies all non-default page and section states — loading, empty, error, success, and any conditional variants (authenticated vs. guest, populated vs. empty list). Every state that can occur must be designed, not left to developer judgment.</p>
+
+      <h4 class="step-heading">Step 7 · Validation</h4>
+      <p>Defines form validation rules and constraints — required fields, format rules, character limits, and the error messages shown for each validation failure. Validation is specified per-field, not globally, so the developer knows exactly what to enforce.</p>
+
+      <h4 class="step-heading">Step 8 · Spacing and Typography</h4>
+      <p>Documents spacing relationships between sections and elements (using design tokens or relative descriptors like "generous" / "tight") and typography hierarchy — which text styles apply to headings, body copy, labels, and captions. Spacing tokens that appear for the first time are extracted to the design system immediately.</p>
+
+      <h4 class="step-heading">Step 9 · Generate Spec</h4>
+      <p>Assembles all gathered information into the final formatted page specification document, saved to the page's folder within <code>C-UX-Scenarios/NN-[scenario]/pages/</code>. The generated spec is the authoritative output — the source of truth Mimir reads and implements from.</p>
+
+      <hr class="section-divider">
+
+      <!-- Validate -->
+      <h3 class="skill-heading" id="workflow-validate">
+        <span class="code-name">workflow-validate</span>
+        Validate Specs
+        <span class="code-tag">10 steps</span>
+      </h3>
+      <p>Systematically audits page specifications for completeness, consistency, and quality before anything is handed to development. Runs through ten validation checks in sequence and produces a written diagnostic report saved to <code>_progress/validation-report.md</code>. Run this activity after completing specifications and before triggering the Handover workflow. Issues found here are far cheaper to fix than gaps discovered during implementation.</p>
+
+      <h4 class="step-heading">Step 1 · Page Metadata</h4>
+      <p>Verifies that the page spec declares platform, page type, primary viewport, interaction model, and navigation context — all inherited from the scenario's platform strategy. Missing or mismatched metadata is flagged as a critical issue because it breaks the developer's assumed technical context.</p>
+
+      <h4 class="step-heading">Step 2 · Navigation</h4>
+      <p>Checks that entry points, exit points, breadcrumbs, and navigation items are fully defined and internally consistent. Navigation gaps are a common source of implementation questions — this step closes them before handover.</p>
+
+      <h4 class="step-heading">Step 3 · Page Overview</h4>
+      <p>Validates the page's overall structure description — purpose statement, flow position, and the relationship to adjacent pages. An incomplete overview forces the developer to infer context from code rather than reading it.</p>
+
+      <h4 class="step-heading">Step 4 · Page Sections</h4>
+      <p>Audits each section for completeness — content, interactions, states, and object definitions must all be present. Any section with placeholder text or undefined interactions is flagged for resolution.</p>
+
+      <h4 class="step-heading">Step 5 · Section Order</h4>
+      <p>Verifies the section sequence follows a logical progression that matches the user's mental model and the page's desired outcome. Section order that contradicts the user flow is caught and flagged here.</p>
+
+      <h4 class="step-heading">Step 6 · Object Registry</h4>
+      <p>Confirms all components used in the spec are registered in the Object Registry. Unregistered components cannot be extracted by Phase 7 — this step ensures nothing is left unnamed.</p>
+
+      <h4 class="step-heading">Step 7 · Design System Separation</h4>
+      <p>Checks that page-specific components are correctly distinguished from design-system candidates. Components that appear more than once across specs should be extracted; page-specific implementations should not be incorrectly promoted.</p>
+
+      <h4 class="step-heading">Step 8 · SEO Compliance</h4>
+      <p>Validates heading hierarchy, meta title and description, keyword alignment, and URL slug correctness for public pages. SEO gaps found in spec are trivial to fix; SEO gaps found after implementation require code changes and re-deployment.</p>
+
+      <h4 class="step-heading">Step 9 · Design System Consistency</h4>
+      <p>Cross-checks component usage across all page specs in the scenario — the same component should use the same name, states, and behavior everywhere. Inconsistencies signal a naming or extraction problem that would surface as duplicated code.</p>
+
+      <h4 class="step-heading">Step 10 · Final Validation</h4>
+      <p>Produces the overall quality assessment and final validation report. If all checks pass the spec is cleared for handover. If issues remain, Freya suggests which to fix first based on severity — critical issues block handover; warnings are documented for resolution.</p>
+
+      <hr class="section-divider">
+
+      <!-- Visual Design -->
+      <h3 class="skill-heading" id="workflow-visual">
+        <span class="code-name">workflow-visual</span>
+        Visual Design
+        <span class="code-tag">3 steps</span>
+      </h3>
+      <p>Creates visual representations of page designs using external tools and integrates the results back into the written specification. Use this when the user wants mockups, AI-generated assets, or a prototype to validate layout and visual direction before full development. Supported tools include Excalidraw (editable wireframes), Nano Banana (AI image generation), Google Stitch (HTML/CSS mockups), Figma (professional design), and HTML prototypes.</p>
+
+      <h4 class="step-heading">Step 1 · Visual Approach</h4>
+      <p>Reviews the page specification and presents the available visual tools — Excalidraw for layout iteration, Nano Banana for AI-generated assets, Stitch or HTML for production-quality mockups, Figma for precise design work. The user chooses the tool; if Nano Banana is selected for the first time, a setup verification step runs before proceeding.</p>
+
+      <h4 class="step-heading">Step 2 · Generate Visual</h4>
+      <p>Executes the visual generation using the chosen tool — drawing the Excalidraw layout, composing and running the Nano Banana prompt, generating the Stitch component, or scaffolding the HTML prototype. The generated artifact is saved to the page's <code>Sketches/</code> folder and referenced in the spec.</p>
+
+      <h4 class="step-heading">Step 3 · Review and Integrate</h4>
+      <p>Presents the generated visual for review, iterates based on feedback, and integrates the agreed result back into the page specification. The spec is updated to reference the visual artifact as the approved layout reference — implementation follows the spec, not the visual directly.</p>
+
+      <hr class="section-divider">
+
+      <!-- Design System -->
+      <h3 class="skill-heading" id="workflow-design-system">
+        <span class="code-name">workflow-design-system</span>
+        Design System
+        <span class="code-tag">3 steps</span>
+      </h3>
+      <p>Defines, updates, and reviews design system components used across page specifications. Use this to extract shared components after multiple pages are specified, update an existing component definition, or review the design system for consistency and gaps. Extraction follows the "second use" rule — a component stays inline in its first page spec and is extracted to the design system only when it appears a second time. Spacing tokens extract on first use.</p>
+
+      <h4 class="step-heading">Step 1 · Review Current Design System</h4>
+      <p>Loads and inventories all components in <code>D-Design-System/</code> — name, category, usage count across page specs, and last updated date. Cross-references the inventory against all page specifications to identify components used but not defined, components defined but unused, and inconsistencies in how the same component is referenced across pages.</p>
+
+      <h4 class="step-heading">Step 2 · Define Component</h4>
+      <p>Walks through defining or updating a specific component — type, variants, states, behavior, and usage guidelines. Component definitions follow the object-type templates in <code>data/object-types/</code> and are saved to the appropriate category folder in <code>D-Design-System/</code>.</p>
+
+      <h4 class="step-heading">Step 3 · Validate Usage</h4>
+      <p>Checks that the newly defined or updated component is referenced consistently across all page specifications — same name, same states, same behavior. Usage inconsistencies are surfaced as a list of pages that need updating, so the design system stays the single source of truth.</p>
+
+      <hr class="section-divider">
+
+      <!-- Handover -->
+      <h3 class="skill-heading" id="workflow-handover">
+        <span class="code-name">workflow-handover</span>
+        Design Delivery / Handover
+        <span class="code-tag">6 steps</span>
+      </h3>
+      <p>Packages a complete, testable scenario flow into a Design Delivery (DD-XXX) and hands it off to BMad (Mimir) for implementation. Use this when a scenario is fully designed — all page specifications exist, validation has passed, and the flow is end-to-end testable. This workflow does not start until the completion checklist confirms no gaps or blockers remain.</p>
+
+      <h4 class="step-heading">Step 1 · Detect Completion</h4>
+      <p>Runs a checklist across Phase 4 outputs (all scenarios specified, interactions defined, error states designed) and Phase 5 design system outputs (all components defined, tokens documented, states and variants complete). Also verifies the flow is testable end-to-end, delivers measurable value, and has no unresolved design decisions. Does not proceed until the flow is confirmed complete.</p>
+
+      <h4 class="step-heading">Step 2 · Create Delivery</h4>
+      <p>Packages the scenario specifications, design system components, and supporting artifacts into a Design Delivery document (DD-XXX) using the delivery template. The DD is the formal handover artifact — it contains everything Mimir needs to implement the flow without returning with design questions.</p>
+
+      <h4 class="step-heading">Step 3 · Create Test Scenario</h4>
+      <p>Defines the validation tests that confirm the implemented flow matches the design intent — user-facing acceptance criteria, edge cases to verify, and the definition of "done" for this delivery. The test scenario travels with the DD so Mimir knows what to verify after building.</p>
+
+      <h4 class="step-heading">Step 4 · Handoff Dialog</h4>
+      <p>Runs a structured handoff conversation — Freya summarizes the key design decisions, highlights anything non-obvious in the specs, and flags any areas where the developer should exercise judgment. Uses the handoff dialog scripts from <code>data/handoff-dialog-scripts.md</code> to ensure nothing important is left unsaid.</p>
+
+      <h4 class="step-heading">Step 5 · Hand Off</h4>
+      <p>Executes the official handoff — saves the DD to the project output folder, updates the design log to reflect the handover status, and signals to BMad that the delivery is ready for development. The design log's Backlog and Current tables are updated so the next session starts with an accurate picture of what remains.</p>
+
+      <h4 class="step-heading">Step 6 · Continue</h4>
+      <p>Returns to the design log to determine what comes next — another scenario to design, a spec to validate, or a completed project. Presents the adaptive dashboard summary so the next session or the next phase can start from a clear state.</p>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="applied-toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Applied Toolkit</span>
+          <span class="data-source">wds-4-ux-design</span>
+        </div>
+        <table>
+          <thead><tr><th>Category</th><th>Items</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Skill</td><td><code>wds-4-ux-design</code></td></tr>
+            <tr><td class="key-col">Agent</td><td>Freya 🎨 — WDS Designer</td></tr>
+            <tr><td class="key-col">Output</td><td>Page spec files in <code>C-UX-Scenarios/NN-[scenario]/</code> · storyboard specs · updated design log</td></tr>
+            <tr><td class="key-col">Activities</td><td><code>C</code> · <code>K</code> · <code>S</code> · <code>D</code> · <code>P</code> · <code>V</code> · <code>W</code> · <code>M</code> · <code>H</code></td></tr>
+            <tr><td class="key-col">Tools</td><td>Stitch · Nano Banana · Figma</td></tr>
+            <tr><td class="key-col">Micro-guides</td><td><code>strategic-design.md</code> · <code>specification-quality.md</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section id="downstream">
+        <h5>Downstream Dependencies</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Phase</th><th>What it reads from the UX specs</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Phase 5 · Development</td><td>Page specs and storyboards — Mimir builds directly from the written specifications, one verified task at a time.</td></tr>
+              <tr><td class="key-col">Phase 6 · Assets</td><td>Visual design notes and content briefs — to anchor asset generation prompts (Nano Banana, Stitch).</td></tr>
+              <tr><td class="key-col">Phase 7 · Design System</td><td>The Object Registry — named components are what the design system extracts into shared tokens and library entries.</td></tr>
+              <tr><td class="key-col">Phase 8 · Product Evolution</td><td>Existing specs — the baseline brownfield improvements are diffed and re-specified against.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>

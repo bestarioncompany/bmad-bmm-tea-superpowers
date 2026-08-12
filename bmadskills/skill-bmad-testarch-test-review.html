@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Quality Review — Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #fafaf8;
+    --paper-warm: #f5f3ef;
+    --accent: #c84b31;
+    --highlight: #e8b84b;
+    --rule: #e2ddd8;
+    --muted: #8a8480;
+    --code-bg: #f0ede8;
+    --green: #2d6a4f;
+    --green-bg: #d8f3dc;
+    --red-bg: #ffe8e3;
+    --blue: #1d3557;
+    --blue-bg: #e8f0f8;
+    --orange-bg: #fff3cd;
+    --purple: #5e3a8c;
+    --purple-bg: #ede7f6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .page-wrap { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ────────────────────────────────── */
+  aside.toc {
+    position: sticky; top: 0; height: 100vh;
+    width: 280px; min-width: 280px;
+    background: var(--ink); color: var(--paper);
+    overflow-y: auto; padding: 28px 0;
+    display: flex; flex-direction: column;
+  }
+  aside.toc .toc-brand { padding: 0 22px 22px; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 16px; }
+  aside.toc .toc-brand .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: var(--highlight); display: block; margin-bottom: 4px; }
+  aside.toc .toc-brand h2 { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; line-height: 1.3; }
+  aside.toc nav a { display: block; padding: 7px 22px; text-decoration: none; color: rgba(255,255,255,.7); font-size: 13px; line-height: 1.4; border-left: 3px solid transparent; transition: all .15s; }
+  aside.toc nav a:hover { color: var(--paper); border-left-color: var(--highlight); background: rgba(255,255,255,.05); }
+  aside.toc nav .toc-section-label { padding: 16px 22px 6px; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.35); font-family: 'JetBrains Mono', monospace; }
+
+  /* ── Main ───────────────────────────────────── */
+  main.content { flex: 1; min-width: 0; padding: 56px 64px 80px; max-width: 900px; }
+
+  /* ── Header ─────────────────────────────────── */
+  .page-header { margin-bottom: 48px; padding-bottom: 36px; border-bottom: 2px solid var(--rule); }
+  .page-header .skill-chip { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; background: var(--ink); color: var(--highlight); padding: 4px 10px; display: inline-block; margin-bottom: 16px; }
+  .page-header h1 { font-family: 'Fraunces', serif; font-size: 38px; font-weight: 700; line-height: 1.15; margin-bottom: 14px; }
+  .page-header .subtitle { font-size: 17px; color: var(--muted); line-height: 1.6; max-width: 680px; }
+  .page-header .meta-row { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .page-header .meta-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  .page-header .meta-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  section { margin-bottom: 52px; }
+
+  /* ── Section headings ───────────────────────── */
+  h2.section-what { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--ink); display: flex; align-items: baseline; gap: 12px; }
+  h2.section-what .s-marker { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--ink); padding: 2px 9px; vertical-align: 2px; }
+  h2.section-why  { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--accent); display: flex; align-items: baseline; gap: 12px; }
+  h2.section-why .s-marker  { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--accent); color: var(--accent); padding: 2px 9px; vertical-align: 2px; }
+  h2.section-how  { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid var(--blue); display: flex; align-items: baseline; gap: 12px; }
+  h2.section-how .s-marker  { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--blue); color: var(--blue); padding: 2px 9px; vertical-align: 2px; }
+
+  h3.sub-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; margin: 28px 0 12px; }
+  p { margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 600; }
+  em { font-style: italic; color: var(--accent); }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; background: var(--code-bg); padding: 2px 6px; border-radius: 3px; }
+
+  .section-divider { border: none; border-top: 1px solid var(--rule); margin: 48px 0; }
+
+  /* ── Persona block ───────────────────────────── */
+  .persona-block { border: 1px solid var(--rule); margin: 0 0 28px; display: grid; grid-template-columns: max-content 1fr; }
+  .persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .15em; color: var(--muted); padding: 9px 14px; border-bottom: 1px dotted var(--rule); border-right: 1px solid var(--rule); background: var(--paper-warm); white-space: nowrap; }
+  .persona-block dd { font-size: 13px; padding: 9px 14px; border-bottom: 1px dotted var(--rule); color: var(--ink); line-height: 1.55; }
+  .persona-block dt:last-of-type, .persona-block dd:last-child { border-bottom: none; }
+
+  /* ── Stats banner ────────────────────────────── */
+  .stats-banner { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--rule); margin-bottom: 32px; background: var(--paper-warm); }
+  .stat-cell { padding: 18px 20px; border-right: 1px solid var(--rule); text-align: center; }
+  .stat-cell:last-child { border-right: none; }
+  .stat-cell .val { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; color: var(--accent); display: block; line-height: 1; margin-bottom: 5px; }
+  .stat-cell .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── Scope cards ─────────────────────────────── */
+  .scope-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+  .scope-card { border: 1px solid var(--rule); overflow: hidden; }
+  .scope-card .sc-head { background: var(--ink); color: var(--paper); padding: 11px 15px; display: flex; align-items: center; gap: 10px; }
+  .scope-card .sc-head .sc-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; background: var(--highlight); color: var(--ink); padding: 2px 7px; font-weight: 600; }
+  .scope-card .sc-head h4 { font-size: 13px; font-weight: 600; }
+  .scope-card .sc-body { padding: 14px 15px; background: var(--paper-warm); font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* ── Steps ───────────────────────────────────── */
+  .steps-list { display: flex; flex-direction: column; gap: 20px; margin: 20px 0; }
+  .step-item { border: 1px solid var(--rule); overflow: hidden; }
+  .step-item .step-head { background: var(--ink); color: var(--paper); padding: 12px 18px; display: flex; align-items: center; gap: 14px; }
+  .step-item .step-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--highlight); color: var(--ink); padding: 2px 8px; font-weight: 600; white-space: nowrap; }
+  .step-item .step-title { font-size: 14px; font-weight: 600; }
+  .step-item .step-file { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,.5); margin-left: auto; white-space: nowrap; }
+  .step-item .step-body { padding: 16px 18px; background: var(--paper-warm); }
+  .step-item .step-body ul { list-style: none; padding: 0; margin: 0; }
+  .step-item .step-body ul li { font-size: 13px; padding: 4px 0 4px 16px; position: relative; line-height: 1.5; }
+  .step-item .step-body ul li::before { content: '·'; position: absolute; left: 4px; color: var(--accent); font-weight: bold; }
+
+  /* ── Quality dimension cards ─────────────────── */
+  .dimension-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+  .dim-card { border: 2px solid var(--rule); overflow: hidden; }
+  .dim-card.det { border-color: #c84b31; }
+  .dim-card.iso { border-color: #2d6a4f; }
+  .dim-card.mnt { border-color: #1d3557; }
+  .dim-card.perf { border-color: #5e3a8c; }
+  .dim-card .dim-head { padding: 14px 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .dim-card.det .dim-head { background: var(--red-bg); }
+  .dim-card.iso .dim-head { background: var(--green-bg); }
+  .dim-card.mnt .dim-head { background: var(--blue-bg); }
+  .dim-card.perf .dim-head { background: var(--purple-bg); }
+  .dim-card .dim-head .dim-left { flex: 1; }
+  .dim-card .dim-head .dim-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; display: block; margin-bottom: 4px; }
+  .dim-card.det .dim-head .dim-tag { color: var(--accent); }
+  .dim-card.iso .dim-head .dim-tag { color: var(--green); }
+  .dim-card.mnt .dim-head .dim-tag { color: var(--blue); }
+  .dim-card.perf .dim-head .dim-tag { color: var(--purple); }
+  .dim-card .dim-head h4 { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; }
+  .dim-card .dim-head .dim-weight { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .dim-card .dim-body { padding: 14px 16px; background: var(--paper); }
+  .dim-card .dim-body .sev-section { margin-bottom: 10px; }
+  .dim-card .dim-body .sev-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+  .dim-card .dim-body ul { list-style: none; padding: 0; margin: 0; }
+  .dim-card .dim-body ul li { font-size: 12px; padding: 3px 0 3px 14px; position: relative; line-height: 1.4; border-bottom: 1px solid var(--rule); }
+  .dim-card .dim-body ul li:last-child { border-bottom: none; }
+  .dim-card .dim-body ul li::before { position: absolute; left: 0; font-weight: bold; font-size: 10px; top: 4px; }
+  .dim-card .dim-body ul li.h::before { content: 'H'; color: var(--accent); }
+  .dim-card .dim-body ul li.m::before { content: 'M'; color: #d97706; }
+  .dim-card .dim-body ul li.l::before { content: 'L'; color: var(--green); }
+  .dim-card .dim-foot { background: var(--paper-warm); padding: 8px 16px; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); }
+
+  /* ── Severity legend ─────────────────────────── */
+  .severity-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0; }
+  .sev-card { border: 1px solid var(--rule); padding: 14px 16px; background: var(--paper-warm); text-align: center; }
+  .sev-card .sev-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 3px 10px; font-weight: 700; margin-bottom: 8px; }
+  .sev-card .sev-badge.high { background: var(--red-bg); color: var(--accent); }
+  .sev-card .sev-badge.medium { background: var(--orange-bg); color: #8a6914; }
+  .sev-card .sev-badge.low { background: var(--green-bg); color: var(--green); }
+  .sev-card .sev-penalty { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--accent); display: block; margin-bottom: 4px; }
+  .sev-card .sev-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+  /* ── Scoring system ──────────────────────────── */
+  .weight-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .weight-table th { background: var(--ink); color: var(--paper); padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .weight-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+  .weight-table tr:nth-child(even) td { background: var(--paper-warm); }
+  .weight-table tr:last-child td { border-bottom: none; background: var(--ink); color: var(--paper); font-weight: 600; }
+  .weight-bar { display: flex; align-items: center; gap: 8px; }
+  .weight-bar-fill { height: 8px; border-radius: 2px; background: var(--accent); }
+  .weight-bar-text { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+
+  /* ── Grade table ─────────────────────────────── */
+  .grade-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; border: 1px solid var(--rule); margin: 16px 0; overflow: hidden; }
+  .grade-cell { padding: 16px 12px; text-align: center; border-right: 1px solid var(--rule); }
+  .grade-cell:last-child { border-right: none; }
+  .grade-cell .g-letter { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; display: block; line-height: 1; margin-bottom: 6px; }
+  .grade-cell .g-range { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+  .grade-cell.ga { background: var(--green-bg); }
+  .grade-cell.ga .g-letter { color: var(--green); }
+  .grade-cell.gb { background: #e8f8e8; }
+  .grade-cell.gb .g-letter { color: #2e7d32; }
+  .grade-cell.gc { background: var(--orange-bg); }
+  .grade-cell.gc .g-letter { color: #8a6914; }
+  .grade-cell.gd { background: #fff0e0; }
+  .grade-cell.gd .g-letter { color: #c87028; }
+  .grade-cell.gf { background: var(--red-bg); }
+  .grade-cell.gf .g-letter { color: var(--accent); }
+
+  /* ── Comparison table ───────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 22%; }
+  .compare-table th:nth-child(2) { background: var(--red-bg); color: var(--accent); width: 39%; }
+  .compare-table th:nth-child(3) { background: var(--green-bg); color: var(--green); width: 39%; }
+  .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.5; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--muted); }
+  .compare-table td:nth-child(3) { background: var(--paper); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Rule boxes ──────────────────────────────── */
+  .rule-box { border-left: 4px solid var(--accent); background: var(--paper-warm); padding: 14px 18px; margin: 16px 0; }
+  .rule-box.green { border-left-color: var(--green); }
+  .rule-box.blue { border-left-color: var(--blue); }
+  .rule-box.orange { border-left-color: #d97706; }
+  .rule-box .rule-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+  .rule-box ul { list-style: none; padding: 0; margin: 0; }
+  .rule-box ul li { font-size: 13px; padding: 3px 0 3px 16px; position: relative; line-height: 1.5; }
+  .rule-box ul li::before { content: '·'; position: absolute; left: 4px; color: var(--accent); font-weight: bold; }
+  .rule-box p { font-size: 13px; margin: 0; line-height: 1.6; }
+
+  /* ── Pact violations box ─────────────────────── */
+  .pact-rules { border: 2px solid var(--accent); background: var(--red-bg); padding: 18px 20px; margin: 16px 0; }
+  .pact-rules .pr-title { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .pact-rules .pr-badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; background: var(--accent); color: var(--paper); padding: 2px 7px; letter-spacing: .1em; text-transform: uppercase; }
+  .pact-rules ul { list-style: none; padding: 0; margin: 0; }
+  .pact-rules ul li { font-size: 13px; padding: 5px 0 5px 0; border-bottom: 1px solid rgba(200,75,49,.2); line-height: 1.5; display: flex; gap: 8px; }
+  .pact-rules ul li:last-child { border-bottom: none; }
+  .pact-rules ul li .sev { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--accent); flex-shrink: 0; padding-top: 2px; }
+
+  /* ── Coverage exclusion notice ───────────────── */
+  .coverage-notice { background: var(--ink); color: var(--paper); padding: 18px 22px; margin: 20px 0; display: flex; align-items: flex-start; gap: 16px; }
+  .coverage-notice .cn-icon { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--highlight); color: var(--ink); padding: 3px 8px; flex-shrink: 0; font-weight: 600; letter-spacing: .05em; margin-top: 2px; }
+  .coverage-notice .cn-text { font-size: 13px; line-height: 1.6; }
+  .coverage-notice .cn-text strong { color: var(--highlight); }
+
+  /* ── Output table ────────────────────────────── */
+  .output-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .output-table th { background: var(--ink); color: var(--paper); padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+  .output-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); background: var(--paper-warm); vertical-align: top; }
+  .output-table tr:nth-child(even) td { background: var(--paper); }
+  .output-table tr:last-child td { border-bottom: none; }
+  .output-table .path { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); }
+
+  /* ── Back link ───────────────────────────────── */
+  .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; font-size: 12px; margin-bottom: 32px; font-family: 'JetBrains Mono', monospace; letter-spacing: .05em; transition: color .15s; }
+  .back-link:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<aside class="toc">
+  <div class="toc-brand">
+    <span class="label">TEA Skill Guide</span>
+    <h2>bmad-testarch-test-review</h2>
+  </div>
+  <nav>
+    <div class="toc-section-label">§ WHAT</div>
+    <a href="#what-overview">Overview &amp; Identity</a>
+    <a href="#review-scope">Review Scope</a>
+    <a href="#worker-architecture">4 Quality Workers</a>
+    <a href="#knowledge-base">Knowledge Base</a>
+
+    <div class="toc-section-label">§ WHY</div>
+    <a href="#why-quality">Why Test Quality?</a>
+
+    <div class="toc-section-label">§ HOW</div>
+    <a href="#activation">Activation &amp; Modes</a>
+    <a href="#steps">Workflow Steps (4 Steps)</a>
+    <a href="#determinism">Determinism — 30%</a>
+    <a href="#isolation">Isolation — 30%</a>
+    <a href="#maintainability">Maintainability — 25%</a>
+    <a href="#performance">Performance — 15%</a>
+    <a href="#scoring">Score Calculation</a>
+    <a href="#grades">Grade System</a>
+    <a href="#output">Output Files</a>
+  </nav>
+</aside>
+
+<main class="content">
+  <a href="bmad-ecosystem-v671-research-v1.html" class="back-link">← Ecosystem Overview</a>
+
+  <div class="page-header">
+    <span class="skill-chip">bmad-testarch-test-review · TR</span>
+    <h1>Test Quality Review</h1>
+    <p class="subtitle">Audits existing test files across four quality dimensions — Determinism, Isolation, Maintainability, and Performance — using parallel worker subagents, producing a scored report (0–100) with a letter grade, prioritised violations, and top-10 fix recommendations.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="dot"></span>Tags: qa, test-architect, code-review, quality, best-practices</div>
+      <div class="meta-item"><span class="dot"></span>Output: <code>test-review.md</code></div>
+    </div>
+  </div>
+
+  <div class="stats-banner">
+    <div class="stat-cell"><span class="val">4</span><span class="lbl">Dimensions</span></div>
+    <div class="stat-cell"><span class="val">4+1</span><span class="lbl">Steps C+resume</span></div>
+    <div class="stat-cell"><span class="val">0–100</span><span class="lbl">Score Range</span></div>
+    <div class="stat-cell"><span class="val">A–F</span><span class="lbl">Grade Scale</span></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       § WHAT — What is this Skill?
+       ══════════════════════════════════════════════════ -->
+
+  <section id="what-overview">
+    <h2 class="section-what"><span class="s-marker">§ WHAT</span> Test Quality Review — <em>What does this Skill do?</em></h2>
+
+    <dl class="persona-block">
+      <dt>Skill code</dt><dd><code>bmad-testarch-test-review</code> &nbsp;·&nbsp; Menu code: <code>TR</code></dd>
+      <dt>Goal</dt><dd>Audit existing test files against TEA quality best practices. Dispatch four parallel quality workers, aggregate their scores into a weighted overall rating, and produce a prioritised list of violations with exact fix suggestions.</dd>
+      <dt>Role</dt><dd>Master Test Architect. Acts as a read-only code reviewer — it never modifies or generates test files. It finds quality issues and tells you how to fix them; the actual fixing is for the developer or the <code>bmad-testarch-automate</code> skill.</dd>
+      <dt>Distinct from</dt><dd><strong>test-review</strong> asks: "Are the tests we have <em>written well</em>?" — are they reliable, independent, readable, and fast? It does not check whether you have tests for all features; that is a separate skill (<code>trace</code>). Coverage is intentionally out of scope here.</dd>
+      <dt>Stack detection</dt><dd>Automatically detects whether your project is Frontend, Backend, or Fullstack and loads the right quality rules for your stack. No configuration needed.</dd>
+      <dt>Output</dt><dd><code>test-review.md</code> — overall score, dimension breakdown, violations with file:line references and fixes, top-10 recommendations, recommended next workflow</dd>
+    </dl>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="review-scope">
+    <h3 class="sub-title">Review Scope</h3>
+    <p>Set by the <code>review_scope</code> variable. Default is <code>single</code>. If unclear, the skill asks the user before proceeding.</p>
+
+    <div class="scope-grid">
+      <div class="scope-card">
+        <div class="sc-head"><span class="sc-tag">single</span><h4>One File</h4></div>
+        <div class="sc-body">Provide a specific file path. Best for reviewing a single test file before merging a PR or after a teammate flags it for quality.</div>
+      </div>
+      <div class="scope-card">
+        <div class="sc-head"><span class="sc-tag">directory</span><h4>Folder</h4></div>
+        <div class="sc-body">Review all tests under a chosen folder (e.g. <code>tests/e2e/</code>). Useful for auditing a feature area or a specific test level.</div>
+      </div>
+      <div class="scope-card">
+        <div class="sc-head"><span class="sc-tag">suite</span><h4>All Tests</h4></div>
+        <div class="sc-body">Glob all tests across the entire repo. Best for a periodic quality health-check or pre-release audit. May take longer for large suites.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="worker-architecture">
+    <h3 class="sub-title">4 Quality Workers — Architecture Overview</h3>
+    <p>Step 3 dispatches four specialised workers in parallel. Each evaluates exactly one quality dimension and writes a structured JSON result to a temp file. Step 3F aggregates all four results after all workers complete.</p>
+
+    <div class="dimension-grid">
+
+      <div class="dim-card det">
+        <div class="dim-head">
+          <div class="dim-left">
+            <span class="dim-tag">Worker A · Determinism</span>
+            <h4>Reliability &amp; Flake Prevention</h4>
+          </div>
+          <span class="dim-weight">30%</span>
+        </div>
+        <div class="dim-body">
+          <div class="sev-section">
+            <div class="sev-label">HIGH severity checks</div>
+            <ul>
+              <li class="h"><code>Math.random()</code> without seeding</li>
+              <li class="h"><code>Date.now()</code> / <code>new Date()</code> without mocking</li>
+              <li class="h">External API calls without mocking</li>
+              <li class="h">Multiple <code>pact.addInteraction()</code> in single <code>it()</code></li>
+              <li class="h">Pact Vitest config missing <code>fileParallelism: false</code></li>
+            </ul>
+          </div>
+          <div class="sev-section">
+            <div class="sev-label">MEDIUM severity checks</div>
+            <ul>
+              <li class="m"><code>page.waitForTimeout(N)</code> hard waits</li>
+              <li class="m">Flaky selectors (CSS classes that may change)</li>
+              <li class="m">Race conditions / missing synchronisation</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="dim-card iso">
+        <div class="dim-head">
+          <div class="dim-left">
+            <span class="dim-tag">Worker B · Isolation</span>
+            <h4>Parallel Safety &amp; Independence</h4>
+          </div>
+          <span class="dim-weight">30%</span>
+        </div>
+        <div class="dim-body">
+          <div class="sev-section">
+            <div class="sev-label">HIGH severity checks</div>
+            <ul>
+              <li class="h">Global state mutations between tests</li>
+              <li class="h">Test order dependencies (B depends on A)</li>
+              <li class="h">Shared database records without cleanup</li>
+              <li class="h"><code>beforeAll</code> / <code>afterAll</code> leaking side effects</li>
+            </ul>
+          </div>
+          <div class="sev-section">
+            <div class="sev-label">MEDIUM severity checks</div>
+            <ul>
+              <li class="m">Missing test cleanup (created data not deleted)</li>
+              <li class="m">Shared fixtures that mutate state</li>
+              <li class="m">Environment variables modified without restoration</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="dim-card mnt">
+        <div class="dim-head">
+          <div class="dim-left">
+            <span class="dim-tag">Worker C · Maintainability</span>
+            <h4>Readability &amp; Long-term Health</h4>
+          </div>
+          <span class="dim-weight">25%</span>
+        </div>
+        <div class="dim-body">
+          <div class="sev-section">
+            <div class="sev-label">HIGH severity checks</div>
+            <ul>
+              <li class="h">Test file &gt;100 lines (too complex)</li>
+              <li class="h">No <code>test.describe</code> grouping</li>
+              <li class="h">Duplicate test logic (copy-paste code)</li>
+              <li class="h">Unclear test names (no Given/When/Then)</li>
+              <li class="h">Magic numbers/strings without named constants</li>
+            </ul>
+          </div>
+          <div class="sev-section">
+            <div class="sev-label">MEDIUM severity checks</div>
+            <ul>
+              <li class="m">Inconsistent naming conventions</li>
+              <li class="m">Excessive nesting (&gt;3 levels)</li>
+              <li class="m">Large setup/teardown blocks</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="dim-card perf">
+        <div class="dim-head">
+          <div class="dim-left">
+            <span class="dim-tag">Worker E · Performance</span>
+            <h4>Speed &amp; Execution Efficiency</h4>
+          </div>
+          <span class="dim-weight">15%</span>
+        </div>
+        <div class="dim-body">
+          <div class="sev-section">
+            <div class="sev-label">HIGH severity checks</div>
+            <ul>
+              <li class="h"><code>test.describe.serial</code> used unnecessarily</li>
+              <li class="h">Slow setup creating fresh DB per test</li>
+              <li class="h">Excessive re-navigation (redundant <code>page.goto()</code>)</li>
+              <li class="h">No fixture reuse for expensive operations</li>
+            </ul>
+          </div>
+          <div class="sev-section">
+            <div class="sev-label">MEDIUM severity checks</div>
+            <ul>
+              <li class="m">Hard waits &gt;2s (<code>waitForTimeout(5000)</code>)</li>
+              <li class="m">Inefficient selectors (<code>page.$$</code> instead of locators)</li>
+              <li class="m">Large data sets without pagination</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       § WHAT — Knowledge Base
+       ══════════════════════════════════════════════════ -->
+
+  <section id="knowledge-base">
+    <h3 class="sub-title">Knowledge Base — What the Skill Knows</h3>
+    <p>Before reviewing your tests, the skill automatically loads the right quality rules for your project. It detects your stack type (Frontend / Backend / Fullstack) and selects the relevant rules — so a Playwright frontend project gets different checks than a Java backend project.</p>
+
+    <table class="weight-table">
+      <thead>
+        <tr><th>Your project type</th><th>What gets loaded</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>All projects</strong></td>
+          <td>Core quality rules: test reliability, data isolation, selector stability, timing best practices</td>
+        </tr>
+        <tr>
+          <td><strong>Frontend / Fullstack (Playwright)</strong></td>
+          <td>Additional Playwright-specific rules: network interception, auth session handling, fixture composition</td>
+        </tr>
+        <tr>
+          <td><strong>Contract tests (Pact)</strong></td>
+          <td>Consumer-driven contract rules: Pact configuration checks, determinism rules for the Rust FFI layer</td>
+        </tr>
+        <tr>
+          <td><strong>Browser evidence mode</strong></td>
+          <td>When enabled: the skill opens your live app to capture screenshots and network logs as review evidence</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider">
+
+  <!-- ══════════════════════════════════════════════════
+       § WHY — Why use this Skill?
+       ══════════════════════════════════════════════════ -->
+
+  <section id="why-quality">
+    <h2 class="section-why"><span class="s-marker">§ WHY</span> Why Test Quality Review?</h2>
+
+    <p>A passing test suite is not the same as a trustworthy test suite. Tests can be green today and silently flaky tomorrow — returning false positives in CI, blocking releases for random failures, or becoming unmaintainable as features evolve. The test-review skill turns subjective "code smell" judgements into a measurable, reproducible quality score.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Without Test Review</th>
+          <th>With Test Review (TR)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Flakiness</td>
+          <td>Tests pass locally but fail intermittently in CI — root cause unknown</td>
+          <td>Determinism worker flags every <code>Math.random()</code>, unmocked API, and hard wait with an exact fix</td>
+        </tr>
+        <tr>
+          <td>Parallel safety</td>
+          <td>Tests conflict when run in parallel — forced to run serially, slowing CI</td>
+          <td>Isolation worker surfaces shared state, order dependencies, and missing cleanup</td>
+        </tr>
+        <tr>
+          <td>Maintainability</td>
+          <td>Tests rot as features change — nobody understands what a 300-line test file does</td>
+          <td>Maintainability worker enforces naming, structure limits, and no-duplication rules</td>
+        </tr>
+        <tr>
+          <td>CI cost</td>
+          <td>Serialised test suites waste CI minutes on unnecessary <code>.serial</code> blocks</td>
+          <td>Performance worker identifies unnecessary serialisation and expensive per-test setup</td>
+        </tr>
+        <tr>
+          <td>Quality signal</td>
+          <td>No objective baseline — "tests look fine" is subjective</td>
+          <td>0–100 score with A–F grade per dimension and overall — reproducible across sprints</td>
+        </tr>
+        <tr>
+          <td>Fix guidance</td>
+          <td>Developer must know best practices from memory to spot violations</td>
+          <td>Every violation includes file:line reference, code pattern, and exact fix recommendation</td>
+        </tr>
+        <tr>
+          <td>Contract tests</td>
+          <td>Pact FFI non-determinism bugs silently drop interactions on Linux CI</td>
+          <td>Dedicated CDC checks surface missing <code>fileParallelism: false</code> and <code>singleFork</code> config before CI breaks</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       § HOW — How to Execute
+       ══════════════════════════════════════════════════ -->
+
+  <section id="activation">
+    <h2 class="section-how"><span class="s-marker">§ HOW</span> How to Activate &amp; Execute</h2>
+
+    <h3 class="sub-title">Activation</h3>
+    <p>Say one of the trigger phrases to Murat, or select <code>TR</code> from the TEA menu. The skill supports four operation modes:</p>
+
+    <table class="output-table">
+      <thead><tr><th>Mode</th><th>Trigger</th><th>Entry point</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Create (C)</strong> — full review run</td><td>"review my tests", "audit test quality", "check test quality"</td><td><code>steps-c/step-01-load-context.md</code></td></tr>
+        <tr><td><strong>Resume (R)</strong> — continue interrupted run</td><td>"resume", "continue"</td><td><code>steps-c/step-01b-resume.md</code></td></tr>
+        <tr><td><strong>Validate (V)</strong> — audit existing report</td><td>"validate", <code>--validate</code></td><td><code>steps-v/step-01-validate.md</code></td></tr>
+        <tr><td><strong>Edit (E)</strong> — revise outputs</td><td>"edit", <code>--edit</code></td><td><code>steps-e/step-01-assess.md</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="steps">
+    <h3 class="sub-title">Workflow Steps — Create Mode (4 Steps)</h3>
+
+    <div class="steps-list">
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 01</span>
+          <span class="step-title">Load Context &amp; Knowledge Base</span>
+          <span class="step-file">step-01-load-context.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Determine review scope (<code>single</code> / <code>directory</code> / <code>suite</code>); ask user if unclear</li>
+            <li>Detect stack: scan <code>playwright.config.*</code>, <code>pom.xml</code>, <code>go.mod</code> etc. → <code>frontend</code> / <code>backend</code> / <code>fullstack</code></li>
+            <li>Load tiered knowledge: Core always (test-quality, data-factories, test-levels-framework, selective-testing, test-healing-patterns, selector-resilience, timing-debugging); Extended on demand; Playwright Utils profile based on stack and whether tests use <code>page.goto</code> / <code>page.locator</code></li>
+            <li>Load Pact.js Utils fragments if <code>tea_use_pactjs_utils</code> enabled and contract tests are in review scope</li>
+            <li>Gather optional context artifacts: story file (acceptance criteria), test-design doc (priorities), framework config</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 02</span>
+          <span class="step-title">Discover &amp; Parse Tests</span>
+          <span class="step-file">step-02-discover-tests.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Collect test files matching the chosen scope; halt if no tests found</li>
+            <li>Parse metadata per file: size/line count, framework detected, describe/test block counts, test IDs, priority markers, imports, fixtures, factories, network interception, waits/timeouts, control flow (if/try-catch)</li>
+            <li>Optional evidence collection (when <code>tea_browser_automation</code> is <code>cli</code> or <code>auto</code>): open browser, start tracing, capture screenshot, record network log, then close session with <code>playwright-cli -s=tea-review close</code></li>
+            <li>Trace analysis: <code>npx playwright trace open &lt;trace.zip&gt;</code> for failing assertion root-cause</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 03</span>
+          <span class="step-title">Orchestrate Quality Evaluation (4 Workers)</span>
+          <span class="step-file">step-03-quality-evaluation.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Resolve execution mode: <code>agent-team</code> → <code>subagent</code> → <code>sequential</code> (capability probe)</li>
+            <li>Dispatch all 4 quality workers in parallel (or sequentially if subagents unavailable); each writes a JSON result file</li>
+            <li>Wait for all 4 workers to complete; verify all 4 output files exist before proceeding</li>
+            <li><em>Sub-step 3F:</em> Read all 4 outputs, calculate weighted overall score, aggregate violations, prioritise top-10 recommendations</li>
+            <li>Parallel execution gain: approximately 60–70% faster than sequential when <code>agent-team</code> or <code>subagent</code> mode is available</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-head">
+          <span class="step-num">STEP 04</span>
+          <span class="step-title">Generate Report &amp; Validate</span>
+          <span class="step-file">step-04-generate-report.md</span>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Produce <code>test-review.md</code> using the review template: overall score + grade, dimension breakdown, critical findings with fixes, warnings, context references</li>
+            <li>Include coverage boundary note: test-review does not score coverage; direct coverage findings to <code>trace</code></li>
+            <li>Polish output: remove duplicates, verify consistency, fill any gaps marked N/A</li>
+            <li>Validate against <code>checklist.md</code>; fix any gaps before finalising</li>
+            <li>Summarise scope reviewed, overall score, critical blockers, and recommended next workflow</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="determinism">
+    <h3 class="sub-title">Determinism — Weight 30%</h3>
+    <p>The highest-weighted dimension because non-deterministic tests are the root cause of flakiness — tests that pass locally but fail in CI, or fail intermittently with no reproducible reason. The worker scans for patterns that make test outcomes depend on anything outside the test's explicit inputs.</p>
+
+    <table class="output-table">
+      <thead>
+        <tr><th>Category</th><th>Severity</th><th>Pattern</th><th>Fix</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Random generation</td>
+          <td><span style="color:var(--accent);font-weight:600;">HIGH</span></td>
+          <td><code>Math.random()</code></td>
+          <td>Use <code>faker.seed(12345)</code> for deterministic random data</td>
+        </tr>
+        <tr>
+          <td>Time dependency</td>
+          <td><span style="color:var(--accent);font-weight:600;">HIGH</span></td>
+          <td><code>Date.now()</code>, <code>new Date()</code></td>
+          <td>Mock system time with <code>test.useFakeTimers()</code> or use fixed timestamps</td>
+        </tr>
+        <tr>
+          <td>External API</td>
+          <td><span style="color:var(--accent);font-weight:600;">HIGH</span></td>
+          <td>Real HTTP calls in tests</td>
+          <td>Intercept with <code>page.route()</code> or mock the HTTP client</td>
+        </tr>
+        <tr>
+          <td>Hard wait</td>
+          <td><span style="color:#d97706;font-weight:600;">MEDIUM</span></td>
+          <td><code>waitForTimeout(N)</code></td>
+          <td>Replace with <code>expect(locator).toBeVisible()</code> or network-first intercept</td>
+        </tr>
+        <tr>
+          <td>Flaky selector</td>
+          <td><span style="color:#d97706;font-weight:600;">MEDIUM</span></td>
+          <td>CSS class selectors</td>
+          <td>Use <code>getByRole</code>, <code>getByLabel</code>, <code>data-testid</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub-title" style="font-size:15px;">Pact FFI Checks — Contract Test Projects Only</h3>
+    <p>If your project uses <strong>Pact</strong> (consumer-driven contract testing), the skill runs an extra set of checks on top of the standard determinism rules. These checks target a specific class of bug: contract interactions being silently dropped when tests run in parallel — failures that only appear on Linux CI, never on a developer's machine, making them very difficult to track down.</p>
+
+    <p>When the skill reports one of these violations, escalate to a developer — the fix is always a configuration change, not a change to the test logic itself.</p>
+
+    <div class="pact-rules">
+      <div class="pr-title"><span class="pr-badge">CDC</span> Pact FFI Determinism Rules</div>
+      <ul>
+        <li><span class="sev">HIGH</span><strong>Multiple API contracts defined inside one test block.</strong> Each test should cover exactly one API interaction. When multiple are stacked in a single test, the Pact engine can silently drop some of them — the test passes but the contract is never actually verified.</li>
+        <li><span class="sev">HIGH</span>All contract tests must run one at a time (serially). Running them in parallel causes them to write to the same contract file at the same time, resulting in a corrupted or incomplete contract. → Open <code>vitest.config.pact.ts</code> and make sure <code>fileParallelism: false</code> is set.</li>
+        <li><span class="sev">HIGH</span><strong>Contract tests are missing the "single process" mode.</strong> When the project has more than one contract test file for the same consumer/provider pair, they must all run inside a single process to avoid race conditions. → <code>singleFork: true</code> in the Pact test config.</li>
+        <li><span class="sev">HIGH</span><strong>Provider-side contract tests have the same "single process" problem.</strong> Same issue as above but on the provider (API server) side of the contract. → Ask a developer to enable <code>singleFork: true</code> in the provider test config.</li>
+        <li><span class="sev">HIGH</span><strong>Global test config has concurrency enabled, overriding contract test settings.</strong> A project-wide setting that allows tests to run simultaneously is cancelling out the serial-execution requirement for contract tests. → Ask a developer to check for conflicting concurrency settings in the shared config.</li>
+        <li><span class="sev">HIGH</span><strong>The contract test run script is missing a determinism safety check.</strong> There is no automated guard that verifies the contract test configuration is safe before the tests run. → Ask a developer to add the determinism check script to the CI pipeline.</li>
+        <li><span class="sev">LOW</span><strong>Contract test config is split across multiple files.</strong> The skill cannot fully trace merged settings when config is spread across several files. Advisory only — ask a developer to consolidate the contract test config into one place.</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="isolation">
+    <h3 class="sub-title">Isolation — Weight 30%</h3>
+    <p>Tests must be fully independent — able to run in any order, in parallel, on any machine, without needing another test to have run first. The isolation worker catches shared state, cleanup gaps, and order dependencies.</p>
+
+    <div class="rule-box green">
+      <div class="rule-title">What "Isolated" Means</div>
+      <ul>
+        <li>Each test creates its own data in <code>beforeEach</code> using factories — never relies on data a prior test created</li>
+        <li>Each test cleans up its data in the fixture teardown (<code>afterEach</code> or <code>await use(data)</code> pattern)</li>
+        <li>No global variables modified within a test unless restored in teardown</li>
+        <li>All tests can run with <code>test.describe.configure({ mode: 'parallel' })</code> without conflicts</li>
+      </ul>
+    </div>
+
+    <table class="output-table">
+      <thead><tr><th>Violation</th><th>Severity</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Global state mutations between tests</td><td><span style="color:var(--accent);font-weight:600;">HIGH</span></td><td>Move state into <code>beforeEach</code> / <code>afterEach</code> scope</td></tr>
+        <tr><td>Test order dependencies (B depends on A)</td><td><span style="color:var(--accent);font-weight:600;">HIGH</span></td><td>Each test must set up its own preconditions</td></tr>
+        <tr><td>Shared database records without cleanup</td><td><span style="color:var(--accent);font-weight:600;">HIGH</span></td><td>Use factories with teardown in fixture <code>await use()</code></td></tr>
+        <tr><td><code>beforeAll</code> leaking side effects</td><td><span style="color:var(--accent);font-weight:600;">HIGH</span></td><td>Move to <code>beforeEach</code> or add matching <code>afterAll</code> cleanup</td></tr>
+        <tr><td>Missing cleanup for created data</td><td><span style="color:#d97706;font-weight:600;">MEDIUM</span></td><td>Add <code>afterEach</code> delete or use factory auto-cleanup</td></tr>
+        <tr><td>Environment variables modified without restore</td><td><span style="color:#d97706;font-weight:600;">MEDIUM</span></td><td>Save original value in <code>beforeEach</code>, restore in <code>afterEach</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="maintainability">
+    <h3 class="sub-title">Maintainability — Weight 25%</h3>
+    <p>Well-maintained tests are easy to read, understand, and modify when the underlying feature changes. The maintainability worker checks structure, naming, and code hygiene.</p>
+
+    <div class="rule-box blue">
+      <div class="rule-title">Key Standards Enforced</div>
+      <ul>
+        <li>Test names must follow Given-When-Then structure: <em>"[P0] should reject login when password is incorrect"</em></li>
+        <li>All tests grouped in <code>test.describe</code> blocks — no bare top-level <code>test()</code> calls</li>
+        <li>File length under 100 lines — split by feature area if longer</li>
+        <li>No hardcoded test data — use factory functions with faker</li>
+        <li>No page object classes — tests should be direct and simple</li>
+        <li>No duplicate logic — extract into helpers but keep the test body readable</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="performance">
+    <h3 class="sub-title">Performance — Weight 15%</h3>
+    <p>Slow test suites reduce developer feedback speed and increase CI costs. The performance worker identifies tests that are unnecessarily serialised, run expensive setup on every test, or block parallel execution.</p>
+
+    <div class="rule-box">
+      <div class="rule-title">Common Performance Wins</div>
+      <ul>
+        <li>Remove <code>.serial</code> from <code>test.describe.serial</code> unless tests genuinely share stateful resources</li>
+        <li>Move expensive setup (DB seed, user creation) into <code>beforeAll</code> + teardown when tests only read data</li>
+        <li>Use fixture reuse — create the auth state once per worker, not per test</li>
+        <li>Replace <code>page.$$</code> with Playwright locators (lazy, auto-waiting, faster)</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="scoring">
+    <h3 class="sub-title">Score Calculation</h3>
+    <p>Each worker produces a dimension score (0–100) by penalising violations according to their severity. The overall score is a weighted average across the four dimensions.</p>
+
+    <h3 class="sub-title" style="font-size:15px;">Violation Penalty Points</h3>
+    <div class="severity-row">
+      <div class="sev-card">
+        <span class="sev-badge high">HIGH</span>
+        <span class="sev-penalty">−10 pts</span>
+        <div class="sev-desc">Per violation. Flakiness root causes, test order deps, broken Pact configs, missing cleanup for shared state.</div>
+      </div>
+      <div class="sev-card">
+        <span class="sev-badge medium">MEDIUM</span>
+        <span class="sev-penalty">−5 pts</span>
+        <div class="sev-desc">Per violation. Hard waits, flaky selectors, missing cleanup for non-critical data, inconsistent naming.</div>
+      </div>
+      <div class="sev-card">
+        <span class="sev-badge low">LOW</span>
+        <span class="sev-penalty">−2 pts</span>
+        <div class="sev-desc">Per violation. Style issues, advisory improvements, future-proofing notes (Pact pool advisory for single-file suites).</div>
+      </div>
+    </div>
+
+    <p>Score formula per dimension: <code>score = max(0, 100 − Σ(penalty per violation))</code></p>
+
+    <h3 class="sub-title" style="font-size:15px;">Dimension Weights</h3>
+    <table class="weight-table">
+      <thead>
+        <tr><th>Dimension</th><th>Weight</th><th>Contribution (max)</th><th>Rationale</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Determinism</strong></td>
+          <td><div class="weight-bar"><div class="weight-bar-fill" style="width:90px;"></div><span class="weight-bar-text">30%</span></div></td>
+          <td>30 pts</td>
+          <td>Flaky tests erode trust in the entire suite</td>
+        </tr>
+        <tr>
+          <td><strong>Isolation</strong></td>
+          <td><div class="weight-bar"><div class="weight-bar-fill" style="width:90px;"></div><span class="weight-bar-text">30%</span></div></td>
+          <td>30 pts</td>
+          <td>Non-isolated tests cannot run safely in parallel</td>
+        </tr>
+        <tr>
+          <td><strong>Maintainability</strong></td>
+          <td><div class="weight-bar"><div class="weight-bar-fill" style="width:75px;"></div><span class="weight-bar-text">25%</span></div></td>
+          <td>25 pts</td>
+          <td>Unreadable tests rot quickly as features change</td>
+        </tr>
+        <tr>
+          <td><strong>Performance</strong></td>
+          <td><div class="weight-bar"><div class="weight-bar-fill" style="width:45px;"></div><span class="weight-bar-text">15%</span></div></td>
+          <td>15 pts</td>
+          <td>Slow but correct tests are recoverable; wrong tests are not</td>
+        </tr>
+        <tr>
+          <td><strong>TOTAL</strong></td>
+          <td></td>
+          <td><strong>100 pts</strong></td>
+          <td><code>overall = Σ (dim_score × weight)</code>, rounded to integer</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="grades">
+    <h3 class="sub-title">Grade System</h3>
+    <p>Each dimension and the overall score receive a letter grade. The grade reflects quality health at a glance without reading the full violation list.</p>
+
+    <div class="grade-grid">
+      <div class="grade-cell ga"><span class="g-letter">A</span><div class="g-range">90 – 100</div></div>
+      <div class="grade-cell gb"><span class="g-letter">B</span><div class="g-range">80 – 89</div></div>
+      <div class="grade-cell gc"><span class="g-letter">C</span><div class="g-range">70 – 79</div></div>
+      <div class="grade-cell gd"><span class="g-letter">D</span><div class="g-range">60 – 69</div></div>
+      <div class="grade-cell gf"><span class="g-letter">F</span><div class="g-range">0 – 59</div></div>
+    </div>
+
+    <p>The report also surfaces the top-10 prioritised recommendations — sorted HIGH impact first — across all four dimensions. Dimension scores below 70 automatically elevate their findings to HIGH impact in the recommendation list.</p>
+
+    <div class="rule-box orange">
+      <div class="rule-title">What to do with the grade</div>
+      <ul>
+        <li><strong>A / B</strong> — Test suite is in good shape. Minor clean-up optional.</li>
+        <li><strong>C</strong> — Actionable improvements exist; address HIGH violations before next sprint.</li>
+        <li><strong>D / F</strong> — Significant quality debt. HIGH violations should be treated as blockers; run <code>bmad-testarch-automate</code> to regenerate tests with correct patterns, or fix manually guided by the report.</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section id="output">
+    <h3 class="sub-title">Output Files</h3>
+
+    <table class="output-table">
+      <thead><tr><th>File</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="path">{test_artifacts}/test-review.md</span></td>
+          <td>Primary output — overall score + grade, per-dimension scores + grades, violation list with file:line references and fix suggestions, top-10 prioritised recommendations, coverage boundary note, recommended next workflow</td>
+        </tr>
+        <tr>
+          <td><span class="path">/tmp/tea-test-review-determinism-{ts}.json</span></td>
+          <td>Worker A output — determinism dimension score, violations, recommendations (temp; cleaned up after aggregation)</td>
+        </tr>
+        <tr>
+          <td><span class="path">/tmp/tea-test-review-isolation-{ts}.json</span></td>
+          <td>Worker B output — isolation dimension score, violations, recommendations (temp)</td>
+        </tr>
+        <tr>
+          <td><span class="path">/tmp/tea-test-review-maintainability-{ts}.json</span></td>
+          <td>Worker C output — maintainability dimension score, violations, recommendations (temp)</td>
+        </tr>
+        <tr>
+          <td><span class="path">/tmp/tea-test-review-performance-{ts}.json</span></td>
+          <td>Worker E output — performance dimension score, violations, recommendations, parallelisable % (temp)</td>
+        </tr>
+        <tr>
+          <td><span class="path">/tmp/tea-test-review-summary-{ts}.json</span></td>
+          <td>Step 3F aggregated summary — overall + dimension scores, all violations, top-10 recommendations (used by Step 4 for report generation)</td>
+        </tr>
+        <tr>
+          <td><span class="path">{test_artifacts}/review-evidence.png</span></td>
+          <td>Browser screenshot (when <code>tea_browser_automation</code> is <code>cli</code> or <code>auto</code>)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="rule-box green">
+      <div class="rule-title">What's in test-review.md</div>
+      <ul>
+        <li>Scope reviewed (files, line counts, framework detected)</li>
+        <li>Overall score (e.g. <code>78/100 Grade C</code>) and per-dimension breakdown</li>
+        <li>HIGH violations listed first with file:line, code snippet, severity label, and exact fix</li>
+        <li>MEDIUM and LOW violations in subsequent sections</li>
+        <li>Top-10 prioritised recommendations ordered by impact</li>
+        <li>Context references: story acceptance criteria or test-design priorities (if available)</li>
+        <li>Coverage boundary note: "Coverage analysis is not in scope. Use <code>trace</code> for coverage metrics."</li>
+        <li>Recommended next workflow (<code>automate</code> to regenerate from scratch, or <code>trace</code> for coverage)</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</div>
+</body>
+</html>

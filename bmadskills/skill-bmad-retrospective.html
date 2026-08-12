@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retrospective — Guide</title>
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --navy:       #1d3557;
+
+    /* Party mode — agent identity colors */
+    --am-bg:  #dbeafe; --am-bdr: #93c5fd; --am-fg: #1e3a5f;  /* Amelia */
+    --al-bg:  #dcfce7; --al-bdr: #86efac; --al-fg: #14532d;  /* Alice */
+    --ch-bg:  #ffedd5; --ch-bdr: #fdba74; --ch-fg: #7c2d12;  /* Charlie */
+    --da-bg:  #f3e8ff; --da-bdr: #d8b4fe; --da-fg: #581c87;  /* Dana */
+    --el-bg:  #fee2e2; --el-bdr: #fca5a5; --el-fg: #7f1d1d;  /* Elena */
+    --us-bg:  #fef9c3; --us-bdr: #fde047; --us-fg: #713f12;  /* User */
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.65; font-size: 0.9375rem; position: relative;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .5;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "masthead masthead" "toc article";
+    max-width: 1340px; margin: 0 auto; min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ── Masthead ─────────────────────────────────── */
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 760px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Headings ─────────────────────────────────── */
+  h2.agent-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: var(--navy); }
+  h2.agent-heading em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.35rem; font-weight: 700; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+  h4.step-heading .step-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--ink-mute); color: var(--paper); padding: 1px 8px; letter-spacing: 0.1em; align-self: center; }
+  h4.step-heading .step-auto { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; background: var(--navy); color: var(--paper); padding: 1px 8px; letter-spacing: 0.1em; text-transform: uppercase; align-self: center; }
+  h4.step-heading .step-interactive { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; background: #92400e; color: var(--paper); padding: 1px 8px; letter-spacing: 0.1em; text-transform: uppercase; align-self: center; }
+
+  h5 { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.1rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.45; }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Step detail ──────────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 120px; margin-right: 8px; }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 22%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 39%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 39%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 200px; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  /* ── Inline list ──────────────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Philosophy callout ───────────────────────── */
+  .philosophy-callout { border: 2px solid var(--rule); background: var(--ink); color: var(--paper); padding: 20px 24px; margin: 20px 0 28px; }
+  .philosophy-callout .pc-eyebrow { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); margin-bottom: 10px; }
+  .philosophy-callout .pc-quote { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.15rem; font-weight: 400; font-style: italic; line-height: 1.5; color: var(--paper); margin-bottom: 10px; }
+  .philosophy-callout .pc-sub { font-size: 12.5px; color: rgba(244,237,224,.65); line-height: 1.55; }
+
+  /* ══ PARTY MODE DIALOGUE — distinctive visual ══ */
+  .party-panel-wrapper { border: 1px solid var(--rule); margin: 20px 0 32px; }
+  .party-panel-header { background: var(--ink); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .pp-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .pp-note { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: rgba(244,237,224,.6); }
+  .party-panel { padding: 20px; background: var(--paper); display: flex; flex-direction: column; gap: 14px; }
+
+  .dialogue-line { display: flex; gap: 12px; align-items: flex-start; }
+  .dialogue-badge { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; padding: 3px 10px; white-space: nowrap; flex-shrink: 0; border: 1px solid; letter-spacing: 0.05em; min-width: 180px; text-align: right; }
+  .dialogue-text { font-size: 0.875rem; color: var(--ink-soft); line-height: 1.55; flex: 1; padding-top: 3px; font-style: italic; }
+  .dialogue-text em { font-style: normal; color: var(--ink-mute); font-size: 0.8em; }
+  .dialogue-text strong { font-style: normal; font-weight: 700; color: var(--ink); }
+  .dialogue-divider { border: none; border-top: 1px dashed rgba(42,34,26,.18); margin: 4px 0; }
+
+  /* Wait marker */
+  .wait-line { display: flex; align-items: center; gap: 10px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #92400e; background: #fef3c7; border: 1px solid #fcd34d; padding: 6px 12px; align-self: flex-start; margin-left: 192px; }
+  .wait-line::before { content: '⏸'; font-size: 12px; }
+
+  /* Per-agent dialogue colors */
+  .badge-amelia  { background: var(--am-bg); border-color: var(--am-bdr); color: var(--am-fg); }
+  .badge-alice   { background: var(--al-bg); border-color: var(--al-bdr); color: var(--al-fg); }
+  .badge-charlie { background: var(--ch-bg); border-color: var(--ch-bdr); color: var(--ch-fg); }
+  .badge-dana    { background: var(--da-bg); border-color: var(--da-bdr); color: var(--da-fg); }
+  .badge-elena   { background: var(--el-bg); border-color: var(--el-bdr); color: var(--el-fg); }
+  .badge-user    { background: var(--us-bg); border-color: var(--us-bdr); color: var(--us-fg); }
+
+  /* ── Two-part structure ───────────────────────── */
+  .two-part { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 28px; }
+  .two-part > * { box-shadow: 0 0 0 1px var(--rule); }
+  .tp-half { background: var(--paper); padding: 20px; }
+  .tp-half .tp-eyebrow { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 6px; }
+  .tp-half .tp-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 12px; }
+  .tp-half .tp-list { list-style: none; padding: 0; margin: 0; }
+  .tp-half .tp-list li { font-size: 12.5px; color: var(--ink-soft); padding: 4px 0 4px 14px; position: relative; border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.4; }
+  .tp-half .tp-list li:last-child { border-bottom: none; }
+  .tp-half .tp-list li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .tp-half .tp-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+  .tp-epic-review { border-top: 4px solid var(--navy); }
+  .tp-next-prep   { border-top: 4px solid #14532d; }
+
+  /* ── Significant change alert ─────────────────── */
+  .discovery-alert { border: 2px solid #dc2626; background: #fff1f2; padding: 18px 20px; margin: 20px 0 28px; }
+  .da-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .da-badge { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; background: #dc2626; color: var(--paper); padding: 3px 12px; }
+  .da-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; color: #7f1d1d; }
+  .da-body { font-size: 0.875rem; color: var(--ink-soft); line-height: 1.6; }
+  .da-types { list-style: none; padding: 0; margin: 10px 0 0; }
+  .da-types li { font-size: 12.5px; padding: 5px 0 5px 16px; position: relative; color: var(--ink-soft); border-bottom: 1px dotted rgba(220,38,38,.2); }
+  .da-types li:last-child { border-bottom: none; }
+  .da-types li::before { content: '⚠'; position: absolute; left: 0; font-size: 10px; color: #dc2626; }
+
+  /* ── Retro output sections ────────────────────── */
+  .retro-sections { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 24px; }
+  .retro-sections > * { box-shadow: 0 0 0 1px var(--rule); }
+  .retro-section { background: var(--paper); padding: 14px 16px; }
+  .rs-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--accent); margin-bottom: 4px; }
+  .rs-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .rs-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.45; }
+
+  /* ── Phase group labels ───────────────────────── */
+  .phase-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--paper); padding: 4px 14px; display: inline-block; margin: 28px 0 0; }
+  .phase-auto     { background: var(--navy); }
+  .phase-discuss  { background: #92400e; }
+  .phase-save     { background: #166534; }
+
+  /* ── Agent roster strip ───────────────────────── */
+  .agent-roster { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 24px; }
+  .ar-agent { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 14px; border: 1px solid; min-width: 120px; }
+  .ar-name { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 0.9rem; font-weight: 700; }
+  .ar-role { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; }
+
+  .ar-amelia  { background: var(--am-bg); border-color: var(--am-bdr); }
+  .ar-amelia .ar-name { color: var(--am-fg); }
+  .ar-amelia .ar-role { color: var(--am-fg); opacity: 0.7; }
+  .ar-alice   { background: var(--al-bg); border-color: var(--al-bdr); }
+  .ar-alice .ar-name { color: var(--al-fg); }
+  .ar-alice .ar-role { color: var(--al-fg); opacity: 0.7; }
+  .ar-charlie { background: var(--ch-bg); border-color: var(--ch-bdr); }
+  .ar-charlie .ar-name { color: var(--ch-fg); }
+  .ar-charlie .ar-role { color: var(--ch-fg); opacity: 0.7; }
+  .ar-dana    { background: var(--da-bg); border-color: var(--da-bdr); }
+  .ar-dana .ar-name { color: var(--da-fg); }
+  .ar-dana .ar-role { color: var(--da-fg); opacity: 0.7; }
+  .ar-elena   { background: var(--el-bg); border-color: var(--el-bdr); }
+  .ar-elena .ar-name { color: var(--el-fg); }
+  .ar-elena .ar-role { color: var(--el-fg); opacity: 0.7; }
+  .ar-user    { background: var(--us-bg); border-color: var(--us-bdr); }
+  .ar-user .ar-name { color: var(--us-fg); }
+  .ar-user .ar-role { color: var(--us-fg); opacity: 0.7; }
+
+  /* ── Action item format ───────────────────────── */
+  .smart-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 24px; }
+  .smart-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .smart-cell { background: var(--paper); padding: 12px 14px; }
+  .sc-letter { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.5rem; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+  .sc-word { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); margin-bottom: 6px; }
+  .sc-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.4; }
+
+  /* ── Colophon ─────────────────────────────────── */
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .two-part { grid-template-columns: 1fr; }
+    .smart-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .dialogue-badge { min-width: 140px; font-size: 9px; }
+    .wait-line { margin-left: 152px; }
+    .retro-sections { grid-template-columns: 1fr 1fr; }
+    .agent-roster { gap: 6px; }
+    .ar-agent { min-width: 100px; }
+  }
+  @media (max-width: 600px) {
+    .dialogue-line { flex-direction: column; gap: 4px; }
+    .dialogue-badge { text-align: left; min-width: unset; }
+    .wait-line { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad · Retrospective</span>
+        <span>Skill · bmad-retrospective</span>
+        <span>Phase 4 · Per-Epic · Party Mode</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Retrospective <em>· Blameless Team Review</em></h1>
+    <p class="subtitle">Per-epic retrospective with party-mode multi-agent facilitation. Deep story analysis, previous retro cross-referencing, significant change detection, and next epic readiness check — all inside an authentic team conversation where the user is an active participant, not a passive observer.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-retrospective</dd></div>
+      <div><dt>Menu code</dt><dd>ER</dd></div>
+      <div><dt>Input</dt><dd>Completed epic + story files + sprint-status.yaml</dd></div>
+      <div><dt>Trigger</dt><dd>"run retrospective"</dd></div>
+      <div><dt>Agent</dt><dd>Amelia (Developer) · facilitator</dd></div>
+      <div><dt>Cadence</dt><dd>Per-epic, not per-sprint</dd></div>
+      <div><dt>Format</dt><dd>Party mode dialogue</dd></div>
+      <div><dt>Steps</dt><dd>12 · Interactive</dd></div>
+      <div><dt>Output</dt><dd>epic-{N}-retro-{date}.md + action_items in sprint-status.yaml</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#two-part">Two-Part Structure</a>
+      <a href="#agents">Participating Agents</a>
+      <a href="#key-capabilities">Key Capabilities</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#philosophy">Blameless Philosophy</a>
+      <a href="#why-party-mode">Why Party Mode?</a>
+      <a href="#why-per-epic">Per-Epic vs Per-Sprint</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#workflow">12-Step Workflow</a>
+      <a href="#phase-auto" class="toc-sub">Auto: Analysis (1–4)</a>
+      <a href="#party-mode-preview" class="toc-sub">Party Mode Preview</a>
+      <a href="#phase-discuss" class="toc-sub">Discussion (5–7)</a>
+      <a href="#change-detection" class="toc-sub">Change Detection</a>
+      <a href="#phase-save" class="toc-sub">Save &amp; Handoff (8–12)</a>
+      <a href="#retro-output">Retro Document Output</a>
+      <a href="#action-items">SMART Action Items</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Retrospective <em>· What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-retrospective</code></dd>
+        <dt>Trigger phrases</dt><dd>
+          <div class="menu-codes">
+            <code>run retrospective</code>
+            <code>let's retro the epic</code>
+          </div>
+        </dd>
+        <dt>Cadence</dt><dd>Once per epic — after the last story is marked <code>done</code>. Not per-sprint.</dd>
+        <dt>Format</dt><dd><strong>Party mode.</strong> All agents speak in <code>"Name (Role): dialogue"</code> format. Multiple WAIT points — the user is an active participant in discussion, not a passive observer.</dd>
+        <dt>Facilitation role</dt><dd>Amelia (Developer) facilitates with blameless framing: no blame, no judgment, focus on systems and processes. Disagreements are authentic — agents may challenge each other.</dd>
+        <dt>Two parts</dt><dd>Part 1: Epic Review (analysis + discussion of what happened). Part 2: Next Epic Preparation (preview N+1, readiness check, prep tasks).</dd>
+        <dt>Output artifacts</dt><dd><code>epic-{N}-retro-{date}.md</code> with 8 sections · <code>sprint-status.yaml</code>: <code>epic-{N}-retrospective → done</code> + the epic's SMART action items appended to a persistent <code>action_items</code> section (open items carry forward and are surfaced by <code>bmad-sprint-status</code>; preserved by <code>bmad-sprint-planning</code> on regenerate) · Optional 🚨 flag if epic N+1 plan is invalidated.</dd>
+        <dt>Upstream</dt><dd>Last story of an epic completes code review and is marked <code>done</code>.</dd>
+        <dt>Downstream</dt><dd>Preparation sprint executes critical-path tasks → <code>bmad-create-story</code> begins epic N+1.</dd>
+      </dl>
+    </section>
+
+    <section id="two-part">
+      <h3 class="skill-heading">
+        <span class="code-name">two-part-structure</span>
+        Two-Part Structure
+      </h3>
+
+      <div class="two-part">
+        <div class="tp-half tp-epic-review">
+          <div class="tp-eyebrow">Part 1</div>
+          <div class="tp-title">Epic Review</div>
+          <ul class="tp-list">
+            <li>Deep analysis of every story file from epic N</li>
+            <li>Cross-story patterns: struggles, breakthroughs, velocity</li>
+            <li>Previous retro follow-through — action items ✅ / ⏳ / ❌</li>
+            <li>Blameless party-mode discussion: what went well, challenges</li>
+            <li>Specific story examples referenced by number</li>
+            <li>Team disagreements surfaced and resolved in dialogue</li>
+          </ul>
+          <div class="tp-footer">Steps 1–6 · Analysis + Discussion</div>
+        </div>
+        <div class="tp-half tp-next-prep">
+          <div class="tp-eyebrow">Part 2</div>
+          <div class="tp-title">Next Epic Preparation</div>
+          <ul class="tp-list">
+            <li>Preview epic N+1: dependencies, stories, prerequisites</li>
+            <li>Critical path — what must complete before epic starts</li>
+            <li>Parallel prep — what can happen during early stories</li>
+            <li>🚨 Significant change detection — alerts if N+1 plan is invalidated</li>
+            <li>Final readiness check: testing, deployment, stakeholder acceptance</li>
+            <li>SMART action items (max 3) with named owners</li>
+          </ul>
+          <div class="tp-footer">Steps 7–12 · Planning + Save</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="agents">
+      <h3 class="skill-heading">
+        <span class="code-name">party-roster</span>
+        Participating Agents — Party Mode
+      </h3>
+      <p>Each agent speaks with a distinct voice, perspective, and role. The agent roster is loaded from <code>agent_roster</code> and filtered to those who participated in the epic. At minimum: Product Owner, Developer (facilitating), QA, and a Senior Dev are present.</p>
+
+      <div class="agent-roster">
+        <div class="ar-agent ar-amelia">
+          <div class="ar-name">Amelia</div>
+          <div class="ar-role">Developer · Facilitator</div>
+        </div>
+        <div class="ar-agent ar-alice">
+          <div class="ar-name">Alice</div>
+          <div class="ar-role">Product Owner</div>
+        </div>
+        <div class="ar-agent ar-charlie">
+          <div class="ar-name">Charlie</div>
+          <div class="ar-role">Senior Developer</div>
+        </div>
+        <div class="ar-agent ar-dana">
+          <div class="ar-name">Dana</div>
+          <div class="ar-role">QA Engineer</div>
+        </div>
+        <div class="ar-agent ar-elena">
+          <div class="ar-name">Elena</div>
+          <div class="ar-role">Junior Developer</div>
+        </div>
+        <div class="ar-agent ar-user">
+          <div class="ar-name">{user_name}</div>
+          <div class="ar-role">Project Lead · You</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="key-capabilities">
+      <h3 class="skill-heading">
+        <span class="code-name">key-capabilities</span>
+        Key Capabilities
+      </h3>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">Capability · 01</div>
+          <div class="card-name">Deep Story Analysis</div>
+          <div class="card-body"><ul>
+            <li>Reads every story file — no skipping</li>
+            <li>Extracts: dev notes, review feedback, lessons, tech debt, testing</li>
+            <li>Synthesizes cross-story patterns (N appeared in 3/5 stories)</li>
+            <li>Finds breakthrough moments and velocity inflection points</li>
+          </ul></div>
+          <div class="card-footer">Step 2 · fully automated</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 02</div>
+          <div class="card-name">Retro Continuity</div>
+          <div class="card-body"><ul>
+            <li>Loads previous epic's retro document (N-1)</li>
+            <li>Cross-checks each action item: ✅ Done / ⏳ In-progress / ❌ Not done</li>
+            <li>Surfaces consequence of unaddressed commitments</li>
+            <li>Creates accountability without blame</li>
+          </ul></div>
+          <div class="card-footer">Step 3 · automated</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 03</div>
+          <div class="card-name">Party Mode Dialogue</div>
+          <div class="card-body"><ul>
+            <li>Authentic back-and-forth with named agents</li>
+            <li>Disagreements, emotions, and diverse perspectives</li>
+            <li>Multiple WAIT points — user is active participant</li>
+            <li>Psychological safety: no blame, systems focus</li>
+          </ul></div>
+          <div class="card-footer">Steps 5–7 · interactive</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 04</div>
+          <div class="card-name">Significant Change Detection</div>
+          <div class="card-body"><ul>
+            <li>10-point checklist across: architecture, scope, technical approach</li>
+            <li>Checks if epic N learnings invalidate epic N+1 assumptions</li>
+            <li>If detected: 🚨 alert with specific wrong assumptions listed</li>
+            <li>Recommends planning review session before starting N+1</li>
+          </ul></div>
+          <div class="card-footer">Step 8 · critical analysis</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 05</div>
+          <div class="card-name">Readiness Check</div>
+          <div class="card-body"><ul>
+            <li>Testing &amp; quality: is it actually production-ready?</li>
+            <li>Deployment status and stakeholder acceptance</li>
+            <li>Codebase health (gut-check with team)</li>
+            <li>Unresolved blockers that affect epic N+1</li>
+          </ul></div>
+          <div class="card-footer">Step 9 · interactive</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 06</div>
+          <div class="card-name">SMART Action Items</div>
+          <div class="card-body"><ul>
+            <li>Max 3 action items — focused, not overwhelming</li>
+            <li>Specific · Measurable · Achievable · Relevant · Time-bound</li>
+            <li>Named owner per item, negotiated in dialogue</li>
+            <li>Prep tasks: critical / parallel / nice-to-have</li>
+          </ul></div>
+          <div class="card-footer">Step 8 · synthesis</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="philosophy">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Philosophy <em>· Blameless, Per-Epic, Party Mode</em>
+      </h2>
+
+      <div class="philosophy-callout">
+        <div class="pc-eyebrow">Blameless Mandate</div>
+        <div class="pc-quote">"Psychological safety is paramount. When people don't fear blame, they tell the truth about what actually happened — and real insight comes from what really happened, not the polished version."</div>
+        <div class="pc-sub">The framing is always systemic: "Why didn't the system catch this risk?" not "Why did Alex miss the deadline?" Naming a person as the cause shuts down honesty. Naming the system opens a conversation about how to improve it.</div>
+      </div>
+
+      <p class="lede">Three deliberate choices distinguish this retrospective from generic ceremony: it runs per-epic (enough data to see real patterns), it uses party mode (authentic dialogue surfaces what structured templates miss), and it has a hard ceiling of three action items (focus beats quantity).</p>
+    </section>
+
+    <section id="why-party-mode">
+      <h3 class="skill-heading">
+        <span class="code-name">why-party-mode</span>
+        Why Party Mode?
+      </h3>
+      <ul class="step-detail">
+        <li><strong class="label">Authenticity</strong>A scripted retrospective gets scripted answers. Party mode simulates real team dynamics — including disagreements, hesitation, and authentic reactions — which surfaces insights a structured template misses.</li>
+        <li><strong class="label">User as participant</strong>The user is not reading a report. They are in the conversation. Amelia asks them directly ("What's your take on this?"), the team reacts to what they say, and the direction of the conversation shifts based on their input.</li>
+        <li><strong class="label">Conflict resolution</strong>The skill generates realistic friction — Charlie defends a decision, Alice challenges it, Amelia facilitates without taking sides. The user helps resolve it. This is more useful than artificial consensus.</li>
+        <li><strong class="label">Named format</strong>Every utterance uses <code>"Name (Role): dialogue"</code> so the reader always knows who is speaking, what role they see the world from, and where their perspective comes from.</li>
+      </ul>
+    </section>
+
+    <section id="why-per-epic">
+      <h3 class="skill-heading">
+        <span class="code-name">why-per-epic</span>
+        Why Per-Epic, Not Per-Sprint?
+      </h3>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Per-sprint retrospective</th>
+            <th>Per-epic retrospective (BMad)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Data quantity</td>
+            <td>Too little — 2-3 stories is not enough to see cross-story patterns emerge</td>
+            <td>Enough — full epic gives meaningful sample size for pattern recognition</td>
+          </tr>
+          <tr>
+            <td>Ceremony fatigue</td>
+            <td>Frequent ceremonies feel like overhead. Teams start skipping them or phoning them in</td>
+            <td>Less frequent. Each retrospective feels meaningful because a real body of work just completed</td>
+          </tr>
+          <tr>
+            <td>Action item follow-through</td>
+            <td>Actions from sprint 3 are forgotten by sprint 5. No built-in accountability mechanism</td>
+            <td>Previous retro loaded at Step 3. Every action item cross-referenced: ✅ / ⏳ / ❌. No hiding</td>
+          </tr>
+          <tr>
+            <td>Next-work prep</td>
+            <td>No natural moment to review and validate the next epic's plan</td>
+            <td>Part 2 explicitly previews epic N+1, identifies gaps, and detects significant changes</td>
+          </tr>
+          <tr>
+            <td>Action items</td>
+            <td>Often 8-10 items — too many to track, most forgotten</td>
+            <td>Hard ceiling of 3 — focused, achievable, each with a named owner and success criteria</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <section id="workflow">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        How to Execute <em>· 12-Step Workflow</em>
+      </h2>
+    </section>
+
+    <!-- PHASE AUTO -->
+    <div class="phase-label phase-auto" id="phase-auto">Automated Analysis — Steps 1–4</div>
+
+    <h4 class="step-heading">
+      <span class="step-num">01</span>
+      Epic Discovery
+      <span class="step-auto">Automated</span>
+    </h4>
+    <ul class="step-detail">
+      <li><strong class="label">Priority 1</strong>Load full <code>sprint-status.yaml</code>. Find the highest epic number with at least one story marked <code>done</code>. Present finding to user and confirm.</li>
+      <li><strong class="label">Priority 2</strong>If sprint-status doesn't identify the epic: ask user directly — "Which epic number did you just complete?"</li>
+      <li><strong class="label">Priority 3</strong>Fallback: scan <code>implementation_artifacts</code> for highest-numbered story files. Extract epic number from filenames (<code>epic-X-Y-story-name.md</code>).</li>
+      <li><strong class="label">Completion check</strong>Verify all stories for this epic are <code>done</code>. If incomplete: Alice flags it. Amelia presents 3 options — complete stories first (recommended) / continue partial / refresh sprint-planning.</li>
+    </ul>
+
+    <h4 class="step-heading">
+      <span class="step-num">02</span>
+      Deep Story Analysis
+      <span class="step-auto">Automated</span>
+    </h4>
+    <ul class="step-detail">
+      <li><strong class="label">Read every file</strong>Load complete story file for each story in the epic. No skipping. Sections scanned: <code>## Dev Notes</code>, <code>## Challenges</code>, <code>## Development Log</code>, <code>## Review</code>, <code>## Lessons Learned</code>, <code>## Technical Debt</code>, <code>## Testing</code>.</li>
+      <li><strong class="label">Synthesize patterns</strong>Common struggles (appeared in 2+ stories), recurring review feedback, breakthrough moments, velocity trends, technical debt incurred.</li>
+      <li><strong class="label">Rich material</strong>These patterns drive the party-mode discussion — Amelia references specific story numbers and exact findings, not generalizations.</li>
+    </ul>
+
+    <h4 class="step-heading">
+      <span class="step-num">03</span>
+      Previous Retro Integration
+      <span class="step-auto">Automated</span>
+    </h4>
+    <ul class="step-detail">
+      <li><strong class="label">Load</strong>Search for <code>epic-{N-1}-retro-*.md</code> in <code>implementation_artifacts</code>. If none found: note it's the first retrospective.</li>
+      <li><strong class="label">Cross-reference</strong>For each action item from the previous retro: check evidence in current epic's story records. Mark status: ✅ Completed / ⏳ In Progress / ❌ Not Addressed.</li>
+      <li><strong class="label">Accountability</strong>Unaddressed items are connected to challenges in this epic. The dialogue makes this explicit — not as blame, but as pattern.</li>
+    </ul>
+
+    <h4 class="step-heading">
+      <span class="step-num">04</span>
+      Next Epic Preview
+      <span class="step-auto">Automated</span>
+    </h4>
+    <ul class="step-detail">
+      <li><strong class="label">Load</strong>Try sharded epic file first (<code>epic-{N+1}.md</code>), fall back to whole epics document. If no next epic found: note it and skip Part 2 discussion.</li>
+      <li><strong class="label">Analyze</strong>Epic N+1 title, stories, dependencies on epic N work, new technical requirements, potential risks, business goals.</li>
+      <li><strong class="label">Gap identification</strong>What from epic N is incomplete that epic N+1 depends on? What technical prerequisites are missing? What knowledge gaps must be filled?</li>
+    </ul>
+
+    <!-- Party Mode Preview — distinctive visual -->
+    <section id="party-mode-preview">
+      <h3 class="skill-heading">
+        <span class="code-name">party-mode</span>
+        Party Mode Dialogue Format
+        <span class="code-tag">preview</span>
+      </h3>
+      <p>This is the format every agent interaction takes during Steps 5–9. Dialogue is authentic — agents disagree, emotions are real, and the user is asked to weigh in at key decision points.</p>
+
+      <div class="party-panel-wrapper">
+        <div class="party-panel-header">
+          <span class="pp-label">Party Mode — Epic Review Discussion (Step 6 excerpt)</span>
+          <span class="pp-note">All agent dialogue uses "Name (Role): dialogue" format</span>
+        </div>
+        <div class="party-panel">
+
+          <div class="dialogue-line">
+            <span class="dialogue-badge badge-amelia">Amelia (Developer)</span>
+            <div class="dialogue-text">Before we start — I reviewed all story records. Story 3 had the most interesting pattern. The database migrations caused issues in three separate stories. Let's talk about that.</div>
+          </div>
+
+          <div class="dialogue-line">
+            <span class="dialogue-badge badge-dana">Dana (QA)</span>
+            <div class="dialogue-text">Oh I felt that. Testing was blocked for two days on Story 3 waiting for migrations to stabilise.</div>
+          </div>
+
+          <div class="dialogue-line">
+            <span class="dialogue-badge badge-charlie">Charlie (Senior Dev)</span>
+            <div class="dialogue-text"><em>defensive</em> The migrations were fine — the issue was that requirements kept changing mid-story. We were given a finalised schema that got three new fields added mid-sprint.</div>
+          </div>
+
+          <div class="dialogue-line">
+            <span class="dialogue-badge badge-alice">Alice (Product Owner)</span>
+            <div class="dialogue-text"><em>frustrated</em> That's not fair. We added those fields after the technical team didn't ask the right questions in planning. We flagged the risk — nobody asked about edge cases.</div>
+          </div>
+
+          <div class="dialogue-line">
+            <span class="dialogue-badge badge-amelia">Amelia (Developer)</span>
+            <div class="dialogue-text">Let's take a breath here. What I'm hearing: Elena lost most of a sprint, Charlie says requirements changed, Alice says questions weren't asked. All three can be true. <strong>{user_name}, you have visibility across the whole project — what's your read?</strong></div>
+          </div>
+
+          <div class="wait-line">WAIT — user input requested</div>
+
+          <hr class="dialogue-divider">
+
+          <div class="dialogue-line">
+            <span class="dialogue-badge badge-amelia">Amelia (Developer)</span>
+            <div class="dialogue-text"><em>synthesising user input</em> So the root cause was the planning process — not enough schema validation time before stories were started. Not anyone's fault. A process gap.</div>
+          </div>
+
+          <div class="dialogue-line">
+            <span class="dialogue-badge badge-elena">Elena (Junior Dev)</span>
+            <div class="dialogue-text">That makes sense. If we'd had a schema review session before Story 2, I probably could have flagged the gap myself.</div>
+          </div>
+
+          <div class="dialogue-line">
+            <span class="dialogue-badge badge-charlie">Charlie (Senior Dev)</span>
+            <div class="dialogue-text"><em>softening</em> Yeah. And I could have been clearer about my migration assumptions in the dev notes. Sorry for getting defensive, Alice.</div>
+          </div>
+
+          <div class="dialogue-line">
+            <span class="dialogue-badge badge-alice">Alice (Product Owner)</span>
+            <div class="dialogue-text">I appreciate that. I should have been more proactive about flagging the schema additions earlier. This is a good process insight.</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- PHASE DISCUSS -->
+    <div class="phase-label phase-discuss" id="phase-discuss">Discussion — Steps 5–7 (Interactive)</div>
+
+    <h4 class="step-heading">
+      <span class="step-num">05</span>
+      Initialize Team — Context Setting
+      <span class="step-interactive">Interactive</span>
+    </h4>
+    <ul class="step-detail">
+      <li><strong class="label">Team assembly</strong>Load agent roster, identify who participated in this epic from story records. Present epic summary: completion percentage, technical debt count, production incidents, business outcomes.</li>
+      <li><strong class="label">Next epic banner</strong>If epic N+1 exists: show dependencies on current work, preparation needed, technical prerequisites. Sets the stakes for Part 2.</li>
+      <li><strong class="label">Ground rules</strong>Amelia establishes: psychological safety first, no blame, focus on systems, specific examples preferred, everything said stays in the room unless team decides otherwise.</li>
+      <li><strong class="label">WAIT</strong>Amelia asks user: "Any questions before we dive in?" — user enters the conversation as Project Lead.</li>
+    </ul>
+
+    <h4 class="step-heading">
+      <span class="step-num">06</span>
+      Epic Review Discussion
+      <span class="step-interactive">Interactive · Multiple WAITs</span>
+    </h4>
+    <ul class="step-detail">
+      <li><strong class="label">Successes first</strong>Amelia opens: "What went well?" Team starts with genuine wins — UX that exceeded expectations, a caching pattern that set the template for the rest of the epic, a testing practice that actually worked.</li>
+      <li><strong class="label">Challenges second</strong>Transition to friction points. Real conflict may emerge. Amelia facilitates rather than suppresses — identifies when the argument is about a systemic gap and names it explicitly.</li>
+      <li><strong class="label">User engagement</strong>Amelia turns to the user at every key moment: "What's your take?" "Did you notice these patterns during the epic?" User input shifts the conversation direction.</li>
+      <li><strong class="label">Previous retro review</strong>If a prior retro exists: Amelia walks through each action item (Done / In-progress / Not addressed) and connects unaddressed items to challenges this epic faced.</li>
+      <li><strong class="label">Pattern integration</strong>Amelia weaves in findings from Step 2 deep analysis: "I noticed this showed up in 3 of 5 stories — let's talk about why." Specific story numbers, not vague generalisations.</li>
+    </ul>
+
+    <h4 class="step-heading">
+      <span class="step-num">07</span>
+      Next Epic Preparation Discussion
+      <span class="step-interactive">Interactive</span>
+    </h4>
+    <ul class="step-detail">
+      <li><strong class="label">Readiness question</strong>Amelia frames it: "Are we ready? What do we need to prepare?" Each agent surfaces their dimension — Alice: dependencies, Charlie: tech prep, Dana: testing infrastructure, Elena: knowledge gaps.</li>
+      <li><strong class="label">Healthy tension</strong>Alice pushes for stakeholder-friendly timelines, Charlie insists on technical prerequisites. Amelia asks: "What happens if we DON'T do this prep work?" The team explores the risk, not just the schedule.</li>
+      <li><strong class="label">Middle ground</strong>The team finds workable compromises — which prep is critical vs can run in parallel with early stories. User validates the approach.</li>
+      <li><strong class="label">Prep categories</strong>Critical (must complete before epic starts) · Parallel (can happen during early stories) · Nice-to-have (would help but not blocking).</li>
+    </ul>
+
+    <!-- Significant Change Detection -->
+    <section id="change-detection">
+      <h3 class="skill-heading">
+        <span class="code-name">change-detection</span>
+        Significant Change Detection
+        <span class="code-tag">🚨 alert</span>
+      </h3>
+      <p>At Step 8, the skill runs a 10-point checklist against epic N findings. If any trigger, a 🚨 alert is raised — the most important output of the entire retrospective for teams that do continuous planning.</p>
+
+      <div class="discovery-alert">
+        <div class="da-header">
+          <span class="da-badge">🚨 Significant Discovery Alert</span>
+          <div class="da-title">Epic N+1 plan may need revision before kickoff</div>
+        </div>
+        <div class="da-body">Triggered if any of the following are true based on retrospective discussion. When raised, a planning review session is added to the critical path — epic N+1 must NOT start until review is complete.</div>
+        <ul class="da-types">
+          <li>Architectural assumptions from planning were proven wrong during implementation</li>
+          <li>Major scope changes or descoping occurred that affects next epic's stories</li>
+          <li>Technical approach needs fundamental change for epic N+1</li>
+          <li>Dependencies discovered that epic N+1 doesn't account for</li>
+          <li>User needs significantly different than originally understood</li>
+          <li>Performance or scalability concerns that change epic N+1's design</li>
+          <li>Security or compliance issues discovered that change the approach</li>
+          <li>Integration assumptions proven incorrect</li>
+          <li>Team capacity or skill gaps more severe than planned</li>
+          <li>Technical debt level unsustainable without intervention before next epic</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- PHASE SAVE -->
+    <div class="phase-label phase-save" id="phase-save">Synthesis &amp; Save — Steps 8–12</div>
+
+    <h4 class="step-heading">
+      <span class="step-num">08</span>
+      Action Items + Change Detection
+      <span class="step-auto">Automated + Interactive</span>
+    </h4>
+    <ul class="step-detail">
+      <li><strong class="label">SMART items</strong>Synthesize discussion into max 3 concrete action items. Each: clear description, named owner, timeline, success criteria. Negotiate in dialogue — agents push back on unrealistic timelines.</li>
+      <li><strong class="label">Prep tasks</strong>Critical (before epic start) / Parallel (during early stories) / Nice-to-have. Total estimated effort surfaced.</li>
+      <li><strong class="label">Significant change</strong>Run 10-point checklist. If detected: 🚨 alert with wrong assumptions listed and recommended actions. User decides how to handle.</li>
+      <li><strong class="label">If clean</strong>"Nothing from epic N fundamentally changes our plan for epic N+1. The plan is still sound."</li>
+    </ul>
+
+    <h4 class="step-heading">
+      <span class="step-num">09</span>
+      Critical Readiness Check
+      <span class="step-interactive">Interactive</span>
+    </h4>
+    <ul class="step-detail">
+      <li><strong class="label">Testing &amp; quality</strong>Amelia: "Tell me about testing for this epic. What verification has been done?" Dana adds context. "Are you confident it's production-ready?"</li>
+      <li><strong class="label">Deployment status</strong>Is it live? Scheduled? Still pending? If not deployed: add deployment milestone to critical path with agreed timeline.</li>
+      <li><strong class="label">Stakeholder acceptance</strong>Have stakeholders seen and accepted the deliverables? Alice: "I've seen 'done' epics get rejected and force rework." Formal acceptance added to critical path if incomplete.</li>
+      <li><strong class="label">Codebase health</strong>Charlie's gut-check: "How does the codebase feel?" If stability concerns: identify what it would take to address them and whether to do it before epic N+1.</li>
+      <li><strong class="label">Unresolved blockers</strong>"Are there any unresolved issues from this epic we're carrying forward?" If found: named, assigned, added to critical path with priority and deadline.</li>
+    </ul>
+
+    <h4 class="step-heading">
+      <span class="step-num">10–12</span>
+      Closure, Save, and Handoff
+      <span class="step-auto">Automated</span>
+    </h4>
+    <ul class="step-detail">
+      <li><strong class="label">Celebration</strong>Amelia acknowledges the team's work: stories delivered, blockers overcome, growth demonstrated. Not perfunctory — specific to what this epic achieved.</li>
+      <li><strong class="label">Final input</strong>User given one last moment: "Any final thoughts before we close?" Their words acknowledged and woven into the closing.</li>
+      <li><strong class="label">Save retro doc</strong>Generate <code>epic-{N}-retro-{date}.md</code> with 8 sections (see below). Save to <code>implementation_artifacts</code>.</li>
+      <li><strong class="label">Sprint sync</strong>Load full <code>sprint-status.yaml</code>. Update <code>epic-{N}-retrospective</code> to <code>done</code> and append this epic's action items to the <code>action_items</code> section. Preserve all comments and structure.</li>
+      <li><strong class="label">Next steps</strong>Critical path, preparation sprint, action item review in next standup, optional epic N+1 planning review session (if significant changes detected).</li>
+    </ul>
+
+    <hr class="section-divider">
+
+    <!-- Retro Output -->
+    <section id="retro-output">
+      <h3 class="skill-heading">
+        <span class="code-name">retro-document</span>
+        Retrospective Document — 8 Sections
+      </h3>
+      <p>Saved as <code>epic-{N}-retro-{date}.md</code>. The previous retro is loaded at Step 3 of the next retrospective, creating a chain of accountability across epics.</p>
+
+      <div class="retro-sections">
+        <div class="retro-section">
+          <div class="rs-num">Section 01</div>
+          <div class="rs-title">Epic Summary &amp; Metrics</div>
+          <div class="rs-desc">Participants, story count, completion status, velocity, technical debt count, production incidents, business outcomes vs goals.</div>
+        </div>
+        <div class="retro-section">
+          <div class="rs-num">Section 02</div>
+          <div class="rs-title">Successes</div>
+          <div class="rs-desc">What went well with story-file evidence. Specific examples from discussion, not generalisations. Breakthrough moments called out.</div>
+        </div>
+        <div class="retro-section">
+          <div class="rs-num">Section 03</div>
+          <div class="rs-title">Challenges</div>
+          <div class="rs-desc">Friction points with blameless framing. Root causes identified as systemic. Where the team struggled across multiple stories.</div>
+        </div>
+        <div class="retro-section">
+          <div class="rs-num">Section 04</div>
+          <div class="rs-title">Key Insights</div>
+          <div class="rs-desc">Cross-story patterns, breakthrough discoveries, lessons applied from previous epics. What the team would do differently.</div>
+        </div>
+        <div class="retro-section">
+          <div class="rs-num">Section 05</div>
+          <div class="rs-title">Previous Retro Follow-Through</div>
+          <div class="rs-desc">For each action item from epic N-1: ✅ Completed / ⏳ In Progress / ❌ Not Addressed. Impact of unaddressed items on this epic.</div>
+        </div>
+        <div class="retro-section">
+          <div class="rs-num">Section 06</div>
+          <div class="rs-title">Next Epic Prep</div>
+          <div class="rs-desc">Gaps and prep tasks (critical / parallel / nice-to-have). Significant change flag if epic N+1 plan needs revision. Critical path with deadlines.</div>
+        </div>
+        <div class="retro-section">
+          <div class="rs-num">Section 07</div>
+          <div class="rs-title">Action Items</div>
+          <div class="rs-desc">Max 3 SMART items. Each: description, named owner, deadline, success criteria. Negotiated in dialogue — not top-down assigned. Also appended to <code>sprint-status.yaml</code>'s <code>action_items</code> section so they're tracked across sprints, not just in this document.</div>
+        </div>
+        <div class="retro-section">
+          <div class="rs-num">Section 08</div>
+          <div class="rs-title">Readiness Assessment</div>
+          <div class="rs-desc">Testing status, deployment status, stakeholder acceptance, codebase health, unresolved blockers. Binary: clear to proceed, or critical items outstanding.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="action-items">
+      <h3 class="skill-heading">
+        <span class="code-name">smart-items</span>
+        SMART Action Item Criteria
+      </h3>
+      <p>Hard limit: 3 action items per retrospective. Focus beats quantity — a team that does 3 things reliably outperforms one that commits to 10 and follows through on 2.</p>
+
+      <div class="smart-grid">
+        <div class="smart-cell">
+          <div class="sc-letter">S</div>
+          <div class="sc-word">Specific</div>
+          <div class="sc-desc">Clear and unambiguous. No vague aspirations like "improve communication".</div>
+        </div>
+        <div class="smart-cell">
+          <div class="sc-letter">M</div>
+          <div class="sc-word">Measurable</div>
+          <div class="sc-desc">Success criteria defined. You can verify it's done at the next retro.</div>
+        </div>
+        <div class="smart-cell">
+          <div class="sc-letter">A</div>
+          <div class="sc-word">Achievable</div>
+          <div class="sc-desc">Realistic given team constraints — negotiated in dialogue, not imposed.</div>
+        </div>
+        <div class="smart-cell">
+          <div class="sc-letter">R</div>
+          <div class="sc-word">Relevant</div>
+          <div class="sc-desc">Addresses a real issue surfaced during the retrospective discussion.</div>
+        </div>
+        <div class="smart-cell">
+          <div class="sc-letter">T</div>
+          <div class="sc-word">Time-bound</div>
+          <div class="sc-desc">Has a clear deadline, agreed by the agent who owns it.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

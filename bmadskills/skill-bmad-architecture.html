@@ -1,0 +1,2190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Architecture — Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #1a1612;
+        --ink-soft: #4a3f35;
+        --ink-mute: #8a7c6d;
+        --paper: #f4ede0;
+        --paper-warm: #ebe1cf;
+        --rule: #2a221a;
+        --accent: #c2410c;
+        --accent-soft: #ea580c;
+        --highlight: #f4ede0;
+        --code-bg: #1a1612;
+        --code-fg: #f4ede0;
+        --blue: #1d3557;
+        --blue-soft: #2a4a7f;
+        --green: #2d6a4f;
+        --green-bg: #d8f3dc;
+        --red-bg: #ffe8e3;
+        --blue-bg: #e8f0f8;
+        --arch: #1d3557;
+        --arch-soft: #2a4a7f;
+        --arch-bg: #e8f0f8;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        font-size: 16px;
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'Inter Tight', sans-serif;
+        line-height: 1.65;
+        font-size: 0.9375rem;
+        position: relative;
+      }
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.5;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 300px minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
+        grid-template-areas: 'masthead masthead' 'toc article';
+        max-width: 1340px;
+        margin: 0 auto;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+      }
+
+      header.masthead {
+        grid-area: masthead;
+        border-bottom: 2px solid var(--rule);
+        padding: 28px 40px 24px;
+        background: var(--paper-warm);
+      }
+      .masthead-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--ink-mute);
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .masthead-top .left {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .preview-badge {
+        background: var(--arch);
+        color: var(--paper);
+        padding: 2px 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+      }
+      h1.title {
+        font-family: 'Fraunces', serif;
+        font-size: clamp(1.8rem, 4vw, 2.9rem);
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        line-height: 1.1;
+        color: var(--ink);
+        margin-bottom: 8px;
+      }
+      h1.title em {
+        font-style: italic;
+        font-weight: 300;
+        color: var(--ink-soft);
+      }
+      p.subtitle {
+        font-size: 0.96rem;
+        color: var(--ink-soft);
+        max-width: 700px;
+        line-height: 1.55;
+        margin-bottom: 18px;
+      }
+      dl.meta-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+        border: 1px solid var(--rule);
+        border-right: none;
+      }
+      dl.meta-grid > div {
+        border-right: 1px solid var(--rule);
+        padding: 8px 16px;
+        min-width: 120px;
+      }
+      dl.meta-grid dt {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--ink-mute);
+        margin-bottom: 3px;
+      }
+      dl.meta-grid dd {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--ink);
+      }
+
+      /* ── Sidebar ──────────────────────────────────── */
+      aside.toc {
+        grid-area: toc;
+        border-right: 1px solid var(--rule);
+        padding: 32px 0;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      .toc-section-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        color: var(--ink-mute);
+        padding: 14px 24px 6px;
+        border-bottom: 1px solid rgba(42, 34, 26, 0.12);
+        margin-bottom: 6px;
+      }
+      .toc-section-label:first-child {
+        padding-top: 0;
+      }
+      aside.toc nav a {
+        display: block;
+        padding: 5px 24px;
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        text-decoration: none;
+        border-bottom: none;
+        letter-spacing: -0.005em;
+      }
+      aside.toc nav a.toc-sub {
+        padding-left: 38px;
+        font-size: 11.5px;
+        color: var(--ink-mute);
+      }
+      aside.toc nav a:hover {
+        color: var(--arch);
+      }
+
+      /* ── Article ──────────────────────────────────── */
+      main.article {
+        grid-area: article;
+        padding: 48px 56px 80px;
+      }
+
+      /* ── Section headings ─────────────────────────── */
+      h2.agent-heading {
+        font-family: 'Fraunces', serif;
+        font-size: clamp(1.4rem, 2.5vw, 2rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        margin-bottom: 20px;
+        line-height: 1.15;
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      h2.agent-heading .marker {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--paper);
+        background: var(--ink);
+        padding: 3px 10px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        align-self: center;
+      }
+      h2.agent-heading .marker.why {
+        background: var(--accent);
+      }
+      h2.agent-heading .marker.how {
+        background: var(--arch);
+      }
+      h2.agent-heading em {
+        font-style: italic;
+        font-weight: 300;
+        color: var(--ink-soft);
+      }
+
+      h3.skill-heading {
+        font-family: 'Fraunces', serif;
+        font-size: 1.35rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 44px 0 16px;
+        letter-spacing: -0.015em;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      h3.skill-heading .code-name {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        font-weight: 700;
+        background: var(--arch);
+        color: var(--paper);
+        padding: 2px 10px;
+        letter-spacing: 0.04em;
+        vertical-align: 2px;
+        white-space: nowrap;
+      }
+      h3.skill-heading .code-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        font-weight: 700;
+        background: var(--accent);
+        color: var(--paper);
+        padding: 2px 8px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        vertical-align: 2px;
+      }
+
+      h4.step-heading {
+        font-family: 'Fraunces', serif;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 28px 0 10px;
+        letter-spacing: -0.005em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      h4.step-heading::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: var(--arch);
+        flex-shrink: 0;
+        transform: rotate(45deg);
+      }
+
+      h5 {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--arch);
+        margin: 24px 0 8px;
+      }
+      h5.red {
+        color: var(--accent);
+      }
+      h5.green {
+        color: var(--green);
+      }
+
+      p {
+        margin-bottom: 14px;
+        line-height: 1.68;
+      }
+      p.lede {
+        font-size: 1.05rem;
+        color: var(--ink-soft);
+        font-style: italic;
+        margin-bottom: 20px;
+      }
+      code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.83em;
+        background: var(--paper-warm);
+        border: 1px solid rgba(42, 34, 26, 0.2);
+        padding: 1px 5px;
+        color: var(--ink-soft);
+        border-radius: 1px;
+      }
+      a {
+        color: var(--arch);
+        text-decoration: none;
+        border-bottom: 1px dotted var(--arch);
+      }
+      a:hover {
+        color: var(--arch-soft);
+      }
+      strong {
+        font-weight: 700;
+        color: var(--ink);
+      }
+      em {
+        font-style: italic;
+      }
+
+      /* ── Persona block ────────────────────────────── */
+      dl.persona-block {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        margin: 0 0 28px;
+        display: grid;
+        grid-template-columns: 160px 1fr;
+      }
+      dl.persona-block dt {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--ink-mute);
+        padding: 9px 14px;
+        border-bottom: 1px dotted rgba(42, 34, 26, 0.18);
+        border-right: 1px solid rgba(42, 34, 26, 0.18);
+        background: var(--paper-warm);
+      }
+      dl.persona-block dd {
+        font-size: 0.875rem;
+        padding: 9px 14px;
+        border-bottom: 1px dotted rgba(42, 34, 26, 0.18);
+        color: var(--ink-soft);
+        line-height: 1.5;
+      }
+      dl.persona-block dt:last-of-type,
+      dl.persona-block dd:last-child {
+        border-bottom: none;
+      }
+      .menu-codes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .menu-codes code {
+        background: var(--ink);
+        color: var(--paper);
+        border: none;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 7px;
+      }
+
+      /* ── Data callout ─────────────────────────────── */
+      .data-callout {
+        margin: 20px 0 28px;
+        border: 1px solid var(--rule);
+        background: var(--paper-warm);
+      }
+      .data-callout .data-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--ink);
+        color: var(--paper);
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .data-callout .data-head .data-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        color: var(--highlight);
+        font-weight: 700;
+      }
+      .data-callout .data-head .data-source {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: var(--paper);
+        opacity: 0.7;
+      }
+      .data-callout table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        line-height: 1.45;
+        background: var(--paper);
+      }
+      .data-callout th {
+        text-align: left;
+        padding: 8px 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--arch);
+        font-weight: 700;
+        border-bottom: 2px solid var(--rule);
+        background: var(--paper-warm);
+      }
+      .data-callout td {
+        padding: 9px 12px;
+        border-bottom: 1px dotted rgba(26, 22, 18, 0.18);
+        vertical-align: top;
+        color: var(--ink);
+      }
+      .data-callout tr:last-child td {
+        border-bottom: none;
+      }
+      .data-callout td.key-col {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--arch);
+        white-space: nowrap;
+        width: 160px;
+      }
+      .data-callout td ul {
+        margin: 0;
+        padding: 0 0 0 14px;
+        font-size: 12px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+      .data-callout tr.tier-best td {
+        border-left: 3px solid var(--green);
+      }
+      .data-callout tr.tier-strong td {
+        border-left: 3px solid var(--arch);
+      }
+      .data-callout tr.tier-moderate td {
+        border-left: 3px solid var(--accent);
+      }
+      .data-callout tr.tier-thin td {
+        border-left: 3px solid var(--ink-mute);
+        color: var(--ink-mute);
+      }
+
+      /* ── Module grid ──────────────────────────────── */
+      .module-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1px;
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        margin: 16px 0 32px;
+      }
+      .module-card {
+        background: var(--paper);
+        padding: 16px 18px;
+        box-shadow: 0 0 0 1px var(--rule);
+      }
+      .module-card .card-code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--arch);
+        margin-bottom: 6px;
+      }
+      .module-card .card-code.red {
+        color: var(--accent);
+      }
+      .module-card .card-code.green {
+        color: var(--green);
+      }
+      .module-card .card-name {
+        font-family: 'Fraunces', serif;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--ink);
+        letter-spacing: -0.01em;
+        margin-bottom: 10px;
+      }
+      .module-card .card-body {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        line-height: 1.55;
+      }
+      .module-card .card-body ul {
+        list-style: none;
+        padding: 0;
+        margin: 4px 0 0;
+      }
+      .module-card .card-body li {
+        padding: 2px 0 2px 14px;
+        position: relative;
+        font-size: 11.5px;
+        border-bottom: 1px dotted rgba(42, 34, 26, 0.1);
+      }
+      .module-card .card-body li:last-child {
+        border-bottom: none;
+      }
+      .module-card .card-body li::before {
+        content: '›';
+        position: absolute;
+        left: 0;
+        color: var(--arch);
+        font-weight: 700;
+      }
+      .module-card .card-footer {
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px dashed rgba(42, 34, 26, 0.2);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--ink-mute);
+      }
+
+      /* ── Inline list ──────────────────────────────── */
+      ul.inline-list {
+        list-style: none;
+        margin: 0 0 16px;
+        padding: 0;
+      }
+      ul.inline-list li {
+        padding: 4px 0 4px 18px;
+        position: relative;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        color: var(--ink-soft);
+      }
+      ul.inline-list li::before {
+        content: '◆';
+        position: absolute;
+        left: 0;
+        top: 6px;
+        font-size: 6px;
+        color: var(--arch);
+      }
+
+      /* ── Step detail list ─────────────────────────── */
+      ul.step-detail {
+        list-style: none;
+        margin: 0 0 18px;
+        border: 1px solid rgba(42, 34, 26, 0.15);
+        background: var(--paper);
+      }
+      ul.step-detail li {
+        padding: 9px 14px;
+        border-bottom: 1px dotted rgba(42, 34, 26, 0.14);
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+      ul.step-detail li:last-child {
+        border-bottom: none;
+      }
+      ul.step-detail .label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--arch);
+        display: inline-block;
+        min-width: 110px;
+        margin-right: 8px;
+      }
+
+      /* ── Flow steps ───────────────────────────────── */
+      .flow-steps {
+        margin: 20px 0 32px;
+      }
+      .flow-step {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 0;
+        border: 1px solid var(--rule);
+        border-bottom: none;
+        background: var(--paper);
+      }
+      .flow-step:last-child {
+        border-bottom: 1px solid var(--rule);
+      }
+      .flow-step-num {
+        background: var(--arch);
+        color: var(--paper);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 18px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 60px;
+        flex-shrink: 0;
+      }
+      .flow-step-body {
+        padding: 14px 18px;
+        border-left: 1px solid var(--rule);
+      }
+      .flow-step-title {
+        font-family: 'Fraunces', serif;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 6px;
+      }
+      .flow-step-desc {
+        font-size: 13px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+      .flow-step-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--arch);
+        margin-bottom: 4px;
+      }
+      .flow-step-detail {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed rgba(42, 34, 26, 0.15);
+      }
+      .flow-step-detail ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .flow-step-detail li {
+        font-size: 12px;
+        color: var(--ink-soft);
+        padding: 3px 0 3px 16px;
+        position: relative;
+        line-height: 1.5;
+      }
+      .flow-step-detail li::before {
+        content: '›';
+        position: absolute;
+        left: 0;
+        color: var(--arch);
+        font-weight: 700;
+      }
+
+      /* ── Notice box ───────────────────────────────── */
+      .notice {
+        border: 1px solid var(--rule);
+        background: var(--paper-warm);
+        padding: 14px 18px;
+        margin: 0 0 24px;
+        font-size: 13px;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+      .notice strong {
+        color: var(--arch);
+      }
+      .notice.warn strong {
+        color: var(--accent);
+      }
+
+      /* ── Req tag list ─────────────────────────────── */
+      .req-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+        margin: 16px 0 28px;
+      }
+      .req-card {
+        border: 1px solid var(--rule);
+        background: var(--paper);
+        padding: 14px 16px;
+      }
+      .req-card .req-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        margin-bottom: 6px;
+      }
+      .req-card .req-label.required {
+        color: var(--accent);
+      }
+      .req-card .req-label.optional {
+        color: var(--green);
+      }
+      .req-card .req-label.skill {
+        color: var(--arch);
+      }
+      .req-card .req-title {
+        font-family: 'Fraunces', serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 6px;
+      }
+      .req-card .req-desc {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        line-height: 1.5;
+      }
+
+      /* ── Section divider ──────────────────────────── */
+      hr.section-divider {
+        border: none;
+        border-top: 1px solid var(--rule);
+        margin: 56px 0;
+        position: relative;
+        text-align: center;
+      }
+      hr.section-divider::after {
+        content: '◆ ◆ ◆';
+        position: absolute;
+        top: -9px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--paper);
+        padding: 0 12px;
+        font-size: 8px;
+        color: var(--ink-mute);
+        letter-spacing: 6px;
+      }
+
+      footer.colophon {
+        grid-column: 1 / -1;
+        border-top: 2px solid var(--rule);
+        padding: 20px 40px;
+        background: var(--paper-warm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-mute);
+      }
+      footer.colophon strong {
+        color: var(--arch);
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+          grid-template-areas: 'masthead' 'article';
+        }
+        aside.toc {
+          display: none;
+        }
+        main.article {
+          padding: 32px 24px 60px;
+        }
+        .req-grid {
+          grid-template-columns: 1fr;
+        }
+        .flow-step {
+          grid-template-columns: 36px 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <!-- MASTHEAD -->
+      <header class="masthead">
+        <div class="masthead-top">
+          <div class="left">
+            <span>BMAD Method</span>
+            <span>Phase 03 · Solutioning</span>
+            <span>Workflow 03·A</span>
+          </div>
+          <span class="preview-badge">Architect · Winston</span>
+        </div>
+        <h1 class="title">Architecture <em>Spine</em></h1>
+        <p class="subtitle">
+          Intent-routed (create / update / validate) lean-spine model — fixes
+          only the invariants a future builder can't read off compliant code,
+          then produces <code>ARCHITECTURE-SPINE.md</code> as the single
+          source of truth, backed by a breadth-coverage rubric and a Reviewer
+          Gate.
+        </p>
+        <dl class="meta-grid">
+          <div>
+            <dt>Skill code</dt>
+            <dd>bmad-architecture <span style="font-size:11px;color:var(--ink-mute);">v6.10.0</span></dd>
+          </div>
+          <div>
+            <dt>Input</dt>
+            <dd>SPEC.md / PRD / raw idea / existing codebase</dd>
+          </div>
+          <div>
+            <dt>Trigger</dt>
+            <dd>"create the architecture" / "create technical architecture" / "architecture spine"</dd>
+          </div>
+          <div>
+            <dt>Agent</dt>
+            <dd>Architect (Winston)</dd>
+          </div>
+          <div>
+            <dt>Phase</dt>
+            <dd>03 · A</dd>
+          </div>
+          <div>
+            <dt>Steps</dt>
+            <dd>8 · Coaching / Fast path</dd>
+          </div>
+          <div>
+            <dt>Output</dt>
+            <dd>ARCHITECTURE-SPINE.md · ADRs/*.md</dd>
+          </div>
+          <div>
+            <dt>Superseded</dt>
+            <dd><code>bmad-create-architecture</code> — deprecated forwarding shim</dd>
+          </div>
+        </dl>
+      </header>
+
+      <!-- SIDEBAR TOC -->
+      <aside class="toc">
+        <div class="toc-section-label">Overview</div>
+        <nav>
+          <a href="#what">What It Does</a>
+          <a href="#why">Why It Matters</a>
+          <a href="#before">Before You Start</a>
+          <a class="toc-sub" href="#prereqs-docs">Required Documents</a>
+          <a class="toc-sub" href="#prereqs-skills">Skills &amp; Knowledge</a>
+        </nav>
+        <div class="toc-section-label">8-Step Process</div>
+        <nav>
+          <span id="how" aria-hidden="true"></span>
+          <a href="#how-steps">Process Overview</a>
+          <a class="toc-sub" href="#step-1">01 · Detect Intent</a>
+          <a class="toc-sub" href="#step-2">02 · Coaching vs Fast</a>
+          <a class="toc-sub" href="#step-3">03 · Read the Input</a>
+          <a class="toc-sub" href="#step-4">04 · Paradigm &amp; Seed</a>
+          <a class="toc-sub" href="#step-5">05 · Memlog</a>
+          <a class="toc-sub" href="#step-6">06 · Distill the Spine</a>
+          <a class="toc-sub" href="#step-7">07 · Reviewer Gate</a>
+          <a class="toc-sub" href="#step-8">08 · Renderings &amp; Handoff</a>
+        </nav>
+        <div class="toc-section-label">Techniques</div>
+        <nav>
+          <span id="toolkit" aria-hidden="true"></span>
+          <a href="#toolkit-section">Applied Toolkit</a>
+          <a class="toc-sub" href="#tech-decision-frameworks"
+            >Decision Frameworks</a
+          >
+          <a class="toc-sub" href="#tech-patterns">Pattern Categories</a>
+          <a class="toc-sub" href="#tech-validation">Validation Methods</a>
+          <a class="toc-sub" href="#tech-menu">A/P/C Menu Protocol</a>
+        </nav>
+      </aside>
+
+      <!-- MAIN ARTICLE -->
+      <main class="article">
+        <!-- ══════════════════════════════════════════════
+         WHAT
+    ═══════════════════════════════════════════════ -->
+        <section id="what">
+          <h2 class="agent-heading">
+            <span class="marker">What</span>
+            <em>bmad-architecture</em>
+          </h2>
+
+          <p class="lede">
+            An intent-routed lean-spine model — Create, Update, or Validate —
+            that fixes only the invariants a future builder can't read off
+            compliant code, and produces <code>ARCHITECTURE-SPINE.md</code> as
+            the single source of truth.
+          </p>
+
+          <p>
+            The <code>bmad-architecture</code> skill replaces the old fixed
+            11-step <code>bmad-create-architecture</code> flow (now a
+            deprecated forwarding shim). Instead of marching through a fixed
+            sequence of categories, it first detects which of three intents
+            applies — <strong>Create</strong> a spine from scratch,
+            <strong>Update</strong> an existing one, or
+            <strong>Validate</strong> one without changing it — then routes
+            into a <strong>Coaching path</strong> (open-ended elicitation,
+            load-bearing calls shown not silently made) or a
+            <strong>Fast path</strong> (draft the whole spine with
+            <code>[ASSUMPTION]</code> tags for review).
+          </p>
+
+          <p>
+            Every decision, constraint, version, assumption, and open question
+            is logged to an append-only <code>.memlog.md</code> as it's made —
+            the run's working memory. <code>ARCHITECTURE-SPINE.md</code> is
+            then distilled from that memlog: invariants first, seed kept
+            minimal, every AD (architecture decision) carrying
+            Binds/Prevents/Rule, and Deferred items naming what the spine
+            deliberately does not decide. A breadth-coverage rubric plus a
+            Reviewer Gate (deterministic lint + rubric walker + parallel
+            subagent lenses) runs before the spine is marked final.
+          </p>
+
+          <dl class="persona-block">
+            <dt>Skill ID</dt>
+            <dd><code>bmad-architecture</code> — supersedes the deprecated <code>bmad-create-architecture</code></dd>
+            <dt>Role</dt>
+            <dd>
+              Architectural facilitator — coaches decisions out of the user
+              rather than silently inventing them
+            </dd>
+            <dt>Primary Output</dt>
+            <dd>
+              <code>ARCHITECTURE-SPINE.md</code> — distilled from the memlog,
+              not hand-edited directly
+            </dd>
+            <dt>Secondary Outputs</dt>
+            <dd>
+              <code>ADRs/*.md</code> (immutable, one file per major decision) ·
+              <code>.memlog.md</code> (append-only audit trail) · optional
+              human-facing renderings
+            </dd>
+            <dt>Session Resume</dt>
+            <dd>
+              Detects an existing run folder under
+              <code>{workflow.spine_output_path}</code> and offers to resume
+              from its memlog instead of restarting
+            </dd>
+            <dt>Activation Modes</dt>
+            <dd>
+              <div class="menu-codes">
+                <code>Create</code> new spine <code>Update</code> existing
+                spine <code>Validate</code> spine without changing it
+              </div>
+            </dd>
+          </dl>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- ══════════════════════════════════════════════
+         WHY
+    ═══════════════════════════════════════════════ -->
+        <section id="why">
+          <h2 class="agent-heading">
+            <span class="marker why">Why</span>
+            The case for structured architecture
+          </h2>
+
+          <p class="lede">
+            Without a shared architectural blueprint, AI agents make independent
+            decisions — and those decisions conflict.
+          </p>
+
+          <p>
+            When multiple AI agents implement different parts of a system
+            without a single reference document, the same concept gets named
+            differently across modules, API response formats diverge, error
+            handling strategies clash, and the project structure becomes
+            inconsistent. The first agent calls a table <code>users</code>; the
+            second calls it <code>User</code>; the third stores user IDs as
+            <code>userId</code> in one service and <code>user_id</code> in
+            another.
+          </p>
+
+          <p>
+            <strong>The architecture document prevents this</strong> by
+            establishing decisions once, collaboratively, before implementation
+            begins. Every downstream agent reads the same document and
+            implements within the same constraints.
+          </p>
+
+          <div class="module-grid">
+            <div class="module-card">
+              <div class="card-code">Problem</div>
+              <div class="card-name">Naming Conflicts</div>
+              <div class="card-body">
+                Different agents choose different naming conventions — tables,
+                endpoints, files, variables — creating an inconsistent codebase
+                that breaks at integration.
+              </div>
+            </div>
+            <div class="module-card">
+              <div class="card-code">Problem</div>
+              <div class="card-name">Decision Drift</div>
+              <div class="card-body">
+                Without documented rationale, teams re-debate the same decisions
+                6 months later. ADRs record not just <em>what</em> was decided
+                but <em>why</em> — and what alternatives were rejected.
+              </div>
+            </div>
+            <div class="module-card">
+              <div class="card-code">Problem</div>
+              <div class="card-name">Hidden Trade-offs</div>
+              <div class="card-body">
+                Technology choices have cascading implications. Choosing a
+                monolith vs microservices affects deployment, scaling, testing
+                strategy, and team structure — all downstream.
+              </div>
+            </div>
+            <div class="module-card">
+              <div class="card-code red">Solution</div>
+              <div class="card-name">Single Source of Truth</div>
+              <div class="card-body">
+                The architecture document becomes the canonical reference. Any
+                agent with a technical question consults it first. The answer is
+                already there.
+              </div>
+            </div>
+            <div class="module-card">
+              <div class="card-code red">Solution</div>
+              <div class="card-name">Consistent Implementation</div>
+              <div class="card-body">
+                Naming conventions, structure patterns, API formats, and error
+                handling are defined once. All agents follow them exactly — the
+                document enforces consistency, not hope.
+              </div>
+            </div>
+            <div class="module-card">
+              <div class="card-code red">Solution</div>
+              <div class="card-name">Collaborative Discovery</div>
+              <div class="card-body">
+                The AI acts as facilitator, not oracle. User preferences,
+                existing constraints, and team experience shape decisions — the
+                document reflects reality, not assumptions.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- ══════════════════════════════════════════════
+         BEFORE YOU START
+    ═══════════════════════════════════════════════ -->
+        <section id="before">
+          <h2 class="agent-heading">
+            <span class="marker">Before</span>
+            Prerequisites &amp; inputs
+          </h2>
+
+          <p class="lede">
+            The input's shape decides the job — a <code>SPEC.md</code> +
+            memlog is the richest, preferred start, but a raw idea, an
+            existing codebase, or an existing spine to extend all route to a
+            working session.
+          </p>
+
+          <div class="notice warn">
+            <strong>Job-shaped, not document-shaped.</strong> Unlike the old
+            <code>bmad-create-architecture</code> flow, this skill does not
+            hard-block on a missing PRD. If the real ask is requirements, UX,
+            or an epic breakdown, Step 1 redirects to <code>bmad-prd</code>,
+            <code>bmad-ux</code>, <code>bmad-spec</code>, or
+            <code>bmad-create-epics-and-stories</code> instead.
+          </div>
+
+          <h5 id="prereqs-docs">Required &amp; Optional Documents</h5>
+
+          <div class="req-grid">
+            <div class="req-card">
+              <div class="req-label required">Preferred</div>
+              <div class="req-title">SPEC.md + memlog</div>
+              <div class="req-desc">
+                The richest possible start — a distilled spec package with its
+                own decision memlog. When present, the spine inherits its
+                invariants directly instead of re-discovering them.
+              </div>
+            </div>
+            <div class="req-card">
+              <div class="req-label optional">Optional · High Value</div>
+              <div class="req-title">PRD.md + DESIGN.md/EXPERIENCE.md</div>
+              <div class="req-desc">
+                Product Requirements Document and UX Specification — FRs,
+                NFRs, constraints, personas, and frontend/design-system
+                context. Still the most common greenfield input pair.
+              </div>
+            </div>
+            <div class="req-card">
+              <div class="req-label optional">Optional · High Value</div>
+              <div class="req-title">project-context.md</div>
+              <div class="req-desc">
+                Existing technical conventions. For brownfield work, Step 3
+                investigates real code and this file to ratify existing
+                conventions rather than invent new ones.
+              </div>
+            </div>
+            <div class="req-card">
+              <div class="req-label optional">Optional</div>
+              <div class="req-title">Research Documents</div>
+              <div class="req-desc">
+                Market, Domain, or Technical Research outputs from the Research
+                Trio. Provide competitive context, domain constraints, and
+                technology landscape — sharpens decision rationale.
+              </div>
+            </div>
+            <div class="req-card">
+              <div class="req-label optional">Optional</div>
+              <div class="req-title">Existing Spine (Update / Validate)</div>
+              <div class="req-desc">
+                If a run folder already exists under
+                <code>{workflow.spine_output_path}</code>, Step 1 offers to
+                resume from its memlog. Inheriting a parent spine (e.g. one
+                epic of a feature spine) loads its ADs and paradigm as binding,
+                read-only Inherited Invariants.
+              </div>
+            </div>
+          </div>
+
+          <h5 id="prereqs-skills">Skills &amp; Knowledge Needed</h5>
+
+          <div class="data-callout">
+            <div class="data-head">
+              <span class="data-label">Knowledge Areas</span>
+              <span class="data-source"
+                >For effective architecture decisions</span
+              >
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Area</th>
+                  <th>Why It Matters</th>
+                  <th>Level Needed</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="tier-strong">
+                  <td class="key-col">System Design</td>
+                  <td>
+                    Ability to reason about components, boundaries, data flows,
+                    and integration points — the core of every architecture
+                    decision.
+                  </td>
+                  <td>Intermediate+</td>
+                </tr>
+                <tr class="tier-strong">
+                  <td class="key-col">Technology Stack</td>
+                  <td>
+                    Familiarity with the relevant ecosystem (web, mobile, API,
+                    CLI). The skill researches versions, but you need to
+                    evaluate the options presented.
+                  </td>
+                  <td>Working knowledge</td>
+                </tr>
+                <tr class="tier-moderate">
+                  <td class="key-col">Security Basics</td>
+                  <td>
+                    Step 4 covers auth/security decisions. Understanding
+                    authentication patterns, data encryption, and API security
+                    helps validate AI proposals.
+                  </td>
+                  <td>Basic awareness</td>
+                </tr>
+                <tr class="tier-moderate">
+                  <td class="key-col">Infrastructure</td>
+                  <td>
+                    Deployment models (cloud, serverless, containers), CI/CD
+                    concepts, and environment configuration — covered in Step
+                    4's infrastructure category.
+                  </td>
+                  <td>Basic awareness</td>
+                </tr>
+                <tr class="tier-thin">
+                  <td class="key-col">ADR Format</td>
+                  <td>
+                    Architecture Decision Records (Nygard format) — the output
+                    format for major decisions. The AI generates these, but
+                    knowing the format helps review them.
+                  </td>
+                  <td>Awareness only</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- ══════════════════════════════════════════════
+         HOW: 8-STEP PROCESS
+    ═══════════════════════════════════════════════ -->
+        <section id="how-steps">
+          <h2 class="agent-heading">
+            <span class="marker how">How</span>
+            The 8-step architecture workflow
+          </h2>
+
+          <p class="lede">
+            Steps 1–2 route the run; steps 3–6 build the spine from the
+            memlog outward; step 7 is a hard gate; step 8 closes and hands
+            off. <code>ARCHITECTURE-SPINE.md</code> is written from the
+            memlog — never hand-patched directly.
+          </p>
+
+          <div class="notice">
+            <strong>Session resume:</strong> If a session is interrupted, Step
+            1 detects an existing run folder under
+            <code>{workflow.spine_output_path}</code> and offers to resume
+            from its memlog instead of restarting. No decisions are lost
+            between sessions.
+          </div>
+
+          <div class="flow-steps">
+            <div class="flow-step" id="step-1">
+              <div class="flow-step-num">01</div>
+              <div class="flow-step-body">
+                <div class="flow-step-tag">Intent Routing</div>
+                <div class="flow-step-title">Detect Intent &amp; Activation Mode</div>
+                <div class="flow-step-desc">
+                  Create / Update / Validate — resolved from the conversation
+                  and input, not quizzed. Headless runs follow
+                  <code>references/headless.md</code> end to end; forwarded
+                  calls from the deprecated <code>bmad-create-architecture</code>
+                  shim honor pre-resolved fields verbatim.
+                </div>
+                <div class="flow-step-detail">
+                  <ul>
+                    <li>
+                      Resolves customization, loads <code>bmm/config.yaml</code>,
+                      then detects one of three intents
+                    </li>
+                    <li>
+                      If a run folder already exists under
+                      <code>{workflow.spine_output_path}</code>, offers to
+                      resume from its memlog instead of restarting
+                    </li>
+                    <li>
+                      If the real ask is requirements, UX, a capability
+                      contract, or an epic breakdown, redirects to
+                      <code>bmad-prd</code>, <code>bmad-ux</code>,
+                      <code>bmad-spec</code>, or
+                      <code>bmad-create-epics-and-stories</code> instead
+                    </li>
+                    <li>
+                      A single skill replacing three fixed flows must route
+                      correctly on the first turn — misrouting into Create when
+                      the user meant Validate wastes the whole session
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="flow-step" id="step-2">
+              <div class="flow-step-num">02</div>
+              <div class="flow-step-body">
+                <div class="flow-step-tag">Working Mode</div>
+                <div class="flow-step-title">
+                  Choose Coaching vs Fast Path
+                </div>
+                <div class="flow-step-desc">
+                  Coaching (default) — open-ended elicitation, load-bearing
+                  calls shown not silently made. Fast — draft the whole spine
+                  with <code>[ASSUMPTION]</code> tags for review.
+                </div>
+                <div class="flow-step-detail">
+                  <ul>
+                    <li>
+                      Offered as an activation step, in the user's language,
+                      before any drafting
+                    </li>
+                    <li>
+                      Coaching path pulls decisions out of the user with
+                      open-ended questions; Fast path infers and tags
+                    </li>
+                    <li>
+                      Elicitation is the value the skill is coaching toward —
+                      silently drafting the whole spine defeats the purpose
+                      unless the user explicitly wants speed
+                    </li>
+                    <li>
+                      Also asks, mandatory on both paths: is the spine the
+                      only deliverable, or does the user need a purpose-scoped
+                      human-facing artifact later at Finalize?
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="flow-step" id="step-3">
+              <div class="flow-step-num">03</div>
+              <div class="flow-step-body">
+                <div class="flow-step-tag">Input Assessment</div>
+                <div class="flow-step-title">
+                  Read the Input to Know the Job
+                </div>
+                <div class="flow-step-desc">
+                  Spec package, raw idea, sprawling doc to distill, existing
+                  codebase, one feature's slice, or an existing spine to
+                  extend/pressure-test — the input's shape decides the job.
+                </div>
+                <div class="flow-step-detail">
+                  <ul>
+                    <li>
+                      A <code>SPEC.md</code> + memlog is the richest,
+                      preferred start
+                    </li>
+                    <li>
+                      Brownfield work investigates real code and
+                      <code>project-context.md</code> to ratify existing
+                      conventions rather than invent new ones
+                    </li>
+                    <li>
+                      The spine's altitude must mirror what it augments
+                      (initiative→features, feature→epics, epic→stories) and
+                      stay coherent with whatever level sits below it
+                    </li>
+                    <li>
+                      Inheriting a parent spine (e.g. one epic of an existing
+                      feature spine): its ADs and paradigm load as binding,
+                      read-only Inherited Invariants — only the parent's
+                      Deferred items are this run's job
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="flow-step" id="step-4">
+              <div class="flow-step-num">04</div>
+              <div class="flow-step-body">
+                <div class="flow-step-tag">Paradigm &amp; Seed</div>
+                <div class="flow-step-title">
+                  Establish Paradigm &amp; Seed
+                </div>
+                <div class="flow-step-desc">
+                  Lead with a named design paradigm; recommend a verified
+                  current starter for greenfield; keep seed (stack, tree, data
+                  shape) minimal — only invariants are fixed.
+                </div>
+                <div class="flow-step-detail">
+                  <ul>
+                    <li>
+                      One test decides what belongs in the spine: could two
+                      units built independently choose incompatibly, and is
+                      the call non-obvious and a real trade-off? If not, it's
+                      Deferred
+                    </li>
+                    <li>
+                      Everything structural (the seed) is true at cold-start
+                      and owned by the code once it exists — over-fixing seed
+                      content invites drift between spine and reality
+                    </li>
+                    <li>
+                      Verify any named technology's current version and fit on
+                      the web before binding it into the spine
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="flow-step" id="step-5">
+              <div class="flow-step-num">05</div>
+              <div class="flow-step-body">
+                <div class="flow-step-tag">Memlog</div>
+                <div class="flow-step-title">
+                  Log Decisions to the Memlog
+                </div>
+                <div class="flow-step-desc">
+                  Every decision, constraint, version, assumption, and open
+                  question lands as one append-only line in
+                  <code>.memlog.md</code> — the run's working memory, not the
+                  rendered spine.
+                </div>
+                <div class="flow-step-detail">
+                  <ul>
+                    <li>
+                      Each surviving decision becomes an <code>AD-n</code>
+                      (stable ID, Binds / Prevents / Rule); a decision that
+                      lives only in a diagram is still logged
+                    </li>
+                    <li>
+                      Distilling the spine from a living log — instead of
+                      hand-editing the artifact — lets Update runs amend a
+                      Rule in place and add the next <code>AD-n</code> without
+                      ever renumbering or reusing a retired ID
+                    </li>
+                    <li>
+                      Writes go through the shared <code>memlog.py init</code>
+                      / <code>append --type &lt;decision|constraint|version|assumption|question|direction|event&gt;</code>
+                      script — never a hand-patch to the spine file
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="flow-step" id="step-6">
+              <div class="flow-step-num">06</div>
+              <div class="flow-step-body">
+                <div class="flow-step-tag">Distill</div>
+                <div class="flow-step-title">
+                  Distill the Spine
+                </div>
+                <div class="flow-step-desc">
+                  Write <code>ARCHITECTURE-SPINE.md</code> from the memlog —
+                  invariants first, seed minimal, every AD carrying
+                  Binds/Prevents/Rule, Deferred naming what it won't decide.
+                </div>
+                <div class="flow-step-detail">
+                  <ul>
+                    <li>
+                      Sweeps the breadth the altitude owns — every structural
+                      dimension (including the operational/environmental
+                      envelope: deployment, infra, operations) is decided,
+                      deferred, or an open question
+                    </li>
+                    <li>
+                      No placeholders; nothing invented to fill a gap — a
+                      whole dimension left silent is the failure mode this
+                      breadth-coverage rubric exists to catch
+                    </li>
+                    <li>
+                      A subagent per load-bearing input reconciles the draft
+                      against its source and flags anything the AD structure
+                      quietly dropped, before the Reviewer Gate
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="flow-step" id="step-7">
+              <div class="flow-step-num">07</div>
+              <div class="flow-step-body">
+                <div class="flow-step-tag">Reviewer Gate</div>
+                <div class="flow-step-title">
+                  Reviewer Gate
+                </div>
+                <div class="flow-step-desc">
+                  Deterministic <code>lint_spine.py</code> pass + a
+                  good-spine rubric walker + every <code>finalize_reviewers</code>
+                  lens dispatched as parallel subagents against
+                  <code>ARCHITECTURE-SPINE.md</code>.
+                </div>
+                <div class="flow-step-detail">
+                  <ul>
+                    <li>
+                      Deterministic lint catches structural violations (missing
+                      Binds/Prevents/Rule, orphaned AD references, malformed
+                      frontmatter) before any subjective review runs
+                    </li>
+                    <li>
+                      The rubric walker checks breadth coverage against the
+                      altitude's structural dimensions
+                    </li>
+                    <li>
+                      Parallel subagent lenses (security, scalability,
+                      simplicity, coherence with inherited invariants) surface
+                      findings concurrently rather than serially
+                    </li>
+                    <li>
+                      Any critical issue resolved collaboratively before the
+                      spine is marked <code>status: final</code>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="flow-step" id="step-8">
+              <div class="flow-step-num">08</div>
+              <div class="flow-step-body">
+                <div class="flow-step-tag">Handoff</div>
+                <div class="flow-step-title">
+                  Renderings, Close &amp; Handoff
+                </div>
+                <div class="flow-step-desc">
+                  Optional human-facing artifact scoped to the up-front
+                  purpose; set <code>status: final</code>; recommend
+                  <code>bmad-spec</code>, then
+                  <code>bmad-create-epics-and-stories</code> or
+                  <code>bmad-create-story</code>.
+                </div>
+                <div class="flow-step-detail">
+                  <ul>
+                    <li>
+                      Renderings (C4/ERD/sequence diagrams, a team walkthrough,
+                      a board vision doc) are generated only if Step 2's
+                      up-front purpose check asked for one
+                    </li>
+                    <li>
+                      Marks the spine <code>status: final</code> and closes
+                      the memlog
+                    </li>
+                    <li>
+                      Natural next step: <strong>03·B Epics &amp; Stories</strong>
+                      — stories are created <em>after</em> the spine so they
+                      reference specific binding decisions, not guesses
+                    </li>
+                    <li>
+                      Offers to answer questions about the finalized spine
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- ══════════════════════════════════════════════
+         TOOLKIT SECTION
+    ═══════════════════════════════════════════════ -->
+        <section id="toolkit-section">
+          <h2 class="agent-heading">
+            <span class="marker how">Toolkit</span>
+            Techniques &amp; frameworks used
+          </h2>
+
+          <p class="lede">
+            The architecture skill draws on industry-standard frameworks — each
+            applied at the right step to produce decisions that are defensible,
+            traceable, and actionable.
+          </p>
+
+          <!-- Decision Frameworks -->
+          <h3 class="skill-heading" id="tech-decision-frameworks">
+            Decision &amp; Documentation Frameworks
+            <span class="code-name">ADR · C4 · 12-Factor</span>
+          </h3>
+
+          <div class="data-callout">
+            <div class="data-head">
+              <span class="data-label"
+                >Architectural Decision Records (ADR)</span
+              >
+              <span class="data-source">Nygard Format · one per AD-n in the memlog</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>ADR Field</th>
+                  <th>Purpose</th>
+                  <th>Example</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="tier-strong">
+                  <td class="key-col">Title</td>
+                  <td>Named decision, numbered for reference</td>
+                  <td>
+                    <em>ADR-001: Use PostgreSQL for primary data store</em>
+                  </td>
+                </tr>
+                <tr class="tier-strong">
+                  <td class="key-col">Status</td>
+                  <td>Current state of the decision</td>
+                  <td>Proposed / Accepted / Superseded (with link)</td>
+                </tr>
+                <tr class="tier-strong">
+                  <td class="key-col">Context</td>
+                  <td>
+                    The problem being solved, constraints forcing the decision
+                  </td>
+                  <td>Need ACID transactions + complex relational queries</td>
+                </tr>
+                <tr class="tier-strong">
+                  <td class="key-col">Decision</td>
+                  <td>What was decided, stated concisely</td>
+                  <td>Use PostgreSQL as the primary database</td>
+                </tr>
+                <tr class="tier-strong">
+                  <td class="key-col">Consequences</td>
+                  <td>Trade-offs accepted — both benefits and costs</td>
+                  <td>
+                    + ACID compliance + JSON support − requires migration
+                    tooling
+                  </td>
+                </tr>
+                <tr class="tier-moderate">
+                  <td class="key-col">Alternatives</td>
+                  <td>Options considered and why they were rejected</td>
+                  <td>
+                    MongoDB rejected: no ACID across documents for our
+                    transaction pattern
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="data-callout">
+            <div class="data-head">
+              <span class="data-label">C4 Model</span>
+              <span class="data-source"
+                >Simon Brown · optional rendering at Step 8</span
+              >
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Level</th>
+                  <th>Audience</th>
+                  <th>What It Shows</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="tier-best">
+                  <td class="key-col">Context Diagram</td>
+                  <td>All stakeholders including non-technical</td>
+                  <td>
+                    System boundary + external actors (users, 3rd-party systems)
+                  </td>
+                </tr>
+                <tr class="tier-strong">
+                  <td class="key-col">Container Diagram</td>
+                  <td>Engineers — highest daily value</td>
+                  <td>
+                    Major deployable units: web app, API, DB, queue, CDN — with
+                    data flows annotated
+                  </td>
+                </tr>
+                <tr class="tier-moderate">
+                  <td class="key-col">Component Diagram</td>
+                  <td>Engineers working on a specific container</td>
+                  <td>
+                    Major components within each container, their
+                    responsibilities and interfaces
+                  </td>
+                </tr>
+                <tr class="tier-thin">
+                  <td class="key-col">Code Diagram</td>
+                  <td>Optional — only for critical paths</td>
+                  <td>
+                    Class/package level detail — generated from code tools,
+                    rarely hand-drawn
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="data-callout">
+            <div class="data-head">
+              <span class="data-label">12-Factor App Principles</span>
+              <span class="data-source"
+                >Heroku · candidate invariants at Step 4 (Paradigm &amp; Seed)</span
+              >
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Factor</th>
+                  <th>Architectural Implication</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="key-col">I. Codebase</td>
+                  <td>
+                    One repo, many deploys — no per-environment code branches
+                  </td>
+                </tr>
+                <tr>
+                  <td class="key-col">II. Dependencies</td>
+                  <td>Explicitly declare, never assume — lockfiles required</td>
+                </tr>
+                <tr>
+                  <td class="key-col">III. Config</td>
+                  <td>
+                    Environment variables only — no config in code or repo
+                  </td>
+                </tr>
+                <tr>
+                  <td class="key-col">IV. Backing Services</td>
+                  <td>
+                    Treat DB, queues, caches as attached resources — swappable
+                  </td>
+                </tr>
+                <tr>
+                  <td class="key-col">V. Build/Release/Run</td>
+                  <td>Strict separation — builds are immutable artifacts</td>
+                </tr>
+                <tr>
+                  <td class="key-col">VI. Processes</td>
+                  <td>Stateless, share-nothing — state in backing services</td>
+                </tr>
+                <tr>
+                  <td class="key-col">X. Dev/Prod Parity</td>
+                  <td>
+                    Keep development, staging, production as similar as possible
+                  </td>
+                </tr>
+                <tr>
+                  <td class="key-col">XI. Logs</td>
+                  <td>Treat as event streams — no log files, stdout only</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pattern Categories -->
+          <h3 class="skill-heading" id="tech-patterns">
+            Consistency Pattern Categories
+            <span class="code-name">Breadth-coverage Rubric</span>
+          </h3>
+
+          <p>
+            The breadth-coverage rubric (Step 6) sweeps every area where
+            independently-built units could diverge and requires each to be
+            decided, deferred, or logged as an open question — never left
+            silent. The categories below are typical structural dimensions
+            it checks:
+          </p>
+
+          <div class="data-callout">
+            <div class="data-head">
+              <span class="data-label">Pattern Category Overview</span>
+              <span class="data-source">Step 6 · Distill the Spine</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>What It Governs</th>
+                  <th>Example Decisions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="tier-strong">
+                  <td class="key-col">Naming Patterns</td>
+                  <td>Database, API, file, and code naming conventions</td>
+                  <td>
+                    table names: <code>users</code> (plural, snake_case) ·
+                    columns: <code>user_id</code> · endpoints:
+                    <code>/users</code>
+                  </td>
+                </tr>
+                <tr class="tier-strong">
+                  <td class="key-col">Structure Patterns</td>
+                  <td>Where things live in the project tree</td>
+                  <td>
+                    Tests co-located as <code>*.test.ts</code> · components by
+                    feature · shared utilities in <code>lib/</code>
+                  </td>
+                </tr>
+                <tr class="tier-moderate">
+                  <td class="key-col">Format Patterns</td>
+                  <td>API response shapes, data exchange formats</td>
+                  <td>
+                    Error response:
+                    <code>{"error": {"code", "message"}}</code> · dates: ISO
+                    8601 · pagination: cursor-based
+                  </td>
+                </tr>
+                <tr class="tier-moderate">
+                  <td class="key-col">Communication Patterns</td>
+                  <td>Events, state management, async patterns</td>
+                  <td>
+                    Events: <code>user.created</code> (dot-notation) · state:
+                    immutable updates · actions: <code>VERB_NOUN</code>
+                  </td>
+                </tr>
+                <tr class="tier-thin">
+                  <td class="key-col">Process Patterns</td>
+                  <td>Cross-cutting operational concerns</td>
+                  <td>
+                    Error recovery: retry with exponential backoff · loading:
+                    global + local states · validation: at boundary only
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Validation Methods -->
+          <h3 class="skill-heading" id="tech-validation">
+            Validation &amp; Quality Frameworks
+            <span class="code-name">STRIDE · ATAM · FMEA</span>
+          </h3>
+
+          <div class="data-callout">
+            <div class="data-head">
+              <span class="data-label">STRIDE — Security Threat Modeling</span>
+              <span class="data-source"
+                >Microsoft · candidate invariants at Step 4 (Paradigm &amp; Seed)</span
+              >
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Threat</th>
+                  <th>Description</th>
+                  <th>Architectural Response</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="key-col">Spoofing</td>
+                  <td>Impersonating another user or system</td>
+                  <td>
+                    Strong authentication (MFA, signed tokens, certificate
+                    pinning)
+                  </td>
+                </tr>
+                <tr>
+                  <td class="key-col">Tampering</td>
+                  <td>Modifying data or code in transit or at rest</td>
+                  <td>
+                    Checksums, HTTPS, signed payloads, data validation at
+                    boundaries
+                  </td>
+                </tr>
+                <tr>
+                  <td class="key-col">Repudiation</td>
+                  <td>Denying actions were taken</td>
+                  <td>Audit logs, immutable event stores, signed requests</td>
+                </tr>
+                <tr>
+                  <td class="key-col">Info Disclosure</td>
+                  <td>Exposing data to unauthorized parties</td>
+                  <td>
+                    Encryption at rest + in transit, field-level ACLs, PII
+                    masking in logs
+                  </td>
+                </tr>
+                <tr>
+                  <td class="key-col">DoS</td>
+                  <td>Making the service unavailable</td>
+                  <td>
+                    Rate limiting, circuit breakers, auto-scaling policies
+                  </td>
+                </tr>
+                <tr>
+                  <td class="key-col">Elevation of Privilege</td>
+                  <td>Gaining unauthorized access</td>
+                  <td>
+                    Principle of least privilege, role-based access control,
+                    zero-trust patterns
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="data-callout">
+            <div class="data-head">
+              <span class="data-label"
+                >ATAM — Architecture Tradeoff Analysis Method</span
+              >
+              <span class="data-source">SEI · Step 7 Reviewer Gate</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>ATAM Concept</th>
+                  <th>How Applied in Step 7</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="tier-strong">
+                  <td class="key-col">Quality Attributes</td>
+                  <td>
+                    NFRs mapped to quality attribute scenarios: performance,
+                    availability, security, modifiability, testability
+                  </td>
+                </tr>
+                <tr class="tier-strong">
+                  <td class="key-col">Architecture Drivers</td>
+                  <td>
+                    The highest-impact NFRs surfaced while reading the input
+                    (Step 3) that have highest architectural impact — the
+                    'north star' for all decisions
+                  </td>
+                </tr>
+                <tr class="tier-moderate">
+                  <td class="key-col">Sensitivity Points</td>
+                  <td>
+                    Decisions that significantly affect one or more quality
+                    attributes — documented in validation results
+                  </td>
+                </tr>
+                <tr class="tier-moderate">
+                  <td class="key-col">Trade-off Points</td>
+                  <td>
+                    Decisions that affect multiple quality attributes in
+                    conflicting ways — explicitly acknowledged in ADRs
+                  </td>
+                </tr>
+                <tr class="tier-thin">
+                  <td class="key-col">Risk Identification</td>
+                  <td>
+                    Potential failure points in the architecture — fed into FMEA
+                    analysis
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="data-callout">
+            <div class="data-head">
+              <span class="data-label"
+                >FMEA — Failure Mode and Effects Analysis</span
+              >
+              <span class="data-source">Step 7 Reviewer Gate — risk lens</span>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>FMEA Step</th>
+                  <th>Purpose</th>
+                  <th>Output</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="key-col">Failure Mode</td>
+                  <td>What could go wrong in the architecture</td>
+                  <td>Ranked list of failure scenarios per component</td>
+                </tr>
+                <tr>
+                  <td class="key-col">Effect</td>
+                  <td>What happens to the system when this fails</td>
+                  <td>Impact classification: critical / major / minor</td>
+                </tr>
+                <tr>
+                  <td class="key-col">Cause</td>
+                  <td>Why this failure could occur</td>
+                  <td>Root cause per failure mode</td>
+                </tr>
+                <tr>
+                  <td class="key-col">Mitigation</td>
+                  <td>Architectural decision that reduces risk</td>
+                  <td>
+                    Circuit breakers, redundancy, graceful degradation patterns
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Coaching/Fast Path + enhancers -->
+          <h3 class="skill-heading" id="tech-menu">
+            Coaching / Fast Path &amp; Optional Enhancers
+            <span class="code-name">memlog-gated, not menu-gated</span>
+          </h3>
+
+          <p>
+            Unlike the old per-step <strong>[A] / [P] / [C]</strong> menu, the
+            gate is the memlog itself: nothing reaches
+            <code>ARCHITECTURE-SPINE.md</code> until it's an append-only line
+            in <code>.memlog.md</code>, written via
+            <code>memlog.py append</code>. Advanced elicitation and party mode
+            remain available as optional enhancers on either path.
+          </p>
+
+          <div class="module-grid">
+            <div class="module-card">
+              <div class="card-code red">Enhancer</div>
+              <div class="card-name">bmad-advanced-elicitation</div>
+              <div class="card-body">
+                Optional at any point on the Coaching path. Stress-tests a
+                candidate decision, explores unconventional approaches,
+                surfaces hidden assumptions before it's logged.
+                <ul>
+                  <li>Returns enhanced insights for the decision in play</li>
+                  <li>User accepts or rejects before it becomes an AD-n</li>
+                  <li>Does not itself write to the memlog</li>
+                </ul>
+              </div>
+              <div class="card-footer">optional · either path</div>
+            </div>
+            <div class="module-card">
+              <div class="card-code">Enhancer</div>
+              <div class="card-name">bmad-party-mode</div>
+              <div class="card-body">
+                Summons multiple agent perspectives to evaluate a trade-off
+                from different angles (performance advocate, security
+                specialist, simplicity advocate, scalability engineer).
+                <ul>
+                  <li>Collaborative discussion of the current decision</li>
+                  <li>User accepts or rejects the resulting proposal</li>
+                  <li>Accepted outcome is logged as a normal AD-n</li>
+                </ul>
+              </div>
+              <div class="card-footer">optional · either path</div>
+            </div>
+            <div class="module-card">
+              <div class="card-code green">memlog.py append</div>
+              <div class="card-name">Commit a Decision</div>
+              <div class="card-body">
+                Appends one line — decision, constraint, version, assumption,
+                question, direction, or event — to <code>.memlog.md</code>.
+                <ul>
+                  <li>Only way a decision survives into the spine</li>
+                  <li>Never a hand-patch to <code>ARCHITECTURE-SPINE.md</code></li>
+                  <li>Step 6 distills the spine from the accumulated log</li>
+                </ul>
+              </div>
+              <div class="card-footer">append-only — never edited in place</div>
+            </div>
+          </div>
+
+          <div class="notice">
+            <strong>The memlog is load-bearing:</strong> the skill is
+            explicitly forbidden from hand-editing
+            <code>ARCHITECTURE-SPINE.md</code> directly. Every AD-n keeps a
+            stable ID for the life of the spine — Update runs amend a Rule in
+            place or add the next <code>AD-n</code>, never renumbering or
+            reusing a retired ID.
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- Applied Toolkit summary -->
+        <section id="toolkit-summary">
+          <h2 class="agent-heading">
+            <span class="marker">Applied Toolkit</span>
+            Skills, frameworks &amp; outputs
+          </h2>
+
+          <div class="module-grid">
+            <div class="module-card">
+              <div class="card-code">Core Skill</div>
+              <div class="card-name">bmad-architecture</div>
+              <div class="card-body">
+                Main workflow skill — intent-routed (create/update/validate)
+                across 8 steps. Supersedes the deprecated
+                <code>bmad-create-architecture</code> fixed 11-step flow.
+              </div>
+              <div class="card-footer">8 steps · intent-routed</div>
+            </div>
+            <div class="module-card">
+              <div class="card-code">Supporting Skill</div>
+              <div class="card-name">bmad-mermaid-generate</div>
+              <div class="card-body">
+                Generates text-based diagrams: C4 Context, C4 Container, ERD,
+                sequence diagrams. Shared with UX agent (Sally). Used to
+                visualize architecture decisions.
+              </div>
+              <div class="card-footer">diagram generation · shared skill</div>
+            </div>
+            <div class="module-card">
+              <div class="card-code">Enhancement Skill</div>
+              <div class="card-name">bmad-advanced-elicitation</div>
+              <div class="card-body">
+                Optional at each step via [A] menu. Stress-tests assumptions,
+                explores alternatives, validates against comparable systems and
+                projects.
+              </div>
+              <div class="card-footer">optional · any step</div>
+            </div>
+            <div class="module-card">
+              <div class="card-code">Enhancement Skill</div>
+              <div class="card-name">bmad-party-mode</div>
+              <div class="card-body">
+                Multi-agent collaborative session via [P] menu. Multiple
+                perspectives evaluate architectural trade-offs — performance vs
+                simplicity vs security vs scalability.
+              </div>
+              <div class="card-footer">optional · any step</div>
+            </div>
+            <div class="module-card">
+              <div class="card-code">Completion Skill</div>
+              <div class="card-name">bmad-help</div>
+              <div class="card-body">
+                Auto-invoked at Step 8 completion. Provides status summary and
+                next-step recommendations — naturally points to 03·B Epics &amp;
+                Stories.
+              </div>
+              <div class="card-footer">auto-invoke · step 8 only</div>
+            </div>
+            <div class="module-card">
+              <div class="card-code green">Output</div>
+              <div class="card-name">ARCHITECTURE-SPINE.md</div>
+              <div class="card-body">
+                Primary output — distilled from the memlog, not hand-edited.
+                Contains: invariants, minimal seed, every AD (Binds/Prevents/
+                Rule), and Deferred items naming what it won't decide.
+              </div>
+              <div class="card-footer">single source of truth</div>
+            </div>
+            <div class="module-card">
+              <div class="card-code green">Output</div>
+              <div class="card-name">ADRs/*.md</div>
+              <div class="card-body">
+                Immutable Architecture Decision Records — one file per major
+                decision. Format: ADR-001-database.md, ADR-002-auth.md. Never
+                edited; superseded by new ADRs.
+              </div>
+              <div class="card-footer">immutable decision history</div>
+            </div>
+            <div class="module-card">
+              <div class="card-code green">Output</div>
+              <div class="card-name">.memlog.md</div>
+              <div class="card-body">
+                Append-only audit trail of every decision, constraint,
+                version, assumption, and open question. The spine is
+                distilled from this log, not the other way around.
+              </div>
+              <div class="card-footer">working memory · append-only</div>
+            </div>
+            <div class="module-card">
+              <div class="card-code green">Output</div>
+              <div class="card-name">project-context.md</div>
+              <div class="card-body">
+                The "constitution" for all downstream AI agents — tech stack
+                summary, coding patterns, naming conventions, anti-patterns.
+                Loaded as persistent context by all Phase 4 dev agents.
+              </div>
+              <div class="card-footer">agent constitution · phase 4 input</div>
+            </div>
+          </div>
+
+          <h5>Frameworks Applied</h5>
+          <ul class="inline-list">
+            <li>
+              <strong>C4 Model</strong> (Simon Brown) — context, container,
+              component, code diagrams
+            </li>
+            <li>
+              <strong>ADR Format</strong> (Michael Nygard) — numbered, immutable
+              architectural decision records
+            </li>
+            <li>
+              <strong>STRIDE</strong> (Microsoft) — threat modeling for security
+              decision coverage
+            </li>
+            <li>
+              <strong>ATAM</strong> (SEI) — architecture tradeoff analysis and
+              NFR validation
+            </li>
+            <li>
+              <strong>FMEA</strong> — failure mode identification and risk
+              mitigation planning
+            </li>
+            <li>
+              <strong>12-Factor App</strong> (Heroku) — deployment and
+              configuration principles
+            </li>
+            <li>
+              <strong>Reference-class forecasting</strong> — estimates grounded
+              in comparable past projects
+            </li>
+            <li>
+              <strong>Breadth-coverage Rubric</strong> — every structural
+              dimension decided, deferred, or an open question, never silent
+            </li>
+            <li>
+              <strong>Reviewer Gate</strong> — deterministic lint + rubric
+              walker + parallel subagent lenses before <code>status: final</code>
+            </li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

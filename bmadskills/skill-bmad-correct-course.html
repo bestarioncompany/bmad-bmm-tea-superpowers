@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Correct Course — Guide</title>
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --navy:       #1d3557;
+
+    /* Path colors */
+    --path-a-bg:  #dcfce7; --path-a-bdr: #86efac; --path-a-head: #14532d;
+    --path-b-bg:  #fef3c7; --path-b-bdr: #fcd34d; --path-b-head: #78350f;
+    --path-c-bg:  #fee2e2; --path-c-bdr: #fca5a5; --path-c-head: #7f1d1d;
+
+    /* Scope colors */
+    --minor-bg:   #dcfce7; --minor-fg: #14532d;
+    --mod-bg:     #fef3c7; --mod-fg:   #78350f;
+    --major-bg:   #fee2e2; --major-fg: #7f1d1d;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.65; font-size: 0.9375rem; position: relative;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .5;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "masthead masthead" "toc article";
+    max-width: 1340px; margin: 0 auto; min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ── Masthead ─────────────────────────────────── */
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 760px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Headings ─────────────────────────────────── */
+  h2.agent-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: var(--navy); }
+  h2.agent-heading em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.35rem; font-weight: 700; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); margin: 28px 0 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+  h4.step-heading .step-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--ink-mute); color: var(--paper); padding: 1px 8px; letter-spacing: 0.1em; align-self: center; }
+
+  h5 { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  strong { font-weight: 700; color: var(--ink); }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.45; }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Step detail ──────────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 120px; margin-right: 8px; }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  /* ── Inline list ──────────────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Trigger warning callout ──────────────────── */
+  .trigger-callout { border: 2px solid var(--accent); background: #fff7ed; padding: 16px 20px; margin: 20px 0 28px; display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
+  .tc-icon { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; background: var(--accent); color: var(--paper); padding: 4px 10px; white-space: nowrap; align-self: start; margin-top: 2px; }
+  .tc-body { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.6; }
+  .tc-body strong { color: var(--ink); }
+  .tc-triggers { list-style: none; margin: 8px 0 0; padding: 0; }
+  .tc-triggers li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); }
+  .tc-triggers li::before { content: '◆'; position: absolute; left: 0; top: 5px; font-size: 5px; color: var(--accent); }
+
+  /* ══ IMPACT CASCADE — distinctive visual ══════ */
+  .cascade-wrapper { border: 1px solid var(--rule); margin: 20px 0 32px; }
+  .cascade-header { background: var(--ink); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .cw-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .cw-note  { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: rgba(244,237,224,.6); }
+
+  .cascade { display: flex; flex-direction: column; padding: 0; background: var(--paper); position: relative; }
+  .cascade::before {
+    content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px;
+    background: repeating-linear-gradient(to bottom, var(--rule) 0, var(--rule) 4px, transparent 4px, transparent 10px);
+    transform: translateX(-50%); z-index: 0;
+  }
+
+  .cascade-node { display: grid; grid-template-columns: 1fr 60px 1fr; align-items: center; padding: 16px 0; position: relative; z-index: 1; }
+  .cascade-node:first-child { padding-top: 24px; }
+  .cascade-node:last-child { padding-bottom: 24px; }
+
+  .cn-left { padding: 0 20px 0 24px; text-align: right; }
+  .cn-center { display: flex; justify-content: center; align-items: center; }
+  .cn-right { padding: 0 24px 0 20px; text-align: left; }
+
+  .cn-dot { width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--rule); background: var(--paper); display: flex; align-items: center; justify-content: center; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; color: var(--paper); position: relative; z-index: 2; }
+  .dot-trigger { background: #92400e; border-color: #92400e; }
+  .dot-epic    { background: var(--navy); border-color: var(--navy); }
+  .dot-prd     { background: #7c3aed; border-color: #7c3aed; }
+  .dot-arch    { background: #0f766e; border-color: #0f766e; }
+  .dot-path    { background: var(--accent); border-color: var(--accent); }
+  .dot-proposal{ background: var(--ink); border-color: var(--ink); }
+
+  .cn-section { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 3px; }
+  .cn-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .cn-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.4; }
+
+  /* Left node styles */
+  .cn-left .cn-section { color: #92400e; }
+  .cn-left .cn-title { color: #78350f; }
+
+  /* Right node styles (alternating) */
+  .cn-right .cn-section { color: var(--navy); }
+  .cascade-node:nth-child(3) .cn-right .cn-section { color: #7c3aed; }
+  .cascade-node:nth-child(4) .cn-left .cn-section  { color: #0f766e; }
+  .cascade-node:nth-child(5) .cn-right .cn-section  { color: var(--accent); }
+  .cascade-node:nth-child(6) .cn-left .cn-section  { color: var(--ink); }
+
+  /* ── 3-Path Evaluation ────────────────────────── */
+  .path-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 28px; }
+  .path-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .path-card { display: flex; flex-direction: column; }
+  .path-card .pc-head { padding: 14px 16px; border-bottom: 1px solid rgba(42,34,26,.15); }
+  .path-card .pc-code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 4px; }
+  .path-card .pc-name { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+  .path-card .pc-when { font-size: 12px; line-height: 1.4; }
+  .path-card .pc-body { flex: 1; padding: 12px 16px; background: var(--paper); }
+  .path-card .pc-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px dotted rgba(42,34,26,.12); font-size: 12px; }
+  .path-card .pc-row:last-child { border-bottom: none; }
+  .path-card .pc-row-label { color: var(--ink-mute); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; }
+  .pc-pill { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; padding: 2px 8px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .pill-low   { background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+  .pill-med   { background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
+  .pill-high  { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
+
+  .path-a { }
+  .path-a .pc-head { background: var(--path-a-bg); }
+  .path-a .pc-code { color: #16a34a; }
+  .path-a .pc-name { color: var(--path-a-head); }
+  .path-a .pc-when { color: #15803d; }
+
+  .path-b { }
+  .path-b .pc-head { background: var(--path-b-bg); }
+  .path-b .pc-code { color: #b45309; }
+  .path-b .pc-name { color: var(--path-b-head); }
+  .path-b .pc-when { color: #92400e; }
+
+  .path-c { }
+  .path-c .pc-head { background: var(--path-c-bg); }
+  .path-c .pc-code { color: #dc2626; }
+  .path-c .pc-name { color: var(--path-c-head); }
+  .path-c .pc-when { color: #991b1b; }
+
+  /* ── Old→New change proposal format ──────────── */
+  .proposal-format { border: 1px solid var(--rule); margin: 16px 0 28px; }
+  .pf-header { background: var(--ink); padding: 10px 16px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--highlight); font-weight: 700; }
+  .pf-meta { background: var(--paper-warm); padding: 10px 16px; border-bottom: 1px solid rgba(42,34,26,.15); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; color: var(--ink-soft); display: flex; flex-wrap: wrap; gap: 16px; }
+  .pf-meta span strong { color: var(--ink); }
+  .pf-diff { display: grid; grid-template-columns: 1fr 1fr; }
+  .pf-old { background: #fff1f2; padding: 14px 16px; border-right: 1px solid rgba(220,38,38,.2); }
+  .pf-new { background: #f0fdf4; padding: 14px 16px; }
+  .pf-diff-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 8px; }
+  .pf-old .pf-diff-label { color: #dc2626; }
+  .pf-new .pf-diff-label { color: #16a34a; }
+  .pf-diff-content { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.55; color: var(--ink-soft); white-space: pre-wrap; }
+  .pf-old .pf-diff-content { color: #7f1d1d; }
+  .pf-new .pf-diff-content { color: #14532d; }
+  .pf-reason { background: var(--paper-warm); padding: 10px 16px; border-top: 1px solid rgba(42,34,26,.15); font-size: 12px; color: var(--ink-soft); display: flex; gap: 8px; align-items: baseline; }
+  .pf-reason .reason-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); white-space: nowrap; }
+  .pf-actions { background: var(--paper); padding: 10px 16px; border-top: 1px solid rgba(42,34,26,.12); display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--ink-mute); }
+  .action-key { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.3); padding: 2px 8px; color: var(--ink); }
+
+  /* ── Scope routing ────────────────────────────── */
+  .scope-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 28px; }
+  .scope-strip > * { box-shadow: 0 0 0 1px var(--rule); }
+  .scope-card { padding: 18px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .scope-badge { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; padding: 3px 12px; display: inline-block; align-self: flex-start; border: 1px solid; }
+  .scope-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; }
+  .scope-route { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; }
+  .scope-body  { font-size: 12.5px; color: var(--ink-soft); line-height: 1.45; }
+
+  .sc-minor { background: #f0fdf4; }
+  .sc-minor .scope-badge  { background: var(--minor-bg); color: var(--minor-fg); border-color: #86efac; }
+  .sc-minor .scope-title  { color: #14532d; }
+  .sc-minor .scope-route  { color: #16a34a; }
+  .sc-mod   { background: #fffbeb; }
+  .sc-mod   .scope-badge  { background: var(--mod-bg); color: var(--mod-fg); border-color: #fcd34d; }
+  .sc-mod   .scope-title  { color: #78350f; }
+  .sc-mod   .scope-route  { color: #b45309; }
+  .sc-major { background: #fff1f2; }
+  .sc-major .scope-badge  { background: var(--major-bg); color: var(--major-fg); border-color: #fca5a5; }
+  .sc-major .scope-title  { color: #7f1d1d; }
+  .sc-major .scope-route  { color: #dc2626; }
+
+  /* ── Mode selection ───────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 24px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 18px 20px; }
+  .mode-card .mc-badge { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--paper); background: var(--navy); padding: 2px 10px; display: inline-block; margin-bottom: 8px; }
+  .mode-card.recommended .mc-badge { background: var(--accent); }
+  .mode-card .mc-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+  .mode-card .mc-desc { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+  .mode-card .mc-flow { margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; color: var(--ink-mute); }
+
+  /* ── Checklist section overview ───────────────── */
+  .checklist-sections { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 24px; border: 1px solid var(--rule); }
+  .checklist-sections th { text-align: left; padding: 8px 14px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .checklist-sections td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; }
+  .checklist-sections tr:last-child td { border-bottom: none; }
+  .cs-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 60px; }
+  .cs-title { font-weight: 700; color: var(--ink); width: 200px; font-size: 13px; }
+  .cs-items { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: var(--ink-mute); white-space: nowrap; width: 80px; }
+  .cs-desc { font-size: 12.5px; color: var(--ink-soft); line-height: 1.45; }
+  .cs-req { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+  .cs-req.req { color: var(--accent); }
+  .cs-req.opt { color: var(--ink-mute); }
+
+  /* ── Colophon ─────────────────────────────────── */
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .path-grid, .scope-strip, .mode-grid { grid-template-columns: 1fr; }
+    .pf-diff { grid-template-columns: 1fr; }
+    .pf-old { border-right: none; border-bottom: 1px solid rgba(220,38,38,.2); }
+    .cascade::before { display: none; }
+    .cascade-node { grid-template-columns: 1fr; gap: 4px; padding: 12px 20px; }
+    .cn-center { display: none; }
+    .cn-left, .cn-right { text-align: left; padding: 0; }
+    .trigger-callout { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad · Correct Course</span>
+        <span>Skill · bmad-correct-course</span>
+        <span>Phase 4 · Change Management · Sprint Safety Valve</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Correct Course <em>· Mid-Sprint Change Management</em></h1>
+    <p class="subtitle">The safety valve for significant changes during sprint execution. Analyzes impact ripple across PRD, epics, architecture, and UX artifacts, produces a structured Sprint Change Proposal with before/after edits, classifies scope, and routes to the right approver — all with an audit trail that explains what changed, why, and who decided.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-correct-course</dd></div>
+      <div><dt>Input</dt><dd>Change trigger/issue + existing PRD/epics/architecture/UX artifacts</dd></div>
+      <div><dt>Trigger</dt><dd>"correct course"</dd></div>
+      <div><dt>Agent</dt><dd>Developer (Amelia)</dd></div>
+      <div><dt>Steps</dt><dd>6 · Interactive</dd></div>
+      <div><dt>Modes</dt><dd>Incremental / Batch</dd></div>
+      <div><dt>Output</dt><dd>sprint-change-proposal-{date}.md</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#when-to-trigger">When to Trigger</a>
+      <a href="#modes">Incremental vs Batch</a>
+      <a href="#key-capabilities">Key Capabilities</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-formal">Why Formal Change Mgmt?</a>
+      <a href="#why-compare">Ad-hoc vs Correct Course</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#workflow">6-Step Workflow</a>
+      <a href="#impact-cascade" class="toc-sub">Impact Cascade</a>
+      <a href="#checklist" class="toc-sub">6-Section Checklist</a>
+      <a href="#change-proposal" class="toc-sub">Change Proposal Format</a>
+      <a href="#three-paths">3 Change Paths</a>
+      <a href="#scope-routing">Scope &amp; Routing</a>
+      <a href="#output-document">Output Document</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Correct Course <em>· What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-correct-course</code></dd>
+        <dt>Trigger phrases</dt><dd>
+          <div class="menu-codes">
+            <code>correct course</code>
+            <code>propose sprint change</code>
+          </div>
+        </dd>
+        <dt>Agent</dt><dd>Developer (Amelia) — analyzes impact, drafts change proposals, generates the Sprint Change Proposal document, routes to approver.</dd>
+        <dt>Automation level</dt><dd>Fully interactive — user participates at every stage. Mode choice, proposal review, and final approval all require user input.</dd>
+        <dt>Scope</dt><dd><strong>Significant</strong> mid-sprint changes only — new stakeholder requirements, architectural discoveries, scope shifts, or technical blockers that force a pivot. Not for small tweaks.</dd>
+        <dt>Required artifacts</dt><dd>PRD + Epics — HALT if either is missing. Architecture and UX specs loaded when available.</dd>
+        <dt>Output</dt><dd><code>sprint-change-proposal-{date}.md</code> in <code>planning_artifacts</code> · <code>sprint-status.yaml</code> updated for approved epic changes · Routing instruction for the right approver.</dd>
+      </dl>
+
+      <p>Correct Course is the structured response to mid-sprint reality. Things change — a stakeholder adds a requirement, a technical assumption proves wrong, an architectural discovery forces a pivot. Without a process, these changes get silently absorbed, artifacts go out of sync, and no one knows who decided what or why. Correct Course creates the record.</p>
+    </section>
+
+    <section id="when-to-trigger">
+      <h3 class="skill-heading">
+        <span class="code-name">trigger-events</span>
+        When to Trigger This Skill
+      </h3>
+
+      <div class="trigger-callout">
+        <span class="tc-icon">Trigger</span>
+        <div class="tc-body">
+          <strong>Use for significant changes that affect project artifacts.</strong> Not for small implementation decisions that stay within story scope. If the change affects the PRD, epics, architecture, or UX specs — Correct Course is the right tool.
+          <ul class="tc-triggers">
+            <li><strong>New stakeholder requirement</strong> — a requirement emerges mid-sprint that was not in the PRD</li>
+            <li><strong>Architectural discovery</strong> — implementation reveals a constraint that changes the technical approach</li>
+            <li><strong>Scope shift</strong> — story implementation reveals the original scope was wrong or too broad</li>
+            <li><strong>Technical blocker forcing pivot</strong> — a chosen technology or pattern doesn't work as planned</li>
+            <li><strong>Strategic pivot</strong> — market or business direction changes while sprint is underway</li>
+            <li><strong>Failed approach</strong> — a completed story's approach needs to be reconsidered or rolled back</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="modes">
+      <h3 class="skill-heading">
+        <span class="code-name">execution-modes</span>
+        Incremental vs Batch Mode
+      </h3>
+      <p>Chosen at Step 1. The mode affects how change proposals are reviewed — not the analysis depth, which is always the same.</p>
+
+      <div class="mode-grid">
+        <div class="mode-card recommended">
+          <span class="mc-badge">Recommended</span>
+          <div class="mc-title">Incremental Mode</div>
+          <div class="mc-desc">Each change proposal is presented one at a time. User reviews and decides before the next is shown. Allows fine-grained control and course corrections during drafting — edits to one proposal can inform the next.</div>
+          <div class="mc-flow">Per proposal: [A]pprove → [E]dit → [S]kip</div>
+        </div>
+        <div class="mode-card">
+          <span class="mc-badge">Alternative</span>
+          <div class="mc-title">Batch Mode</div>
+          <div class="mc-desc">All change proposals are drafted first, then presented together for a single review pass. Faster overall but less control over individual proposals during drafting. Better when the change is well understood up front.</div>
+          <div class="mc-flow">All proposals → review together → approve/edit/skip each</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="key-capabilities">
+      <h3 class="skill-heading">
+        <span class="code-name">key-capabilities</span>
+        Key Capabilities
+      </h3>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">Capability · 01</div>
+          <div class="card-name">Broad Artifact Load</div>
+          <div class="card-body"><ul>
+            <li>PRD + Epics: FULL_LOAD (required)</li>
+            <li>Architecture + UX specs: FULL_LOAD (if available)</li>
+            <li>Project knowledge: INDEX_GUIDED selective load</li>
+            <li>Fuzzy filename matching — flexible document discovery</li>
+          </ul></div>
+          <div class="card-footer">Step 1 · prerequisite</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 02</div>
+          <div class="card-name">6-Section Checklist Analysis</div>
+          <div class="card-body"><ul>
+            <li>Systematic impact walk through all artifact layers</li>
+            <li>Each item: Done / N/A / Action-needed</li>
+            <li>Progress reported after each major section</li>
+            <li>Blocking issues surfaced before drafting proposals</li>
+          </ul></div>
+          <div class="card-footer">Step 2 · analysis</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 03</div>
+          <div class="card-name">Old → New Proposals</div>
+          <div class="card-body"><ul>
+            <li>Explicit before/after for every artifact change</li>
+            <li>Story ID + section name + rationale per proposal</li>
+            <li>Covers: Stories, PRD, Architecture, UX/UI specs</li>
+            <li>Incremental review or batch — user's choice</li>
+          </ul></div>
+          <div class="card-footer">Step 3 · drafting</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 04</div>
+          <div class="card-name">Sprint Change Proposal</div>
+          <div class="card-body"><ul>
+            <li>5-section document — full audit trail</li>
+            <li>Issue summary, impact analysis, recommended path</li>
+            <li>All approved before/after proposals grouped by artifact</li>
+            <li>Handoff classification and routing instructions</li>
+          </ul></div>
+          <div class="card-footer">Step 4 · document</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 05</div>
+          <div class="card-name">Scope-Based Routing</div>
+          <div class="card-body"><ul>
+            <li>Minor → Developer self-approves and implements</li>
+            <li>Moderate → Product Owner + Developer coordinate</li>
+            <li>Major → PM + Architect review, may require replan</li>
+            <li>Explicit handoff confirmation before closing</li>
+          </ul></div>
+          <div class="card-footer">Step 5 · finalize</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 06</div>
+          <div class="card-name">Sprint Status Sync</div>
+          <div class="card-body"><ul>
+            <li>Epic additions → new entries with status <code>backlog</code></li>
+            <li>Epic removals → corresponding entries removed</li>
+            <li>Epic renumbering → IDs and story references updated</li>
+            <li>Story additions/removals → entries updated in affected epics</li>
+          </ul></div>
+          <div class="card-footer">Step 5 · after approval</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-formal">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Formal Change Management? <em>· The Silent Absorption Problem</em>
+      </h2>
+
+      <p class="lede">Mid-sprint changes happen constantly. The question is whether they get absorbed silently — creating invisible artifact drift and undocumented decisions — or processed formally with a clear record of what changed, why, and who approved it.</p>
+
+      <p>When a change is absorbed silently without process, the PRD still says one thing, the epic says another, and the code does something else. A developer working on the next story reads outdated specs. A reviewer flags AC violations that aren't actually violations — the AC just wasn't updated. No one knows when the decision was made or who made it.</p>
+
+      <p>The Sprint Change Proposal is the decision record. It makes the change visible, traceable, and routed to the right person for approval. The audit trail matters — not just for the current sprint, but for the next retrospective, the next epic, and anyone who joins the project later.</p>
+    </section>
+
+    <section id="why-compare">
+      <h3 class="skill-heading">
+        <span class="code-name">ad-hoc-vs-process</span>
+        Ad-Hoc Change vs Correct Course
+      </h3>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Silent / ad-hoc absorption</th>
+            <th>Correct Course workflow</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Artifact sync</td>
+            <td>PRD, epics, architecture drift independently — inconsistencies accumulate silently across documents</td>
+            <td>Full artifact load, cross-referenced checklist — all conflicts surfaced and resolved in one session</td>
+          </tr>
+          <tr>
+            <td>Decision record</td>
+            <td>No formal record — "we changed direction somewhere in sprint 3" with no way to know what decision was made or why</td>
+            <td>Sprint Change Proposal document with explicit before/after, rationale, and approver name — permanent audit trail</td>
+          </tr>
+          <tr>
+            <td>Impact scope</td>
+            <td>Only the obvious changes get made — downstream ripple effects to future stories and epics go undetected</td>
+            <td>6-section checklist walks through every artifact layer — ripple effects are forced into the open</td>
+          </tr>
+          <tr>
+            <td>Approval</td>
+            <td>Change happens informally — often no explicit sign-off, scope disputes emerge later</td>
+            <td>Scope classified as Minor / Moderate / Major — routed to the appropriate approver with explicit sign-off before implementation</td>
+          </tr>
+          <tr>
+            <td>Future stories</td>
+            <td>Next story is created from outdated specs — developer builds against wrong assumptions, creates review failures</td>
+            <td><code>sprint-status.yaml</code> updated immediately — next story creation picks up the corrected state</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <section id="workflow">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        How to Execute <em>· 6-Step Workflow</em>
+      </h2>
+
+      <h4 class="step-heading">
+        <span class="step-num">01</span>
+        Initialize Change Navigation
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Gather trigger</strong>Amelia confirms the change trigger: "What specific issue or change has been identified?" HALT if the trigger is unclear — cannot analyze impact without a concrete problem statement.</li>
+        <li><strong class="label">Verify artifacts</strong>Confirm PRD and Epics are accessible. HALT if either is missing. Load Architecture and UX specs if available.</li>
+        <li><strong class="label">Mode selection</strong>User chooses: Incremental (recommended — review each proposal one at a time) or Batch (all proposals presented at once for review).</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">02</span>
+        Execute Change Analysis Checklist
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Systematic walk</strong>Work through all 6 checklist sections interactively. Each item marked: <code>[x]</code> Done · <code>[N/A]</code> Not applicable · <code>[!]</code> Action needed.</li>
+        <li><strong class="label">Progress reports</strong>After each major section, present findings and impacts discovered so far. Running notes maintained throughout.</li>
+        <li><strong class="label">Blocking issues</strong>If any critical section cannot be completed: HALT and work with user to resolve before continuing to proposal drafting.</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">03</span>
+        Draft Specific Change Proposals
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Old → New format</strong>Each proposal shows explicit before/after with: artifact reference, story ID or section name, old text, new text, and rationale. See format example below.</li>
+        <li><strong class="label">Incremental mode</strong>Present each proposal individually. User chooses: Approve [a] · Edit [e] · Skip [s]. Iterate on each before moving to the next.</li>
+        <li><strong class="label">Batch mode</strong>Draft all proposals, collect them, then present the complete set for review in one pass.</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">04</span>
+        Generate Sprint Change Proposal
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">5-section document</strong>Compile: Issue Summary · Impact Analysis · Recommended Approach · Detailed Change Proposals · Implementation Handoff.</li>
+        <li><strong class="label">Save</strong>Write to <code>sprint-change-proposal-{date}.md</code> in <code>planning_artifacts</code>.</li>
+        <li><strong class="label">Review gate</strong>Present complete proposal to user: Continue [c] or Edit [e]?</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">05</span>
+        Finalize and Route
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Explicit approval</strong>Get clear yes/no from user: "Do you approve this Sprint Change Proposal for implementation?" If revise: return to Step 3 (proposal changes) or Step 4 (document structure changes).</li>
+        <li><strong class="label">Scope classification</strong>Classify as Minor / Moderate / Major and route to appropriate agent(s). See Scope Routing below.</li>
+        <li><strong class="label">Sprint sync</strong>Update <code>sprint-status.yaml</code> to reflect approved epic changes — additions, removals, renumbering, story changes.</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">06</span>
+        Workflow Completion
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Summary</strong>Report: change trigger addressed · scope classification · artifacts modified · routed to (named agents).</li>
+        <li><strong class="label">Deliverables confirmed</strong>Sprint Change Proposal doc · specific before/after proposals · implementation handoff plan.</li>
+        <li><strong class="label">Handoff</strong>Confirm next steps — what the receiving agent(s) will do and when.</li>
+      </ul>
+    </section>
+
+    <!-- IMPACT CASCADE — distinctive visual -->
+    <section id="impact-cascade">
+      <h3 class="skill-heading">
+        <span class="code-name">impact-cascade</span>
+        Impact Cascade
+        <span class="code-tag">6-layer analysis</span>
+      </h3>
+      <p>A mid-sprint change doesn't stay contained. It ripples outward through every artifact layer. The checklist forces each layer to be examined before drafting proposals.</p>
+
+      <div class="cascade-wrapper">
+        <div class="cascade-header">
+          <span class="cw-label">Change Impact Cascade</span>
+          <span class="cw-note">Checklist walks this sequence — top to bottom, no skipping</span>
+        </div>
+        <div class="cascade">
+
+          <div class="cascade-node">
+            <div class="cn-left">
+              <div class="cn-section" style="color:#92400e;">§ 1 · Trigger &amp; Context</div>
+              <div class="cn-title" style="color:#78350f;">Understand the Change</div>
+              <div class="cn-desc">What story triggered this? What category of issue? Technical limit, new requirement, misunderstanding, strategic pivot, or failed approach? Concrete evidence required before proceeding.</div>
+            </div>
+            <div class="cn-center"><div class="cn-dot dot-trigger">01</div></div>
+            <div class="cn-right"></div>
+          </div>
+
+          <div class="cascade-node">
+            <div class="cn-left"></div>
+            <div class="cn-center"><div class="cn-dot dot-epic">02</div></div>
+            <div class="cn-right">
+              <div class="cn-section" style="color:#1d3557;">§ 2 · Epic Impact</div>
+              <div class="cn-title" style="color:#1e3a5f;">Epics Affected</div>
+              <div class="cn-desc">Can the current epic still be completed as planned? Do future epics need modification, removal, or new ones added? Should epic order or priority change?</div>
+            </div>
+          </div>
+
+          <div class="cascade-node">
+            <div class="cn-left">
+              <div class="cn-section" style="color:#7c3aed;">§ 3 · Artifact Conflicts</div>
+              <div class="cn-title" style="color:#5b21b6;">PRD / Architecture / UX</div>
+              <div class="cn-desc">Does the issue conflict with PRD goals? Does the MVP scope need adjustment? Which architecture components, data models, or APIs are affected? Which UX flows or wireframes need revision?</div>
+            </div>
+            <div class="cn-center"><div class="cn-dot dot-prd">03</div></div>
+            <div class="cn-right"></div>
+          </div>
+
+          <div class="cascade-node">
+            <div class="cn-left"></div>
+            <div class="cn-center"><div class="cn-dot dot-arch">04</div></div>
+            <div class="cn-right">
+              <div class="cn-section" style="color:#0f766e;">§ 4 · Path Forward</div>
+              <div class="cn-title" style="color:#115e59;">Choose the Change Path</div>
+              <div class="cn-desc">Evaluate all three options with effort and risk ratings. Select the recommended path and document the rationale considering timeline, technical risk, team morale, and business value.</div>
+            </div>
+          </div>
+
+          <div class="cascade-node">
+            <div class="cn-left">
+              <div class="cn-section" style="color:#c2410c;">§ 5 · Proposal Components</div>
+              <div class="cn-title" style="color:#9a3412;">Draft the Document</div>
+              <div class="cn-desc">Compile issue summary, epic impact, artifact conflicts, recommended approach, high-level action plan, and agent handoff plan — all from the analysis above.</div>
+            </div>
+            <div class="cn-center"><div class="cn-dot dot-path">05</div></div>
+            <div class="cn-right"></div>
+          </div>
+
+          <div class="cascade-node">
+            <div class="cn-left"></div>
+            <div class="cn-center"><div class="cn-dot dot-proposal">06</div></div>
+            <div class="cn-right">
+              <div class="cn-section" style="color:#1a1612;">§ 6 · Final Review &amp; Handoff</div>
+              <div class="cn-title" style="color:#1a1612;">Approve and Route</div>
+              <div class="cn-desc">Verify checklist completion, confirm all Action-needed items documented, obtain explicit user approval, update sprint-status.yaml, confirm handoff responsibilities.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Checklist overview -->
+    <section id="checklist">
+      <h3 class="skill-heading">
+        <span class="code-name">checklist</span>
+        6-Section Checklist
+      </h3>
+
+      <table class="checklist-sections">
+        <thead>
+          <tr>
+            <th>§</th>
+            <th>Section</th>
+            <th>Items</th>
+            <th style="width:340px;">Focus</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="cs-num">1</td>
+            <td class="cs-title">Trigger &amp; Context <span class="cs-req req">required</span></td>
+            <td class="cs-items">1.1 – 1.3</td>
+            <td class="cs-desc">Identify triggering story, categorize issue type (technical / requirement / misunderstanding / pivot / failed approach), gather concrete evidence. HALT if no evidence provided.</td>
+          </tr>
+          <tr>
+            <td class="cs-num">2</td>
+            <td class="cs-title">Epic Impact <span class="cs-req req">required</span></td>
+            <td class="cs-items">2.1 – 2.5</td>
+            <td class="cs-desc">Current epic viability, required epic changes (modify / add / remove / redefine), all remaining epics reviewed for impact, dependencies, resequencing.</td>
+          </tr>
+          <tr>
+            <td class="cs-num">3</td>
+            <td class="cs-title">Artifact Conflicts <span class="cs-req opt">optional artifacts</span></td>
+            <td class="cs-items">3.1 – 3.4</td>
+            <td class="cs-desc">PRD conflicts (MVP scope), Architecture conflicts (components, patterns, data, APIs), UX conflicts (flows, wireframes), secondary artifacts (CI/CD, infrastructure, docs).</td>
+          </tr>
+          <tr>
+            <td class="cs-num">4</td>
+            <td class="cs-title">Path Forward Evaluation <span class="cs-req req">required</span></td>
+            <td class="cs-items">4.1 – 4.4</td>
+            <td class="cs-desc">Evaluate all 3 paths (Direct / Rollback / MVP Review) with effort/risk ratings. Select recommended path with rationale considering effort, risk, morale, sustainability, and business value.</td>
+          </tr>
+          <tr>
+            <td class="cs-num">5</td>
+            <td class="cs-title">Proposal Components <span class="cs-req req">required</span></td>
+            <td class="cs-items">5.1 – 5.5</td>
+            <td class="cs-desc">Issue summary, epic/artifact impact summary, recommended path with rationale, PRD MVP impact, agent handoff plan with roles defined.</td>
+          </tr>
+          <tr>
+            <td class="cs-num">6</td>
+            <td class="cs-title">Final Review &amp; Handoff <span class="cs-req req">required</span></td>
+            <td class="cs-items">6.1 – 6.5</td>
+            <td class="cs-desc">Checklist completion verification, proposal accuracy review, explicit user approval (HALT if not obtained), sprint-status.yaml update, next steps confirmed.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Change Proposal Format -->
+    <section id="change-proposal">
+      <h3 class="skill-heading">
+        <span class="code-name">proposal-format</span>
+        Change Proposal Format — Old → New
+      </h3>
+      <p>Every approved change is expressed in this explicit before/after format. No vague "update the requirement" — the exact old text and the exact new text, with the rationale that connects them.</p>
+
+      <div class="proposal-format">
+        <div class="pf-header">Sprint Change Proposal — Individual Change Entry</div>
+        <div class="pf-meta">
+          <span><strong>Artifact:</strong> PRD — §3.2 Authentication</span>
+          <span><strong>Story:</strong> STORY-123 · User Login</span>
+          <span><strong>Section:</strong> Acceptance Criteria</span>
+        </div>
+        <div class="pf-diff">
+          <div class="pf-old">
+            <div class="pf-diff-label">Old</div>
+            <div class="pf-diff-content">- User can log in with email/password
+- Session expires after 24 hours</div>
+          </div>
+          <div class="pf-new">
+            <div class="pf-diff-label">New</div>
+            <div class="pf-diff-content">- User can log in with email/password
+- User can authenticate via OAuth 2.0 (Google/GitHub)
+- Session expires after 24 hours
+- 2FA optional, enabled by user preference</div>
+          </div>
+        </div>
+        <div class="pf-reason">
+          <span class="reason-label">Rationale</span>
+          Security requirement surfaced in sprint: stakeholder mandated OAuth support and 2FA capability for enterprise tier. Discovered during Story 2.3 implementation when the enterprise API contract was reviewed.
+        </div>
+        <div class="pf-actions">
+          <span style="color:var(--ink-mute); font-size:11px; font-family:ui-monospace,monospace; text-transform:uppercase; letter-spacing:.1em;">Incremental mode:</span>
+          <span class="action-key">[A] Approve</span>
+          <span class="action-key">[E] Edit</span>
+          <span class="action-key">[S] Skip</span>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- 3 Paths -->
+    <section id="three-paths">
+      <h3 class="skill-heading">
+        <span class="code-name">three-paths</span>
+        3 Change Paths
+      </h3>
+      <p>Checklist §4 evaluates all three options before selecting one. Effort and risk ratings are explicit. The selected path and its rationale go into the Sprint Change Proposal.</p>
+
+      <div class="path-grid">
+        <div class="path-card path-a">
+          <div class="pc-head">
+            <div class="pc-code">Path A</div>
+            <div class="pc-name">Direct Adjustment</div>
+            <div class="pc-when">Modify/add stories within the current plan. Timeline and scope largely maintained.</div>
+          </div>
+          <div class="pc-body">
+            <div class="pc-row">
+              <span class="pc-row-label">Effort</span>
+              <span class="pc-pill pill-low">Low</span>
+            </div>
+            <div class="pc-row">
+              <span class="pc-row-label">Risk</span>
+              <span class="pc-pill pill-low">Low</span>
+            </div>
+            <div class="pc-row">
+              <span class="pc-row-label">Timeline</span>
+              <span class="pc-pill pill-low">Minimal impact</span>
+            </div>
+            <div class="pc-row">
+              <span class="pc-row-label">Best when</span>
+              <span style="font-size:12px; color:var(--ink-soft);">Change fits within existing epic structure without major restructuring</span>
+            </div>
+          </div>
+        </div>
+        <div class="path-card path-b">
+          <div class="pc-head">
+            <div class="pc-code">Path B</div>
+            <div class="pc-name">Potential Rollback</div>
+            <div class="pc-when">Revert recently completed stories to simplify resolving the issue. Justified when rollback cost &lt; total rework cost.</div>
+          </div>
+          <div class="pc-body">
+            <div class="pc-row">
+              <span class="pc-row-label">Effort</span>
+              <span class="pc-pill pill-med">Medium</span>
+            </div>
+            <div class="pc-row">
+              <span class="pc-row-label">Risk</span>
+              <span class="pc-pill pill-med">Medium</span>
+            </div>
+            <div class="pc-row">
+              <span class="pc-row-label">Timeline</span>
+              <span class="pc-pill pill-med">Sprint delay</span>
+            </div>
+            <div class="pc-row">
+              <span class="pc-row-label">Best when</span>
+              <span style="font-size:12px; color:var(--ink-soft);">A completed story's approach is fundamentally wrong and would compound rework if left in place</span>
+            </div>
+          </div>
+        </div>
+        <div class="path-card path-c">
+          <div class="pc-head">
+            <div class="pc-code">Path C</div>
+            <div class="pc-name">MVP Review</div>
+            <div class="pc-when">Re-evaluate or reduce MVP scope. Core goals may need modification based on new constraints discovered during execution.</div>
+          </div>
+          <div class="pc-body">
+            <div class="pc-row">
+              <span class="pc-row-label">Effort</span>
+              <span class="pc-pill pill-high">High</span>
+            </div>
+            <div class="pc-row">
+              <span class="pc-row-label">Risk</span>
+              <span class="pc-pill pill-med">Medium–High</span>
+            </div>
+            <div class="pc-row">
+              <span class="pc-row-label">Timeline</span>
+              <span class="pc-pill pill-high">Significant</span>
+            </div>
+            <div class="pc-row">
+              <span class="pc-row-label">Best when</span>
+              <span style="font-size:12px; color:var(--ink-soft);">The change affects MVP scope or fundamental project goals — cannot be contained to the current epic</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:12.5px; color:var(--ink-mute);">A <strong>Hybrid</strong> path is also available when the best resolution draws from multiple options — e.g., roll back one story (Path B) and then make direct adjustments (Path A) rather than triggering a full MVP review.</p>
+    </section>
+
+    <!-- Scope Routing -->
+    <section id="scope-routing">
+      <h3 class="skill-heading">
+        <span class="code-name">scope-routing</span>
+        Scope Classification &amp; Routing
+      </h3>
+      <p>After the Sprint Change Proposal is approved, scope is classified and the change is routed to the appropriate agent(s) for implementation. This determines who executes — not who decides (that's always the user).</p>
+
+      <div class="scope-strip">
+        <div class="scope-card sc-minor">
+          <span class="scope-badge">Minor</span>
+          <div class="scope-title">Direct Implementation</div>
+          <div class="scope-route">→ Developer agent</div>
+          <div class="scope-body">Change is contained, unambiguous, and implementable without coordination. Developer executes the approved edit proposals directly. Deliverable: implemented changes.</div>
+        </div>
+        <div class="scope-card sc-mod">
+          <span class="scope-badge">Moderate</span>
+          <div class="scope-title">Backlog Reorganization</div>
+          <div class="scope-route">→ Product Owner + Developer</div>
+          <div class="scope-body">Change requires story/epic restructuring that needs PO sign-off before Developer executes. Deliverable: Sprint Change Proposal + backlog reorganization plan.</div>
+        </div>
+        <div class="scope-card sc-major">
+          <span class="scope-badge">Major</span>
+          <div class="scope-title">Fundamental Replan</div>
+          <div class="scope-route">→ PM + Architect</div>
+          <div class="scope-body">Change affects project direction, architecture, or MVP definition. Escalated to PM and Architect for strategic review. May require full replanning session before sprint resumes. Deliverable: Sprint Change Proposal + escalation notice.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Output Document -->
+    <section id="output-document">
+      <h3 class="skill-heading">
+        <span class="code-name">output-document</span>
+        Sprint Change Proposal — 5-Section Structure
+      </h3>
+      <p>Saved as <code>sprint-change-proposal-{date}.md</code> in <code>planning_artifacts</code>. This document is the permanent record of the change decision — referenced in future retrospectives and sprint planning sessions.</p>
+
+      <ul class="step-detail">
+        <li><strong class="label">§1 Issue Summary</strong>Problem statement · when/how it was discovered · concrete evidence (error messages, feedback, constraints)</li>
+        <li><strong class="label">§2 Impact Analysis</strong>Epic impact (which epics, how affected) · Story impact (current and future) · Artifact conflicts (PRD, Architecture, UX) · Technical impact (code, infra, deployment)</li>
+        <li><strong class="label">§3 Recommended Approach</strong>Selected path (Direct / Rollback / MVP Review / Hybrid) · rationale · effort estimate · risk assessment · timeline impact</li>
+        <li><strong class="label">§4 Detailed Change Proposals</strong>All approved old → new proposals, grouped by artifact type. Each with before/after text and justification.</li>
+        <li><strong class="label">§5 Implementation Handoff</strong>Scope classification (Minor / Moderate / Major) · named handoff recipients · their specific responsibilities · success criteria for implementation</li>
+      </ul>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

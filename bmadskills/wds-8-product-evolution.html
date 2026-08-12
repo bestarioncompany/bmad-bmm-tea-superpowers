@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Evolution</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2255c;
+    --accent-soft:#e64980;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 18px 22px; margin: 16px 0 24px; overflow-x: auto; border: 1px solid var(--rule); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>WDS · Phase 8 · standalone brownfield loop</span>
+        <span>Skill · wds-8-product-evolution</span>
+        <span>Agent · Freya (WDS Designer)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Product Evolution <em>· the pipeline in miniature</em></h1>
+    <p class="subtitle">Improve existing products through targeted, incremental changes. The full WDS pipeline compressed into a tight loop for brownfield products — one view, one scenario, one improvement at a time. A non-linear activity menu spanning Analyze, Scope, Design, Implement, Test, and Deploy, every change isolated on its own branch.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>wds-8-product-evolution</dd></div>
+      <div><dt>Menu code</dt><dd>PE</dd></div>
+      <div><dt>Agent</dt><dd>Freya (WDS Designer)</dd></div>
+      <div><dt>Phase</dt><dd>WDS Phase 8</dd></div>
+      <div><dt>Input</dt><dd>Existing product (live URL / codebase)</dd></div>
+      <div><dt>Output</dt><dd>Code + scenarios + tests on a branch</dd></div>
+      <div><dt>Activities</dt><dd>A · S · D · I · T · P</dd></div>
+      <div><dt>Model</dt><dd>Kaizen · branch-based</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#activity-menu">Activity Menu</a>
+      <a href="#branch-workflow">Branch-Based Workflow</a>
+      <a href="#core-principles">5 Core Principles</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-miniature">Why a Miniature Pipeline?</a>
+      <a href="#why-scope">Why Focused Scope?</a>
+      <a href="#why-branch">Why Branch-Based?</a>
+      <a href="#why-kaizen">Why Kaizen?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#workflows">The Kaizen Pipeline</a>
+      <a href="#workflows" class="toc-sub">Scope · 5 steps</a>
+      <a href="#workflows" class="toc-sub">Analyze · 4 steps</a>
+      <a href="#workflows" class="toc-sub">Design · 5 steps</a>
+      <a href="#workflows" class="toc-sub">Implement · 5 steps</a>
+      <a href="#workflows" class="toc-sub">Test · 6 steps</a>
+      <a href="#workflows" class="toc-sub">Deploy · 5 steps</a>
+      <a href="#applied-toolkit">Applied Toolkit</a>
+      <a href="#feedback" class="toc-sub">Feedback to Phases 2–4</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Product Evolution — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>wds-8-product-evolution</code></dd>
+        <dt>Menu code</dt><dd><span class="menu-codes"><code>PE</code></span> (invoked via <code>/wds-agent-freya-ux</code> → PE, or <code>/wds-8-product-evolution</code>)</dd>
+        <dt>Role</dt><dd>Brownfield improvement loop — the full WDS pipeline compressed into a tight, repeatable cycle for living products.</dd>
+        <dt>Agents</dt><dd>Freya leads the design and scoping; Mimir handles implementation when code needs to be written.</dd>
+        <dt>Standalone</dt><dd>WDS Phase 8 runs on its own — it does not require the full Phase 1–7 pipeline to have been walked first.</dd>
+      </dl>
+
+      <p>This skill improves existing products through <strong>targeted, incremental changes</strong>. It is the full WDS pipeline — Analyze, Scope, Design, Implement, Test, Deploy — compressed into a tight loop and applied to brownfield products: one view, one scenario, one improvement at a time. Each cycle reuses the discipline of the larger pipeline at a deliberately smaller scope, and every change is isolated on its own feature branch before it reaches <code>main</code>.</p>
+
+      <p>Use it when you have an existing product and want to add or improve a specific feature; when you do not want to redo the full Phase 1–7 pipeline; and when you follow a <strong>kaizen</strong> (continuous improvement) development model where small, data-driven improvements compound over time.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Activity Menu -->
+    <section id="activity-menu">
+      <h3 class="skill-heading">
+        <span class="code-name">activities</span>
+        Activity Menu
+        <span class="code-tag">non-linear</span>
+      </h3>
+      <p>Phase 8 is non-linear: pick the activity the improvement needs. Each one borrows the discipline of a specific phase from the full pipeline, scoped down to a single improvement.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Activity Menu</span>
+          <span class="data-source">wds-8-product-evolution · non-linear</span>
+        </div>
+        <table>
+          <thead><tr><th>Code</th><th>Activity</th><th>Pipeline Phase Borrowed From</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">A</td><td>Analyze Product</td><td>Phase 3 (Scenarios)</td></tr>
+            <tr><td class="key-col">S</td><td>Scope Improvement</td><td>Phase 3 (Scenarios)</td></tr>
+            <tr><td class="key-col">D</td><td>Design Solution</td><td>Phase 4 (UX Design)</td></tr>
+            <tr><td class="key-col">I</td><td>Implement</td><td>Phase 5 (Development)</td></tr>
+            <tr><td class="key-col">T</td><td>Acceptance Test</td><td>Phase 5 (Testing)</td></tr>
+            <tr><td class="key-col">P</td><td>Deploy</td><td>Phase 4 (Delivery)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Branch-Based Workflow -->
+    <section id="branch-workflow">
+      <h3 class="skill-heading">
+        <span class="code-name">workflow</span>
+        Branch-Based Workflow
+      </h3>
+      <p>Every Phase 8 improvement lives on its own feature branch, gets reviewed, and only then merges into <code>main</code>. The branch is the unit of one improvement cycle.</p>
+
+      <pre class="code-block">main branch
+    ↓
+feature/[improvement-name] branch  ← All Phase 8 changes live here
+    ↓
+PR and review
+    ↓
+Merge to main</pre>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Core Principles -->
+    <section id="core-principles">
+      <h3 class="skill-heading">
+        <span class="code-name">principles</span>
+        5 Core Principles
+      </h3>
+      <p>The five principles that keep each evolution cycle small, isolated, and compounding.</p>
+
+      <ul class="step-detail">
+        <li><strong class="label">Brownfield First</strong>You are joining an existing product, not replacing it.</li>
+        <li><strong class="label">Focused Scope</strong>One view, one scenario, one improvement per cycle.</li>
+        <li><strong class="label">Full Pipeline</strong>The whole pipeline in miniature — Analyze → Scope → Design → Implement → Test → Deploy.</li>
+        <li><strong class="label">Branch-Based</strong>Every change lives in its own branch.</li>
+        <li><strong class="label">Kaizen</strong>Small, data-driven, incremental improvements compound over time.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-miniature">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Product Evolution? — <em>The reasoning behind each design choice</em>
+      </h2>
+
+      <h3 class="skill-heading">
+        <span class="code-name">why-miniature-pipeline</span>
+        Why a Miniature Pipeline Instead of Phases 1–7?
+      </h3>
+      <p>Brownfield products do not need a from-scratch restart. The strategy, users, and visual direction already exist in a shipped product — re-walking Phases 1 through 7 would re-derive context that is already settled. Phase 8 keeps the discipline of the full pipeline — Analyze, Scope, Design, Implement, Test, Deploy — but compresses it into a tight loop sized to a single improvement. You get the rigor without the overhead of a full greenfield pass.</p>
+
+      <h3 class="skill-heading" id="why-scope">
+        <span class="code-name">why-focused-scope</span>
+        Why Focused Scope — One Improvement Per Cycle?
+      </h3>
+      <p>Limiting each cycle to one view, one scenario, and one improvement keeps changes reviewable and low-risk. A small, well-bounded change is easy to reason about, easy to test, and easy to roll back if it misbehaves. Bundling several improvements into one cycle blurs cause and effect and makes the review — and any later debugging — far harder than it needs to be.</p>
+
+      <h3 class="skill-heading" id="why-branch">
+        <span class="code-name">why-branch-based</span>
+        Why Branch-Based?
+      </h3>
+      <p>Every change is isolated on its own <code>feature/[improvement-name]</code> branch, reviewed through a PR, and only then merged into <code>main</code>. Isolation means an in-progress improvement never destabilizes the shipped product, the review has a clean, self-contained diff to evaluate, and the merge into <code>main</code> is a deliberate, reviewed step rather than an accident of working directly on the trunk.</p>
+
+      <h3 class="skill-heading" id="why-kaizen">
+        <span class="code-name">why-kaizen</span>
+        Why Kaizen?
+      </h3>
+      <p>Kaizen is the practice of small, data-driven, incremental improvements that compound over time. Rather than betting on one large redesign, Phase 8 makes steady, measured changes — each one grounded in what the existing product reveals. Note that Phase 8 can feed <strong>back</strong> into Phases 2, 3, and 4: if an evolution surfaces a new user type or driving force, update the <strong>Trigger Map</strong> so the strategic foundation keeps pace with the product.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="workflows">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        The Kaizen Pipeline — <em>six sub-workflows, one tight loop</em>
+      </h2>
+
+      <p class="lede">Phase 8 is a miniature WDS pipeline for brownfield improvements. Each improvement cycles through six sub-workflows in order — Scope, Analyze, Design, Implement, Test, Deploy — with every change isolated on its own branch. The pipeline is intentionally small: one view, one scenario, one improvement per pass.</p>
+
+      <!-- ── Scope ──────────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-scope</span>
+        Scope Improvement
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Turns a vague improvement idea into a concrete, bounded scenario — one page, one flow section, a clear before/after, and measurable success criteria. Scoping happens first so that Design and Implement never chase a moving target. Borrows discipline from Phase 3 (Scenarios).</p>
+
+      <h4 class="step-heading">Step 1 · Load Analysis</h4>
+      <p>Read the product snapshot, selected improvement target, and rationale from the Analyze activity. This is the input that keeps Scope grounded in evidence rather than assumption.</p>
+
+      <h4 class="step-heading">Step 2 · Define the Change</h4>
+      <p>Pin down exactly which view or page changes, describe the current state and what is wrong with it, articulate the desired state the user should experience after the change, and state success criteria — measurable wherever possible.</p>
+
+      <h4 class="step-heading">Step 3 · Map the User Journey</h4>
+      <p>For the selected view, trace the micro-journey: entry point, current step-by-step flow, the exact pain points where the experience breaks down, and the proposed flow after the change.</p>
+
+      <h4 class="step-heading">Step 4 · Estimate Scope</h4>
+      <p>Assess the blast radius: which pages and UI components are affected, whether any API or data-model changes are needed, and the risk level — Low (visual only), Medium (behavior change), or High (structural change).</p>
+
+      <h4 class="step-heading">Step 5 · Write Scenario</h4>
+      <p>Produce a scenario document in <code>{output_folder}/evolution/scenarios/</code> covering target, current state, desired state, user journey, success criteria, and scope. Present for user approval before moving forward.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── Analyze ────────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-analyze</span>
+        Analyze Product
+        <span class="code-tag">4 steps</span>
+      </h3>
+      <p>Reads the existing product — its pages, navigation, tech stack, and user flows — and surfaces a prioritized list of improvement opportunities. The output is a chosen target with rationale, not a solution. Borrows discipline from Phase 3 (Scenarios).</p>
+
+      <h4 class="step-heading">Step 1 · Load Product Context</h4>
+      <p>Gather everything available about the existing product: project configuration, WDS artifacts, live URL if accessible, codebase for tech-stack and component patterns. Produce a Product Snapshot — a factual current-state summary — before forming any opinions.</p>
+
+      <h4 class="step-heading">Step 2 · Identify Improvement Targets</h4>
+      <p>With the user, survey five lenses: user feedback and pain points, business metrics that need movement, technical debt, visual inconsistencies, and competitor gaps. Produce a prioritized list of improvement targets with impact and effort estimates.</p>
+
+      <h4 class="step-heading">Step 3 · Select Target</h4>
+      <p>From the prioritized list, select one target for this cycle. Kaizen discipline requires a single focus — bundling targets blurs cause and effect and expands risk. Present the choice to the user for confirmation.</p>
+
+      <h4 class="step-heading">Step 4 · Document Analysis</h4>
+      <p>Save the product snapshot, the prioritized target list, and the selected target with rationale to <code>{output_folder}/evolution/analysis/</code>. This document feeds directly into the Scope workflow that follows.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── Design ─────────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-design</span>
+        Design Solution
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Designs the smallest effective change that solves the root cause — from a quick sketch or before/after description all the way to a development-ready specification. Scope creep is actively challenged at every step. Borrows discipline from Phase 4 (UX Design).</p>
+
+      <h4 class="step-heading">Step 1 · Load Scenario</h4>
+      <p>Read the scenario from the Scope workflow: target description, current vs desired state, user journey, and the list of pages and components affected. Design only what the scenario calls for.</p>
+
+      <h4 class="step-heading">Step 2 · Choose Design Approach</h4>
+      <p>Pick the appropriate depth: a quick-fix for small visual or copy changes (skip straight to specification), a sketch-first approach for layout or flow changes, or Phase 6 asset generation for significant visual overhauls.</p>
+
+      <h4 class="step-heading">Step 3 · Design the Change</h4>
+      <p>Produce a before snapshot and an after concept. Explicitly mark the diff — layout, components, content, behavior. Stress-test edge cases: mobile behavior, long text, empty states. Iterate with the user until the design is approved.</p>
+
+      <h4 class="step-heading">Step 4 · Write Specification</h4>
+      <p>Create a mini page-spec in <code>{output_folder}/evolution/specs/</code> covering change summary, before/after descriptions, component properties and behavior, responsive behavior across breakpoints, and the testable acceptance criteria from the scenario.</p>
+
+      <h4 class="step-heading">Step 5 · Approve Specification</h4>
+      <p>Present the full specification for user sign-off. Verify it matches the scenario intent, that all acceptance criteria are objectively testable, and that the scope is still manageable. No implementation begins until sign-off is recorded.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── Implement ──────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-implement</span>
+        Implement
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Translates the approved specification into working code on a dedicated branch, following the existing codebase's conventions. Every commit is incremental and scoped to the specification — no unrelated changes land on the branch. Borrows discipline from Phase 5 (Development).</p>
+
+      <h4 class="step-heading">Step 1 · Load Specification</h4>
+      <p>Read the specification from the Design workflow: change summary, component specs, acceptance criteria, and the list of affected pages. This is the contract the implementation must satisfy.</p>
+
+      <h4 class="step-heading">Step 2 · Create Branch</h4>
+      <p>Create a feature branch using the naming convention <code>evolution/[scenario-name]</code>. All implementation work stays on this branch until the Test and Deploy workflows are complete.</p>
+
+      <h4 class="step-heading">Step 3 · Understand Current Code</h4>
+      <p>Before writing a line, locate the affected files, read the current component implementations, identify the framework and styling patterns, and note any design tokens. Present a brief implementation plan — which files change, what new files are needed, estimated complexity — and wait for confirmation.</p>
+
+      <h4 class="step-heading">Step 4 · Implement Changes</h4>
+      <p>Write code that follows the specification and matches existing patterns exactly. Make only the changes the specification calls for, commit in logical increments, and verify each change works before moving on. Explain what each file change does and why.</p>
+
+      <h4 class="step-heading">Step 5 · Self-Review</h4>
+      <p>Diff all branch changes against <code>main</code>. Check every acceptance criterion is addressed. Confirm no unintended side effects on adjacent pages or components. Clean the branch of debug code, commented-out blocks, and any unrelated edits before handing off to Test.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── Test ───────────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-test</span>
+        Acceptance Test
+        <span class="code-tag">6 steps</span>
+      </h3>
+      <p>Validates the implementation against the specification's acceptance criteria before anything reaches production. Covers new functionality, regression, edge cases, and accessibility — and produces a test report with a clear pass/fail recommendation. Borrows discipline from Phase 5 [T] (Acceptance Testing).</p>
+
+      <h4 class="step-heading">Step 1 · Load Test Context</h4>
+      <p>Pull together the specification, scenario, and implementation diff. Extract all acceptance criteria into a test checklist — these are the objective bars the implementation must clear.</p>
+
+      <h4 class="step-heading">Step 2 · Prepare Test Environment</h4>
+      <p>Confirm the <code>evolution/[scenario-name]</code> branch is checked out, start the local development server if needed, navigate to the affected view, and note the URL and any required test data.</p>
+
+      <h4 class="step-heading">Step 3 · Execute Tests</h4>
+      <p>Work through each acceptance criterion — steps, expected result, actual result, pass/fail — and then cover responsive breakpoints, empty and error states, and a regression sweep of pages adjacent to the change. Cross-browser testing applies if the project requires it.</p>
+
+      <h4 class="step-heading">Step 4 · Document Results</h4>
+      <p>Create a test report in <code>{output_folder}/evolution/test-reports/</code> with a summary (X of Y criteria passed), the full results table, a list of any issues with severity, and a clear recommendation: Pass, Pass with notes, or Fail — needs rework.</p>
+
+      <h4 class="step-heading">Step 5 · Handle Failures</h4>
+      <p>Minor issues are fixed in the same branch and retested. Design issues route back to the Design workflow. Anything that amounts to scope creep is logged as a separate improvement target for the next cycle — it does not get folded into the current branch.</p>
+
+      <h4 class="step-heading">Step 6 · Update Delivery Status</h4>
+      <p>Update the Design Delivery file (<code>DD-XXX</code>) to reflect the test outcome. If approved, mark <code>status: complete</code> and <code>ready_for_production: true</code>. If issues remain, mark <code>status: in_testing</code> and record the issue count for the next retest round.</p>
+
+      <hr class="section-divider">
+
+      <!-- ── Deploy ─────────────────────────────── -->
+      <h3 class="skill-heading">
+        <span class="code-name">workflow-deploy</span>
+        Deploy
+        <span class="code-tag">5 steps</span>
+      </h3>
+      <p>Packages the tested improvement as a pull request, delivers it to the development team with all artifacts linked, and sets up monitoring for post-release impact measurement. The deployment is the handshake between the kaizen cycle and the live product. Borrows discipline from Phase 4 [H] (Design Delivery).</p>
+
+      <h4 class="step-heading">Step 1 · Pre-Deploy Checklist</h4>
+      <p>Verify all acceptance criteria pass per the test report, the branch is clean with no uncommitted changes, commits are logical and well-described, no unrelated changes are included, and documentation is updated where applicable.</p>
+
+      <h4 class="step-heading">Step 2 · Create Pull Request</h4>
+      <p>Open a PR from the <code>evolution/[scenario-name]</code> branch. The PR body includes: what changed, why (linked to the scenario and analysis), how to test (steps from the test report), before/after screenshots for visual changes, and the acceptance criteria checklist.</p>
+
+      <h4 class="step-heading">Step 3 · Package Delivery Context</h4>
+      <p>Create a delivery summary in <code>{output_folder}/evolution/deliveries/</code> that links the PR and all artifacts in the chain — analysis, scenario, specification, test report — and states the expected improvement and what metrics or signals to watch after deployment.</p>
+
+      <h4 class="step-heading">Step 4 · Notify Team</h4>
+      <p>If the project uses design-log tracking or team notifications, create a completion notification referencing all artifacts in sequence (analysis → scenario → spec → test → PR) and include any monitoring instructions the team needs to act on post-release.</p>
+
+      <h4 class="step-heading">Step 5 · Plan Next Cycle</h4>
+      <p>Archive the completed improvement cycle, review remaining targets from the Analyze output, and propose the next target or trigger a new Analyze pass. Each deploy closes one kaizen loop and opens the possibility of the next.</p>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="applied-toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Applied Toolkit</span>
+          <span class="data-source">wds-8-product-evolution</span>
+        </div>
+        <table>
+          <thead><tr><th>Category</th><th>Items</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Skill</td><td><code>wds-8-product-evolution</code></td></tr>
+            <tr><td class="key-col">Agents</td><td>Freya — WDS Designer (+ Mimir for implementation)</td></tr>
+            <tr><td class="key-col">Output</td><td>Code changes + scenario files + test reports on a feature branch</td></tr>
+            <tr><td class="key-col">Activities</td><td><code>A</code> Analyze · <code>S</code> Scope · <code>D</code> Design · <code>I</code> Implement · <code>T</code> Test · <code>P</code> Deploy</td></tr>
+            <tr><td class="key-col">Model</td><td>Kaizen — branch-based continuous improvement</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section id="feedback">
+        <h5>Feedback to Phases 2–4</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Phase</th><th>What an evolution can feed back</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Phase 2 · Trigger Map</td><td>A new user type or driving force surfaced by the evolution — update the Trigger Map so the strategy keeps pace.</td></tr>
+              <tr><td class="key-col">Phase 3 · Scenarios</td><td>New flows or journeys revealed by the improvement — extend scenario coverage.</td></tr>
+              <tr><td class="key-col">Phase 4 · UX Design</td><td>Design decisions made in the cycle that should persist into the product's page specs.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>

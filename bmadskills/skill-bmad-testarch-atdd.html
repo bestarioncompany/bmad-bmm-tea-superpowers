@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceptance Test-Driven Development — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --red:        #dc2626;
+    --green:      #16a34a;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 110px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+  h3.skill-heading .tag-red { background: var(--red); color: #fff; }
+  h3.skill-heading .tag-green { background: var(--green); color: #fff; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); }
+  pre { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: #1a1612; color: #f4ede0; padding: 16px 18px; overflow-x: auto; line-height: 1.6; margin: 0 0 18px; border: 1px solid var(--rule); }
+  pre code { background: none; border: none; padding: 0; color: inherit; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── TDD cycle diagram ────────────────────────── */
+  .tdd-cycle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .tdd-cycle > * { box-shadow: 0 0 0 1px var(--rule); }
+  .tdd-phase { background: var(--paper); padding: 18px 20px; text-align: center; }
+  .tdd-phase .phase-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; padding: 3px 12px; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px; }
+  .phase-red .phase-badge { background: var(--red); color: #fff; }
+  .phase-green .phase-badge { background: var(--green); color: #fff; }
+  .phase-refactor .phase-badge { background: var(--ink); color: var(--paper); }
+  .tdd-phase .phase-title { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .tdd-phase .phase-body { font-size: 12px; color: var(--ink-soft); line-height: 1.55; }
+  .tdd-phase .phase-who { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+  /* ── Compare table (§WHY) ─────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Parallel workers diagram ─────────────────── */
+  .workers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 20px; }
+  .workers-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .worker-card { background: var(--paper); padding: 16px 20px; }
+  .worker-card .worker-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .worker-a .worker-label { background: var(--accent); }
+  .worker-b .worker-label { background: var(--ink-soft); }
+  .worker-card .worker-name { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .worker-card ul { list-style: none; padding: 0; margin: 0; }
+  .worker-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .worker-card ul li:last-child { border-bottom: none; }
+  .worker-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .worker-card .worker-output { margin-top: 10px; padding: 6px 10px; background: var(--paper-warm); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); border-top: 1px solid rgba(42,34,26,.15); }
+
+  /* ── Step detail / inline / checklist ─────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li { padding: 6px 0 6px 24px; position: relative; font-size: 0.875rem; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.5; }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: '□'; position: absolute; left: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-mute); }
+
+  /* ── Rule box ─────────────────────────────────── */
+  .rule-box { border: 2px solid var(--red); background: #fff1f2; padding: 14px 18px; margin: 16px 0 24px; }
+  .rule-box .rule-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--red); margin-bottom: 8px; }
+  .rule-box p { margin: 0; font-size: 0.875rem; color: var(--ink-soft); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .tdd-cycle, .workers-grid, .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad TEA · Test Architecture Enterprise</span>
+        <span>Skill · bmad-testarch-atdd</span>
+        <span>Module · tea-skills</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Acceptance Test-Driven Development <em>· Master Architect</em></h1>
+    <p class="subtitle">Generate red-phase acceptance test scaffolds before implementation. Tests assert expected behavior but are skipped — activated one by one as the developer implements each task, ensuring the feature is testable from day one.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-testarch-atdd</dd></div>
+      <div><dt>Menu code</dt><dd>ATDD</dd></div>
+      <div><dt>Input</dt><dd>Story + acceptance criteria</dd></div>
+      <div><dt>Trigger</dt><dd>"lets write acceptance tests" / "I want to do ATDD"</dd></div>
+      <div><dt>Agent</dt><dd>Murat (Test Architect)</dd></div>
+      <div><dt>TDD phase</dt><dd>Red → Green → Refactor</dd></div>
+      <div><dt>Steps (C)</dt><dd>5 + 1 resume</dd></div>
+      <div><dt>Workers</dt><dd>API · E2E (parallel)</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#overview">Skill Overview</a>
+      <a href="#tdd-cycle">TDD Red-Green-Refactor</a>
+      <a href="#red-phase" class="toc-sub">Red Phase — what ATDD generates</a>
+      <a href="#activation" class="toc-sub">Task-by-task activation</a>
+      <a href="#test-levels">Test Level Selection</a>
+      <a href="#frontend-levels" class="toc-sub">Frontend / Fullstack</a>
+      <a href="#backend-levels" class="toc-sub">Backend</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-atdd">Why ATDD?</a>
+      <a href="#when-to-use">When to Use</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#activation-modes">Activation &amp; Modes (C/R/V/E)</a>
+      <a href="#steps-c">Workflow Steps (5 Steps)</a>
+      <a href="#step-04-parallel" class="toc-sub">step-04 · Parallel generation</a>
+      <a href="#steps-e" class="toc-sub">Edit mode</a>
+      <a href="#steps-v" class="toc-sub">Validate mode</a>
+      <a href="#generation-modes">Generation Modes</a>
+      <a href="#ai-gen" class="toc-sub">AI generation (default)</a>
+      <a href="#recording" class="toc-sub">Browser recording (optional)</a>
+      <a href="#outputs">Generated Files &amp; Checklist</a>
+      <a href="#checklist">Key Checklist Items</a>
+    </nav>
+  </aside>
+
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT — What is this Skill?
+         ══════════════════════════════════════════════ -->
+    <section id="overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Acceptance Test-Driven Development — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-testarch-atdd</code></dd>
+        <dt>Menu code</dt><dd><span class="menu-codes"><code>ATDD</code></span></dd>
+        <dt>Role</dt><dd>Master Test Architect — generates test scaffolds before any feature code is written, making acceptance criteria executable from day one.</dd>
+        <dt>Core concept</dt><dd>TDD red phase: generate tests that <strong>assert expected behavior</strong> but are marked <code>test.skip()</code> — they don't run yet. Developer activates them one task at a time, implements, and makes them pass (green).</dd>
+        <dt>Input</dt><dd>An approved story with clear acceptance criteria + configured test framework.</dd>
+        <dt>Output</dt><dd>API test scaffolds + E2E test scaffolds + fixture stubs + ATDD checklist — all in red phase, all with <code>test.skip()</code>.</dd>
+        <dt>Distinct from</dt><dd><code>bmad-testarch-automate</code> (AT) generates tests <em>after</em> implementation. ATDD generates scaffolds <em>before</em> — the contract comes first, implementation satisfies it.</dd>
+        <dt>Tags</dt><dd><code>qa</code> · <code>atdd</code> · <code>tdd</code> · <code>red-green-refactor</code> · <code>test-architect</code></dd>
+      </dl>
+
+      <p>This skill bridges test design and implementation. Rather than writing tests after the feature is done (test-last), ATDD forces clarity: acceptance criteria are turned into executable tests before anyone writes a line of feature code. The tests define the contract; implementation satisfies it.</p>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">TDD Cycle</div>
+          <div class="card-name">Red → Green → Refactor</div>
+          <div class="card-body">
+            <ul>
+              <li>Red: ATDD generates scaffolds (skipped)</li>
+              <li>Green: developer activates + implements</li>
+              <li>Refactor: clean up while tests stay green</li>
+              <li>Each task = activate one test group</li>
+            </ul>
+          </div>
+          <div class="card-footer">Test first, implement second</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Parallel Workers</div>
+          <div class="card-name">API + E2E Generation</div>
+          <div class="card-body">
+            <ul>
+              <li>Worker A: API red-phase tests</li>
+              <li>Worker B: E2E red-phase tests</li>
+              <li>Both run in parallel (agent-team/subagent)</li>
+              <li>~50% faster than sequential</li>
+              <li>step-04c aggregates + validates</li>
+            </ul>
+          </div>
+          <div class="card-footer">Adaptive orchestration</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Story-Driven</div>
+          <div class="card-name">Story → Tests</div>
+          <div class="card-body">
+            <ul>
+              <li>Input: story file + acceptance criteria</li>
+              <li>Derives story_key from filename</li>
+              <li>Updates story Dev Notes with artifact paths</li>
+              <li>Output keyed to story_key</li>
+            </ul>
+          </div>
+          <div class="card-footer">One run per story</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Generation Modes</div>
+          <div class="card-name">AI or Recording</div>
+          <div class="card-body">
+            <ul>
+              <li>AI generation (default, all stacks)</li>
+              <li>Browser recording (Frontend/Fullstack)</li>
+              <li>Playwright CLI: snapshot selectors</li>
+              <li>Playwright MCP: drag/drop, wizards</li>
+              <li>Backend: always AI generation</li>
+            </ul>
+          </div>
+          <div class="card-footer">Config: tea_browser_automation</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- TDD CYCLE -->
+    <section id="tdd-cycle">
+      <h3 class="skill-heading">
+        <span class="code-name">tdd-cycle</span>
+        TDD Red-Green-Refactor
+      </h3>
+      <p class="lede">ATDD operates exclusively in the red phase. The green and refactor phases are the developer's responsibility. The skill generates the contract; the developer fulfils it.</p>
+
+      <div class="tdd-cycle">
+        <div class="tdd-phase phase-red">
+          <span class="phase-badge">Red</span>
+          <div class="phase-title">Generate Scaffolds</div>
+          <div class="phase-body">ATDD generates tests that assert expected behavior. All tests wrapped in <code>test.skip()</code> — they don't execute. This phase produces the contract.</div>
+          <div class="phase-who">ATDD skill · automated</div>
+        </div>
+        <div class="tdd-phase phase-green">
+          <span class="phase-badge">Green</span>
+          <div class="phase-title">Activate &amp; Implement</div>
+          <div class="phase-body">Developer removes <code>test.skip()</code> for the current task, runs the test (sees it fail), implements the feature, sees it pass. One task at a time.</div>
+          <div class="phase-who">Developer · manual</div>
+        </div>
+        <div class="tdd-phase phase-refactor">
+          <span class="phase-badge">Refactor</span>
+          <div class="phase-title">Clean Up</div>
+          <div class="phase-body">Improve code quality while all tests remain green. No new behavior, no skipped tests — tests act as a safety net during refactoring.</div>
+          <div class="phase-who">Developer · manual</div>
+        </div>
+      </div>
+
+      <h4 class="step-heading" id="red-phase">What the Red Phase Produces</h4>
+      <p>Every generated test must satisfy three conditions. The aggregation step (step-04c) validates all three before writing files to disk:</p>
+      <ul class="step-detail">
+        <li><strong class="label">test.skip()</strong>Every test is wrapped in <code>test.skip()</code>. Tests do not execute and do not affect CI pass rates — they are scaffolds, not live tests.</li>
+        <li><strong class="label">Real assertions</strong>Tests assert <em>expected</em> behavior — real API responses, correct UI states, proper business logic outcomes. No placeholder assertions like <code>expect(true).toBe(true)</code>.</li>
+        <li><strong class="label">expected_to_fail</strong>Each test file is tagged <code>expected_to_fail: true</code> in the subagent output contract. Validation rejects files where this flag is missing.</li>
+      </ul>
+
+      <h4 class="step-heading" id="activation">Task-by-Task Activation (Developer Workflow)</h4>
+      <p>After ATDD completes, the developer works through the ATDD checklist as they implement the story:</p>
+      <ul class="step-detail">
+        <li><strong class="label">1. Current task</strong>Identify which acceptance criterion the current implementation task covers.</li>
+        <li><strong class="label">2. Activate test</strong>Remove <code>test.skip()</code> from the corresponding test file or describe block only — leave all other tests skipped.</li>
+        <li><strong class="label">3. Run &amp; confirm red</strong>Run <code>npm test</code>. The activated test should fail (feature not implemented yet). If it passes already, investigate — possible test bug or pre-existing behavior.</li>
+        <li><strong class="label">4. Implement</strong>Write feature code until the activated test passes (green).</li>
+        <li><strong class="label">5. Commit</strong>Commit passing tests together with the feature code.</li>
+        <li><strong class="label">6. Next task</strong>Repeat for the next acceptance criterion.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- TEST LEVEL SELECTION -->
+    <section id="test-levels">
+      <h3 class="skill-heading">
+        <span class="code-name">test-levels</span>
+        Test Level Selection
+      </h3>
+      <p class="lede">Level selection is stack-conditional. The skill avoids duplicate coverage — the same behavior tested at multiple levels is waste.</p>
+
+      <h4 class="step-heading" id="frontend-levels">Frontend / Fullstack</h4>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Frontend / Fullstack Levels</span>
+          <span class="data-source">step-03-test-strategy.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Level</th><th>Use for</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><code>E2E</code></td>
+              <td>Critical user journeys — the flows that matter most to the business. Minimal count, maximum coverage of the happy path. High cost per test.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>API</code></td>
+              <td>Business logic and service contracts. Test at the API boundary — faster and more stable than E2E for logic testing.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>Component</code></td>
+              <td>UI component behavior: form validation, state management, user interactions, accessibility. Isolated from full stack.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 class="step-heading" id="backend-levels">Backend (No E2E)</h4>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Backend Levels</span>
+          <span class="data-source">step-03-test-strategy.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Level</th><th>Use for</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><code>Unit</code></td>
+              <td>Pure functions, business logic, edge cases, error handling branches. Fast, no I/O, no external dependencies.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>Integration</code></td>
+              <td>Service interactions, database queries, middleware, message queues. Tests real I/O with controlled state.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>API / Contract</code></td>
+              <td>Endpoint validation, request/response schemas, Pact contracts. Tests the HTTP boundary of the service.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>E2E</code></td>
+              <td style="color:#991b1b;font-weight:600;">NOT used for pure backend. No browser-based testing for services with no UI.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY — Why use this Skill?
+         ══════════════════════════════════════════════ -->
+    <section id="why-atdd">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why ATDD? — <em>The case for test-first</em>
+      </h2>
+
+      <p class="lede">Test-last is the industry default — write the feature, then write tests to prove it works. ATDD inverts this: the test is the specification. Implementation only begins after the contract is defined.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Without ATDD (test-last)</th>
+            <th>With ATDD (this skill)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Test creation timing</td>
+            <td>Tests written after implementation — validate existing behavior, not intended behavior; bias toward what was built, not what was specified</td>
+            <td>Tests written before implementation — define the contract; implementation satisfies it; no survivorship bias</td>
+          </tr>
+          <tr>
+            <td>AC traceability</td>
+            <td>Acceptance criteria exist in the story but no direct link to test coverage; easy to miss edge cases under deadline pressure</td>
+            <td>Every AC mapped to at least one test scenario; checklist tracks coverage explicitly per criterion</td>
+          </tr>
+          <tr>
+            <td>Implementation clarity</td>
+            <td>Developer interprets story ambiguously; different developers would build different things; inconsistencies found in review</td>
+            <td>Red-phase tests make intended behavior concrete before coding — ambiguities surface immediately, not after implementation</td>
+          </tr>
+          <tr>
+            <td>Progress visibility</td>
+            <td>Progress visible only in code — hard to tell what's done vs what's still missing from the acceptance criteria</td>
+            <td>Checklist tracks: <code>skip</code> = not started, failing = in progress, passing = done — exact task-by-task visibility</td>
+          </tr>
+          <tr>
+            <td>Story handoff</td>
+            <td>Developer reads story and guesses what to build; no automated bridge from ACs to implementation tasks</td>
+            <td>ATDD artifacts embedded in story Dev Notes — paths to API tests, E2E tests, and checklist; feeds directly into <code>dev-story</code> workflow</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- When to Use -->
+    <section id="when-to-use">
+      <h3 class="skill-heading">
+        <span class="code-name">when-to-use</span>
+        When to Use This Skill
+      </h3>
+      <ul class="step-detail">
+        <li><strong class="label">Phrase 1</strong>"lets write acceptance tests" / "I want to do ATDD"</li>
+        <li><strong class="label">Phrase 2</strong>"generate red-phase tests for this story" / "create test scaffolds"</li>
+        <li><strong class="label">Timing</strong>After story is approved with clear acceptance criteria. Before any implementation code is written — that's the point.</li>
+        <li><strong class="label">Prerequisite</strong>Test framework must be configured (<code>playwright.config.ts</code> for Frontend/Fullstack; backend test config for Backend). Run <code>bmad-testarch-framework</code> first if not done.</li>
+        <li><strong class="label">Prerequisite</strong>Story file must have acceptance criteria. HALT if missing — no test design possible without them.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW — How to Execute
+         ══════════════════════════════════════════════ -->
+    <section id="activation-modes">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Activation &amp; Operating Modes
+      </h2>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Four Operating Modes</span>
+          <span class="data-source">SKILL.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Code</th><th>Name</th><th>Entry point</th><th>Use when</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><code>C</code></td>
+              <td><strong>Create</strong></td>
+              <td><code>steps-c/step-01-preflight-and-context.md</code></td>
+              <td>Generating ATDD scaffolds for a new story</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>R</code></td>
+              <td><strong>Resume</strong></td>
+              <td><code>steps-c/step-01b-resume.md</code></td>
+              <td>Continuing an interrupted run — reads <code>lastStep</code> from <code>atdd-checklist-{story_key}.md</code></td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>V</code></td>
+              <td><strong>Validate</strong></td>
+              <td><code>steps-v/step-01-validate.md</code></td>
+              <td>Auditing existing ATDD outputs against the checklist</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>E</code></td>
+              <td><strong>Edit</strong></td>
+              <td><code>steps-e/step-01-assess.md</code></td>
+              <td>Updating a specific section of existing ATDD scaffolds</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- WORKFLOW STEPS -->
+    <section id="steps-c">
+      <h3 class="skill-heading">
+        <span class="code-name">steps-c</span>
+        Create Mode — 5 Steps + 1 Resume
+        <span class="code-tag">primary</span>
+      </h3>
+
+      <h4 class="step-heading">step-01 · Preflight &amp; Context Loading</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-01-preflight-and-context.md</code></li>
+        <li><strong class="label">Goal</strong>Verify prerequisites, detect stack, load story context, load framework patterns, and initialize knowledge base.</li>
+        <li><strong class="label">Stack detect</strong>Reads <code>test_stack_type</code> from config or auto-detects from manifests. Sets <code>{detected_stack}</code> = frontend | backend | fullstack.</li>
+        <li><strong class="label">Prerequisites</strong>Story approved with acceptance criteria · framework config present for detected stack. HALT if either is missing.</li>
+        <li><strong class="label">Story context</strong>Reads story file, extracts acceptance criteria and constraints. Derives <code>story_key</code> (from filename) and <code>story_id</code> (from metadata / H1 / filename). Stores <code>{story_file}</code> as tracked artifact path for later handoff.</li>
+        <li><strong class="label">Knowledge loading</strong>Core tier always: <code>data-factories.md</code>, <code>component-tdd.md</code>, <code>test-quality.md</code>, <code>test-healing-patterns.md</code>. Frontend/Fullstack adds: <code>selector-resilience.md</code>, <code>timing-debugging.md</code>, Playwright Utils (if enabled). Backend/Fullstack adds: <code>test-levels-framework.md</code>, <code>test-priorities-matrix.md</code>.</li>
+        <li><strong class="label">Config flags</strong>Reads: <code>tea_use_playwright_utils</code>, <code>tea_use_pactjs_utils</code>, <code>tea_pact_mcp</code>, <code>tea_browser_automation</code>.</li>
+        <li><strong class="label">Output file</strong>Creates <code>{test_artifacts}/atdd-checklist-{story_key}.md</code> with frontmatter: <code>storyId</code>, <code>storyKey</code>, <code>storyFile</code>, <code>generatedTestFiles: []</code>.</li>
+      </ul>
+
+      <h4 class="step-heading">step-01b · Resume Workflow</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-01b-resume.md</code></li>
+        <li><strong class="label">Goal</strong>Resume from last saved checkpoint. Reads <code>lastStep</code> from checklist frontmatter, displays progress, routes to next incomplete step.</li>
+      </ul>
+
+      <h4 class="step-heading">step-02 · Generation Mode Selection</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-02-generation-mode.md</code></li>
+        <li><strong class="label">Goal</strong>Choose between AI generation (default) or browser recording (Frontend/Fullstack optional).</li>
+        <li><strong class="label">AI generation</strong>Default for all stacks. Mandatory for Backend. Used when acceptance criteria are clear and scenarios are standard (CRUD, auth, API, navigation).</li>
+        <li><strong class="label">Recording mode</strong>Frontend/Fullstack only. Used for complex UI interactions requiring live browser verification. Tool selected from <code>tea_browser_automation</code> config: <code>cli</code> → Playwright CLI, <code>mcp</code> → Playwright MCP, <code>auto</code> → CLI for simple / MCP for complex.</li>
+        <li><strong class="label">Backend</strong>Always AI generation. Generates from API docs, OpenAPI/Swagger specs, or source code analysis — no browser recording needed.</li>
+      </ul>
+
+      <h4 class="step-heading">step-03 · Test Strategy</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-03-test-strategy.md</code></li>
+        <li><strong class="label">Goal</strong>Translate acceptance criteria into a prioritized, level-appropriate test plan before any generation begins.</li>
+        <li><strong class="label">Criteria mapping</strong>Each acceptance criterion → one or more test scenarios. Negative and edge cases included where risk is high.</li>
+        <li><strong class="label">Level selection</strong>Assign best test level per scenario based on detected stack. See Test Level Selection section above.</li>
+        <li><strong class="label">Priority</strong>Assign P0–P3 using risk and business impact.</li>
+        <li><strong class="label">Red phase check</strong>Confirms all tests are designed to <em>fail before implementation</em>. Tests that would trivially pass indicate a test design problem.</li>
+      </ul>
+
+      <h4 class="step-heading">step-04 · Orchestrate Parallel Generation</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-04-generate-tests.md</code></li>
+        <li><strong class="label">Goal</strong>Select execution mode, launch two parallel workers, wait for completion, verify red-phase compliance, proceed to aggregation.</li>
+        <li><strong class="label">Workers</strong>Worker A (API red-phase) and Worker B (E2E red-phase) run in parallel via agent-team or subagent. Sequential fallback available.</li>
+        <li><strong class="label">Execution mode</strong>Resolution order: explicit user request → <code>tea_execution_mode</code> config → capability probe. agent-team → subagent → sequential.</li>
+        <li><strong class="label">Temp files</strong>Each worker writes to <code>/tmp/tea-atdd-{api|e2e}-tests-{timestamp}.json</code>. Aggregation step reads these files.</li>
+        <li><strong class="label">Red phase guard</strong>Proceeds to step-04c only when BOTH workers complete successfully AND output files contain valid JSON.</li>
+      </ul>
+
+      <!-- PARALLEL WORKERS -->
+      <h3 class="skill-heading" id="step-04-parallel">
+        <span class="code-name">step-04a/b/c</span>
+        Parallel Workers &amp; Aggregation
+      </h3>
+
+      <div class="workers-grid">
+        <div class="worker-card worker-a">
+          <span class="worker-label">Worker A</span>
+          <div class="worker-name">API Red-Phase Tests</div>
+          <ul>
+            <li>Reads: story acceptance criteria + test strategy</li>
+            <li>Generates: API endpoint tests with real assertions</li>
+            <li>Wraps all tests in <code>test.skip()</code></li>
+            <li>Marks: <code>expected_to_fail: true</code></li>
+            <li>Covers: business logic, request/response, contracts</li>
+          </ul>
+          <div class="worker-output">Output → /tmp/tea-atdd-api-tests-{ts}.json</div>
+        </div>
+        <div class="worker-card worker-b">
+          <span class="worker-label">Worker B</span>
+          <div class="worker-name">E2E Red-Phase Tests</div>
+          <ul>
+            <li>Reads: story acceptance criteria + test strategy</li>
+            <li>Generates: E2E user journey tests with real assertions</li>
+            <li>Wraps all tests in <code>test.skip()</code></li>
+            <li>Marks: <code>expected_to_fail: true</code></li>
+            <li>Covers: UI flows, navigation, component behavior</li>
+          </ul>
+          <div class="worker-output">Output → /tmp/tea-atdd-e2e-tests-{ts}.json</div>
+        </div>
+      </div>
+
+      <h4 class="step-heading">step-04c · Aggregate &amp; Validate</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-04c-aggregate.md</code></li>
+        <li><strong class="label">Goal</strong>Read both worker outputs, validate TDD compliance, write test files to disk, generate fixtures and ATDD checklist.</li>
+        <li><strong class="label">TDD validation</strong>For every test: must have <code>test.skip()</code>, must not have placeholder assertions (<code>expect(true).toBe(true)</code>), must be marked <code>expected_to_fail</code>. Any violation throws an error — does NOT proceed.</li>
+        <li><strong class="label">Write files</strong>Writes API and E2E test files to <code>tests/api/</code> and <code>tests/e2e/</code> respectively.</li>
+        <li><strong class="label">Fixtures</strong>Generates minimal fixture stubs needed by the scaffolds (e.g., <code>tests/fixtures/test-data.ts</code>). More complete fixtures added during green phase.</li>
+        <li><strong class="label">ATDD checklist</strong>Writes <code>{test_artifacts}/atdd-checklist-{story_key}.md</code> with acceptance criteria coverage, test counts, and task-by-task activation guide.</li>
+        <li><strong class="label">Story handoff</strong>If story file is writable, adds an <code>### ATDD Artifacts</code> subsection to <code>## Dev Notes</code> in the story — links checklist path, API test path, E2E test path. Falls back gracefully if story cannot be updated.</li>
+      </ul>
+
+      <h4 class="step-heading">step-05 · Validate &amp; Complete</h4>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-05-validate-and-complete.md</code></li>
+        <li><strong class="label">Goal</strong>Final validation against checklist, polish output, completion report.</li>
+        <li><strong class="label">Validates</strong>Prerequisites satisfied · test files created with <code>test.skip()</code> · checklist covers all acceptance criteria · story metadata captured · CLI sessions cleaned up · temp artifacts in <code>{test_artifacts}/</code> not random paths.</li>
+        <li><strong class="label">Completion report</strong>Test files created · checklist path · story key + story file handoff path · key risks or assumptions · recommended next workflow.</li>
+      </ul>
+
+      <h3 class="skill-heading" id="steps-e">
+        <span class="code-name">steps-e</span>
+        Edit Mode — 2 Steps
+      </h3>
+      <ul class="step-detail">
+        <li><strong class="label">step-01</strong>Identify which ATDD output file to edit and load it for review.</li>
+        <li><strong class="label">step-02</strong>Apply explicitly requested changes. No scope creep — only what was asked.</li>
+      </ul>
+
+      <h3 class="skill-heading" id="steps-v">
+        <span class="code-name">steps-v</span>
+        Validate Mode — 1 Step
+      </h3>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-v/step-01-validate.md</code></li>
+        <li><strong class="label">Goal</strong>Validate all ATDD outputs against <code>checklist.md</code> and write validation report.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- GENERATION MODES -->
+    <section id="generation-modes">
+      <h3 class="skill-heading">
+        <span class="code-name">gen-modes</span>
+        Generation Modes
+      </h3>
+
+      <h4 class="step-heading" id="ai-gen">AI Generation (Default)</h4>
+      <p>The standard mode for all stacks. No live browser required. The skill generates tests from story acceptance criteria, API documentation, OpenAPI/Swagger specs, or source code analysis.</p>
+      <ul class="inline-list">
+        <li>Mandatory for Backend stacks (no UI, no browser recording needed)</li>
+        <li>Best for clear acceptance criteria and standard scenarios: CRUD, auth, API endpoints, navigation flows</li>
+        <li>Uses loaded knowledge fragments (data-factories, test-quality, selector-resilience, etc.) to produce realistic test patterns</li>
+      </ul>
+
+      <h4 class="step-heading" id="recording">Browser Recording (Optional — Frontend / Fullstack)</h4>
+      <p>Use for complex UI interactions that benefit from live browser verification before generating tests. Controlled by <code>tea_browser_automation</code> config flag.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Browser Automation Config</span>
+          <span class="data-source">step-02-generation-mode.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Config value</th><th>Behavior</th><th>Best for</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><code>auto</code></td>
+              <td>CLI for simple recording (snapshot selectors); MCP for complex (drag/drop, wizards). Falls back if preferred tool unavailable.</td>
+              <td>Default — let the skill decide</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>cli</code></td>
+              <td>Uses Playwright CLI for all recording: <code>playwright-cli open &lt;url&gt;</code>, <code>snapshot</code>, <code>screenshot</code>, <code>click &lt;ref&gt;</code></td>
+              <td>Standard UI flows, selector capture</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>mcp</code></td>
+              <td>Uses Playwright MCP tools for full browser automation with rich tool semantics</td>
+              <td>Drag-and-drop, multi-step wizards, complex state</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>none</code></td>
+              <td>Recording skipped entirely — falls back to AI generation from documentation</td>
+              <td>No browser available, or CI-only environment</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- OUTPUTS -->
+    <section id="outputs">
+      <h3 class="skill-heading">
+        <span class="code-name">outputs</span>
+        Generated Files &amp; ATDD Checklist
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">All Generated Artifacts</span>
+          <span class="data-source">step-04c-aggregate.md · step-05</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>File</th><th>Content</th><th>When</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><code>tests/api/[feature].spec.ts</code></td>
+              <td>API red-phase test scaffolds with real assertions, all wrapped in <code>test.skip()</code></td>
+              <td>Always</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>tests/e2e/[feature].spec.ts</code></td>
+              <td>E2E red-phase test scaffolds with user journey assertions, all wrapped in <code>test.skip()</code></td>
+              <td>Frontend / Fullstack</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>tests/fixtures/test-data.ts</code></td>
+              <td>Minimal fixture stubs needed by the scaffolds. More complete fixtures added during green phase.</td>
+              <td>Always</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>{test_artifacts}/atdd-checklist-{story_key}.md</code></td>
+              <td>Acceptance criteria coverage table · test counts · task-by-task activation guide · next steps</td>
+              <td>Always</td>
+            </tr>
+            <tr>
+              <td class="key-col">Story file <code>## Dev Notes</code></td>
+              <td>Adds <code>### ATDD Artifacts</code> subsection with paths to checklist, API tests, E2E tests</td>
+              <td>If story file is writable</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h5>ATDD Checklist Structure</h5>
+      <ul class="step-detail">
+        <li><strong class="label">Frontmatter</strong><code>storyId</code>, <code>storyKey</code>, <code>storyFile</code>, <code>atddChecklistPath</code>, <code>generatedTestFiles</code> (deterministic list: API → E2E → Component)</li>
+        <li><strong class="label">TDD Red Phase</strong>Counts of API and E2E tests generated (all marked skipped)</li>
+        <li><strong class="label">AC Coverage</strong>Each acceptance criterion listed with the test(s) that cover it</li>
+        <li><strong class="label">Activation guide</strong>Step-by-step instructions: remove skip → run → see fail → implement → see pass → commit</li>
+        <li><strong class="label">Endpoints</strong>Feature endpoints to implement (from API test targets)</li>
+        <li><strong class="label">UI components</strong>UI flows to implement (from E2E test targets)</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- CHECKLIST -->
+    <section id="checklist">
+      <h3 class="skill-heading">
+        <span class="code-name">checklist</span>
+        Key Checklist Items
+      </h3>
+
+      <h5>Prerequisites</h5>
+      <ul class="checklist">
+        <li>Story approved with clear, testable acceptance criteria</li>
+        <li>Test framework configured for detected stack (Playwright/Cypress for FE; backend config for BE)</li>
+        <li>Development environment accessible</li>
+      </ul>
+
+      <h5>TDD Compliance</h5>
+      <ul class="checklist">
+        <li>All generated tests use <code>test.skip()</code> — none are active</li>
+        <li>No placeholder assertions (<code>expect(true).toBe(true)</code>)</li>
+        <li>All tests marked <code>expected_to_fail: true</code></li>
+        <li>Activated tests would fail before implementation (verified by design)</li>
+      </ul>
+
+      <h5>Coverage</h5>
+      <ul class="checklist">
+        <li>Every acceptance criterion has at least one test scenario</li>
+        <li>Negative cases included for high-risk criteria</li>
+        <li>No duplicate coverage across test levels</li>
+        <li>Test level selection appropriate for detected stack</li>
+      </ul>
+
+      <h5>File &amp; Artifact Hygiene</h5>
+      <ul class="checklist">
+        <li>All test files written at correct paths (<code>tests/api/</code>, <code>tests/e2e/</code>)</li>
+        <li>ATDD checklist written to <code>{test_artifacts}/atdd-checklist-{story_key}.md</code></li>
+        <li>Story metadata (<code>storyId</code>, <code>storyKey</code>, <code>storyFile</code>) captured in checklist frontmatter</li>
+        <li>CLI sessions cleaned up — no orphaned browser processes</li>
+        <li>Temp files in <code>{test_artifacts}/</code>, not arbitrary system paths</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+  </main>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1455 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brainstorming — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 160px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Priority badges ──────────────────────────── */
+  .p-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; padding: 2px 8px; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+  .p0 { background: #1a1612; color: #f4ede0; }
+  .p1 { background: #c2410c; color: #f4ede0; }
+  .p2 { background: var(--highlight); color: var(--ink); border: 1px solid #ca8a04; }
+  .p3 { background: var(--paper-warm); color: var(--ink-mute); border: 1px solid rgba(42,34,26,.3); }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li { padding: 6px 0 6px 24px; position: relative; font-size: 0.875rem; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.5; }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: '□'; position: absolute; left: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-mute); }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  /* ── Inline flow steps ────────────────────────── */
+  .flow-steps { margin: 20px 0 32px; counter-reset: flow-step; }
+  .flow-step { display: grid; grid-template-columns: 48px 1fr; gap: 0; border: 1px solid var(--rule); border-bottom: none; background: var(--paper); }
+  .flow-step:last-child { border-bottom: 1px solid var(--rule); }
+  .flow-step-num { background: var(--ink); color: var(--paper); font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; counter-increment: flow-step; min-height: 60px; flex-shrink: 0; }
+  .flow-step-body { padding: 14px 18px; border-left: 1px solid var(--rule); }
+  .flow-step-title { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .flow-step-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+  .flow-step-desc ul { list-style: none; padding: 0; margin: 6px 0 0; }
+  .flow-step-desc li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .flow-step-desc li:last-child { border-bottom: none; }
+  .flow-step-desc li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .flow-step-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin-bottom: 4px; }
+
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+    .flow-step { grid-template-columns: 36px 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad BMM · Phase 01 Analysis</span>
+        <span>Skill · bmad-brainstorming</span>
+        <span>Agent · Mary (Business Analyst)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Brainstorming <em>· Guided Ideation</em></h1>
+    <p class="subtitle">Guided ideation session with 3 selectable stances — Facilitator / Creative Partner / Ideate-for-me — plus a visual technique composer (<code>brain-selector.html</code>, 108 techniques across 13 categories). Target 100+ ideas, anti-bias pivot every 10 ideas, cluster → prioritize → append-only memlog with authorship tags.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-brainstorming <span style="font-size:11px;color:var(--ink-mute);">v6.10.0</span></dd></div>
+      <div><dt>Menu code</dt><dd>BP</dd></div>
+      <div><dt>Input</dt><dd>Topic / problem statement (user-provided)</dd></div>
+      <div><dt>Trigger</dt><dd>"help me brainstorm" / "help me ideate"</dd></div>
+      <div><dt>Agent</dt><dd>Mary (Analyst)</dd></div>
+      <div><dt>Stances</dt><dd>3 — Facilitator / Creative Partner / Ideate-for-me</dd></div>
+      <div><dt>Techniques</dt><dd>108 across 13 categories</dd></div>
+      <div><dt>Output</dt><dd>brainstorming-session-{date}.md + .memlog.md</dd></div>
+      <div><dt>Resumable</dt><dd>Yes</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#session-resume" class="toc-sub">Session Resume</a>
+      <a href="#four-methods">Four Methods</a>
+      <a href="#method-compare" class="toc-sub">Method Behavior Comparison</a>
+      <a href="#progressive-flow" class="toc-sub">Progressive Flow Phases</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-brainstorm">Why Brainstorm First?</a>
+      <a href="#why-antibias" class="toc-sub">Why Anti-Bias Pivots?</a>
+      <a href="#why-cluster" class="toc-sub">Why Clustering?</a>
+      <a href="#why-progressive" class="toc-sub">Why Progressive Flow?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#how-steps">Before Calling the Skill</a>
+      <a href="#how-steps" class="toc-sub">1 · General BMAD Setup</a>
+      <a href="#how-steps" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#how-steps" class="toc-sub">3 · Skills That Help</a>
+      <a href="#how-steps" class="toc-sub">4 · Per-Step Preparation</a>
+      <a href="#toolkit">Applied Toolkit</a>
+      <a href="#technique-categories" class="toc-sub">Core Catalog · 10 of 13 Categories</a>
+      <a href="#technique-list" class="toc-sub">Core Technique List (61 of 108)</a>
+      <a href="#technique-descriptions" class="toc-sub">Technique Descriptions</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT — What is this Skill?
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Brainstorming — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-brainstorming</code></dd>
+        <dt>Menu code</dt><dd><span class="menu-codes"><code>BP</code></span></dd>
+        <dt>Role</dt><dd>Business Analyst — Guided ideation facilitator. Mary leads structured brainstorming sessions across a library of 108 techniques (13 categories) to surface 100+ ideas from any problem space, in one of 3 selectable stances.</dd>
+        <dt>Input</dt><dd>Problem statement, current system context, rough scope — provided by the user at session start. Can be refined before ideation begins.</dd>
+        <dt>Output</dt><dd><code>_bmad-output/brainstorming/brainstorming-session-{YYYY-MM-DD-HH-MM}.md</code> with YAML frontmatter containing <code>stepsCompleted</code>, session metadata, and full idea index — plus an append-only <code>.memlog.md</code> tagging each entry's author.</dd>
+      </dl>
+
+      <p>This skill transforms a rough problem statement into a structured idea library through guided, technique-driven ideation. It targets 100+ ideas per session, enforces anti-bias pivots every ~10 ideas to prevent anchoring, clusters ideas into natural themes, and produces a prioritized report that feeds directly into <code>bmad-product-brief</code>, <code>bmad-prfaq</code>, or <code>bmad-create-prd</code>.</p>
+
+      <section id="three-stances">
+        <h3 class="skill-heading">
+          <span class="code-name">3 stances</span>
+          Facilitator · Creative Partner · Ideate-for-me
+        </h3>
+        <p class="lede">Before technique selection, Mary asks which stance to take. The stance governs how much of the ideation work Mary does versus draws out of the user — it does not change which techniques are available.</p>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Default</div>
+            <div class="card-name">Facilitator</div>
+            <div class="card-body">
+              Mary asks, the user generates. Techniques structure the questions; ideas come from the user. Closest to the original guided-ideation behavior.
+            </div>
+            <div class="card-footer">user does the generating</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Collaborative</div>
+            <div class="card-name">Creative Partner</div>
+            <div class="card-body">
+              Mary contributes ideas alongside the user — a genuine back-and-forth. Each idea's <code>.memlog.md</code> entry is tagged <code>--by user</code> or <code>--by coach</code> so provenance stays visible.
+            </div>
+            <div class="card-footer">shared authorship, tagged</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Delegated</div>
+            <div class="card-name">Ideate-for-me</div>
+            <div class="card-body">
+              Mary generates the full batch from the stated problem and goal, with minimal back-and-forth. Best when the user wants a starting library to react to, not to co-create.
+            </div>
+            <div class="card-footer">fastest · lowest user effort</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="technique-composer">
+        <h3 class="skill-heading">
+          <span class="code-name">composer</span>
+          Visual Technique Composer
+        </h3>
+        <p class="lede">The full 108-technique, 13-category library is browsable and selectable through <code>brain-selector.html</code> — a standalone visual composer, not just the curated subset walked through in this guide.</p>
+        <ul class="step-detail">
+          <li><strong class="label">Mode toggle</strong>Facilitator / Creative Partner / Ideate for me — same 3 stances, selectable before composing.</li>
+          <li><strong class="label">Browse by category</strong>13 categories (e.g. Structured, and others below) each show technique count, icon, and a one-line "great for" hint.</li>
+          <li><strong class="label">Compose &amp; copy</strong>Check the techniques you want, hit <strong>Copy prompt</strong>, and paste the generated prompt back into the chat to begin the session with that exact technique set.</li>
+        </ul>
+      </section>
+
+      <section id="memlog-authorship">
+        <h3 class="skill-heading">
+          <span class="code-name">memlog</span>
+          Append-Only Memlog &amp; Authorship
+        </h3>
+        <p class="lede">Every idea is written once and never edited in place — the session's <code>.memlog.md</code> is an append-only log, and each entry carries who produced it.</p>
+        <ul class="step-detail">
+          <li><strong class="label">--by user</strong>Tags an idea the user originated — the default in Facilitator stance and for user contributions in Creative Partner stance.</li>
+          <li><strong class="label">--by coach</strong>Tags an idea Mary originated — the default in Ideate-for-me stance and for Mary's contributions in Creative Partner stance.</li>
+          <li><strong class="label">Why it matters</strong>Provenance stays visible through clustering and prioritization, so a stakeholder can later tell which ideas were the team's and which were AI-suggested.</li>
+          <li><strong class="label">Never rewritten</strong>Corrections or refinements are appended as new entries, not edits to the original line — the memlog is the audit trail, <code>brainstorming-session-{date}.md</code> is the polished report built from it.</li>
+        </ul>
+      </section>
+
+      <section id="session-resume">
+        <h3 class="skill-heading">
+          <span class="code-name">session-resume</span>
+          Session Resume
+        </h3>
+        <p class="lede">Every session is persisted. Mary checks the output folder on activation and offers to continue from where you left off.</p>
+        <ul class="step-detail">
+          <li><strong class="label">On Activation</strong>Agent scans <code>_bmad-output/brainstorming/</code> for existing session files.</li>
+          <li><strong class="label">If sessions exist</strong>Presents menu: <strong>[1] Continue</strong> most recent session · <strong>[2] Start new</strong> session · <strong>[3] See all</strong> sessions with summary</li>
+          <li><strong class="label">If no sessions</strong>Proceeds directly to setup — asks the two setup questions.</li>
+          <li><strong class="label">Resume state</strong>Reads <code>stepsCompleted</code> from YAML frontmatter; restores topic, goal, selected stance, selected method, techniques used so far, and all captured ideas from the memlog.</li>
+        </ul>
+      </section>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Four Methods -->
+    <section id="four-methods">
+      <h3 class="skill-heading">
+        <span class="code-name">methods</span>
+        Four Ideation Methods
+      </h3>
+      <p class="lede">After confirming the session topic and goal, Mary presents a 4-mode menu. Each method has a distinct agent role and is suited to different user needs.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Methods Table</span>
+          <span class="data-source">bmad-brainstorming</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Method</th><th>Agent Role</th><th>Best For</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><strong>1</strong></td>
+              <td><strong>User-Selected</strong></td>
+              <td>Librarian (neutral, executes your choice)</td>
+              <td>You already know which techniques you want to apply</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>2</strong></td>
+              <td><strong>AI-Recommended</strong></td>
+              <td>Matchmaker (analyzes context, suggests 3–4 best fits)</td>
+              <td>Let AI match techniques to your problem and goal</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>3</strong></td>
+              <td><strong>Random Selection</strong></td>
+              <td>Serendipity Facilitator (randomizes technique order)</td>
+              <td>Breaking entrenched patterns through randomness</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>4</strong></td>
+              <td><strong>Progressive Flow</strong></td>
+              <td>Creative Journey Guide (structured 4-phase arc)</td>
+              <td>Complex multi-dimensional topics needing a full diverge → converge journey</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section id="method-compare">
+        <h4 class="step-heading">Method Behavior Comparison</h4>
+        <p>Methods 1, 2, and 3 all use the shared <strong>step-04 cluster + prioritize</strong> phase after ideation is complete. Progressive Flow (Method 4) handles clustering and prioritization <em>within the session itself</em> via dedicated techniques — Six Thinking Hats in Phase 2 and Decision Tree Mapping in Phase 4.</p>
+
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Behavior</th>
+              <th>Methods 1, 2, 3</th>
+              <th>Method 4 — Progressive Flow</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Technique selection</td>
+              <td>User-chosen, AI-recommended, or random from the full 108-technique composer library</td>
+              <td>Fixed 4-phase arc with prescribed techniques per phase</td>
+            </tr>
+            <tr>
+              <td>Clustering</td>
+              <td>After ideation — step-04, AI proposes 5–9 clusters</td>
+              <td>In-session — Phase 2 (Six Thinking Hats) applies 6 lenses and assigns P0/P1/P2/Research tiers</td>
+            </tr>
+            <tr>
+              <td>Prioritization</td>
+              <td>After ideation — 4 criteria: Impact · Feasibility · Innovation · Alignment</td>
+              <td>In-session — Phase 4 (Decision Tree Mapping) produces versioned roadmap V1/V1.5/V2/V3</td>
+            </tr>
+            <tr>
+              <td>Session structure</td>
+              <td>Linear: Setup → Generate → Anti-bias pivots → Cluster → Prioritize → Save</td>
+              <td>Journey: Phase 1 (Explore) → Phase 2 (Analyze) → Phase 3 (Develop) → Phase 4 (Plan)</td>
+            </tr>
+            <tr>
+              <td>Best for</td>
+              <td>Focused ideation on a known problem; technique experimentation</td>
+              <td>Complex problems needing structured divergent → convergent thinking</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="progressive-flow">
+        <h4 class="step-heading">Progressive Flow — 4 Phases</h4>
+        <p>Before beginning Progressive Flow, Mary presents the full journey design and offers: <strong>[C] Continue</strong> with proposed design · <strong>[Customize]</strong> adjust techniques · <strong>[Details]</strong> see all technique descriptions · <strong>[Back]</strong> return to method selection. The topic can also be refined at this stage before ideation begins.</p>
+
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Progressive Flow Phases</span>
+            <span class="data-source">Method 4 · bmad-brainstorming</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Phase</th><th>Name</th><th>Focus</th><th>Example Technique</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="key-col"><strong>Phase 1</strong></td>
+                <td><strong>Expansive Exploration</strong></td>
+                <td>Divergent — no judgment, maximum quantity</td>
+                <td>What If Scenarios</td>
+              </tr>
+              <tr>
+                <td class="key-col"><strong>Phase 2</strong></td>
+                <td><strong>Pattern Recognition</strong></td>
+                <td>Analytical — identify themes, apply 6 lenses</td>
+                <td>Six Thinking Hats</td>
+              </tr>
+              <tr>
+                <td class="key-col"><strong>Phase 3</strong></td>
+                <td><strong>Idea Development</strong></td>
+                <td>Convergent — refine and elaborate top ideas</td>
+                <td>SCAMPER</td>
+              </tr>
+              <tr>
+                <td class="key-col"><strong>Phase 4</strong></td>
+                <td><strong>Action Planning</strong></td>
+                <td>Implementation — next steps and roadmap</td>
+                <td>Decision Tree Mapping</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY — Why use this Skill?
+         ══════════════════════════════════════════════ -->
+    <section id="why-brainstorm">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Brainstorm Before PRD?
+      </h2>
+
+      <p class="lede">Writing a PRD from a first idea codifies the first idea. Brainstorming first generates the space of possible ideas — then the PRD captures the best of them, not the most obvious ones.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Without Brainstorming</th>
+            <th>With Brainstorming First</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Idea quality</td>
+            <td>First 5–10 ideas are predictable, already well-explored by competitors</td>
+            <td>Ideas 50–100 are the "golden zone" — non-obvious, underexplored, defensible</td>
+          </tr>
+          <tr>
+            <td>Cognitive bias</td>
+            <td>Anchoring on the first framing; confirmation bias validates initial assumptions</td>
+            <td>Anti-bias pivots every ~10 ideas systematically break anchoring and availability heuristics</td>
+          </tr>
+          <tr>
+            <td>Solution space</td>
+            <td>Narrow — bounded by the initial problem statement as stated</td>
+            <td>Wide — 100+ ideas reveal reframings of the original problem itself</td>
+          </tr>
+          <tr>
+            <td>PRD quality</td>
+            <td>PRD reflects the team's prior knowledge, not the possible solution space</td>
+            <td>PRD is built from a prioritized cluster of 100+ ideas with explicit Impact/Feasibility scoring</td>
+          </tr>
+          <tr>
+            <td>Team alignment</td>
+            <td>Team aligns on the first idea proposed by the loudest voice</td>
+            <td>Team aligns on a shared idea library — everyone contributed, clusters are visible</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>Why 100+ ideas?</strong> Research on creative productivity consistently shows that the first 20 ideas in any brainstorming session are the "obvious" ideas — things the group already knew. Ideas 20–50 begin to challenge assumptions. Ideas 50–100 are where genuinely novel, underexplored territory emerges. The 100+ target is not arbitrary; it is the threshold at which generative thinking shifts from retrieval to genuine creation.</p>
+
+      <section id="why-antibias">
+        <h3 class="skill-heading">
+          <span class="code-name">anti-bias</span>
+          Why Anti-Bias Pivots?
+        </h3>
+        <p>Three cognitive biases are particularly destructive in brainstorming sessions:</p>
+        <ul class="step-detail">
+          <li><strong class="label">Anchoring Bias</strong>The first idea stated becomes the implicit reference point for all subsequent ideas. Every idea is evaluated relative to the anchor, constraining the exploration space.</li>
+          <li><strong class="label">Availability Heuristic</strong>Ideas that are easy to recall (recent, vivid, discussed before) dominate the session. Novel ideas that are hard to articulate get discarded prematurely.</li>
+          <li><strong class="label">Functional Fixedness</strong>Objects and systems are only seen in their conventional roles. Users are users. Servers serve. Revenue comes from subscription. Pivots force alternative framings of every element.</li>
+        </ul>
+        <p>Anti-bias pivots are <strong>announced explicitly</strong> every ~10 ideas — they are not a background process. The announcement itself is part of the cognitive reset. Pivot methods rotate through: persona shifts ("think as a CFO / 10-year-old / adversarial hacker"), hat shifts (Six Thinking Hats rotation), and question inversions ("how do we make this catastrophically fail?").</p>
+      </section>
+
+      <section id="why-cluster">
+        <h3 class="skill-heading">
+          <span class="code-name">clustering</span>
+          Why Clustering?
+        </h3>
+        <p>100+ ideas without structure is noise. Clustering converts the idea volume into a navigable signal. Miller's Law establishes that working memory holds 7 ± 2 chunks — clustering maps 100+ ideas into 5–9 meaningful themes, making the full idea library cognitively manageable for downstream prioritization and PRD writing.</p>
+        <ul class="inline-list">
+          <li>AI proposes 5–9 initial clusters based on natural idea affinities.</li>
+          <li>User approves, renames, splits, or merges clusters.</li>
+          <li>Outlier ideas that do not fit any cluster go to the "parking lot" — they are preserved, not discarded.</li>
+          <li>Cluster names become candidate epic names or product area labels in the resulting PRD.</li>
+          <li>Each cluster carries its constituent ideas with novelty scores and anti-bias tags.</li>
+        </ul>
+      </section>
+
+      <section id="why-progressive">
+        <h3 class="skill-heading">
+          <span class="code-name">progressive</span>
+          Why Progressive Flow Specifically?
+        </h3>
+        <p>Unstructured brainstorming suffers from <strong>premature convergence</strong> — the group evaluates ideas before generation is complete, chilling creative risk-taking. Progressive Flow prevents this by enforcing a strict four-phase journey: divergence in Phase 1, analysis only in Phase 2, refinement in Phase 3, planning in Phase 4. Evaluation is structurally prohibited until Phase 2.</p>
+        <ul class="inline-list">
+          <li>Phase 1 (Expansive Exploration) explicitly prohibits evaluation — quantity over quality.</li>
+          <li>Phase 2 (Pattern Recognition) introduces analytical lenses but does not generate new ideas.</li>
+          <li>Phase 3 (Idea Development) converges the idea space by developing the best candidates.</li>
+          <li>Phase 4 (Action Planning) translates ideas into versioned roadmap commitments.</li>
+        </ul>
+        <p>This structured journey is particularly valuable for complex, multi-dimensional problems where a simple "generate, then evaluate" model produces shallow results.</p>
+      </section>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW — Before Calling the Skill
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="how-steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/bmad-agent-analyst → BP</code>. Gathering this context upfront produces a richer, more specific session — the agent cannot surface constraints it doesn't know about. For step-by-step execution details, see each step's <em>what · why · how</em> in the process map.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · General BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all BMAD skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">BMAD installed</td>
+              <td>Latest version required. Verify before starting: <code>npx bmad-method --version</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Claude Code running</td>
+              <td>Open a terminal and run <code>claude</code> first. All skill invocations happen inside an active Claude Code session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent-first invocation</td>
+              <td>Always <code>/bmad-agent-analyst → select BP</code>. Never invoke <code>/bmad-brainstorming</code> directly — routing through the wrong agent reduces output quality.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Full context upfront</td>
+              <td>The agent is only as good as the information you give it. Investing in the Setup phase saves significant effort in all later steps.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to bmad-brainstorming. Have these clear before starting the session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">bmad-brainstorming · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>What's needed</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Problem statement</td>
+              <td>1–2 sentences: who the users are + what problem is being explored. This becomes the topic for the session — the more specific, the richer the ideas.</td>
+              <td><strong>Required</strong></td>
+            </tr>
+            <tr>
+              <td class="key-col">Current system</td>
+              <td>How the existing system works end-to-end, where the gaps or pain points are. If brownfield: include the workflow the new feature plugs into.</td>
+              <td><strong>Required</strong></td>
+            </tr>
+            <tr>
+              <td class="key-col">Rough scope</td>
+              <td>Even a loose boundary of what area or capability you're exploring. Prevents the session from drifting into unrelated territory.</td>
+              <td><strong>Required</strong></td>
+            </tr>
+            <tr>
+              <td class="key-col">Known constraints</td>
+              <td>Technical limitations, business rules, integration dependencies, format restrictions, compliance requirements. Constraints surface the best ideas.</td>
+              <td><strong>Required</strong></td>
+            </tr>
+            <tr>
+              <td class="key-col">User context</td>
+              <td>Who the primary users are, their roles, their current workflow, their actual pain points (observed, not assumed).</td>
+              <td><strong>Required</strong></td>
+            </tr>
+            <tr>
+              <td class="key-col">Domain obligations</td>
+              <td>If you already know the product's industry, skim the PRD §5 domain taxonomy before this session. Surfacing domain constraints here saves a round of idea pruning later.</td>
+              <td>Optional, high-value</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">skills</span>
+        3 · Skills That Help This Session
+      </h3>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Facilitator Mindset</span>
+          <span class="data-source">bmad-brainstorming · session quality</span>
+        </div>
+        <table>
+          <thead><tr><th>Skill</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Openness without self-censorship</td>
+              <td>The biggest session killer is editing yourself before speaking. The filter comes in Steps 4–5 (Cluster + Prioritize), not during generation. Every idea is valid until it's ranked.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Domain fluency</td>
+              <td>The richer your domain knowledge, the more specific and actionable your responses to the agent's probing questions. Vague answers produce vague ideas.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Short, concrete answers</td>
+              <td>Two sentences per idea response is enough. The agent builds on your seed — long explanations slow the session without improving idea quality.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Stamina for the long stretch</td>
+              <td>Ideas 50–100 feel forced — that discomfort is exactly where the value is. Research shows the "golden zone" sits at ideas 50–100, after the brain has exhausted familiar patterns and is forced to reach for more distant associations.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-step</span>
+        4 · Per-Step Preparation
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Within the session, each step has a specific readiness moment. Having these ready prevents mid-session pauses that break the creative flow.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Step-Level Readiness</span>
+          <span class="data-source">bmad-brainstorming · 6-step process</span>
+        </div>
+        <table>
+          <thead><tr><th>Step</th><th>What to have ready</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Step 1 · Setup</td>
+              <td>A 1–2 sentence topic statement that already contains <em>who the users are</em> and <em>what problem is being explored</em>. This is the seed the agent uses to design the method menu and session arc.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 2 · Generate</td>
+              <td>Concrete examples of specific pain points or real scenarios you've observed — not abstractions. "The accountant has to manually re-enter data three times" beats "there's a data entry problem".</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 3 · Anti-bias pivot</td>
+              <td>No preparation needed — agent announces and drives pivots. Your job: stay open and respond from the new perspective rather than reverting to the previous angle.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 4 · Cluster</td>
+              <td>Be ready to recognize patterns by purpose / audience / mechanism — not surface-level wording. "These 4 ideas all reduce manual steps" is a valid cluster even if the ideas look different on the surface.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 5 · Prioritize</td>
+              <td>Know which framework fits your situation: <strong>Impact/Effort 2×2</strong> (open exploration, no fixed constraints) or <strong>MoSCoW</strong> (resources fixed, scope flexible). The agent will ask — having this answer ready saves a discussion round.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 6 · Save</td>
+              <td>No preparation needed — agent auto-generates the report. Optionally: decide in advance whether to use <code>bmad-advanced-elicitation</code> for deep-dive on top ideas before saving.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+        <span class="code-tag">reference</span>
+      </h3>
+      <p class="lede">All components used by this skill in one reference table.</p>
+
+    <hr class="section-divider">
+
+    <!-- Technique Categories -->
+    <section id="technique-categories">
+      <h3 class="skill-heading">
+        <span class="code-name">core catalog</span>
+        10 of 13 Categories — 61 of 108 Techniques
+      </h3>
+      <p class="lede">This guide walks through a curated core of 61 techniques across 10 thematic categories. The full library — 108 techniques across 13 categories — is browsable and selectable in the visual composer, <code>brain-selector.html</code>.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Category Overview (core catalog)</span>
+          <span class="data-source">bmad-brainstorming · 61 of 108 techniques — see brain-selector.html for the full set</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>#</th><th>Category</th><th>Count</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><strong>1</strong></td>
+              <td><strong>structured</strong></td>
+              <td>7</td>
+              <td>Systematic frameworks and step-by-step methodologies. Best for methodical exploration with clear process stages.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>2</strong></td>
+              <td><strong>creative</strong></td>
+              <td>11</td>
+              <td>Breakthrough thinking and paradigm shifts. Challenges assumptions, reframes problems, forces novel combinations.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>3</strong></td>
+              <td><strong>collaborative</strong></td>
+              <td>5</td>
+              <td>Group dynamics and team ideation patterns. Structures multi-voice input even in single-user AI-facilitated sessions.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>4</strong></td>
+              <td><strong>deep</strong></td>
+              <td>8</td>
+              <td>Root cause analysis and strategic insight techniques. Surfaces underlying drivers rather than surface-level ideas.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>5</strong></td>
+              <td><strong>theatrical</strong></td>
+              <td>6</td>
+              <td>Radical perspectives and playful exploration. Uses role-play, character adoption, and dramatic scenario-setting.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>6</strong></td>
+              <td><strong>wild</strong></td>
+              <td>8</td>
+              <td>Extreme thinking and boundary-pushing. Generates deliberately absurd ideas that often contain hidden practical seeds.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>7</strong></td>
+              <td><strong>introspective_delight</strong></td>
+              <td>6</td>
+              <td>Inner wisdom and authentic exploration. Draws on intuition, values, and personal insight to unlock genuine creative voice.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>8</strong></td>
+              <td><strong>biomimetic</strong></td>
+              <td>3</td>
+              <td>Nature-inspired solutions. Applies biological patterns, evolutionary strategies, and ecosystem thinking to human problems.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>9</strong></td>
+              <td><strong>quantum</strong></td>
+              <td>3</td>
+              <td>Quantum principles applied to creativity. Uses superposition, entanglement, and uncertainty as metaphors for idea generation.</td>
+            </tr>
+            <tr>
+              <td class="key-col"><strong>10</strong></td>
+              <td><strong>cultural</strong></td>
+              <td>4</td>
+              <td>Cultural wisdom, myths, and rituals. Draws on diverse cultural frameworks and collective human narrative traditions.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <section id="technique-list">
+        <h4 class="step-heading">Core Technique List — 61 of 108 (remaining 47 in brain-selector.html)</h4>
+
+        <h5>1 · Structured (7 techniques)</h5>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Structured · 01</div>
+            <div class="card-name">SCAMPER Method</div>
+            <div class="card-body">Systematically apply 7 lenses: Substitute · Combine · Adapt · Modify/Magnify · Put to other uses · Eliminate · Reverse/Rearrange. Works on any existing concept or product.</div>
+            <div class="card-footer">Core convergent refinement tool</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Structured · 02</div>
+            <div class="card-name">Six Thinking Hats</div>
+            <div class="card-body">Evaluate ideas through 6 colored lenses: White (facts) · Yellow (optimism) · Black (caution) · Red (emotion) · Green (creativity) · Blue (process). Used in Progressive Flow Phase 2.</div>
+            <div class="card-footer">De Bono framework · P0/P1/P2 triage</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Structured · 03</div>
+            <div class="card-name">Mind Mapping</div>
+            <div class="card-body">Start with a central concept, branch into sub-themes, then sub-sub-themes. Reveals hierarchical relationships and unexpected lateral connections between clusters.</div>
+            <div class="card-footer">Visual + structural exploration</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Structured · 04</div>
+            <div class="card-name">Resource Constraints</div>
+            <div class="card-body">Ideate under artificially tight constraints: zero budget, single engineer, 48-hour deadline. Constraints force creative reframing and often surface the most elegant solutions.</div>
+            <div class="card-footer">Creative limitation catalyst</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Structured · 05</div>
+            <div class="card-name">Decision Tree Mapping</div>
+            <div class="card-body">Map ideas as decision branches with implementation paths, dependencies, and outcomes. Used in Progressive Flow Phase 4 to produce V1/V1.5/V2/V3 versioned roadmap.</div>
+            <div class="card-footer">Roadmap · V1–V3 versioning</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Structured · 06</div>
+            <div class="card-name">Solution Matrix</div>
+            <div class="card-body">Plot ideas across two axes (e.g., Impact vs Effort, User Value vs Tech Complexity) to create a 2×2 or 3×3 priority matrix. Reveals where high-value, low-cost ideas cluster.</div>
+            <div class="card-footer">Visual prioritization grid</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Structured · 07</div>
+            <div class="card-name">Trait Transfer</div>
+            <div class="card-body">Select an unrelated object or domain, list its key traits, then transfer each trait to your problem space. The friction of forced translation produces genuinely novel ideas.</div>
+            <div class="card-footer">Forced analogy catalyst</div>
+          </div>
+        </div>
+
+        <h5>2 · Creative (11 techniques)</h5>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Creative · 01</div>
+            <div class="card-name">What If Scenarios</div>
+            <div class="card-body">Pose radical hypotheticals: "What if this product was free?" / "What if we had 10× the users overnight?" / "What if we removed the core feature?" Breaks assumption-bound thinking.</div>
+            <div class="card-footer">Progressive Flow Phase 1 anchor</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Creative · 02</div>
+            <div class="card-name">Analogical Thinking</div>
+            <div class="card-body">Draw deep structural analogies from another domain. Understand how Netflix handles discovery, then ask: how could <em>our</em> problem apply the same discovery logic?</div>
+            <div class="card-footer">Cross-domain structural mapping</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Creative · 03</div>
+            <div class="card-name">Reversal Inversion</div>
+            <div class="card-body">Invert the goal: instead of "how do we improve retention?" ask "how do we guarantee users quit?" The reversed list, flipped back, often reveals overlooked high-impact levers.</div>
+            <div class="card-footer">Anti-goal reframing</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Creative · 04</div>
+            <div class="card-name">First Principles Thinking</div>
+            <div class="card-body">Strip the problem to its fundamental truths. Ignore conventions, industry norms, and prior solutions. Rebuild from physical or logical first principles. Musk's battery example.</div>
+            <div class="card-footer">Assumption destruction method</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Creative · 05</div>
+            <div class="card-name">Forced Relationships</div>
+            <div class="card-body">Randomly combine two unrelated concepts and force a meaningful connection. The difficulty of the combination is the point — the brain works harder to find non-obvious links.</div>
+            <div class="card-footer">Random concept collision</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Creative · 06</div>
+            <div class="card-name">Time Shifting</div>
+            <div class="card-body">Explore the problem from three temporal positions: how was this solved 50 years ago? How is it solved today? How might it be solved 20 years from now? Surfaces evolutionary patterns.</div>
+            <div class="card-footer">Temporal perspective rotation</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Creative · 07</div>
+            <div class="card-name">Metaphor Mapping</div>
+            <div class="card-body">Select a rich metaphor (the product as a garden, as a river, as a city) and fully explore implications. What does "planting seeds" mean? What is "runoff"? Metaphors unlock non-literal insight.</div>
+            <div class="card-footer">Extended metaphor exploration</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Creative · 08</div>
+            <div class="card-name">Cross-Pollination</div>
+            <div class="card-body">Import entire solution patterns from an adjacent industry. How does aviation handle crew resource management? How does Formula 1 handle pit stops? Apply the pattern to your domain.</div>
+            <div class="card-footer">Industry pattern transplant</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Creative · 09</div>
+            <div class="card-name">Concept Blending</div>
+            <div class="card-body">Take two distinct existing ideas and merge them into a third that inherits properties of both but is genuinely new. "Uber for X" is a shallow blend — this technique goes deeper.</div>
+            <div class="card-footer">Conceptual fusion method</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Creative · 10</div>
+            <div class="card-name">Reverse Brainstorming</div>
+            <div class="card-body">Instead of solving the problem, brainstorm all the ways to cause it or make it worse. Invert the resulting list. Often the most direct route to solutions people have unconsciously avoided.</div>
+            <div class="card-footer">Inversion catalyst · pairs with Reversal</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Creative · 11</div>
+            <div class="card-name">Sensory Exploration</div>
+            <div class="card-body">Describe the problem through each sense. What does good onboarding <em>feel</em> like? Sound like? Smell like? Cross-sensory description activates non-verbal cognitive pathways.</div>
+            <div class="card-footer">Synesthetic reframing</div>
+          </div>
+        </div>
+
+        <h5>3 · Collaborative (5 techniques)</h5>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Collaborative · 01</div>
+            <div class="card-name">Brainwriting 6-3-5</div>
+            <div class="card-body">6 participants write 3 ideas in 5 minutes, then pass sheets around. Simulated in solo sessions: generate ideas in batches, then treat each batch as if passed from a different "contributor".</div>
+            <div class="card-footer">Serial idea handoff pattern</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Collaborative · 02</div>
+            <div class="card-name">Round Robin</div>
+            <div class="card-body">Each "voice" contributes one idea per turn, no evaluation during generation. In AI-facilitated sessions, Mary role-plays multiple stakeholder voices contributing in sequence.</div>
+            <div class="card-footer">Equal-voice idea generation</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Collaborative · 03</div>
+            <div class="card-name">Yes And</div>
+            <div class="card-body">Improv-derived: accept every idea and build on it with "Yes, and..." Eliminates the evaluation instinct during generation. Chains of "Yes And" often produce surprisingly viable ideas.</div>
+            <div class="card-footer">Improv-based idea building</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Collaborative · 04</div>
+            <div class="card-name">Gallery Walk</div>
+            <div class="card-body">Display all generated ideas visually, then "walk" through them as if in a gallery. In text sessions, Mary presents all ideas in a visual list and facilitates commentary passes.</div>
+            <div class="card-footer">Spatial idea review simulation</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Collaborative · 05</div>
+            <div class="card-name">Nominal Group Technique</div>
+            <div class="card-body">Silent individual generation followed by structured group sharing and ranking. In solo sessions: generate silently first (no meta-commentary), then present and evaluate separately.</div>
+            <div class="card-footer">Generate-then-evaluate discipline</div>
+          </div>
+        </div>
+
+        <h5>4 · Deep (8 techniques)</h5>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Deep · 01</div>
+            <div class="card-name">5 Whys</div>
+            <div class="card-body">Ask "why" five times in sequence to reach the root cause of the problem. Ideas generated at depth 4–5 are typically the most structurally sound and hardest for competitors to copy.</div>
+            <div class="card-footer">Root cause to root innovation</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Deep · 02</div>
+            <div class="card-name">Jobs to Be Done</div>
+            <div class="card-body">Identify the underlying "job" the user is hiring your product to do. Strip features, strip UI — what is the fundamental progress the user is trying to make? Ideas from this level are durable.</div>
+            <div class="card-footer">Christensen JTBD framework</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Deep · 03</div>
+            <div class="card-name">Iceberg Analysis</div>
+            <div class="card-body">Map visible events → underlying patterns → structural causes → mental models. Most innovation addresses events (surface). Ideas from the mental-model level change paradigms.</div>
+            <div class="card-footer">Systems thinking iceberg model</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Deep · 04</div>
+            <div class="card-name">Stakeholder Empathy</div>
+            <div class="card-body">Deeply inhabit each stakeholder persona — not just primary users but peripheral ones (the user's manager, the user's customer, the regulator). Surface ideas invisible from a single vantage point.</div>
+            <div class="card-footer">Peripheral stakeholder lens</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Deep · 05</div>
+            <div class="card-name">Assumption Mapping</div>
+            <div class="card-body">List all assumptions embedded in the current problem definition. Invert each one. Ideas that emerge when you remove foundational assumptions are often the most disruptive.</div>
+            <div class="card-footer">Assumption inversion at scale</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Deep · 06</div>
+            <div class="card-name">Value Chain Analysis</div>
+            <div class="card-body">Map every step from raw input to delivered value. Identify which steps are bottlenecks, which add no value, which could be collapsed or automated. Innovation often lives at ignored handoff points.</div>
+            <div class="card-footer">Porter value chain application</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Deep · 07</div>
+            <div class="card-name">Pre-Mortem</div>
+            <div class="card-body">Imagine the project has failed catastrophically. Describe what went wrong in detail. The failure modes reveal hidden risks; the mitigations suggest ideas not visible from a success mindset.</div>
+            <div class="card-footer">Failure-mode ideation source</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Deep · 08</div>
+            <div class="card-name">Second-Order Thinking</div>
+            <div class="card-body">Ask not just "what happens if we do X?" but "what happens as a result of that result?" Second-order consequences surface ideas that address systemic effects, not just immediate ones.</div>
+            <div class="card-footer">Consequence chain exploration</div>
+          </div>
+        </div>
+
+        <h5>5 · Theatrical (6 techniques)</h5>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Theatrical · 01</div>
+            <div class="card-name">Character Immersion</div>
+            <div class="card-body">Fully inhabit a character — a villain, a child, a visionary founder — and ideate entirely from their worldview, vocabulary, and values. Shedding your own perspective unlocks otherwise inaccessible ideas.</div>
+            <div class="card-footer">Radical persona embodiment</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Theatrical · 02</div>
+            <div class="card-name">Role Storming</div>
+            <div class="card-body">Assign each idea-generating pass to a specific role: CFO, user, hacker, regulator, 10-year-old. Each role voices only what that character would care about. Forces truly different cognitive modes.</div>
+            <div class="card-footer">Multi-role sequential ideation</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Theatrical · 03</div>
+            <div class="card-name">Worst Possible Idea</div>
+            <div class="card-body">Deliberately generate the worst, most catastrophic, most absurd ideas possible. Paradoxically, the worst ideas are liberating — and often contain the seeds of breakthrough insights when inverted.</div>
+            <div class="card-footer">Deliberate badness technique</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Theatrical · 04</div>
+            <div class="card-name">Future Newspaper</div>
+            <div class="card-body">Write the front page of a newspaper reporting on your product's success (or failure) 5 years from now. Headlines force concision; the act of writing for an audience surfaces hidden strategic intent.</div>
+            <div class="card-footer">Journalistic future projection</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Theatrical · 05</div>
+            <div class="card-name">Superhero Powers</div>
+            <div class="card-body">Grant the product or team a specific superpower (teleportation, telepathy, omniscience). Ideate with that power fully in play. Then ask: what is the closest real-world approximation of that power?</div>
+            <div class="card-footer">Power fantasy → real analog</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Theatrical · 06</div>
+            <div class="card-name">Press Conference</div>
+            <div class="card-body">Simulate a press conference announcing a breakthrough product. Journalists ask hostile questions. Preparing the answers forces articulation of value, differentiators, and risk mitigation.</div>
+            <div class="card-footer">Adversarial Q&A as ideation</div>
+          </div>
+        </div>
+
+        <h5>6 · Wild (8 techniques)</h5>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Wild · 01</div>
+            <div class="card-name">Moonshot Thinking</div>
+            <div class="card-body">Set a 10× improvement target, not 10%. 10% thinking produces incremental optimizations; 10× thinking requires abandoning the current model entirely, which is where genuine breakthroughs live.</div>
+            <div class="card-footer">Google X · 10× mandate</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Wild · 02</div>
+            <div class="card-name">Extreme Scenarios</div>
+            <div class="card-body">Push conditions to absurd extremes: what if we had 1 billion users? 1 user? Zero budget? Infinite budget? Constraint extremes reveal which design decisions are brittle and which are universal.</div>
+            <div class="card-footer">Boundary condition exploration</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Wild · 03</div>
+            <div class="card-name">Random Word Stimulus</div>
+            <div class="card-body">Open a dictionary to a random page, pick a word, and force a creative connection to the problem. Randomness breaks associative ruts by introducing completely unrelated cognitive seeds.</div>
+            <div class="card-footer">Serendipitous association catalyst</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Wild · 04</div>
+            <div class="card-name">Absurdity Injection</div>
+            <div class="card-body">Introduce a deliberately absurd constraint or feature (the app must work underwater; all interactions must be voice-only; pricing must be based on lunar phases). Absurdity forces creative problem-solving.</div>
+            <div class="card-footer">Constraint via deliberate absurdity</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Wild · 05</div>
+            <div class="card-name">Time Travel</div>
+            <div class="card-body">Visit the problem as solved by people in 1920, 2050, and 3000. Each era has radically different materials, assumptions, and values. Time-traveling across eras reveals which constraints are real and which are artifacts of now.</div>
+            <div class="card-footer">Temporal constraint removal</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Wild · 06</div>
+            <div class="card-name">Size Extremes</div>
+            <div class="card-body">Redesign the product if it were the size of an atom. Now redesign it if it were the size of a continent. Size extremes surface interface, distribution, maintenance, and scale assumptions invisible at normal size.</div>
+            <div class="card-footer">Scale constraint exploration</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Wild · 07</div>
+            <div class="card-name">Material Alchemy</div>
+            <div class="card-body">Reimagine the product as if built from an entirely different material substrate: light, water, sound, human attention, trust, reputation. Each material brings its own physics and design constraints.</div>
+            <div class="card-footer">Substrate reimagination</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Wild · 08</div>
+            <div class="card-name">Universe Inversion</div>
+            <div class="card-body">Flip all core assumptions simultaneously: users become providers, problems become features, costs become revenues, weaknesses become differentiators. Total inversion often reveals the complementary anti-product.</div>
+            <div class="card-footer">Total assumption inversion</div>
+          </div>
+        </div>
+
+        <h5>7 · Introspective Delight (6 techniques)</h5>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Introspective · 01</div>
+            <div class="card-name">Personal Narrative</div>
+            <div class="card-body">Connect the problem to a formative personal story. Authentic personal narrative surfaces values, emotional drivers, and lived insights that purely analytical methods miss entirely.</div>
+            <div class="card-footer">Story as insight source</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Introspective · 02</div>
+            <div class="card-name">Values Alignment</div>
+            <div class="card-body">List core values (yours, your team's, your users') and ideate solutions that embody each value fully. Values-aligned ideas have stronger resonance and require less external motivation to build.</div>
+            <div class="card-footer">Value-led ideation</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Introspective · 03</div>
+            <div class="card-name">Intuition Mining</div>
+            <div class="card-body">Start from gut feeling: "I have a vague sense that the answer involves X." Explore that intuition exhaustively before applying analytical frameworks. Intuitions encode compressed pattern recognition.</div>
+            <div class="card-footer">Pre-analytical signal exploration</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Introspective · 04</div>
+            <div class="card-name">Peak Experience Recall</div>
+            <div class="card-body">Recall a peak experience of the product working brilliantly (or imagine one). Describe every detail of that experience. Reverse-engineer the conditions that made it possible.</div>
+            <div class="card-footer">Reverse-engineering excellence</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Introspective · 05</div>
+            <div class="card-name">Dream State</div>
+            <div class="card-body">Describe the problem as if recounting a dream — associative, symbolic, non-linear. Dream logic surfaces connections the waking analytical mind censors as irrational.</div>
+            <div class="card-footer">Associative non-linear ideation</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Introspective · 06</div>
+            <div class="card-name">Joyful Obsession</div>
+            <div class="card-body">Identify what you would work on obsessively for free. What makes the problem intrinsically fascinating rather than instrumentally important? Obsession-aligned ideas sustain through execution hardship.</div>
+            <div class="card-footer">Intrinsic motivation alignment</div>
+          </div>
+        </div>
+
+        <h5>8 · Biomimetic (3 techniques)</h5>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Biomimetic · 01</div>
+            <div class="card-name">Natural Selection Simulation</div>
+            <div class="card-body">Generate many idea variants rapidly, then apply "selection pressure" — which variants survive a specific constraint? Iterate. Evolution finds solutions through variation and selection, not design.</div>
+            <div class="card-footer">Evolutionary idea iteration</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Biomimetic · 02</div>
+            <div class="card-name">Ecosystem Thinking</div>
+            <div class="card-body">Model the product as an ecosystem: producers, consumers, decomposers, niches, energy flows. Which niche is unoccupied? What role could you play that stabilizes the whole? Ecosystems are self-sustaining.</div>
+            <div class="card-footer">Ecological role identification</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Biomimetic · 03</div>
+            <div class="card-name">Swarm Intelligence</div>
+            <div class="card-body">Design solutions using simple local rules that produce complex global behaviors — no central control. Ant colonies, murmurations, immune systems. What are the local rules that create the desired emergent system?</div>
+            <div class="card-footer">Emergent behavior design</div>
+          </div>
+        </div>
+
+        <h5>9 · Quantum (3 techniques)</h5>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Quantum · 01</div>
+            <div class="card-name">Superposition Ideation</div>
+            <div class="card-body">Hold two contradictory ideas simultaneously without resolving the contradiction. Explore what a product would look like that is simultaneously free AND premium, simple AND powerful, local AND global.</div>
+            <div class="card-footer">Paradox tolerance as creative tool</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Quantum · 02</div>
+            <div class="card-name">Entanglement Mapping</div>
+            <div class="card-body">Identify deeply correlated elements in the problem space — pairs that change together regardless of distance. Changing one entangled element cascades non-locally through the system.</div>
+            <div class="card-footer">Non-local correlation exploration</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Quantum · 03</div>
+            <div class="card-name">Uncertainty Principle</div>
+            <div class="card-body">Accept that measuring one dimension of the problem precisely makes another dimension fundamentally uncertain. This is not a bug — design for productive uncertainty and adaptive systems that thrive in ambiguity.</div>
+            <div class="card-footer">Designed ambiguity tolerance</div>
+          </div>
+        </div>
+
+        <h5>10 · Cultural (4 techniques)</h5>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="card-code">Cultural · 01</div>
+            <div class="card-name">Mythological Mapping</div>
+            <div class="card-body">Map the problem onto an archetypal myth or hero's journey. What is the Call to Adventure? Who is the Mentor? What is the Ordeal? Mythological structure reveals narrative arcs that resonate universally.</div>
+            <div class="card-footer">Jungian archetype application</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Cultural · 02</div>
+            <div class="card-name">Ritual Design</div>
+            <div class="card-body">Design the product interaction as a ritual: what are the initiatory steps, the sacred objects, the communal aspects, the transformation moment? Rituals create belonging, meaning, and behavioral consistency.</div>
+            <div class="card-footer">Anthropological product framing</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Cultural · 03</div>
+            <div class="card-name">Cross-Cultural Wisdom</div>
+            <div class="card-body">Research how different cultures have solved analogous problems across history. Japanese wabi-sabi, African Ubuntu, Scandinavian Lagom — distinct cultural values produce radically different solution architectures.</div>
+            <div class="card-footer">Global wisdom traditions survey</div>
+          </div>
+          <div class="module-card">
+            <div class="card-code">Cultural · 04</div>
+            <div class="card-name">Trickster Energy</div>
+            <div class="card-body">Invoke the trickster archetype — Loki, Coyote, Anansi — who breaks rules, exposes hypocrisy, and creates through disruption. What would the trickster do to your market, your product, your users' assumptions?</div>
+            <div class="card-footer">Disruptive archetype activation</div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Toolkit Reference</span>
+          <span class="data-source">bmad-brainstorming · v6.10.0</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Category</th><th>Items</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Skill</td>
+              <td><code>bmad-brainstorming</code> — Menu code: <strong>BP</strong></td>
+            </tr>
+            <tr>
+              <td class="key-col">Core techniques</td>
+              <td>
+                <strong>Structured (7):</strong> SCAMPER · Six Thinking Hats · Mind Mapping · Resource Constraints · Decision Tree Mapping · Solution Matrix · Trait Transfer<br>
+                <strong>Creative (11):</strong> What If Scenarios · Analogical Thinking · Reversal Inversion · First Principles · Forced Relationships · Time Shifting · Metaphor Mapping · Cross-Pollination · Concept Blending · Reverse Brainstorming · Sensory Exploration<br>
+                <strong>Collaborative (5):</strong> Brainwriting 6-3-5 · Round Robin · Yes And · Gallery Walk · Nominal Group Technique<br>
+                <strong>Deep (8):</strong> 5 Whys · Jobs to Be Done · Iceberg Analysis · Stakeholder Empathy · Assumption Mapping · Value Chain Analysis · Pre-Mortem · Second-Order Thinking<br>
+                <strong>Theatrical (6):</strong> Character Immersion · Role Storming · Worst Possible Idea · Future Newspaper · Superhero Powers · Press Conference<br>
+                <strong>Wild (8):</strong> Moonshot Thinking · Extreme Scenarios · Random Word Stimulus · Absurdity Injection · Time Travel · Size Extremes · Material Alchemy · Universe Inversion<br>
+                <strong>Introspective Delight (6):</strong> Personal Narrative · Values Alignment · Intuition Mining · Peak Experience Recall · Dream State · Joyful Obsession<br>
+                <strong>Biomimetic (3):</strong> Natural Selection Simulation · Ecosystem Thinking · Swarm Intelligence<br>
+                <strong>Quantum (3):</strong> Superposition Ideation · Entanglement Mapping · Uncertainty Principle<br>
+                <strong>Cultural (4):</strong> Mythological Mapping · Ritual Design · Cross-Cultural Wisdom · Trickster Energy
+              </td>
+            </tr>
+            <tr>
+              <td class="key-col">Stances</td>
+              <td>Facilitator (default) · Creative Partner · Ideate-for-me — selectable before technique selection</td>
+            </tr>
+            <tr>
+              <td class="key-col">Composer</td>
+              <td><code>brain-selector.html</code> — visual browser/selector for the full 108-technique, 13-category library</td>
+            </tr>
+            <tr>
+              <td class="key-col">Output format</td>
+              <td><code>_bmad-output/brainstorming/brainstorming-session-{YYYY-MM-DD-HH-MM}.md</code> with YAML frontmatter (<code>stepsCompleted</code>, session metadata, idea counts) + append-only <code>.memlog.md</code> with <code>--by user</code>/<code>--by coach</code> authorship tags</td>
+            </tr>
+            <tr>
+              <td class="key-col">MCP Tools</td>
+              <td><code>bmad-help</code> (next-skill suggestion after report save) · <code>bmad-advanced-elicitation</code> (deep-dive on specific ideas) · <code>bmad-party-mode</code> (high-energy creative catalyst)</td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent</td>
+              <td><strong>Mary</strong> — Business Analyst. Guided ideation facilitator. Neutral librarian in Method 1, creative matchmaker in Method 2, serendipity guide in Method 3, journey architect in Method 4 — across any of the 3 stances.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Downstream skills</td>
+              <td><code>bmad-product-brief</code> · <code>bmad-prfaq</code> · <code>bmad-create-prd</code> — selected by Mary via <code>bmad-help</code> based on session outputs</td>
+            </tr>
+            <tr>
+              <td class="key-col">Resumable</td>
+              <td>Yes — reads <code>stepsCompleted</code> from YAML frontmatter on activation. Offers continue / new / see-all menu when prior sessions exist.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="section-divider">
+
+      <section id="technique-descriptions">
+        <h3 class="skill-heading">
+          <span class="code-name">techniques</span>
+          Technique Descriptions
+          <span class="code-tag">used in this skill</span>
+        </h3>
+        <p style="font-size:13px;color:var(--ink-soft);margin-bottom:20px;">Detailed descriptions of the methods and frameworks the agent applies during a session. Understanding these helps you get more out of each technique when the agent invokes it.</p>
+
+        <h4 class="step-heading">Progressive Flow — 4-Phase Techniques</h4>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Progressive Flow</span>
+            <span class="data-source">bmad-brainstorming · Method 4</span>
+          </div>
+          <table>
+            <thead><tr><th>Phase</th><th>Technique</th><th>Description</th><th>Rules</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Phase 1<br>Expansive</td>
+                <td><strong>What If Scenarios</strong></td>
+                <td>Ask "What if..." to break assumptions and constraint patterns. Forces the mind into possibility-space rather than problem-space.</td>
+                <td>No judgment. No limits. Wild ideas welcome. Every "what if" is valid during generation.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Phase 2<br>Analytical</td>
+                <td><strong>Six Thinking Hats</strong></td>
+                <td>Analyzes ideas through 6 lenses: <strong>White</strong> (factual data + evidence) · <strong>Yellow</strong> (value + benefits) · <strong>Black</strong> (risks + weaknesses) · <strong>Red</strong> (emotional resonance) · <strong>Green</strong> (creative potential) · <strong>Blue</strong> (process fit). Assigns priority tiers: P0 (immediate) · P1 (near-term) · P2 (future) · Research track.</td>
+                <td>Apply all 6 lenses before tier assignment. A fatal Black Hat finding (security flaw, legal risk, technical impossibility) downgrades to Research track regardless of other scores.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Phase 3<br>Refinement</td>
+                <td><strong>SCAMPER</strong></td>
+                <td>Refines ideas through 7 angles: <strong>S</strong>ubstitute · <strong>C</strong>ombine · <strong>A</strong>dapt · <strong>M</strong>odify · <strong>P</strong>ut to other uses · <strong>E</strong>liminate · <strong>R</strong>everse. Each angle is a question: "What can be combined?", "What can be eliminated?", etc.</td>
+                <td>Apply to P0 + P1 ideas from Phase 2, not the full idea set.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Phase 4<br>Action</td>
+                <td><strong>Decision Tree Mapping</strong></td>
+                <td>Maps top ideas to a versioned roadmap: <strong>V1</strong> (core, launch-critical) · <strong>V1.5</strong> (fast-follow, high impact, low complexity) · <strong>V2</strong> (strategic expansion) · <strong>V3</strong> (long-horizon) · <strong>Research track</strong> (validate before committing). Identifies dependencies between ideas.</td>
+                <td>V1 must be standalone — no dependencies on V1.5 or V2 for V1 to ship.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="step-heading">Anti-Bias Pivot Methods</h4>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Pivot Techniques</span>
+            <span class="data-source">bmad-brainstorming · Step 3 · mandatory every ~10 ideas</span>
+          </div>
+          <table>
+            <thead><tr><th>Method</th><th>How it works</th><th>Biases it counters</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Domain rotation</td>
+                <td>Shift cognitive domain in sequence: UX → Architecture → Workflow → Reliability → Integration → Business Model → Distribution → repeat. Agent announces the new domain explicitly before each next prompt.</td>
+                <td>Functional fixedness. Availability bias (generating only from familiar domains).</td>
+              </tr>
+              <tr>
+                <td class="key-col">Persona shift</td>
+                <td>"Now think as a CFO" / "Think as a 10-year-old" / "Think as an adversarial hacker" / "Think as a regulator". Forces a perspective that would not arise from primary-user empathy alone.</td>
+                <td>Empathy tunnel (ideas only from one user's perspective). Status quo bias.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Question inversion</td>
+                <td>"How do we guarantee this feature fails catastrophically?" — generate failure modes actively, then invert each failure mode into a success criterion or safeguard feature idea.</td>
+                <td>Optimism bias. Confirmation bias (only generating ideas that confirm the initial hypothesis).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="step-heading">Clustering Methods</h4>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Clustering</span>
+            <span class="data-source">bmad-brainstorming · Step 4</span>
+          </div>
+          <table>
+            <thead><tr><th>Method</th><th>Description</th><th>Key rule</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Affinity grouping</td>
+                <td>AI proposes 5–9 clusters by natural affinity (purpose / audience / mechanism). User approves, renames, splits, or merges. Outlier ideas go to a parking lot — preserved, not discarded. Cluster names become candidate epic or product-area labels in downstream PRD work.</td>
+                <td><strong>Miller's Law (7±2):</strong> optimal cluster count for human working-memory retention. Too few → ideas lost inside large clusters. Too many → prioritization becomes unwieldy.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Six Hats cluster<br>(Progressive Flow)</td>
+                <td>Clustering and prioritization happen within Phase 2 via six-lens analysis. Ideas strong on White + Yellow + Green Hats without a fatal Black Hat finding → P0. Strong value but execution risk → P1. Speculative or long-horizon → Research track.</td>
+                <td>P0 must survive all 6 hats, not just 3.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="step-heading">Prioritization Frameworks</h4>
+        <div class="data-callout">
+          <div class="data-head">
+            <span class="data-label">Prioritization</span>
+            <span class="data-source">bmad-brainstorming · Step 5</span>
+          </div>
+          <table>
+            <thead><tr><th>Framework</th><th>When to use</th><th>How it works</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">4-Criteria scoring</td>
+                <td>Default for Methods 1, 2, 3. Open exploration — no fixed resource constraints.</td>
+                <td>Score each cluster on: <strong>Impact</strong> (user/business value) · <strong>Feasibility</strong> (technical realism) · <strong>Innovation</strong> (genuine novelty) · <strong>Alignment</strong> (fit with goal + strategy). Quick wins (high Impact + low Effort) flagged separately regardless of overall score.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Impact / Effort 2×2</td>
+                <td>When effort estimation is possible. Maps to 4 quadrants.</td>
+                <td><strong>Quick wins</strong> (high impact, low effort — do first) · <strong>Big bets</strong> (high impact, high effort — plan carefully) · <strong>Fill-ins</strong> (low impact, low effort — if bandwidth allows) · <strong>Thankless tasks</strong> (low impact, high effort — avoid, document as explicitly out).</td>
+              </tr>
+              <tr>
+                <td class="key-col">MoSCoW</td>
+                <td>Resources fixed, scope flexible — time-boxed sprints or fixed-budget features.</td>
+                <td><strong>Must</strong> (launch fails without this) · <strong>Should</strong> (high value, drop only if necessary) · <strong>Could</strong> (include if time allows) · <strong>Won't</strong> (explicitly out of this version — documented, not just deprioritized). The Won't list is as important as Must.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Decision Tree Mapping<br>(Progressive Flow)</td>
+                <td>Progressive Flow Phase 4 only. Uses SCAMPER-refined idea set from Phase 3.</td>
+                <td>Maps to versioned roadmap: V1 / V1.5 / V2 / V3 / Research track. Decision nodes identify dependencies (e.g., V1.5 feature requires V1 infrastructure). Research track items get explicit "what must be proven" statements.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

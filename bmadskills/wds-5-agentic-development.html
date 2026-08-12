@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agentic Development</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #099268;
+    --accent-soft:#0ca678;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 18px 22px; margin: 16px 0 24px; overflow-x: auto; border: 1px solid var(--rule); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>WDS · Phase 5 · Agentic Development</span>
+        <span>Skill · wds-5-agentic-development</span>
+        <span>Agent · Mimir 🔨 (WDS Builder)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Agentic Development <em>· one verified requirement at a time</em></h1>
+    <p class="subtitle">Transform page specifications into production-ready code through rigorous, spec-driven development. Mimir does not guess — he reads the spec completely, writes a PRD, and implements one requirement at a time with verification. A non-linear toolkit of seven activities: prototyping, development, bugfixing, evolution, analysis, reverse engineering, and acceptance testing.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>wds-5-agentic-development</dd></div>
+      <div><dt>Menu codes</dt><dd>TA · PR · BU · DD</dd></div>
+      <div><dt>Agent</dt><dd>Mimir (WDS Builder)</dd></div>
+      <div><dt>Phase</dt><dd>WDS Phase 5</dd></div>
+      <div><dt>Output</dt><dd>Production code · prototypes</dd></div>
+      <div><dt>Activities</dt><dd>P · D · F · E · A · R · T</dd></div>
+      <div><dt>Input</dt><dd>Phase 4 specs · Work Order</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#activity-menu">Activity Menu</a>
+      <a href="#prototyping-flow">Prototyping Workflow</a>
+      <a href="#non-negotiable">Non-Negotiable Rules</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-spec-driven">Why Spec-Driven?</a>
+      <a href="#why-one-at-a-time">Why One at a Time?</a>
+      <a href="#why-browser-test">Why Browser-Test?</a>
+      <a href="#why-stop">Why STOP on Divergence?</a>
+      <a href="#why-superpowers">Mimir + Superpowers</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#workflows">Before Calling the Skill</a>
+      <a href="#workflows" class="toc-sub">1 · WDS / BMAD Setup</a>
+      <a href="#workflows" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#workflows" class="toc-sub">3 · Tech Audit First</a>
+      <a href="#workflows" class="toc-sub">4 · Per-Activity Tips</a>
+
+      <div class="toc-section-label">Sub-Workflows</div>
+      <a href="#wf-analysis" class="toc-sub">Analysis</a>
+      <a href="#wf-prototyping" class="toc-sub">Prototyping</a>
+      <a href="#wf-development" class="toc-sub">Development</a>
+      <a href="#wf-acceptance-testing" class="toc-sub">Acceptance Testing</a>
+      <a href="#wf-bugfixing" class="toc-sub">Bug Fixing</a>
+      <a href="#wf-reverse-engineering" class="toc-sub">Reverse Engineering</a>
+      <a href="#wf-evolution" class="toc-sub">Evolution</a>
+
+      <a href="#applied-toolkit">Applied Toolkit</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Agentic Development — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>wds-5-agentic-development</code></dd>
+        <dt>Menu codes</dt><dd><span class="menu-codes"><code>TA</code><code>PR</code><code>BU</code></span> from Mimir; <span class="menu-codes"><code>DD</code></span> from Freya (Work Order). Invoked via <code>/wds-5-agentic-development</code>, or <code>/wds-agent-mimir-builder</code> → TA / PR / BU.</dd>
+        <dt>Role</dt><dd>Implementation agent — owns the tech audit, the PRD, and the build. Turns Freya's Work Orders into working code, one verified task at a time.</dd>
+        <dt>Agents</dt><dd>Mimir 🔨 (WDS Builder), primary; Freya assists with Work Order creation (the <code>[DD]</code> / <code>[H]</code> handover package).</dd>
+        <dt>Replaces</dt><dd>No prior BMM equivalent — purpose-built for WDS. Mimir is net-new.</dd>
+      </dl>
+
+      <p>This skill transforms Phase 4 page specifications into production-ready code through <strong>rigorous, spec-driven development</strong>. Named after the Norse god of wisdom and the well beneath the world tree, Mimir is methodical, precise, and empirical — <strong>not creative, rigorous</strong>. The creativity already happened upstream, in the brief, the trigger map, the scenarios, and the UX design. Mimir's job is to read the spec completely, write a PRD that maps it to numbered implementable requirements, and then build — implementing, committing, and verifying one requirement before moving to the next.</p>
+
+      <p>It is a <strong>non-linear toolkit</strong>: seven activities cover prototyping, production development, bugfixing, evolving an existing product, analyzing your own codebase, reverse-engineering specs out of any software or website, and designing acceptance tests from spec criteria. Mimir's entry point on any real build is the <strong>Work Order</strong> — the <code>[H]</code> handoff package Freya produces at the end of Phase 4 — which lists the specs to implement and the scope of work.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Activity Menu -->
+    <section id="activity-menu">
+      <h3 class="skill-heading">
+        <span class="code-name">activities</span>
+        Activity Menu
+        <span class="code-tag">non-linear</span>
+      </h3>
+      <p class="lede">Seven activities, picked by need rather than sequence — Mimir is a toolkit, not a fixed pipeline.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Activity Menu</span>
+          <span class="data-source">wds-5-agentic-development · 7 activities</span>
+        </div>
+        <table>
+          <thead><tr><th>Code</th><th>Activity</th><th>Steps</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">A</td><td>Analysis</td><td><code>steps-a/</code></td><td>Understand your own codebase through systematic exploration</td></tr>
+            <tr><td class="key-col">P</td><td>Prototyping</td><td><code>steps-p/</code></td><td>Build an interactive prototype from specs</td></tr>
+            <tr><td class="key-col">D</td><td>Development</td><td><code>steps-d/</code></td><td>Write production code from approved specifications</td></tr>
+            <tr><td class="key-col">T</td><td>Acceptance Testing</td><td><code>steps-t/</code></td><td>Design and run tests from spec criteria</td></tr>
+            <tr><td class="key-col">F</td><td>Bugfixing</td><td><code>steps-f/</code></td><td>Fix bugs in existing code through structured investigation</td></tr>
+            <tr><td class="key-col">R</td><td>Reverse Engineering</td><td><code>steps-r/</code></td><td>Extract specs from any software or website</td></tr>
+            <tr><td class="key-col">E</td><td>Evolution</td><td><code>steps-e/</code></td><td>Add features to an existing product incrementally</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Prototyping Workflow -->
+    <section id="prototyping-flow">
+      <h3 class="skill-heading">
+        <span class="code-name">steps-p/</span>
+        Prototyping Workflow
+        <span class="code-tag">detailed</span>
+      </h3>
+      <p>The prototyping activity is the most fully specified flow. It loads every prerequisite artifact, breaks scenarios into logical UI sections, then loops through a build-test-approve cycle one section at a time. The same discipline of verified, incremental work underlies the other activities.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prototyping Steps</span>
+          <span class="data-source">wds-5-agentic-development · steps-p/</span>
+        </div>
+        <table>
+          <thead><tr><th>Step</th><th>Name</th><th>What Happens</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">1</td><td>Prototype Setup</td><td>Load all prerequisite artifacts — specs, design system, tech stack</td></tr>
+            <tr><td class="key-col">2</td><td>Scenario Analysis</td><td>Analyze each scenario's requirements</td></tr>
+            <tr><td class="key-col">3</td><td>Logical View Breakdown</td><td>Map scenarios to logical UI sections / components</td></tr>
+            <tr><td class="key-col">4a</td><td>Announce &amp; Gather</td><td>Present the build plan to the user</td></tr>
+            <tr><td class="key-col">4b</td><td>Create Story File</td><td>Write an implementation story for each section</td></tr>
+            <tr><td class="key-col">4c</td><td>Implement Section</td><td>Build one section at a time (loops)</td></tr>
+            <tr><td class="key-col">4d</td><td>Present for Testing</td><td>Show the implemented section, request a user test</td></tr>
+            <tr><td class="key-col">4e/4f</td><td>Handle Issues</td><td>Address bugs or improvement requests</td></tr>
+            <tr><td class="key-col">4g</td><td>Section Approved</td><td>Move to the next section</td></tr>
+            <tr><td class="key-col">5</td><td>Finalization</td><td>Deliver the complete prototype</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Non-Negotiable Rules -->
+    <section id="non-negotiable">
+      <h3 class="skill-heading">
+        <span class="code-name">rules</span>
+        Mimir's Non-Negotiable Rules
+      </h3>
+      <p>Mimir's discipline is the point of the agent. These rules are not preferences — they are the contract that keeps an AI-built codebase maintainable.</p>
+
+      <ul class="step-detail">
+        <li><strong class="label">Read first</strong>Read the full spec before writing any code — no shortcuts, no "I'll figure it out as I go."</li>
+        <li><strong class="label">One at a time</strong>One requirement at a time — implement, commit, verify, then move on.</li>
+        <li><strong class="label">Browser-test</strong>Browser-test every UI change — a sub-agent confirms the requirement passes visually.</li>
+        <li><strong class="label">Stop on drift</strong>If reality diverges from the PRD, STOP and flag the divergence — do not improvise.</li>
+        <li><strong class="label">No batching</strong>Never batch unverified changes — each commit represents a verified, tested requirement.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-spec-driven">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why this discipline? — <em>The reasoning behind each design choice</em>
+      </h2>
+
+      <h3 class="skill-heading">
+        <span class="code-name">why-spec-driven</span>
+        Why Spec-Driven &amp; Read-Fully-First?
+      </h3>
+      <p>The creativity happened upstream. By Phase 5, the brief, trigger map, scenarios, and UX specifications already encode the product's intent — so Mimir's value is not invention, it is <strong>fidelity</strong>. He is deliberately rigorous rather than creative. Reading the full spec before writing a line of code is the single rule that separates a maintainable AI codebase from an unmaintainable one: guessing at intent produces code that drifts from the design and accretes into something nobody can confidently change. The spec is the source of truth; Mimir's first move is always to absorb it completely.</p>
+
+      <h3 class="skill-heading" id="why-one-at-a-time">
+        <span class="code-name">why-one-requirement</span>
+        Why One Requirement at a Time?
+      </h3>
+      <p>Implementing, committing, and verifying a single requirement before starting the next prevents <strong>compounding errors</strong>. When changes are batched, a defect introduced early is buried under later work and becomes expensive to isolate. By keeping each commit to one verified requirement, the history stays legible, every change is traceable to a spec item, and a regression points directly at the commit that caused it. Velocity comes from never having to unwind a tangle of unverified work.</p>
+
+      <h3 class="skill-heading" id="why-browser-test">
+        <span class="code-name">why-browser-test</span>
+        Why Browser-Test Every UI Change?
+      </h3>
+      <p>Mimir's verification method is <strong>visual</strong>: does the rendered UI actually match the spec? A passing build or a green unit test does not prove that a component looks and behaves the way the design intended. So on every UI change a sub-agent opens the result in a browser and confirms it visually before the requirement is considered done. This closes the gap between "the code compiles" and "the user sees what the spec described."</p>
+
+      <h3 class="skill-heading" id="why-stop">
+        <span class="code-name">why-stop-on-divergence</span>
+        Why STOP on Divergence?
+      </h3>
+      <p>The PRD is the contract. When Mimir finds that the codebase cannot do what the PRD describes — or that the PRD assumes something the code contradicts — the correct move is to <strong>stop and surface it</strong>, not to quietly improvise a workaround. The signal sounds like <em>"I am stopping — the PRD says X but the codebase does Y."</em> That is a feature, not a limitation: it hands the human a conscious decision — update the spec, or accept the divergence deliberately — instead of letting the implementation silently drift away from the design.</p>
+
+      <h3 class="skill-heading" id="why-superpowers">
+        <span class="code-name">mimir + superpowers</span>
+        Mimir + Superpowers
+      </h3>
+      <p>Mimir and the Superpowers execution cards operate at different layers and are partially complementary. <strong>Mimir owns spec-reading and planning</strong> — tech audit → write PRD — because he understands the WDS page-spec format and translates it into implementable requirements. <strong>Superpowers govern execution</strong> — worktree isolation → subagent-driven development → a mandatory TDD gate → debugging → code review. Run together, this is the strongest option: Mimir reads the WDS inputs while Superpowers enforce process rigor.</p>
+      <p>The honest overlap: Mimir's "write PRD from Work Order" and "one requirement at a time" duplicate part of what Superpowers formalise. A team running both must <strong>consciously decide which planning method owns the task list</strong> — running both authorities in parallel creates conflicting ownership over what to build next.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="workflows">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/wds-agent-mimir-builder → TA / PR / BU</code>. On a new codebase, the tech audit comes first — it is the document every later build reads.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · WDS / BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all WDS skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all WDS skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">BMAD + WDS installed</td><td>WDS requires BMM v6.8+ with WDS skills installed in a compatible AI coding environment (Claude Code, Cursor, Codex, etc.). Install via <code>npx bmad-method install</code> → select WDS, or ask Claude to install <code>whiteport-design-studio</code> from GitHub.</td></tr>
+            <tr><td class="key-col">Agent-first invocation</td><td>Activate Mimir with <code>/wds-agent-mimir-builder</code>, then select <code>TA</code>, <code>PR</code>, or <code>BU</code>. Routing through the agent loads Mimir's discipline rules and quality standards.</td></tr>
+            <tr><td class="key-col">Design log present</td><td>WDS writes state to the project's progress log. On a resumed project Mimir reads it first so the build continues from recorded state.</td></tr>
+            <tr><td class="key-col">Work Order ready</td><td>For a real build, Freya's <code>[H]</code> handoff (the <code>[DD]</code> Work Order) is Mimir's entry point — it lists the specs to implement and the scope of work.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to wds-5-agentic-development. Having these in hand keeps the build moving and keeps Mimir from having to stop and ask.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">wds-5-agentic-development · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Phase 4 specs</td><td>Page specifications, complete and validated. These are what Mimir reads in full before writing code.</td></tr>
+            <tr><td class="key-col">Freya Work Order</td><td>The <code>[DD]</code> / <code>[H]</code> handover package — the list of specs to implement and the scope of work. Mimir's entry point.</td></tr>
+            <tr><td class="key-col">Tech stack config</td><td>From the project brief or the tech audit — framework, conventions, and constraints the build must respect.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">tech-audit-first</span>
+        3 · Always Run Tech Audit [TA] First
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">On any new codebase, this is Mimir's first action — before prototyping or building.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Tech Audit</span>
+          <span class="data-source">wds-5-agentic-development · TA</span>
+        </div>
+        <table>
+          <thead><tr><th>Aspect</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">What it does</td><td>Reads the codebase and produces a <strong>living architecture document</strong> describing structure, patterns, and conventions.</td></tr>
+            <tr><td class="key-col">Why first</td><td>Every subsequent activity — prototyping, development, evolution, bugfixing — references this document. Skipping it makes Mimir guess at the architecture.</td></tr>
+            <tr><td class="key-col">When</td><td>First-time entry on any codebase Mimir has not seen before. Refreshed as the codebase evolves.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-activity</span>
+        4 · Per-Activity Tips
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Pick the activity to the situation — and a couple reward preparation more than others.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Activity Tips</span>
+          <span class="data-source">wds-5-agentic-development</span>
+        </div>
+        <table>
+          <thead><tr><th>Activity</th><th>When &amp; how to use it well</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">PRD [PR]</td><td>The translation layer between Freya's design spec and Mimir's implementation — it maps spec sections to numbered, implementable requirements. Write it before building.</td></tr>
+            <tr><td class="key-col">Reverse Eng. [R]</td><td>Use when your product has no documentation — Mimir can read your own codebase or a competitor's public UI and extract structured specs to build from.</td></tr>
+            <tr><td class="key-col">Analysis [A]</td><td>Use to understand your own codebase before evolving it — pairs naturally with the tech audit.</td></tr>
+            <tr><td class="key-col">Answer clearly</td><td>Mimir stops and asks rather than guessing. This is a feature — answer one question at a time clearly to keep velocity high.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           SUB-WORKFLOWS
+           ══════════════════════════════════════════ -->
+
+      <hr class="section-divider">
+
+      <!-- Analysis -->
+      <section id="wf-analysis">
+        <h3 class="skill-heading">
+          <span class="code-name">workflow-analysis</span>
+          Analysis
+          <span class="code-tag">4 steps</span>
+        </h3>
+        <p>Systematically explore and document an existing codebase's architecture, patterns, and dependencies. Use this when joining an existing project, when architecture documentation is missing or outdated, or when preparing for a major refactor. Every analysis starts with a clear question — without a question, exploration is aimless. Mimir scans breadth before going deep, and every observation goes into a concrete output document that becomes a team asset.</p>
+
+        <h4 class="step-heading">Step 1 · Define Question</h4>
+        <p>Articulate exactly what you need to understand about the codebase before reading a single file. Mimir helps clarify the question, define scope boundaries (what is in and out), choose an expected output format (architecture map, dependency graph, API map, etc.), and set a time box to prevent analysis paralysis. No codebase exploration happens here — this step is purely planning.</p>
+
+        <h4 class="step-heading">Step 2 · Scan Codebase</h4>
+        <p>Build a mental model of the codebase through systematic exploration of directory structure, tech stack, entry points, configuration files, and the build/deploy pipeline. Mimir maps the top two levels, identifies frameworks and runtime versions, locates where execution starts, and notes initial conventions. Deep architectural analysis is forbidden at this stage — stay at survey level.</p>
+
+        <h4 class="step-heading">Step 3 · Map Architecture</h4>
+        <p>The analytical core of the workflow. Mimir creates a detailed component inventory, traces at least one complete data flow end-to-end (user action through frontend, API, business logic, data layer, and back), identifies architectural layers, maps every external integration, documents state management, creates a dependency graph (noting high fan-in and fan-out modules), and catalogs structural and data patterns. Raw analysis only — no final document writing yet.</p>
+
+        <h4 class="step-heading">Step 4 · Document Findings</h4>
+        <p>Create a structured architecture document that answers the original questions from Step 1. Includes a summary, tech stack, at least one Mermaid diagram, component map, data flow traces, dependency relationships, patterns and conventions, a risk and tech-debt table (with severity), and prioritized, specific, actionable recommendations. The document is saved to the project output folder and becomes the team's reference asset.</p>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Prototyping -->
+      <section id="wf-prototyping">
+        <h3 class="skill-heading">
+          <span class="code-name">workflow-prototyping</span>
+          Prototyping
+          <span class="code-tag">11 steps</span>
+        </h3>
+        <p>Build interactive prototypes from page specifications through structured AI collaboration. Use this when page specifications are complete and approved and you want iterative development with per-section approval gates. The loop is: set up the environment, identify logical views, then for each section — announce, create a story file, implement, present for testing, handle issues, and get approval — before finalizing the complete view. Mimir verifies with Puppeteer before showing anything to the user.</p>
+
+        <h4 class="step-heading">Step 1 · Prototype Setup</h4>
+        <p>One-time environment setup for the entire scenario. Mimir runs the initiation dialog (four questions: device compatibility, design fidelity, languages, demo data), creates the prototype folder structure with all subfolders, creates <code>demo-data.json</code> with realistic test data, and creates <code>PROTOTYPE-ROADMAP.md</code>. Skipped if the scenario already has these files.</p>
+
+        <h4 class="step-heading">Step 2 · Scenario Analysis</h4>
+        <p>Analyze the entire scenario to identify all logical views and map which scenario steps use which views. A logical view is a conceptual page or screen with multiple states. Mimir reads all scenario step specification files, identifies which steps share a logical view versus which represent a new screen, presents the mapping to the user for confirmation, and creates <code>work/Logical-View-Map.md</code> with build order.</p>
+
+        <h4 class="step-heading">Step 3 · Logical View Breakdown</h4>
+        <p>Select a logical view to build and break it into 4–8 implementable sections. Mimir gathers all object IDs across all states of the selected view, confirms the object list with the user, proposes a section grouping with time estimates, gets user approval, and creates the <code>work/[View-Name]-Work.yaml</code> plan file. Story files are not created here — they are created just-in-time per section.</p>
+
+        <h4 class="step-heading">Step 4a · Announce &amp; Gather</h4>
+        <p>Present the build plan for the current section to the user, confirm context and any missing information before building begins.</p>
+
+        <h4 class="step-heading">Step 4b · Create Story File</h4>
+        <p>Write the implementation story file for this section just-in-time, capturing the spec details, object IDs, states, and acceptance criteria that Mimir will implement.</p>
+
+        <h4 class="step-heading">Step 4c · Implement Section</h4>
+        <p>Build the section according to the story file, following existing codebase patterns and using design tokens throughout. Puppeteer verification runs before presenting anything to the user.</p>
+
+        <h4 class="step-heading">Step 4d · Present for Testing</h4>
+        <p>Show the implemented section to the user and request a test. Mimir provides test instructions for each state of the section.</p>
+
+        <h4 class="step-heading">Step 4e · Handle Issue</h4>
+        <p>If the user reports a bug or defect, Mimir investigates, fixes, and re-verifies before re-presenting. The minimal fix principle applies — do not refactor during a section fix.</p>
+
+        <h4 class="step-heading">Step 4f · Handle Improvement</h4>
+        <p>If the user requests an enhancement or polish change, Mimir implements it, verifies, and re-presents. Scope is kept to what is asked — no opportunistic additions.</p>
+
+        <h4 class="step-heading">Step 4g · Section Approved</h4>
+        <p>Mark the section as approved in the work file, update the story file with any learnings, and loop back to Step 4a for the next section.</p>
+
+        <h4 class="step-heading">Step 5 · Finalization</h4>
+        <p>When all sections are approved, run a complete integration test across all states of the logical view. Mimir checks that all Object IDs are present, state transitions work smoothly, there are no console errors, and the prototype is responsive at the target device width. On user approval, present the complete summary and check whether all logical views in the scenario are now built.</p>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Development -->
+      <section id="wf-development">
+        <h3 class="skill-heading">
+          <span class="code-name">workflow-development</span>
+          Development
+          <span class="code-tag">5 steps</span>
+        </h3>
+        <p>Write production-quality code from approved specifications using structured agent collaboration. Use this when an approved specification exists, the codebase and tech stack are established, and you need to turn a spec into committed, tested, production-ready code. Not for greenfield project setup, for exploring an unfamiliar codebase (use Analysis), for fixing bugs (use Bugfixing), or for throwaway prototypes (use Prototyping).</p>
+
+        <h4 class="step-heading">Step 1 · Scope and Plan</h4>
+        <p>Read the approved specification end to end — no skimming. Extract every deliverable into a flat inventory (pages, components, API integrations, state management, styling, tests). Map dependencies to determine implementation order. Estimate relative sizes and break down any "large" items into sub-tasks. Create the feature branch. Extract every acceptance criterion into a standalone checklist that will drive Step 4 verification.</p>
+
+        <h4 class="step-heading">Step 2 · Setup Environment</h4>
+        <p>Verify the development environment is ready before writing any feature code. Check runtime and tooling versions, install dependencies, start the dev server and confirm existing pages load, verify design system token access, create any new directories the spec requires, and run the full existing test suite to establish a baseline. Pre-existing failures are documented — they are not regressions from this work.</p>
+
+        <h4 class="step-heading">Step 3 · Implement</h4>
+        <p>Build every feature in the implementation plan, one at a time in dependency order. Before each item, re-read the relevant spec section and identify the applicable acceptance criteria. Study existing codebase patterns (naming, component structure, styling, error handling, data fetching, testing) and match them — consistency matters more than personal preference. Use design tokens throughout, implement all component states (not just the happy path), run tests after each major change, and commit incrementally with one logical unit per commit.</p>
+
+        <h4 class="step-heading">Step 4 · Verify</h4>
+        <p>Systematically confirm that the implementation satisfies every acceptance criterion from Step 1. Test all responsive breakpoints. Test every interactive state (default, hover, focus, active, disabled, loading, error, empty, success). Run accessibility checks: keyboard navigation, screen reader labels, WCAG AA color contrast, focus management. Cross-browser test if specified. Compare the running implementation to the spec side by side. Fix failures immediately — do not batch them.</p>
+
+        <h4 class="step-heading">Step 5 · Finalize</h4>
+        <p>Clean up all files (remove debug statements, unused imports, TODO comments). Run the full test suite plus linting and type checking. Document every deviation from the spec with rationale. Update any affected documentation. Prepare the PR description (summary, changed files, testing steps, deviations, screenshots, acceptance criteria checklist). Suggest next steps: acceptance testing, design review, or stakeholder demo.</p>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Acceptance Testing -->
+      <section id="wf-acceptance-testing">
+        <h3 class="skill-heading">
+          <span class="code-name">workflow-acceptance-testing</span>
+          Acceptance Testing
+          <span class="code-tag">5 steps</span>
+        </h3>
+        <p>Validate that implementation matches design specifications through structured testing. Use this when implementation is complete — prototype or production — and ready for validation against specs. Mimir runs happy path tests, error state tests, edge case tests, design system validation (measuring colors, spacing, typography against spec tokens), and accessibility tests. A formal test report and issue tickets are produced. Maximum three iteration cycles before escalation.</p>
+
+        <h4 class="step-heading">Step 1 · Prepare</h4>
+        <p>Gather all materials before any testing begins: load the test scenario file and design delivery file, review all scenario specifications and design system specs, set up the staging environment and test devices, configure screen recording and screenshot tools, prepare test data (valid and invalid inputs, edge case data), create the testing workspace folder structure, review the test plan by category, and calculate a time estimate with a 20% buffer.</p>
+
+        <h4 class="step-heading">Step 2 · Execute</h4>
+        <p>Run all test categories in order: happy path tests first (start screen recording, follow steps exactly, compare to design reference, mark PASS/FAIL, screenshot failures), then error state tests (trigger each error condition, verify message styling and recovery), then edge case tests (unusual inputs and scenarios), then design system validation (measure dimensions, colors, typography, and spacing against spec tokens for every component), then accessibility tests (screen reader navigation, WCAG AA color contrast, 44×44px touch target minimums). Compile an overall summary with pass rates by category.</p>
+
+        <h4 class="step-heading">Step 3 · Document Issues</h4>
+        <p>Create a numbered issue file (<code>ISS-XXX-description.md</code>) for every problem found. Each issue requires: severity (Critical / High / Medium / Low), specific description (not "button looks wrong" but exact values vs spec), exact steps to reproduce, expected vs actual behavior, annotated screenshot, and a design reference. Vague or non-actionable issues are not acceptable. Create an issues summary with breakdown by severity.</p>
+
+        <h4 class="step-heading">Step 4 · Report</h4>
+        <p>Create a comprehensive test report (<code>TR-XXX-[flow-name].md</code>) with all sections: summary (overall PASS/FAIL, total issues, blocking status), test coverage by category, full issues table, sign-off recommendation, next steps, and organized attachments. A PASS requires zero Critical issues, all High issues fixed or accepted, 100% happy path pass, and design system compliance above 95%.</p>
+
+        <h4 class="step-heading">Step 5 · Iterate or Approve</h4>
+        <p>Two paths. If FAIL: wait for fixes, retest focused on fixed issues and regression areas (abbreviated — not a full re-run), update issue statuses, create a retest report, and either advance to approval or repeat the cycle (maximum three total iterations before escalating to leads). If PASS: create a sign-off document, notify the development team, and update the design log status to <code>approved</code>.</p>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Bugfixing -->
+      <section id="wf-bugfixing">
+        <h3 class="skill-heading">
+          <span class="code-name">workflow-bugfixing</span>
+          Bug Fixing
+          <span class="code-tag">5 steps</span>
+        </h3>
+        <p>Systematically investigate, fix, and verify bugs with minimal side effects. Use when a bug has been reported or discovered in existing code. The three core principles: reproduce first (never fix what you cannot reproduce), minimal fix (target root cause with the smallest possible change), regression check (verify original bug is fixed AND test for side effects on related functionality). Refactoring surrounding code during a bugfix is explicitly forbidden.</p>
+
+        <h4 class="step-heading">Step 1 · Reproduce</h4>
+        <p>Confirm the bug exists and document exact reproduction steps. Gather bug report details (what happened, what was expected, when it started, reporter's environment). Set up the reproduction environment to match the reporter's setup as closely as possible. Follow the reported steps exactly, capturing screenshots and console output. Reproduce at least twice to confirm consistency. If the bug cannot be reproduced, request more details — do not proceed to investigation without reproduction or a clear theory.</p>
+
+        <h4 class="step-heading">Step 2 · Investigate</h4>
+        <p>Identify the root cause, not just the symptom. Read the relevant code around the bug location. Check recent git commits for changes in the affected area. Trace the execution path from the triggering user action through event handlers, state updates, API calls, and rendering — identifying exactly where behavior diverges from expectation. Pin down the root cause to specific lines or logic. Check whether similar patterns exist elsewhere that may have the same bug. Document the root cause, symptom explanation, and proposed fix approach before writing any code.</p>
+
+        <h4 class="step-heading">Step 3 · Fix</h4>
+        <p>Implement the minimal fix targeting the root cause. Create a fix branch. Write a test that catches the bug first — it must fail before the fix and pass after. Then implement the smallest change that resolves the issue: no refactoring, no unrelated improvements, no formatting changes in adjacent lines. Verify the fix resolves the exact reproduction case from Step 1. If the fix requires more than a few lines, pause and re-examine scope.</p>
+
+        <h4 class="step-heading">Step 4 · Verify</h4>
+        <p>Confirm the fix works and has not introduced regressions. Re-run the exact reproduction steps from Step 1. Run the full regression test suite (or manually test core user flows if no automated suite exists). Check edge cases around the fix (null inputs, boundary values, rapid repeated actions). Verify no side effects on features that share code with the fixed area. Cross-platform check if the bug was platform-specific.</p>
+
+        <h4 class="step-heading">Step 5 · Document</h4>
+        <p>Document the bug and fix, then create a clean PR. Write a clear root cause summary explaining why the bug existed. Document the fix approach and why it was chosen over alternatives. Ensure the regression test from Step 3 is complete and well-named. Write the PR with title <code>fix: what was fixed</code>, body covering bug, root cause, fix, and testing. Flag any similar risks observed elsewhere in the codebase for future investigation. Update the design log with a bugfix progress entry.</p>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Reverse Engineering -->
+      <section id="wf-reverse-engineering">
+        <h3 class="skill-heading">
+          <span class="code-name">workflow-reverse-engineering</span>
+          Reverse Engineering
+          <span class="code-tag">4 steps</span>
+        </h3>
+        <p>Analyze existing software or public websites to extract page specifications, design systems, and architectural understanding. Use when you need to understand an existing product (yours or public), want to create WDS specifications from existing software, are doing competitive analysis through design extraction, or are migrating or rebuilding a product. Two modes: Internal (your own codebase with source access) and External (any public website via browser, no source needed). The goal is patterns and structures, not pixel-perfect copying — and never proprietary code or copyrighted content.</p>
+
+        <h4 class="step-heading">Step 1 · Identify Target</h4>
+        <p>Define what to reverse engineer, how to access it, and what to extract. Classify the target type (website, web application, component library, mobile app, or source code) and determine the access method (URL via browser, source code, screenshots, or a combination). Check for access limitations. Define extraction goals from a checklist: page specifications, design system, component inventory, content strategy, architecture, user flows, or all of the above. Document a target overview to guide the exploration.</p>
+
+        <h4 class="step-heading">Step 2 · Explore and Capture</h4>
+        <p>Systematically explore the target and capture complete inventories. For URL access: crawl all pages via navigation and sitemap, capture header/main/footer structure, observe hover states, dropdown behavior, form validation, modal triggers, loading states, and responsive breakpoints, then extract colors, fonts, spacing, border radii, and shadows from DevTools. For source code: read component directories, map routes, identify shared styles and theme config. Compile findings into structured inventories: page inventory, navigation structure, component inventory, color palette, typography scale, and spacing patterns.</p>
+
+        <h4 class="step-heading">Step 3 · Generate Specs</h4>
+        <p>Create WDS-format page specifications from the inventories captured in Step 2. Prioritize pages (start with the most representative), then for each page generate a full specification: overview, layout structure (desktop, sections top to bottom), component list cross-referenced with the inventory from Step 2, content strategy (headline patterns, CTA language, images), responsive behavior, and interactions. Document multi-page user flows as scenario outlines. Save all output to the project folder in consistent naming. Generate everything in the configured <code>document_output_language</code>.</p>
+
+        <h4 class="step-heading">Step 4 · Extract Design System</h4>
+        <p>Consolidate all design tokens and component patterns into a structured WDS-compatible design system document. Organize raw values into token categories: colors by purpose (brand, text, background, border, feedback), typography scale (families, sizes, weights, line heights), spacing (base unit and scale), border radii, shadows, and breakpoints. Catalog each component with variants, sizes, states (default, hover, focus, active, disabled, loading, error, success), content slots, and responsive behavior. Create an explicit token-to-component mapping. Save the design system document alongside the page specs from Step 3.</p>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- Evolution -->
+      <section id="wf-evolution">
+        <h3 class="skill-heading">
+          <span class="code-name">workflow-evolution</span>
+          Evolution
+          <span class="code-tag">5 steps</span>
+        </h3>
+        <p>Incrementally add features to an existing product with minimal disruption. Use when existing functionality needs new capabilities and changes should be targeted, not a rewrite. Three core principles: backward compatible (existing functionality must keep working, verified at every commit), feature flags if needed (for risky or staged changes), incremental delivery (each commit leaves the system in a working state). Skipping impact analysis is explicitly forbidden — surprises in production are expensive.</p>
+
+        <h4 class="step-heading">Step 1 · Scope Change</h4>
+        <p>Define exactly what is new, what is modified, and what must remain untouched. Load and understand the feature specification. List all new functionality (new UI components, API endpoints, data models, routes). List all existing functionality that must stay unchanged. Create a boundary map categorizing every affected area as New, Modified, or Untouched. Identify and document every integration point with its risk level. Ambiguities in the spec are resolved here — not during implementation.</p>
+
+        <h4 class="step-heading">Step 2 · Analyze Impact</h4>
+        <p>Understand how the proposed changes affect existing code and identify risks. Read every file in the "Modified" category and all adjacent files. Map dependencies (what depends on each modified file; what each modified file depends on). Identify breaking change risks: interface signature changes, data shape changes, timing/ordering effects, violated implicit assumptions. Assess database and API impacts (migrations, contract changes, breaking vs additive). Produce a risk assessment table with likelihood, impact, and mitigation for every identified risk.</p>
+
+        <h4 class="step-heading">Step 3 · Plan Implementation</h4>
+        <p>Create an ordered, incremental implementation plan with verification points between steps. Order changes by dependency: foundational changes first (data models, utilities), then API endpoints, then components, then pages and integrations. Decide whether feature flags are needed (for large changes, staged rollouts, or instant rollback requirements). Plan each commit as a complete working unit — the system must remain functional after every commit. Define explicit verification criteria between steps. Estimate effort and flag high-risk steps.</p>
+
+        <h4 class="step-heading">Step 4 · Implement</h4>
+        <p>Implement changes incrementally, verifying at each step. Create the feature branch. For each planned commit: read the plan, implement only that step, self-check scope, run the defined verification point, and commit with a descriptive message. Do not proceed to the next commit if the current one has failing tests. Verify backward compatibility at every commit — existing users must be able to do everything they could before. If feature flags were planned, implement them early and test both flag states.</p>
+
+        <h4 class="step-heading">Step 5 · Verify and Document</h4>
+        <p>Comprehensive verification of all new and existing functionality, then documentation and PR. Test all new features end-to-end (happy paths, error paths, edge cases). Run the full regression suite — any failure must be fixed before continuing. Test every feature listed as "Untouched" in the boundary map. Run a performance check: load time, bundle size impact, new network requests. Document what was added, changed, and left untouched, plus any deviations from the plan. Create the PR with title <code>feat: what was added</code>, covering what, why, how (incremental steps), testing (including backward compatibility), and known risks. Update the design log with an evolution progress entry.</p>
+      </section>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="applied-toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Applied Toolkit</span>
+          <span class="data-source">wds-5-agentic-development</span>
+        </div>
+        <table>
+          <thead><tr><th>Category</th><th>Items</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Skill</td><td><code>wds-5-agentic-development</code></td></tr>
+            <tr><td class="key-col">Agents</td><td>Mimir 🔨 — WDS Builder (primary); Freya — for Work Order creation</td></tr>
+            <tr><td class="key-col">Output</td><td>Production code · interactive prototypes · acceptance test reports · architecture documents</td></tr>
+            <tr><td class="key-col">Activities</td><td><code>A</code> · <code>P</code> · <code>D</code> · <code>T</code> · <code>F</code> · <code>R</code> · <code>E</code></td></tr>
+            <tr><td class="key-col">Menu codes</td><td><code>TA</code> tech audit · <code>PR</code> write PRD · <code>BU</code> build · <code>DD</code> Work Order (Freya)</td></tr>
+            <tr><td class="key-col">Disciplines</td><td>Spec-driven development · browser visual verification · tech audit</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>

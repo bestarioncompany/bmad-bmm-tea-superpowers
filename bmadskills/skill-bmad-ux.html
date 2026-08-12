@@ -1,0 +1,958 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UX Specification — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 800px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 180px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 160px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid (3-col for intents) ───────────── */
+  .mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid-2 > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-phase.intent-create { background: #166534; }
+  .mode-card .mode-phase.intent-update { background: #1d3557; }
+  .mode-card .mode-phase.intent-validate { background: var(--accent); }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li { padding: 6px 0 6px 24px; position: relative; font-size: 0.875rem; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.5; }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: '□'; position: absolute; left: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-mute); }
+
+  /* ── Compare table (two-column spine comparison) ── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 18%; }
+  .compare-table th:nth-child(2) { background: #1d3557; color: #e0eaf8; width: 41%; }
+  .compare-table th:nth-child(3) { background: #166534; color: #dcfce7; width: 41%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; padding: 18px 20px; margin: 12px 0 24px; overflow-x: auto; border: 1px solid rgba(42,34,26,.4); }
+  pre.code-block code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+  /* ── Step numbered badge ──────────────────────── */
+  .step-num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background: var(--accent); color: var(--paper); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-right: 8px; }
+
+  /* ── Critical callout ─────────────────────────── */
+  .critical-note { border: 2px solid var(--accent); background: #fff7f5; padding: 12px 16px; margin: 16px 0 24px; font-size: 0.875rem; line-height: 1.6; }
+  .critical-note .crit-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); display: block; margin-bottom: 4px; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .mode-grid-2 { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+    .compare-table th:nth-child(2), .compare-table td:nth-child(2) { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad BMM · Phase 02 Planning</span>
+        <span>Skill · bmad-ux</span>
+        <span>Agent · Sally (UX Designer)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">UX Specification <em>· Sally, UX Designer</em></h1>
+    <p class="subtitle">Produces two independent spines: DESIGN.md (visual identity) + EXPERIENCE.md (IA + behavior + interactions). 3 intents, 4 creative tools, 8-step Discovery.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-ux</dd></div>
+      <div><dt>Menu code</dt><dd>CU</dd></div>
+      <div><dt>Input</dt><dd>PRD + user intent (Create) or existing DESIGN.md/EXPERIENCE.md (Update/Validate)</dd></div>
+      <div><dt>Trigger</dt><dd>"lets create UX design" / "create UX specifications" / "help me plan the UX"</dd></div>
+      <div><dt>Agent</dt><dd>Sally (UX Designer)</dd></div>
+      <div><dt>Steps</dt><dd>8 · Discovery</dd></div>
+      <div><dt>Creative tools</dt><dd>4</dd></div>
+      <div><dt>Output</dt><dd>DESIGN.md + EXPERIENCE.md</dd></div>
+      <div><dt>Headless</dt><dd>Yes</dd></div>
+      <div><dt>Resumable</dt><dd>Yes</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#output-workspace" class="toc-sub">Output Workspace</a>
+      <a href="#intents">3 Intents</a>
+      <a href="#spine-structures">Spine Structures</a>
+      <a href="#design-md" class="toc-sub">DESIGN.md</a>
+      <a href="#experience-md" class="toc-sub">EXPERIENCE.md</a>
+      <a href="#ui-inheritance" class="toc-sub">UI System Inheritance</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-two-spines">Why Two Spines?</a>
+      <a href="#why-spines-win">Why Spines Win Over Mockups?</a>
+      <a href="#why-protagonists">Why Named Protagonists?</a>
+      <a href="#why-elicit">Why Elicit, Not Impose?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#how-steps">Before Calling the Skill</a>
+      <a href="#how-steps" class="toc-sub">1 · General BMAD Setup</a>
+      <a href="#how-steps" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#how-steps" class="toc-sub">3 · Skills That Help</a>
+      <a href="#how-steps" class="toc-sub">4 · Per-Step Preparation</a>
+      <a href="#finalize">Finalize — 8 Steps</a>
+      <a href="#validate-rubric">Validate Rubric (8 Categories)</a>
+      <a href="#toolkit">Applied Toolkit</a>
+      <a href="#technique-descriptions" class="toc-sub">Technique Descriptions</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT — What is this Skill?
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        UX Specification — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Invocation</dt><dd><code>/bmad-agent-ux-designer</code> → choose <strong>CU</strong> from the menu</dd>
+        <dt>Principle</dt><dd>Elicit and capture — never impose. Probe like a senior practitioner; do not autonomously choose colors, patterns, or directions.</dd>
+        <dt>Two spines</dt><dd><strong>DESIGN.md</strong> — visual identity (how it looks). <strong>EXPERIENCE.md</strong> — IA + behavior + interactions (how it works). Both are independent; conflicts with mockups or wireframes → <strong>SPINES WIN</strong>.</dd>
+        <dt>Token references</dt><dd>EXPERIENCE.md references DESIGN.md tokens using <code>{"{"}path.to.token{"}"}</code> syntax — never repeats raw values.</dd>
+        <dt>Headless</dt><dd>Yes — runs without interactive UI. All subagent work writes artifacts; parent synthesizes.</dd>
+        <dt>Resumable</dt><dd>Yes — Discovery state and .decision-log.md persist across interruptions.</dd>
+      </dl>
+
+      <p>The skill walks a structured 8-step Discovery conversation, invokes 4 creative tools on demand, and distills outputs into two authoritative spine documents. The Validate intent critiques an existing spine pair against an 8-category rubric without modifying any files.</p>
+
+      <!-- Output Workspace -->
+      <h3 class="skill-heading" id="output-workspace">
+        <span class="code-name">output-workspace</span>
+        Output Workspace
+      </h3>
+      <p class="lede">All artifacts land under a date-stamped project folder. The spines live at the root; creative-tool drafts stay in <code>.working/</code> until promoted.</p>
+
+<pre class="code-block"><code>_bmad-output/planning-artifacts/ux-designs/ux-{project}-{date}/
+├── DESIGN.md              ← visual identity spine (how it looks)
+├── EXPERIENCE.md          ← IA + behavior + interactions spine (how it works)
+├── .decision-log.md       ← every decision recorded real-time
+├── .working/              ← creative-tool artifacts (audit trail)
+├── imports/               ← user-supplied visuals (Figma, sketches, brand decks)
+├── mockups/               ← HTML mocks promoted from .working/ at Finalize
+└── wireframes/            ← Excalidraw diagrams promoted from .working/ at Finalize</code></pre>
+
+      <!-- 3 Intents -->
+      <h3 class="skill-heading" id="intents">
+        <span class="code-name">intents</span>
+        3 Intents
+        <span class="code-tag">Select at menu</span>
+      </h3>
+
+      <div class="mode-grid">
+        <div class="mode-card">
+          <span class="mode-phase intent-create">Intent · Create</span>
+          <div class="mode-name">Create</div>
+          <div class="mode-trigger">Build both spines from scratch via conversation</div>
+          <div class="mode-requires">When to use</div>
+          <ul>
+            <li>No existing UX documentation</li>
+            <li>Full 8-step Discovery runs</li>
+            <li>Creative tools invoked on demand</li>
+            <li>Finalize writes DESIGN.md + EXPERIENCE.md</li>
+          </ul>
+          <div class="mode-outputs">
+            <strong>Output</strong>
+            DESIGN.md · EXPERIENCE.md · .decision-log.md · .working/ artifacts
+          </div>
+        </div>
+        <div class="mode-card">
+          <span class="mode-phase intent-update">Intent · Update</span>
+          <div class="mode-name">Update</div>
+          <div class="mode-trigger">Reconcile existing spines with a change signal</div>
+          <div class="mode-requires">Precondition</div>
+          <ul>
+            <li>Reads spines + log + sources BEFORE proposing</li>
+            <li>Maps change signal to specific spine sections</li>
+            <li>If change is fundamental → offers Create instead</li>
+            <li>All decisions appended to .decision-log.md</li>
+          </ul>
+          <div class="mode-outputs">
+            <strong>Output</strong>
+            Updated DESIGN.md and/or EXPERIENCE.md
+          </div>
+        </div>
+        <div class="mode-card">
+          <span class="mode-phase intent-validate">Intent · Validate</span>
+          <div class="mode-name">Validate</div>
+          <div class="mode-trigger">Critique the spine pair without modifying files</div>
+          <div class="mode-requires">What it checks</div>
+          <ul>
+            <li>8-category rubric (see Validate Rubric section)</li>
+            <li>No files are written or modified</li>
+            <li>Report surfaced as conversation output</li>
+            <li>Critical / High issues listed with remediation hint</li>
+          </ul>
+          <div class="mode-outputs">
+            <strong>Output</strong>
+            Validation report (conversation only — no file writes)
+          </div>
+        </div>
+      </div>
+
+      <!-- Spine Structures -->
+      <h3 class="skill-heading" id="spine-structures">
+        <span class="code-name">spine-structures</span>
+        Spine Structures — DESIGN.md vs EXPERIENCE.md
+      </h3>
+      <p class="lede">Two independent spines serve different audiences. DESIGN.md is anchored to the Google Labs design.md spec. EXPERIENCE.md is product-shaped and freely extensible.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th id="design-md">DESIGN.md — Visual Identity</th>
+            <th id="experience-md">EXPERIENCE.md — IA + Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Spec anchor</td>
+            <td>Google Labs design.md specification</td>
+            <td>BMad EXPERIENCE.md convention</td>
+          </tr>
+          <tr>
+            <td>Frontmatter</td>
+            <td>YAML with token fields: <code>colors</code> · <code>typography</code> · <code>rounded</code> · <code>spacing</code> · <code>components</code></td>
+            <td>Status, version, last-updated fields; no token YAML</td>
+          </tr>
+          <tr>
+            <td>Body sections (canonical order)</td>
+            <td>Brand &amp; Style · Colors · Typography · Layout &amp; Spacing · Elevation &amp; Depth · Shapes · Components · Do's and Don'ts</td>
+            <td>Foundation · Information Architecture · Voice and Tone · Component Patterns · State Patterns · Interaction Primitives · Accessibility Floor · Key Flows</td>
+          </tr>
+          <tr>
+            <td>Conditional sections</td>
+            <td>Sections are omittable; order is fixed when present</td>
+            <td>Inspiration &amp; Anti-patterns · Responsive &amp; Platform — added when triggered. Invented sections freely added for product-specific concerns.</td>
+          </tr>
+          <tr>
+            <td>Token rule</td>
+            <td>Color tokens MUST have hex (or light/dark pair) — missing hex is a critical issue</td>
+            <td>References DESIGN.md tokens as <code>{"{"}path.to.token{"}"}</code> — never raw hex values</td>
+          </tr>
+          <tr>
+            <td>Key Flows format</td>
+            <td>n/a</td>
+            <td>Named protagonist (e.g. "Pary on iPad") — NOT "the user". Numbered steps. Climax beat. Failure path.</td>
+          </tr>
+          <tr>
+            <td>Conflict rule</td>
+            <td colspan="2" style="text-align:center;font-style:italic;color:var(--ink);">When spines conflict with mockups or wireframes — <strong>SPINES WIN</strong>. Write this in DESIGN.md frontmatter once at Finalize.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="skill-heading" id="ui-inheritance">
+        <span class="code-name">ui-inheritance</span>
+        UI System Inheritance
+      </h3>
+      <p>If <code>Foundation</code> in EXPERIENCE.md specifies a UI system — shadcn, MUI, native UIKit, Jetpack Compose, or similar — both spines inherit from it automatically:</p>
+      <ul class="step-detail">
+        <li><strong class="label">DESIGN.md</strong>Only references and extends the system's defaults. Does not re-specify values the system already provides.</li>
+        <li><strong class="label">EXPERIENCE.md</strong>Only specifies behavioral delta from the system's defaults. Patterns the system handles natively are omitted.</li>
+        <li><strong class="label">Conflict handling</strong>If project overrides a system default, document the override explicitly in DESIGN.md with rationale.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY — Why use this Skill?
+         ══════════════════════════════════════════════ -->
+    <section id="why-two-spines">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why This Skill Is Structured This Way
+      </h2>
+
+      <h4 class="step-heading">Why two separate spines?</h4>
+      <p>Visual identity (DESIGN.md) and behavioral specification (EXPERIENCE.md) serve different audiences and change at different rates. A designer iterates color tokens and type scale independently of IA restructuring. Keeping them separate prevents conflation — no architectural change should force a brand token audit, and no rebrand should require re-specifying state patterns.</p>
+
+      <h4 class="step-heading" id="why-spines-win">Why spines win over mockups?</h4>
+      <p>Mockups are explorations — they're made to show possibilities, not to commit to them. Spines are decisions — they record what was deliberately chosen and why. When they conflict, the decision wins. This prevents a visual prototype from silently overriding a deliberate accessibility or density choice that the team agreed to.</p>
+
+      <h4 class="step-heading" id="why-protagonists">Why named protagonists in Key Flows?</h4>
+      <p>"The user" is a fiction. "Pary on iPad at 10pm, kids asleep" forces specific form-factor, voice, and density decisions. The protagonist's device, context, and emotional state constrain the design space in ways that generic user stories cannot. Mirror source-spec names verbatim — do not rename personas introduced in the PRD or user research.</p>
+
+      <h4 class="step-heading" id="why-elicit">Why elicit, not impose?</h4>
+      <p>Color choices affect brand identity for years. Font selections affect brand equity and sometimes licensing costs. Sally's job is to help the product owner make informed decisions — not to impose a style preference. If Sally autonomously chooses a palette, she removes the owner's agency and creates a spec the team never fully committed to. Every consequential choice is surfaced for owner confirmation.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW — Before Calling the Skill
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="how-steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/bmad-agent-ux-designer → CU</code>. UX Design runs before Architecture — UX decisions directly influence technical choices. For 8-step discovery and creative tool details, see the Applied Toolkit section below.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · General BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all BMAD skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">BMAD installed</td>
+              <td>Latest version required. Verify before starting: <code>npx bmad-method --version</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Claude Code running</td>
+              <td>Open a terminal and run <code>claude</code> first. All skill invocations happen inside an active Claude Code session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent-first invocation</td>
+              <td>Always <code>/bmad-agent-ux-designer → select CU</code>. The agent automatically finds and loads <code>prd.md</code>, <code>addendum.md</code>, <code>decision-log.md</code> on startup.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Full context upfront</td>
+              <td>The UX Spec is built on the PRD's FRs and personas. The PRD must be stable enough that core scope won't flip — UX decisions that need rework are expensive.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to bmad-ux. Have these gathered before starting the session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">bmad-ux · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Stable PRD</td>
+              <td>The UX Spec is built on the PRD's FRs and personas. Core scope must not be expected to flip — UX decisions that need rework are expensive.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Screenshots of every relevant screen</td>
+              <td>Brownfield projects: capture the current app's screens before the session. The agent uses these to understand the existing design language. More screens = fewer assumptions about existing patterns.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Existing design tokens / CSS variables</td>
+              <td>Copy these directly from the codebase before the session. The agent needs them to extend (not replace) the existing design system.</td>
+            </tr>
+            <tr>
+              <td class="key-col">List of existing UI components</td>
+              <td>What's already built: buttons, tables, modals, form inputs, dropdowns. Knowing what exists prevents the agent from designing components that would duplicate existing ones.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Target device and browser baseline</td>
+              <td>Mobile-only? Desktop-first? Both? Form-factor must resolve before IA closes — ambiguity here cascades into every downstream section.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Accessibility baseline</td>
+              <td>Is WCAG 2.1 AA a hard legal requirement or a best-practice goal? The Stakes Read in Discovery calibrates how hard Sally enforces accessibility decisions. For regulated environments, WCAG 2.1 AA is enforced automatically.</td>
+            </tr>
+            <tr>
+              <td class="key-col">User research or behavioral data</td>
+              <td>Usability test recordings, support ticket themes, analytics. The peak-end rule (Kahneman): deliberately design 1 peak moment + 1 strong end moment — user research tells you where those moments are.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Performance NFRs that affect UX</td>
+              <td>Pull the relevant NFRs from the PRD. Loading states, skeleton screens, and feedback patterns all depend on expected response times.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">skills</span>
+        3 · Skills That Help This Session
+      </h3>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Facilitator Mindset</span>
+          <span class="data-source">bmad-ux · session quality</span>
+        </div>
+        <table>
+          <thead><tr><th>Skill</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">User journey narration</td>
+              <td>Discovery Step 6 asks you to narrate a real session with a named protagonist. "Mary, mom of three, kids asleep at 10pm, opens app on iPhone while lying in bed" is a valid journey. "The user opens the app" is not — it drives no UX decisions.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Existing design fluency</td>
+              <td>Discovery Step 2 asks 3 questions about existing design language, target users, and key design challenges. Know what your current app looks like and why before the session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Accessibility awareness</td>
+              <td>70% of web traffic is mobile. Accessibility is a legal requirement in many jurisdictions (ADA US, EAA EU 2025, Equality Act UK). The cost of retrofitting accessibility is 10× the cost of building it in from the start.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Form-factor decisiveness</td>
+              <td>Mobile / web / desktop / multi-surface MUST resolve before IA closes. Know your primary surface before entering Discovery — don't leave form-factor as an open question for the agent to guess.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-step</span>
+        4 · Per-Step Preparation
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Discovery runs sequentially with gates between steps. Each step closes before the next opens. Prepare for the decision-heavy steps — automatic steps need no preparation.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Step-Level Readiness</span>
+          <span class="data-source">bmad-ux · 8-step discovery</span>
+        </div>
+        <table>
+          <thead><tr><th>Step</th><th>What to have ready</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Step 1 · Source Scan</td>
+              <td>Know which planning artifacts apply to this project. Be ready to confirm or reject the file paths the agent surfaces — also be ready to add sources outside the standard folder (Figma links, brand decks, prior briefs).</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 2 · Brain Dump</td>
+              <td>Prepare answers to 3 questions: (1) existing design language — colors, type scale, spacing system; (2) target users and how they currently interact with the app; (3) key design challenges you already know about.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 3 · Stakes Read</td>
+              <td>Decide in advance: hobby · internal tool · consumer product · regulated environment? Stakes calibrate accessibility enforcement, compliance notes, and how hard Sally pushes back on risky design decisions.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 4 · Working Mode</td>
+              <td>Fast Path (batch gaps → draft both spines → iterate) or Coaching Path (walk decisions area by area, creative tools woven in). Third option: Design Handoff — assemble Discovery inputs into a prompt for an external design tool (Figma, Vercel v0, etc.) and import the result.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 6 · Journeys</td>
+              <td>Prepare a named protagonist per persona — specific person, platform, context. "Pary on iPad, reviewing data before a 9am meeting" anchors form-factor and interaction density decisions. Mirror persona names from the PRD verbatim.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 7 · Form-factor Closure</td>
+              <td>Know your primary surface before reaching this step. If journeys don't resolve form-factor naturally, be ready to answer explicitly — ambiguity here cascades into navigation patterns, spacing, and breakpoints.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Finalize -->
+    <section id="finalize">
+      <h3 class="skill-heading">
+        <span class="code-name">finalize</span>
+        Finalize — 8 Steps
+        <span class="code-tag">after surface closure</span>
+      </h3>
+      <p class="lede">Finalize begins only after Step 8 Surface Closure passes. Eight steps run in sequence; subagents handle parallelisable work within each step. Gaps are surfaced to the parent — never invented.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Finalize Steps</span>
+          <span class="data-source">Create Intent — Post-Discovery</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th style="width:40px;">#</th><th>Step</th><th>What happens</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">1</td>
+              <td><strong>Spines Distilled</strong></td>
+              <td>Dedicated subagent reads <code>.decision-log.md</code> + all <code>.working/</code> artifacts + all <code>imports/</code> + confirmed sources → produces DESIGN.md (anchored by design_md_examples) + EXPERIENCE.md (anchored by experience_md_examples). Proactively runs rubric walker Pass 1 — 5 mechanical checks. Gaps surfaced to parent, not invented.</td>
+            </tr>
+            <tr>
+              <td class="key-col">2</td>
+              <td><strong>Inputs Reconciled</strong></td>
+              <td>One subagent per user-supplied source. Each checks spines for gaps vs their source — especially qualitative ideas that structured spine format silently drops: tone observations, emotional adjectives, cultural notes. Writes <code>reconcile-{slug}.md</code> per source.</td>
+            </tr>
+            <tr>
+              <td class="key-col">3</td>
+              <td><strong>Open Items Triaged</strong></td>
+              <td>Phase-blockers (undefined token that code will reference, unresolved form-factor, missing accessibility floor) → resolve one at a time. Non-blockers → logged to <code>.decision-log.md</code> with owner + revisit condition.</td>
+            </tr>
+            <tr>
+              <td class="key-col">4</td>
+              <td><strong>Key-Screen Mocks Rendered</strong></td>
+              <td>key-screens subagent fires. User names the load-bearing surfaces. Typically 2–4 screens. All token-applied, real content, device-framed HTML files produced.</td>
+            </tr>
+            <tr>
+              <td class="key-col">5</td>
+              <td><strong>Mock Coverage Confirmed</strong></td>
+              <td>Walk every IA surface from EXPERIENCE.md Information Architecture. Classify each: mocked vs spine-only. Surface the spine-only list for user to confirm coverage is acceptable.</td>
+            </tr>
+            <tr>
+              <td class="key-col">6</td>
+              <td><strong>Layout Extracted + Artifacts Promoted</strong></td>
+              <td>Distill subagent lifts visual decisions from <code>.working/</code> → DESIGN.md. Lifts behavioral decisions → EXPERIENCE.md. Inserts inline relative links. Promotion bar: "Would a future reader of the spine open this?" → if yes → promote to <code>mockups/</code> or <code>wireframes/</code>. Default = leave in <code>.working/</code>. Write "spines win on conflict with mockups" in DESIGN.md frontmatter once.</td>
+            </tr>
+            <tr>
+              <td class="key-col">7</td>
+              <td><strong>Polish + Handoff</strong></td>
+              <td>Apply doc_standards: bmad-editorial-review-structure → bmad-editorial-review-prose to DESIGN.md body + EXPERIENCE.md body. Execute external_handoffs. Set both files <code>status: final</code>. Log finalization. Share artifact paths. Suggest next: <code>bmad-create-architecture</code>, <code>bmad-create-epics-and-stories</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Validate Rubric -->
+    <section id="validate-rubric">
+      <h3 class="skill-heading">
+        <span class="code-name">validate-rubric</span>
+        Validate Intent — 8-Category Rubric
+      </h3>
+      <p class="lede">Used by both the Validate intent and the rubric walker in Finalize Step 1. No files are written when running as Validate intent — all findings are surfaced in conversation.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">8-Category Rubric</span>
+          <span class="data-source">Validate Intent · Rubric Walker</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th style="width:40px;">#</th><th>Category</th><th>What is checked</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">1</td>
+              <td><strong>Flow Coverage</strong></td>
+              <td>Each user journey / requirement has a Key Flow with: named protagonist, numbered steps, climax beat, failure path. No flow references "the user" generically.</td>
+            </tr>
+            <tr>
+              <td class="key-col">2</td>
+              <td><strong>Token Completeness</strong></td>
+              <td>All DESIGN.md tokens defined. Color tokens have hex (or light/dark pair) — no abstract color names without values. All <code>{"{"}path.to.token{"}"}</code> cross-references in EXPERIENCE.md resolve to a defined token.</td>
+            </tr>
+            <tr>
+              <td class="key-col">3</td>
+              <td><strong>Component Coverage</strong></td>
+              <td>Every component has: a row in DESIGN.md Components (visual specification) AND a corresponding entry in EXPERIENCE.md Component Patterns (behavioral specification). No half-covered components.</td>
+            </tr>
+            <tr>
+              <td class="key-col">4</td>
+              <td><strong>State Coverage</strong></td>
+              <td>Every IA surface covered for: empty state · cold load · focus state · error state · offline state · permission-denied state. Missing states flagged with severity.</td>
+            </tr>
+            <tr>
+              <td class="key-col">5</td>
+              <td><strong>Visual Reference Coverage</strong></td>
+              <td>Every file in <code>mockups/</code> + <code>wireframes/</code> + <code>imports/</code> has an inline link in at least one spine. Orphaned assets flagged — artifacts without spine references will not survive a handoff.</td>
+            </tr>
+            <tr>
+              <td class="key-col">6</td>
+              <td><strong>Bloat &amp; Overspecification</strong></td>
+              <td>Flags: pixel specs where tokens suffice · source material restatement without synthesis · prose where a table communicates more clearly · sections that repeat spine-level decisions without adding information.</td>
+            </tr>
+            <tr>
+              <td class="key-col">7</td>
+              <td><strong>Inheritance Discipline</strong></td>
+              <td>User journey names match verbatim from source PRD or research docs. Glossary terms are consistent across both spines. All token references resolve. UI system inheritance is honored — no re-specification of system defaults.</td>
+            </tr>
+            <tr>
+              <td class="key-col">8</td>
+              <td><strong>Shape Fit</strong></td>
+              <td>DESIGN.md follows canonical section order (Brand &amp; Style → Colors → … → Do's and Don'ts). EXPERIENCE.md contains all required default sections; any dropped defaults are defensibly absent with a logged reason.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">applied-toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Full Toolkit Reference</span>
+          <span class="data-source">bmad-ux v6.10.0</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Skill</td>
+              <td><code>bmad-ux</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent</td>
+              <td>Sally — UX Designer</td>
+            </tr>
+            <tr>
+              <td class="key-col">Output</td>
+              <td>DESIGN.md · EXPERIENCE.md · .decision-log.md · .working/ · mockups/ · wireframes/</td>
+            </tr>
+            <tr>
+              <td class="key-col">Spine spec</td>
+              <td>Google Labs design.md spec (DESIGN.md)</td>
+            </tr>
+            <tr>
+              <td class="key-col">Creative tools</td>
+              <td>color-themes · design-directions · excalidraw-wireframes · key-screens</td>
+            </tr>
+            <tr>
+              <td class="key-col">CRITICAL</td>
+              <td>Excalidraw <code>index</code> field = exactly 2 characters. 3 characters → silent "invalid file" error with no diagnostic.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Editorial</td>
+              <td>bmad-editorial-review-structure → bmad-editorial-review-prose (applied at Finalize Step 8)</td>
+            </tr>
+            <tr>
+              <td class="key-col">External design</td>
+              <td>Google Stitch · Vercel v0 · Figma · Galileo · Anima</td>
+            </tr>
+            <tr>
+              <td class="key-col">MCP / Skills</td>
+              <td>bmad-help · parallel subagent reviewers (rubric walker · accessibility · platform-specific)</td>
+            </tr>
+            <tr>
+              <td class="key-col">Headless</td>
+              <td>Yes — all subagent work writes artifacts; parent synthesizes. No interactive display required.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Resumable</td>
+              <td>Yes — Discovery state and .decision-log.md persist. Resume from last closed step.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Suggest next</td>
+              <td><code>bmad-create-architecture</code> · <code>bmad-create-epics-and-stories</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h5>Quick Reference — Spine Sections</h5>
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">DESIGN.md — Always Present (canonical order)</div>
+          <div class="card-name">Visual Identity</div>
+          <div class="card-body">
+            <ul>
+              <li>Brand &amp; Style</li>
+              <li>Colors (tokens with hex)</li>
+              <li>Typography</li>
+              <li>Layout &amp; Spacing</li>
+              <li>Elevation &amp; Depth</li>
+              <li>Shapes</li>
+              <li>Components</li>
+              <li>Do's and Don'ts</li>
+            </ul>
+          </div>
+          <div class="card-footer">Omittable sections; order fixed when present</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">EXPERIENCE.md — Required Defaults</div>
+          <div class="card-name">IA + Behavior</div>
+          <div class="card-body">
+            <ul>
+              <li>Foundation</li>
+              <li>Information Architecture</li>
+              <li>Voice and Tone</li>
+              <li>Component Patterns</li>
+              <li>State Patterns</li>
+              <li>Interaction Primitives</li>
+              <li>Accessibility Floor</li>
+              <li>Key Flows</li>
+            </ul>
+          </div>
+          <div class="card-footer">Dropped defaults must be logged with reason</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">EXPERIENCE.md — When Triggered</div>
+          <div class="card-name">Conditional Sections</div>
+          <div class="card-body">
+            <ul>
+              <li>Inspiration &amp; Anti-patterns</li>
+              <li>Responsive &amp; Platform</li>
+              <li>+ Invented sections for product-specific concerns</li>
+            </ul>
+          </div>
+          <div class="card-footer">Add freely; no structural limit</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Key Flows — Format</div>
+          <div class="card-name">Named Protagonist</div>
+          <div class="card-body">
+            <ul>
+              <li>Protagonist + device + context</li>
+              <li>Numbered steps from entry to goal</li>
+              <li>Climax beat (moment of value)</li>
+              <li>Failure path (what breaks)</li>
+              <li>Mirror source-spec names verbatim</li>
+            </ul>
+          </div>
+          <div class="card-footer">"Pary on iPad" not "the user"</div>
+        </div>
+      </div>
+    
+      <section id="technique-descriptions">
+        <h5>Technique Descriptions</h5>
+
+        <h5>Color Themes Tool</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Element</th><th>Detail</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Output</td>
+                <td>Subagent produces <code>.working/color-themes-{n}.html</code> — 4–6 variations rendered side-by-side with a header (name + emotional register), semantic token chips for all roles, and a realistic UI snippet using real product content (no lorem ipsum).</td>
+              </tr>
+              <tr>
+                <td class="key-col">Critical rule</td>
+                <td>Variations MUST differ in emotional register — not just hue swaps. A calm navy palette is distinct from a confident coral palette. Light + dark modes shown side-by-side when both are in scope.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Technical constraint</td>
+                <td>Inline CSS only. Concrete hex values in <code>&lt;style&gt;</code> comments. No external network calls — the file must be self-contained.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Design Directions Tool</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Element</th><th>Detail</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Output</td>
+                <td>Subagent produces 3–6 <code>.working/direction-{slug}.html</code> files — each a complete visual personality applied to the same hero screen. 2–3 sentence rationale + near-1:1 hero screen in a device frame + at least one state variant (error, empty, or loading).</td>
+              </tr>
+              <tr>
+                <td class="key-col">Directions differ on</td>
+                <td>Density · Type weight · Motion implication · Brand register — not palette swaps. Each direction is a distinct personality, not a color rotation of the same layout.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Content rule</td>
+                <td>Real product content in every mockup. No "Lorem ipsum." No placeholder copy. No generic form labels. The content must reflect the actual product being designed.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Excalidraw Wireframes Tool</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Type</th><th>Detail</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">IA diagram</td>
+                <td>Boxes-and-arrows showing: auth stack, main surfaces, modal routes, settings hierarchy. Maps navigation structure, not visual design.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Flow wireframe</td>
+                <td>Screen-by-screen rectangles left-to-right at low fidelity; arrows labeled by user action causing the transition; annotations mark the climax beat and edge-case paths.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Critical index rule</td>
+                <td>Every element <code>index</code> field MUST be exactly 2 characters (e.g., <code>a0</code>, <code>aZ</code>, <code>b3</code>). Three characters causes a silent "Error: invalid file" with no diagnostic output. The file fails to open with no error message — verify every element before writing.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>Peak-End Rule — UX Design Principle (Kahneman)</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Principle</th><th>Application</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Core rule</td>
+                <td>Users remember two moments: the peak emotion (most intense positive or negative) and the end emotion (how the session felt when it closed). The average experience fades — the moments are what remain.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Design implication</td>
+                <td>Deliberately design 1 peak moment (the climax beat — where the product delivers its core value) and 1 strong end moment (clear success state, celebration, or confident next step). Map these explicitly in user journey narration.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Discovery Step 6</td>
+                <td>The protagonist journey narrative identifies the climax beat and failure path. The climax beat becomes the peak design target. The failure path becomes the error state design target.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section></section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

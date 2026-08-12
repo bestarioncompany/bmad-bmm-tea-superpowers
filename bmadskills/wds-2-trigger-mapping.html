@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trigger Mapping</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #6741d9;
+    --accent-soft:#7950e8;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 18px 22px; margin: 16px 0 24px; overflow-x: auto; border: 1px solid var(--rule); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>WDS · Phase 2 · Trigger Mapping</span>
+        <span>Skill · wds-2-trigger-mapping</span>
+        <span>Agent · Saga (WDS Analyst)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Trigger Mapping <em>· why users actually act</em></h1>
+    <p class="subtitle">Connect business goals to user psychology. The Trigger Map answers <em>why</em> users take actions — deeper than user stories. It maps the emotional and rational driving forces behind behavior, then surfaces which features have the most impact. Built on Effect Mapping, enhanced with negative driving forces.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>wds-2-trigger-mapping</dd></div>
+      <div><dt>Menu code</dt><dd>TM</dd></div>
+      <div><dt>Agent</dt><dd>Saga (WDS Analyst)</dd></div>
+      <div><dt>Phase</dt><dd>WDS Phase 2</dd></div>
+      <div><dt>Output</dt><dd>B-Trigger-Map/trigger-map.md</dd></div>
+      <div><dt>Basis</dt><dd>Effect Mapping (+ negative forces)</dd></div>
+      <div><dt>Input</dt><dd>A-Product-Brief/project-brief.md (required)</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#entry-paths">Two Entry Paths</a>
+      <a href="#path-scratch" class="toc-sub">From Scratch</a>
+      <a href="#path-existing" class="toc-sub">From Existing Docs</a>
+      <a href="#flow">Step Workflow</a>
+      <a href="#map-contains">What the Map Contains</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-psychology">Why Map Psychology?</a>
+      <a href="#why-negative">Why Negative Forces?</a>
+      <a href="#why-matrix">Why the Impact Matrix?</a>
+      <a href="#why-mermaid">Why Mermaid Diagrams?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#steps">Before Calling the Skill</a>
+      <a href="#steps" class="toc-sub">1 · WDS / BMAD Setup</a>
+      <a href="#steps" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#steps" class="toc-sub">3 · Entry-Path Selection</a>
+      <a href="#steps" class="toc-sub">4 · Per-Step Preparation</a>
+      <a href="#step-group-00" class="toc-sub">Steps 00 · Existing-Doc Extraction</a>
+      <a href="#step-group-01" class="toc-sub">Step 01 · Overview &amp; Mode</a>
+      <a href="#step-group-02-05" class="toc-sub">Steps 02–05 · Workshops</a>
+      <a href="#step-group-06" class="toc-sub">Steps 06 · Feature Impact</a>
+      <a href="#step-group-07" class="toc-sub">Steps 07 · Hub &amp; Personas</a>
+      <a href="#step-group-08" class="toc-sub">Steps 08 · Mermaid Diagrams</a>
+      <a href="#step-group-09" class="toc-sub">Steps 09 · Finalize</a>
+      <a href="#applied-toolkit">Applied Toolkit</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Trigger Mapping — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>wds-2-trigger-mapping</code></dd>
+        <dt>Menu code</dt><dd><span class="menu-codes"><code>TM</code></span> (invoked via <code>/wds-agent-saga-analyst</code> → TM, or <code>/wds-2-trigger-mapping</code>)</dd>
+        <dt>Role</dt><dd>Strategic discovery facilitator — connects business goals to user psychology and produces the Trigger Map that drives design prioritization.</dd>
+        <dt>Basis</dt><dd>Built on <strong>Effect Mapping</strong> by Mijo Balic &amp; Ingrid Domingues, enhanced with negative driving forces alongside positive ones.</dd>
+        <dt>Continuity</dt><dd>Reads <code>A-Product-Brief/project-brief.md</code> for context; writes the Trigger Map that Freya reads in Phases 3 and 4.</dd>
+      </dl>
+
+      <p>This skill connects business goals to user psychology. The <strong>Trigger Map answers why users actually take actions</strong> — it goes deeper than user stories, mapping the emotional and rational driving forces behind behavior, then surfacing which features will have the most impact. It is the bridge between the strategic foundation set in the Project Brief and the scenario and UX work that follows: a thin map produces design built on guesses about motivation; a rich map gives every later phase a grounded reason for each decision.</p>
+
+      <p>Use it after the Project Brief is complete, before any scenario or UX work, on every WDS project. It turns the brief's business goals and target groups into a psychology-aware reference that downstream agents consume directly.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Two Entry Paths -->
+    <section id="entry-paths">
+      <h3 class="skill-heading">
+        <span class="code-name">paths</span>
+        Two Entry Paths
+      </h3>
+      <p class="lede">Same skill, two ways in — the path adapts to whether usable research already exists.</p>
+
+      <div class="module-grid">
+        <div class="module-card" id="path-scratch">
+          <div class="card-code">Path 01</div>
+          <div class="card-name">From Scratch</div>
+          <div class="card-body">
+            <ul>
+              <li>For when no existing research is available</li>
+              <li>Walks <code>step-01</code> → <code>step-09</code></li>
+              <li>Workshops business goals, groups, forces, priority</li>
+              <li>Richest discovery; most conversation turns</li>
+              <li>Best for new greenfield projects</li>
+            </ul>
+          </div>
+          <div class="card-footer">No research · workshop in full</div>
+        </div>
+        <div class="module-card" id="path-existing">
+          <div class="card-code">Path 02</div>
+          <div class="card-name">From Existing Docs</div>
+          <div class="card-body">
+            <ul>
+              <li>For when PRFAQ, PRD, or prior research exists</li>
+              <li>Starts at <code>step-00a</code> synthesis → <code>step-09</code></li>
+              <li>Extracts goals, groups, forces from artifacts</li>
+              <li>Gap analysis surfaces what's still missing</li>
+              <li>Fewer turns, dramatically less time</li>
+            </ul>
+          </div>
+          <div class="card-footer">When research already exists</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Step Workflow -->
+    <section id="flow">
+      <h3 class="skill-heading">
+        <span class="code-name">flow</span>
+        Step-by-Step Workflow
+        <span class="code-tag">step-00a → 09</span>
+      </h3>
+      <p>The From Existing Docs path opens with the <code>step-00</code> extraction group, synthesizing prior artifacts before the shared workshop and generation steps. The From Scratch path skips straight to <code>step-01</code> and workshops the same material live. Both paths converge on the same hub document, diagrams, and finalize steps.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Step Groups</span>
+          <span class="data-source">wds-2-trigger-mapping · step-00a → 09</span>
+        </div>
+        <table>
+          <thead><tr><th>Step</th><th>Name</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">step-00a</td><td>Documentation Synthesis</td><td>Extract all relevant content from existing artifacts</td></tr>
+            <tr><td class="key-col">step-00b</td><td>Business Goals Extract</td><td>Pull business goals from the project brief</td></tr>
+            <tr><td class="key-col">step-00c</td><td>Target Groups Extract</td><td>Pull target user groups</td></tr>
+            <tr><td class="key-col">step-00d</td><td>Driving Forces Extract</td><td>Map positive and negative forces per group</td></tr>
+            <tr><td class="key-col">step-00e</td><td>Prioritization Extract</td><td>Surface which goals/groups are highest priority</td></tr>
+            <tr><td class="key-col">step-00f</td><td>Gap Analysis</td><td>Identify what's missing vs. what Phase 3 needs</td></tr>
+            <tr><td class="key-col">step-01</td><td>Overview</td><td>Present scope and confirm approach with user</td></tr>
+            <tr><td class="key-col">step-02–05</td><td>Workshops</td><td>Collect business goals, target groups, driving forces, prioritization</td></tr>
+            <tr><td class="key-col">step-06a–06e</td><td>Feature Impact Assessment</td><td>Extract features, assess their impact on driving forces</td></tr>
+            <tr><td class="key-col">step-07a–07g</td><td>Generate Hub Document</td><td>Build trigger map with personas and key insights</td></tr>
+            <tr><td class="key-col">step-08a–08h</td><td>Mermaid Diagrams</td><td>Generate 5 diagram types (goals, platform, groups, forces, connections) with styling</td></tr>
+            <tr><td class="key-col">step-09a–09f</td><td>Finalize</td><td>Cross-references, quality check, handover package</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- What the Map Contains -->
+    <section id="map-contains">
+      <h3 class="skill-heading">
+        <span class="code-name">output</span>
+        What the Trigger Map Contains
+        <span class="code-tag">hub doc</span>
+      </h3>
+      <p>The hub document is written to <code>B-Trigger-Map/trigger-map.md</code>, with individual persona files in <code>B-Trigger-Map/personas/</code> and the feature impact matrix in <code>B-Trigger-Map/feature-impact-analysis.md</code>. Mermaid diagrams are embedded directly in the hub document.</p>
+
+      <ul class="step-detail">
+        <li><strong class="label">Business Goals</strong>The prioritized business goals carried forward and ranked.</li>
+        <li><strong class="label">Target Groups</strong>Target user groups, each developed into a named persona.</li>
+        <li><strong class="label">Positive Forces</strong>Positive driving forces per group — aspirations, motivations, gains.</li>
+        <li><strong class="label">Negative Forces</strong>Negative driving forces per group — fears, blockers, frustrations.</li>
+        <li><strong class="label">Impact Matrix</strong>The feature-to-driving-force impact matrix linking features to motivation.</li>
+        <li><strong class="label">Key Insights</strong>Key insights for design direction, distilled from the mapping.</li>
+        <li><strong class="label">Diagrams</strong>Mermaid relationship diagrams — visual and machine-readable.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-psychology">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Trigger Mapping? — <em>The reasoning behind each design choice</em>
+      </h2>
+
+      <h3 class="skill-heading">
+        <span class="code-name">why-psychology</span>
+        Why Map Psychology, Not Just Stories?
+      </h3>
+      <p>User stories describe <em>what</em> a user does; they rarely capture <em>why</em>. WDS treats the why as the load-bearing input to design, because a feature aimed at the wrong motivation can be perfectly built and still fail to move behavior. The Trigger Map — grounded in <strong>Effect Mapping</strong> by Mijo Balic &amp; Ingrid Domingues — works backward from business goals through the target groups to the emotional and rational driving forces that actually trigger action. Mapping psychology, not just tasks, is what lets later phases choose features that change behavior rather than features that merely exist.</p>
+
+      <h3 class="skill-heading" id="why-negative">
+        <span class="code-name">why-negative-forces</span>
+        Why Include Negative Driving Forces?
+      </h3>
+      <p>Classic Effect Mapping captures positive driving forces — the aspirations, motivations, and gains that pull a user toward action. WDS enhances the method by mapping <strong>negative driving forces</strong> as well: the fears, blockers, and frustrations that hold a user back. Behavior is the net of both. A product that only amplifies aspirations while ignoring what users are afraid of, or what frustrates them, designs for an idealized user who does not exist. Surfacing the negatives gives design something concrete to remove or reassure, which is often higher-leverage than adding another aspirational feature.</p>
+
+      <h3 class="skill-heading" id="why-matrix">
+        <span class="code-name">why-impact-matrix</span>
+        Why the Feature Impact Matrix Matters
+      </h3>
+      <p>The <strong>Feature Impact Matrix</strong> is critical for Phases 3 and 4. It links each candidate feature to the driving forces it affects, so impact is visible rather than assumed. Freya reads it directly to prioritize which scenarios and pages to design first — high-impact features earn early, detailed attention; low-impact ones are deferred or dropped. Without the matrix, prioritization defaults to opinion; with it, the design sequence is anchored to mapped user motivation.</p>
+
+      <h3 class="skill-heading" id="why-mermaid">
+        <span class="code-name">why-mermaid</span>
+        Why Mermaid Diagrams Serve Double Duty
+      </h3>
+      <p>The map embeds five Mermaid diagram types (goals, platform, groups, forces, connections). They serve double duty: as <strong>visual communication</strong> they let stakeholders see the relationships between goals, groups, and forces at a glance; as <strong>machine-readable reference</strong> the same diagrams are parsed by other agents downstream without re-deriving the structure from prose. One artifact satisfies both the human review loop and the agent pipeline. Note that the alliterative persona names — <em>"Harriet the Hairdresser"</em> — are by design: alliteration makes archetypes memorable across long projects and many sessions.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/wds-agent-saga-analyst → TM</code>. The Trigger Map is only as strong as the brief beneath it — a rich Project Brief makes the extraction path fast and the workshop path focused.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · WDS / BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all WDS skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all WDS skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">BMAD + WDS installed</td><td>WDS requires BMM v6.8+ with WDS skills installed in a compatible AI coding environment (Claude Code, Cursor, Codex, etc.). Install via <code>npx bmad-method install</code> → select WDS, or ask Claude to install <code>whiteport-design-studio</code> from GitHub.</td></tr>
+            <tr><td class="key-col">Agent-first invocation</td><td>Activate Saga with <code>/wds-agent-saga-analyst</code>, then select <code>TM</code>. Routing through the agent loads Saga's micro-guides — including <code>trigger-mapping.md</code> — and quality standards.</td></tr>
+            <tr><td class="key-col">Project Brief complete</td><td>Phase 1 must be done. The Trigger Map reads <code>A-Product-Brief/project-brief.md</code> for business goals and target groups; without it there is nothing to map.</td></tr>
+            <tr><td class="key-col">Reference materials</td><td>Gather any PRFAQ, PRD, or prior research before starting — they unlock the From Existing Docs path and feed the synthesis steps.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to wds-2-trigger-mapping. Having these clear before starting keeps the session moving.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">wds-2-trigger-mapping · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Project brief</td><td><strong>Required.</strong> <code>A-Product-Brief/project-brief.md</code> — the source of business goals and target groups that seed the whole map.</td></tr>
+            <tr><td class="key-col">Existing discovery docs</td><td><em>Optional.</em> PRFAQ, PRD, research notes — hand these to Saga to take the From Existing Docs synthesis path.</td></tr>
+            <tr><td class="key-col">Goal priorities</td><td>Any sense of which business goals matter most — feeds the prioritization workshop and extract.</td></tr>
+            <tr><td class="key-col">User knowledge</td><td>What you know about users' fears, frustrations, and aspirations — the raw material for positive and negative driving forces.</td></tr>
+            <tr><td class="key-col">Candidate features</td><td>Features under consideration — these are assessed against driving forces in the impact matrix.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">path-pick</span>
+        3 · Entry-Path Selection
+      </h3>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Which Path?</span>
+          <span class="data-source">wds-2-trigger-mapping · session quality</span>
+        </div>
+        <table>
+          <thead><tr><th>Situation</th><th>Pick</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">No prior research</td><td><strong>From Scratch</strong> — workshop goals, groups, forces, and priority live across <code>step-01</code> → <code>step-09</code>.</td></tr>
+            <tr><td class="key-col">Have PRFAQ / PRD / research</td><td><strong>From Existing Docs</strong> — Saga synthesizes from <code>step-00a</code>, then gap-analyzes what's still missing.</td></tr>
+            <tr><td class="key-col">Rich brief, little else</td><td><strong>From Existing Docs</strong> — even the brief alone gives the extraction steps a strong starting point.</td></tr>
+            <tr><td class="key-col">Fuzzy users / motivation</td><td><strong>From Scratch</strong> — the live workshop is where unclear driving forces get talked through.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-step</span>
+        4 · Per-Step Preparation
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">A few steps reward preparation more than others. Invest your time here.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">High-Leverage Steps</span>
+          <span class="data-source">wds-2-trigger-mapping</span>
+        </div>
+        <table>
+          <thead><tr><th>Step</th><th>What to have ready</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Driving Forces (02–05 / 00d)</td><td>Both sides of motivation — aspirations and gains <em>and</em> fears, blockers, frustrations. This is Saga's strongest output and Freya reads it to make design decisions.</td></tr>
+            <tr><td class="key-col">Feature Impact (06a–06e)</td><td>Your candidate feature list, so each can be assessed against the mapped driving forces — this matrix drives Phase 3/4 prioritization.</td></tr>
+            <tr><td class="key-col">Prioritization (00e / 05)</td><td>A view on which goals and groups matter most, so the map is ranked rather than flat.</td></tr>
+            <tr><td class="key-col">Mermaid Diagrams (08a–08h)</td><td><em>Optional.</em> The five diagram types are skippable if your token budget is tight — the textual map remains complete without them.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <hr class="section-divider">
+
+      <!-- ══════════════════════════════════════════
+           STEP-BY-STEP WALKTHROUGH
+           ══════════════════════════════════════════ -->
+      <h2 class="agent-heading">
+        <span class="marker how">§ STEPS</span>
+        Step-by-Step Walkthrough — <em>What happens inside each step</em>
+      </h2>
+
+      <!-- STEP GROUP 00 -->
+      <h3 class="skill-heading" id="step-group-00">
+        <span class="code-name">step-00</span>
+        From Existing Docs — Extraction Steps
+        <span class="code-tag">path 02 only</span>
+      </h3>
+      <p>These six steps run only when existing documentation is provided. They synthesize artifacts into structured trigger map data before both paths converge on the shared workshop and generation steps. Saga frames all questions as validation ("your material suggests X — is this correct?") rather than cold extraction.</p>
+
+      <h4 class="step-heading">Step 00a · Documentation Synthesis</h4>
+      <p>Saga receives and reads all provided artifacts (PRFAQ, PRD, research notes, brief), building a mental map of what is covered versus what is absent. The step produces a clear summary of documentation strengths and gaps before any extraction begins. Nothing is generated from this step — it is purely analytical.</p>
+
+      <h4 class="step-heading">Step 00b · Business Goals Extract</h4>
+      <p>Extracts and validates the vision statement and SMART strategic objectives from the provided documentation. If a vision is vague or implied, Saga infers it and asks for confirmation; if it is missing, goals are built through collaborative dialogue. Vague metrics are transformed into SMART format before the step closes.</p>
+
+      <h4 class="step-heading">Step 00c · Target Groups Extract</h4>
+      <p>Extracts target user groups and deepens them into behavioral personas. Demographic-only descriptions are insufficient — Saga probes for context, goals, frustrations, and current behavior to build psychological depth. The step narrows groups to a maximum of three or four and asks for confirmation before proceeding.</p>
+
+      <h4 class="step-heading">Step 00d · Driving Forces Extract</h4>
+      <p>Maps both positive and negative driving forces for each confirmed persona. Documentation typically emphasizes positive wants — this step actively probes for negative drivers (fears, blockers, frustrations) because they are often more powerful due to loss aversion. Both sides must be confirmed for every persona before the step completes.</p>
+
+      <h4 class="step-heading">Step 00e · Prioritization Extract</h4>
+      <p>Surfaces priority signals from the documentation (resource allocation, research depth, frequency of mention) and uses them to rank target groups and driving forces with an impact-times-feasibility assessment. Every ranking must have documented rationale. The step concludes with a design focus statement synthesizing the top group and top drivers.</p>
+
+      <h4 class="step-heading">Step 00f · Gap Analysis</h4>
+      <p>Compares the synthesized trigger map data against what downstream phases need and identifies what was strong, weak, or missing in the original documentation. Strategic alignment is validated — vision versus plan versus groups versus forces. Critical gaps are addressed through focused mini-workshops or flagged for future research before proceeding to the shared overview step.</p>
+
+      <!-- STEP GROUP 01 -->
+      <h3 class="skill-heading" id="step-group-01">
+        <span class="code-name">step-01</span>
+        Overview &amp; Mode Selection
+        <span class="code-tag">both paths</span>
+      </h3>
+      <p>Both paths converge here. Saga presents the Phase 2 scope and offers three engagement modes before proceeding to workshops.</p>
+
+      <h4 class="step-heading">Step 01 · Overview</h4>
+      <p>Saga presents the Phase 2 scope and offers three engagement modes: <strong>Workshop</strong> (facilitated, 45–60 min), <strong>Suggest</strong> (AI-generated with per-step review, 20–35 min), or <strong>Dream</strong> (fully autonomous with final review, 15–25 min). Suggest and Dream modes initialize a layered research approach — reading WDS form guides, extracting project context, running domain web searches, generating, and self-reviewing each step before presenting. The mode must be explicitly chosen before the step closes.</p>
+
+      <!-- STEP GROUP 02-05 -->
+      <h3 class="skill-heading" id="step-group-02-05">
+        <span class="code-name">step-02–05</span>
+        Workshops 1–4
+        <span class="code-tag">both paths · workshop content</span>
+      </h3>
+      <p>Four workshops build the core trigger map data. The From Existing Docs path enters these with pre-validated data already in place; the From Scratch path builds everything live.</p>
+
+      <h4 class="step-heading">Step 02 · Business Goals Workshop</h4>
+      <p>Workshop 1 captures the vision statement and transforms it into three to five SMART objectives. Saga starts with aspirational questions ("think big — if everything goes perfectly, what position do you want to hold?") then systematically sharpens each metric for specificity, measurability, achievability, relevance, and time-bound targets. Vague goals are not accepted without being made measurable.</p>
+
+      <h4 class="step-heading">Step 03 · Target Groups Workshop</h4>
+      <p>Workshop 2 identifies the user groups whose behavior will drive the business objectives, then narrows to two to four focus groups with clear rationale. Each group is developed into a narrative persona — not a bullet list — with a name, a day-in-their-life description, goals, frustrations, and current workarounds. Personas must feel like real people before the workshop closes.</p>
+
+      <h4 class="step-heading">Step 04 · Driving Forces Workshop</h4>
+      <p>Workshop 3 maps three to five positive drivers and three to five negative drivers for every persona. Saga explains the loss aversion principle — that negative drivers often have more design leverage than positive ones — and systematically explores both "toward" motivation (aspirations, desired outcomes, status goals) and "away-from" motivation (fears, frustrations, risks to avoid) for each persona. Cross-group patterns are identified after all personas are mapped.</p>
+
+      <h4 class="step-heading">Step 05 · Prioritization Workshop</h4>
+      <p>Workshop 4 forces ranked decisions on business goals, objectives, target groups, and driving forces — and challenges every choice with "why is X more important than Y?" to prevent gut-feel prioritization. The workshop closes with a MoSCoW-style design focus statement: primary group, must-address drivers, should-address drivers, and could-address drivers if time permits.</p>
+
+      <!-- STEP GROUP 06 -->
+      <h3 class="skill-heading" id="step-group-06">
+        <span class="code-name">step-06</span>
+        Feature Impact Assessment
+        <span class="code-tag">optional but recommended</span>
+      </h3>
+      <p>Five steps produce the Feature Impact Analysis document. This group is optional but strongly recommended — it is the artifact Freya reads to decide which scenarios and pages to design first.</p>
+
+      <h4 class="step-heading">Step 06a · Extract Features</h4>
+      <p>Saga reads the project brief silently and extracts all strategically relevant features, skipping basic authentication, standard profiles, and routine CRUD unless they are uniquely strategic for this project. The list is presented as a numbered table for easy review, and the user can add, rename, combine, or remove features before confirmation.</p>
+
+      <h4 class="step-heading">Step 06b · Confirm Assessment Approach</h4>
+      <p>Before running the assessment, Saga explains the scoring methodology: High/Medium/Low impact per persona, with the primary persona weighted more heavily (High = 5 pts, Medium = 3 pts, Low = 1 pt; other personas High = 3 pts, Medium = 1 pt, Low = 0 pts). The user must explicitly confirm readiness before the assessment begins.</p>
+
+      <h4 class="step-heading">Step 06c · Make Assessment</h4>
+      <p>Saga assesses every feature against every persona's positive and negative driving forces, scoring and ranking the complete list. High-impact features — those directly addressing a major want or directly mitigating a major fear — are highlighted with strategic rationale. The user reviews the ranked table and may adjust any score before the assessment is confirmed.</p>
+
+      <h4 class="step-heading">Step 06d · Generate Feature Impact Document</h4>
+      <p>Generates the complete <code>B-Trigger-Map/feature-impact-analysis.md</code> document, including a ranked features table, per-feature rationale, Must Have / Consider / Defer prioritization tiers, strategic implications, and questions for the designer. A summary is presented for final confirmation before the file is saved.</p>
+
+      <h4 class="step-heading">Step 06e · Feature Workshop Wrap-Up</h4>
+      <p>Presents a complete summary of all deliverables produced during the feature impact work and explains how the Feature Impact Analysis guides Phase 4 UX Design — which scenarios to design first, where to invest detailed attention, and which personas matter most for each feature. Confirms readiness to proceed to document generation.</p>
+
+      <!-- STEP GROUP 07 -->
+      <h3 class="skill-heading" id="step-group-07">
+        <span class="code-name">step-07</span>
+        Hub Document &amp; Persona Files
+        <span class="code-tag">document generation</span>
+      </h3>
+      <p>Seven steps generate the complete trigger map document set. Each document follows a strict template and must be saved before the next step begins.</p>
+
+      <h4 class="step-heading">Step 07a · Generate Hub Document</h4>
+      <p>Creates <code>00-trigger-map.md</code> — the main entry point — with the Mermaid diagram, on-page summaries for each section (visible without clicking through), navigation links to all sub-documents, the key transformation statement, the flywheel, and a "How to Read" section explaining the diagram's left-to-right flow. All data is extracted character-for-character from workshop outputs; no paraphrasing is permitted. Target length: approximately 220–250 lines.</p>
+
+      <h4 class="step-heading">Step 07b · Generate Business Goals Document</h4>
+      <p>Creates <code>01-Business-Goals.md</code> with the vision statement, three priority tiers of SMART objectives, the flywheel explanation showing how goals connect causally, and success metrics alignment linking each persona to each objective. Language must be empowering and organic ("create awesome users") — conversion-oriented language is explicitly forbidden. Target length: approximately 150–160 lines.</p>
+
+      <h4 class="step-heading">Step 07c · Generate Primary Persona</h4>
+      <p>Creates the primary persona document (<code>02-[Name]-the-[Role].md</code>) with all thirteen required template sections, including a full before/after emotional transformation journey and a champion creation story. Every one of the six driving forces (three wants, three fears) must include a Product Promise showing specifically how the product addresses that force. Target length: approximately 250–375 lines.</p>
+
+      <h4 class="step-heading">Step 07d · Generate Secondary Persona</h4>
+      <p>Creates the secondary persona document (<code>03-[Name]-the-[Role].md</code>) with the same thirteen-section structure, but with a validation strategy focus — what this persona needs to see to trust the product, and the evaluation journey from discovery through adoption to advocacy. Every driving force includes a Product Answer rather than a Product Promise. Routes to the tertiary step if a third persona exists.</p>
+
+      <h4 class="step-heading">Step 07e · Generate Tertiary Persona</h4>
+      <p>Creates the optional tertiary persona document (<code>04-[Name]-the-[Role].md</code>) with an organic value discovery focus — this persona finds and appreciates the product naturally, without being "targeted." The section unique to this persona shows the recognition path from experience through appreciation to word-of-mouth advocacy. Step is skipped if only two personas were defined.</p>
+
+      <h4 class="step-heading">Step 07f · Generate Key Insights</h4>
+      <p>Creates <code>05-Key-Insights.md</code> synthesizing all trigger map data into nine sections of actionable design direction: the flywheel, primary development focus areas, critical success factors, design implications per page or experience section, emotional transformation goals written in first person, the design focus statement, and development phase recommendations. All insights must derive from actual workshop data — generic advice is rejected.</p>
+
+      <h4 class="step-heading">Step 07g · Quality Check</h4>
+      <p>Runs a thirteen-dimension quality verification across all generated documents — file structure, Mermaid diagram rendering, content consistency, language quality, cross-references, persona completeness, hub length, business goals length, key insights length, feature impact scoring, priority tier consistency, driving force Product Promises, and markdown formatting. Any issues found are corrected and re-verified before proceeding to Mermaid diagram generation.</p>
+
+      <!-- STEP GROUP 08 -->
+      <h3 class="skill-heading" id="step-group-08">
+        <span class="code-name">step-08</span>
+        Mermaid Diagram Generation
+        <span class="code-tag">optional · visual layer</span>
+      </h3>
+      <p>Eight steps assemble the Mermaid relationship diagram embedded in the hub document. This group is skippable if the token budget is tight — the textual map is complete without it.</p>
+
+      <h4 class="step-heading">Step 08a · Initialize Diagram Structure</h4>
+      <p>Sets up the Mermaid configuration with the base theme, Inter font at 14px, left-to-right flowchart direction, and section comments. Determines all node IDs from actual data: business goals as BG0/BG1/BG2, the central platform as PLATFORM, target groups as TG0/TG1/TG2, and driving forces as DF0/DF1/DF2.</p>
+
+      <h4 class="step-heading">Step 08b · Format Business Goals Nodes</h4>
+      <p>Creates each business goal node with top padding, an emoji plus ALL CAPS title, three to five key points, and bottom padding. No HTML formatting tags are permitted inside nodes. Priority is indicated by vertical order (BG0 appears topmost) rather than special formatting — all business goal nodes share consistent light gray styling.</p>
+
+      <h4 class="step-heading">Step 08c · Format Platform Node</h4>
+      <p>Creates the central PLATFORM node with the product name in ALL CAPS, a category or tagline, and a multi-line transformation statement describing the before/after emotional change. The statement must span three to five lines for readability. The platform node uses a slightly darker gray fill and a thicker 3px border to distinguish it visually from all other nodes.</p>
+
+      <h4 class="step-heading">Step 08d · Format Target Group Nodes</h4>
+      <p>Creates persona nodes with emoji, ALL CAPS name, priority level (PRIMARY TARGET / SECONDARY TARGET / TERTIARY TARGET), and three to four concise profile traits. The emoji chosen for each TG node is recorded — it must be used identically in the corresponding DF node for visual matching across the diagram.</p>
+
+      <h4 class="step-heading">Step 08e · Format Driving Forces Nodes</h4>
+      <p>Creates driving forces nodes using the same emoji as the corresponding TG node, with WANTS and FEARS headers in plain ALL CAPS (no emoji on headers), exactly three checkmark-prefixed positive drivers, and exactly three X-prefixed negative drivers. Driver text is kept under 40 characters per line. The emoji matching is verified before the step completes.</p>
+
+      <h4 class="step-heading">Step 08f · Create Connections</h4>
+      <p>Draws all arrows using simple <code>--&gt;</code> syntax: all BG nodes to PLATFORM, PLATFORM to all TG nodes, and each TG node to its matching DF node (TG0 to DF0, TG1 to DF1, etc.). The total connection count is verified — for three personas this is nine connections. No fancy arrow styling is used.</p>
+
+      <h4 class="step-heading">Step 08g · Apply Styling</h4>
+      <p>Applies four exact CSS class definitions to all nodes: <code>businessGoal</code> (light gray #f3f4f6), <code>platform</code> (medium gray #e5e7eb with 3px border), <code>targetGroup</code> (near-white #f9fafb), and <code>drivingForces</code> (light gray #f3f4f6). Colors are exact specifications — no variations are permitted. All nodes are assigned to their correct class.</p>
+
+      <h4 class="step-heading">Step 08h · Mermaid Quality Check</h4>
+      <p>Verifies the complete assembled diagram across seven dimensions: configuration (font, fontSize, direction), node formatting (padding, ALL CAPS, no HTML tags), emoji usage (TG/DF matching, WANTS/FEARS headers plain), driving forces (exactly three per category), connections (all paths present, no broken links), styling (exact color codes, correct border widths), and syntax (no errors, all brackets closed). Issues are fixed and re-verified before proceeding to finalization.</p>
+
+      <!-- STEP GROUP 09 -->
+      <h3 class="skill-heading" id="step-group-09">
+        <span class="code-name">step-09</span>
+        Finalize &amp; Handover
+        <span class="code-tag">both paths · closing sequence</span>
+      </h3>
+      <p>Six steps close the Phase 2 workflow with cross-referencing, a final quality gate, a handover package for Freya, and a design log update.</p>
+
+      <h4 class="step-heading">Step 09a · Finalize Hub</h4>
+      <p>Orchestrates the complete document generation sequence, verifying that all mandatory files exist in <code>B-Trigger-Map/</code>: the hub with a Mermaid code block, the business goals document, one persona file per target group, and the key insights summary. The feature impact document is also verified if the feature workshop was run. Missing files are generated before proceeding.</p>
+
+      <h4 class="step-heading">Step 09b · Add Cross-References</h4>
+      <p>Adds bidirectional navigation links to every document — each sub-document links back to the hub, the hub links forward to every sub-document, and persona documents link to one another. No document is left isolated. Cross-references are verified to be bidirectional before the step closes.</p>
+
+      <h4 class="step-heading">Step 09c · Quality Check</h4>
+      <p>Runs the final end-to-end quality verification: all documents exist and are non-empty, the Mermaid diagram renders correctly, cross-references are working, terminology is consistent across all files, all personas have complete driving forces, and the feature impact document is present if the workshop was completed. Found issues are fixed before marking the check as passed.</p>
+
+      <h4 class="step-heading">Step 09d · Create Handover Package</h4>
+      <p>Presents a structured handover summary for Freya (the UX Designer): the complete file tree, the primary persona's transformation summary, the top three must-address positive drivers, the top three must-avoid negative drivers, feature priorities from the impact matrix if available, and three key design implications. This is a presentation step — no new files are created.</p>
+
+      <h4 class="step-heading">Step 09e · Update Design Log</h4>
+      <p>Reads the existing <code>_progress/00-design-log.md</code> and appends a Phase 2 completion entry listing every artifact file individually (no "etc." shorthand), a specific two-to-three sentence summary of personas identified and key strategic insights, and any significant decisions made during workshops. Existing entries are never overwritten.</p>
+
+      <h4 class="step-heading">Step 09f · Provide Activation</h4>
+      <p>The final step of Phase 2. Provides activation instructions for starting the UX Design phase with Freya in a new conversation, explains the continuous delivery approach (completed scenarios can be handed to development while more are being designed), and surfaces alternative paths if the feature impact workshop was skipped. Only the Return to Menu option is available — this is the end of the Phase 2 workflow.</p>
+
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="applied-toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Applied Toolkit</span>
+          <span class="data-source">wds-2-trigger-mapping</span>
+        </div>
+        <table>
+          <thead><tr><th>Category</th><th>Items</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Skill</td><td><code>wds-2-trigger-mapping</code></td></tr>
+            <tr><td class="key-col">Agent</td><td>Saga — WDS Analyst</td></tr>
+            <tr><td class="key-col">Output</td><td><code>B-Trigger-Map/trigger-map.md</code> · <code>B-Trigger-Map/personas/</code> · <code>B-Trigger-Map/feature-impact-analysis.md</code></td></tr>
+            <tr><td class="key-col">Frameworks</td><td>Effect Mapping (Balic &amp; Domingues) · Positive / Negative Driving Forces · Feature Impact Matrix · Mermaid diagrams</td></tr>
+            <tr><td class="key-col">Reads</td><td><code>A-Product-Brief/project-brief.md</code> (required) · existing discovery docs (optional)</td></tr>
+            <tr><td class="key-col">Feeds</td><td>Phase 3 Scenarios &amp; Phase 4 UX Design — Freya reads the impact matrix to prioritize.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Story — Guide</title>
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.65; font-size: 0.9375rem; position: relative;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .5;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "masthead masthead" "toc article";
+    max-width: 1340px; margin: 0 auto; min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ── Masthead ─────────────────────────────────── */
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Headings ─────────────────────────────────── */
+  h2.agent-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.35rem; font-weight: 700; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+  h4.step-heading .step-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--ink-mute); color: var(--paper); padding: 1px 8px; letter-spacing: 0.1em; align-self: center; }
+
+  h5 { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 160px; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.1rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Step detail ──────────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Checklist ────────────────────────────────── */
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li { padding: 6px 0 6px 24px; position: relative; font-size: 0.875rem; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.5; }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: '□'; position: absolute; left: 0; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; color: var(--ink-mute); }
+
+  /* ── Inline list ──────────────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  /* ── TDD Cycle — distinctive visual ──────────── */
+  .tdd-cycle-wrapper { border: 1px solid var(--rule); background: var(--paper); margin: 20px 0 32px; }
+  .tdd-cycle-header { background: var(--ink); color: var(--paper); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .tdd-cycle-header .tc-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .tdd-cycle-header .tc-note { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: rgba(244,237,224,.6); }
+  .tdd-cycle { display: flex; align-items: stretch; }
+  .tdd-phase { flex: 1; display: flex; flex-direction: column; padding: 24px 20px; gap: 12px; border-right: 1px solid rgba(42,34,26,.15); }
+  .tdd-phase:last-child { border-right: none; }
+  .tdd-phase-dot { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; flex-shrink: 0; }
+  .phase-red   { background: #fee2e2; border: 3px solid #ef4444; color: #991b1b; }
+  .phase-green { background: #dcfce7; border: 3px solid #22c55e; color: #14532d; }
+  .phase-blue  { background: #dbeafe; border: 3px solid #3b82f6; color: #1e3a5f; }
+  .tdd-phase-name { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); }
+  .tdd-phase-sub { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; }
+  .sub-red   { color: #dc2626; }
+  .sub-green { color: #16a34a; }
+  .sub-blue  { color: #2563eb; }
+  .tdd-phase-desc { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .tdd-phase-rule { margin-top: auto; padding-top: 12px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: var(--ink-mute); font-style: italic; }
+  .tdd-connector { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 4px; color: var(--ink-mute); font-size: 18px; flex-shrink: 0; }
+
+  /* ── No-stop rule callout ─────────────────────── */
+  .no-stop-rule { border: 2px solid var(--accent); background: #fff7ed; padding: 16px 20px; margin: 20px 0 28px; }
+  .no-stop-rule .nsr-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 8px; }
+  .no-stop-rule .nsr-body { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.6; }
+  .no-stop-rule .nsr-body strong { color: var(--ink); }
+
+  /* ── HALT conditions grid ─────────────────────── */
+  .halt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 28px; }
+  .halt-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .halt-card { background: #fff1f2; padding: 14px 16px; border-left: 4px solid #ef4444; }
+  .halt-card .hc-trigger { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #991b1b; margin-bottom: 6px; }
+  .halt-card .hc-condition { font-weight: 700; color: var(--ink); font-size: 0.875rem; margin-bottom: 6px; }
+  .halt-card .hc-message { font-size: 12px; color: var(--ink-soft); line-height: 1.45; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; }
+
+  /* ── Step group labels ────────────────────────── */
+  .step-group-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--paper); background: var(--ink-mute); padding: 4px 14px; display: inline-block; margin: 28px 0 0; }
+  .step-loop-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--paper); background: #1d3557; padding: 4px 14px; display: inline-block; margin: 28px 0 0; }
+  .step-complete-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--paper); background: #166534; padding: 4px 14px; display: inline-block; margin: 28px 0 0; }
+
+  /* ── Story file constraint ────────────────────── */
+  .constraint-block { border: 1px solid rgba(42,34,26,.25); background: var(--paper-warm); margin: 16px 0 24px; }
+  .constraint-block .cb-head { background: var(--paper-warm); border-bottom: 1px solid rgba(42,34,26,.2); padding: 8px 16px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--ink-mute); }
+  .constraint-row { display: grid; grid-template-columns: 160px 1fr; border-bottom: 1px dotted rgba(42,34,26,.15); }
+  .constraint-row:last-child { border-bottom: none; }
+  .constraint-section { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; color: var(--accent); padding: 10px 14px; border-right: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  .constraint-rule { font-size: 12.5px; color: var(--ink-soft); padding: 10px 14px; line-height: 1.5; background: var(--paper); }
+  .allowed { color: #14532d; }
+  .forbidden { color: #991b1b; }
+
+  /* ── DoD score visual ─────────────────────────── */
+  .dod-categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 24px; }
+  .dod-categories > * { box-shadow: 0 0 0 1px var(--rule); }
+  .dod-cat { background: var(--paper); padding: 16px 18px; }
+  .dod-cat .dc-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 4px; }
+  .dod-cat .dc-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+  .dod-cat ul { list-style: none; padding: 0; margin: 0; }
+  .dod-cat ul li { font-size: 12px; color: var(--ink-soft); padding: 3px 0 3px 14px; position: relative; line-height: 1.45; border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .dod-cat ul li:last-child { border-bottom: none; }
+  .dod-cat ul li::before { content: '□'; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; position: absolute; left: 0; font-size: 10px; color: var(--ink-mute); }
+
+  /* ── Status flow ──────────────────────────────── */
+  .status-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0 24px; padding: 14px 18px; background: var(--paper); border: 1px solid rgba(42,34,26,.2); }
+  .sf-node { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; padding: 5px 12px; white-space: nowrap; }
+  .sf-ready   { background: #dbeafe; color: #1e3a5f; border: 1px solid #93c5fd; }
+  .sf-inprog  { background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
+  .sf-review  { background: #ffedd5; color: #7c2d12; border: 1px solid #fdba74; }
+  .sf-arrow   { color: var(--accent); font-size: 16px; font-weight: 700; }
+  .sf-label   { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* ── Colophon ─────────────────────────────────── */
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .module-grid, .halt-grid, .dod-categories { grid-template-columns: 1fr; }
+    .tdd-cycle { flex-direction: column; }
+    .tdd-phase { border-right: none; border-bottom: 1px solid rgba(42,34,26,.15); }
+    .tdd-connector { flex-direction: row; padding: 4px 0; }
+    .constraint-row { grid-template-columns: 1fr; }
+    .constraint-section { border-right: none; border-bottom: 1px solid rgba(42,34,26,.15); }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad · Dev Story</span>
+        <span>Skill · bmad-dev-story</span>
+        <span>Phase 4 · Developer Role · Short-code DS</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Dev Story <em>· TDD Implementation Engine</em></h1>
+    <p class="subtitle">Execute story implementation following the story spec file as its sole authority. Strict red-green-refactor discipline per task. Continuous execution — no pausing for milestones or session boundaries — until all acceptance criteria are satisfied and the story is marked for review.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-dev-story</dd></div>
+      <div><dt>Menu code</dt><dd>DS</dd></div>
+      <div><dt>Input</dt><dd>Story file (story-{slug}.md)</dd></div>
+      <div><dt>Trigger</dt><dd>"dev this story"</dd></div>
+      <div><dt>Agent</dt><dd>Developer (Amelia)</dd></div>
+      <div><dt>Steps</dt><dd>10 · Continuous</dd></div>
+      <div><dt>Output</dt><dd>story status → review</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#key-capabilities">Key Capabilities</a>
+      <a href="#story-file-constraints">Story File Constraints</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-tdd">Why TDD?</a>
+      <a href="#tdd-cycle">Red-Green-Refactor Cycle</a>
+      <a href="#no-stop-rule">The No-Stop Rule</a>
+      <a href="#when-to-use">When to Use</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#workflow">10-Step Workflow</a>
+      <a href="#load-setup" class="toc-sub">Load &amp; Setup (1–4)</a>
+      <a href="#impl-loop" class="toc-sub">Implementation Loop (5–8)</a>
+      <a href="#completion" class="toc-sub">Completion (9–10)</a>
+      <a href="#halt-conditions">HALT Conditions</a>
+      <a href="#review-continuation">Review Continuation</a>
+      <a href="#status-transitions">Status Transitions</a>
+      <a href="#dod">Definition of Done</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Dev Story <em>· What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-dev-story</code> &nbsp;·&nbsp; Short-code <code>DS</code></dd>
+        <dt>Trigger phrases</dt><dd>
+          <div class="menu-codes">
+            <code>dev this story [story file]</code>
+            <code>implement the next story</code>
+          </div>
+        </dd>
+        <dt>Agent</dt><dd>Developer — implements the story file exactly as written, task by task, under strict TDD discipline.</dd>
+        <dt>Authority</dt><dd>The story file is the single source of truth. The dev agent implements ONLY what is mapped to a task or subtask in the story file — nothing more, nothing less.</dd>
+        <dt>Execution model</dt><dd>Continuous. Never stops for milestones, "significant progress", or session boundaries. The only valid stops are explicit HALT conditions or user instruction.</dd>
+        <dt>Output</dt><dd>All tasks and subtasks checked <code>[x]</code> · All acceptance criteria satisfied · Full test suite passing · <code>sprint-status.yaml</code> updated: <code>in-progress → review</code>.</dd>
+        <dt>Upstream</dt><dd><code>bmad-create-story</code> has created the story file with status <code>ready-for-dev</code>.</dd>
+        <dt>Downstream</dt><dd><code>bmad-code-review</code> receives a story in <code>review</code> status with complete Dev Agent Record and File List.</dd>
+      </dl>
+
+      <p>Dev Story is the implementation workhorse of Phase 4. It takes a story file produced by Create Story and converts it into working, tested code — following TDD strictly (failing tests first, minimal implementation to pass, then refactor). The story file defines all boundaries; the dev agent does not invent scope, consult other documents, or pause for approval.</p>
+    </section>
+
+    <section id="key-capabilities">
+      <h3 class="skill-heading">
+        <span class="code-name">key-capabilities</span>
+        Key Capabilities
+      </h3>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">Capability · 01</div>
+          <div class="card-name">Story Discovery</div>
+          <div class="card-body">
+            <ul>
+              <li>User-provided path: use directly</li>
+              <li>Auto-discover: first <code>ready-for-dev</code> story from sprint-status.yaml</li>
+              <li>Fallback: scan <code>implementation_artifacts</code> for story files</li>
+              <li>Reads FULL sprint-status.yaml from start to end</li>
+            </ul>
+          </div>
+          <div class="card-footer">Step 1</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 02</div>
+          <div class="card-name">TDD Implementation</div>
+          <div class="card-body">
+            <ul>
+              <li>Red: write FAILING tests first</li>
+              <li>Green: minimal code to make tests pass</li>
+              <li>Refactor: improve structure, keep tests green</li>
+              <li>Repeats per task until all tasks complete</li>
+            </ul>
+          </div>
+          <div class="card-footer">Steps 5–8 (loop)</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 03</div>
+          <div class="card-name">Review Continuation</div>
+          <div class="card-body">
+            <ul>
+              <li>Detects "Senior Developer Review" section in story</li>
+              <li>Extracts unchecked <code>[AI-Review]</code> items</li>
+              <li>Prioritises review follow-ups before regular tasks</li>
+              <li>Marks both follow-up task and review action item resolved</li>
+            </ul>
+          </div>
+          <div class="card-footer">Step 3</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 04</div>
+          <div class="card-name">Strict Completion Gates</div>
+          <div class="card-body">
+            <ul>
+              <li>All tests ACTUALLY exist and pass 100%</li>
+              <li>Implementation matches task exactly — no extra features</li>
+              <li>All ACs related to the task satisfied</li>
+              <li>Full regression suite passes</li>
+            </ul>
+          </div>
+          <div class="card-footer">Step 8 — before marking [x]</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 05</div>
+          <div class="card-name">Definition of Done</div>
+          <div class="card-body">
+            <ul>
+              <li>5-category validation checklist</li>
+              <li>Unit + integration + E2E tests verified</li>
+              <li>File List complete (all new/modified/deleted)</li>
+              <li>Sprint status updated to <code>review</code></li>
+            </ul>
+          </div>
+          <div class="card-footer">Step 9 — before handoff</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 06</div>
+          <div class="card-name">Adaptive Communication</div>
+          <div class="card-body">
+            <ul>
+              <li>Language tuned to <code>{user_skill_level}</code></li>
+              <li>Explains implementation decisions on request</li>
+              <li>Suggests next steps after completion</li>
+              <li>Recommends running a different LLM for code review</li>
+            </ul>
+          </div>
+          <div class="card-footer">Step 10</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="story-file-constraints">
+      <h3 class="skill-heading">
+        <span class="code-name">story-constraints</span>
+        Story File Write Constraints
+      </h3>
+      <p>The dev agent reads the story file completely but may only modify specific sections. Any modification outside these areas is a violation of the workflow.</p>
+
+      <div class="constraint-block">
+        <div class="cb-head">Permitted Modifications to Story File</div>
+        <div class="constraint-row">
+          <div class="constraint-section">YAML Frontmatter</div>
+          <div class="constraint-rule"><span class="allowed">✓ ALLOWED:</span> <code>baseline_commit</code> field only — captured from <code>git rev-parse HEAD</code> at story start. Written once; never overwritten.</div>
+        </div>
+        <div class="constraint-row">
+          <div class="constraint-section">Tasks / Subtasks</div>
+          <div class="constraint-rule"><span class="allowed">✓ ALLOWED:</span> Checking boxes from <code>[ ]</code> to <code>[x]</code> only — after all validation gates pass for that task.</div>
+        </div>
+        <div class="constraint-row">
+          <div class="constraint-section">Dev Agent Record</div>
+          <div class="constraint-rule"><span class="allowed">✓ ALLOWED:</span> Debug Log, Completion Notes, Agent Model Used. Filled progressively during implementation.</div>
+        </div>
+        <div class="constraint-row">
+          <div class="constraint-section">File List</div>
+          <div class="constraint-rule"><span class="allowed">✓ ALLOWED:</span> All new, modified, or deleted files — paths relative to repo root. Updated after each task.</div>
+        </div>
+        <div class="constraint-row">
+          <div class="constraint-section">Change Log</div>
+          <div class="constraint-rule"><span class="allowed">✓ ALLOWED:</span> Summary of changes per session. Review follow-up resolutions also recorded here.</div>
+        </div>
+        <div class="constraint-row">
+          <div class="constraint-section">Status</div>
+          <div class="constraint-rule"><span class="allowed">✓ ALLOWED:</span> Transition to <code>review</code> at Step 9 completion only — after DoD validation passes.</div>
+        </div>
+        <div class="constraint-row">
+          <div class="constraint-section">Everything else</div>
+          <div class="constraint-rule"><span class="forbidden">✗ FORBIDDEN:</span> Story text, Acceptance Criteria, Dev Notes, Project Structure Notes, References — read-only for the dev agent.</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-tdd">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why TDD and Continuous Execution?
+      </h2>
+
+      <p class="lede">TDD is not a quality preference — it is the mechanism that makes the dev agent's work verifiable. Tests written before code define behaviour unambiguously. Passing tests are the only objective proof that a task is done.</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Without TDD (code-first)</th>
+            <th>With TDD (test-first)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Behaviour definition</td>
+            <td>Implementation defines behaviour — ambiguous ACs resolved however the developer interprets them</td>
+            <td>Tests define behaviour before code is written — ACs become binary pass/fail contracts</td>
+          </tr>
+          <tr>
+            <td>Scope control</td>
+            <td>Easy to over-engineer or add speculative features beyond story scope</td>
+            <td>Only code needed to pass the pre-written tests gets written — nothing more</td>
+          </tr>
+          <tr>
+            <td>Regression safety</td>
+            <td>Refactoring or neighbouring changes can break things silently</td>
+            <td>Full test suite runs before every task completion — any regression is caught immediately</td>
+          </tr>
+          <tr>
+            <td>Completion claim</td>
+            <td>Developer self-reports "done" — no objective verification</td>
+            <td>Task can only be checked <code>[x]</code> when tests ACTUALLY exist and pass 100%</td>
+          </tr>
+          <tr>
+            <td>Interruption risk</td>
+            <td>Stopping mid-story leaves partial work; resuming loses context</td>
+            <td>Continuous execution model — no stops until complete or HALT condition</td>
+          </tr>
+          <tr>
+            <td>Review quality</td>
+            <td>Reviewer must trace through code to understand intent</td>
+            <td>Tests document intent; reviewer validates behaviour, not guesses at it</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="tdd-cycle">
+      <h3 class="skill-heading">
+        <span class="code-name">tdd-cycle</span>
+        Red-Green-Refactor Cycle
+        <span class="code-tag">per task</span>
+      </h3>
+      <p>The cycle runs once per task/subtask, in order, without skipping. Each phase has a mandatory check before proceeding to the next. The cycle is the only way a task can be marked complete.</p>
+
+      <div class="tdd-cycle-wrapper">
+        <div class="tdd-cycle-header">
+          <span class="tc-label">TDD Implementation Cycle</span>
+          <span class="tc-note">Repeats for every task/subtask · Cannot be skipped</span>
+        </div>
+        <div class="tdd-cycle">
+          <div class="tdd-phase">
+            <div class="tdd-phase-dot phase-red">RED</div>
+            <div class="tdd-phase-name">Write Failing Tests</div>
+            <div class="tdd-phase-sub sub-red">Red Phase</div>
+            <div class="tdd-phase-desc">Write tests for the task's functionality before writing any implementation code. Run tests and confirm they FAIL — a test that passes before implementation is a broken test.</div>
+            <div class="tdd-phase-rule">Gate: tests must fail before proceeding</div>
+          </div>
+          <div class="tdd-connector">→</div>
+          <div class="tdd-phase">
+            <div class="tdd-phase-dot phase-green">GREEN</div>
+            <div class="tdd-phase-name">Implement to Pass</div>
+            <div class="tdd-phase-sub sub-green">Green Phase</div>
+            <div class="tdd-phase-desc">Write the minimum code required to make the tests pass. No extra features. No speculative abstractions. Handle error conditions and edge cases as specified in the task.</div>
+            <div class="tdd-phase-rule">Gate: all tests must pass before proceeding</div>
+          </div>
+          <div class="tdd-connector">→</div>
+          <div class="tdd-phase">
+            <div class="tdd-phase-dot phase-blue">BLUE</div>
+            <div class="tdd-phase-name">Refactor</div>
+            <div class="tdd-phase-sub sub-blue">Refactor Phase</div>
+            <div class="tdd-phase-desc">Improve code structure, naming, and organisation. Eliminate duplication. Apply architecture patterns from Dev Notes. Tests must remain green throughout.</div>
+            <div class="tdd-phase-rule">Gate: all tests still pass after refactor</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="no-stop-rule">
+      <h3 class="skill-heading">
+        <span class="code-name">no-stop-rule</span>
+        The No-Stop Rule
+      </h3>
+
+      <div class="no-stop-rule">
+        <div class="nsr-label">Critical Execution Constraint</div>
+        <div class="nsr-body">
+          <strong>Do not stop because of "milestones," "significant progress," or "session boundaries."</strong> Continue in a single execution until the story is COMPLETE — meaning all ACs satisfied and all tasks/subtasks checked — unless a HALT condition is triggered or the user gives explicit instruction to stop. Do not schedule a "next session." Do not request review pauses. Only Step 9 (Completion) decides when the story is done.
+        </div>
+      </div>
+
+      <p>This constraint exists because partial implementation leaves the codebase in an inconsistent state. A task that is 80% implemented but not passing tests is worse than not started — it is broken code with no safety net. The only valid stopping points are explicit HALT conditions listed below.</p>
+    </section>
+
+    <section id="when-to-use">
+      <h3 class="skill-heading">
+        <span class="code-name">when-to-use</span>
+        When to Use This Skill
+      </h3>
+      <ul class="step-detail">
+        <li><strong class="label">Phrase 1</strong>"dev this story [story file path]" — targets a specific story file</li>
+        <li><strong class="label">Phrase 2</strong>"implement the next story in the sprint plan" — auto-discovers first <code>ready-for-dev</code> story</li>
+        <li><strong class="label">Auto-suggest</strong>Suggested by <code>bmad-create-story</code> immediately when story file is created with <code>ready-for-dev</code> status</li>
+        <li><strong class="label">After review</strong>Can be re-run after <code>bmad-code-review</code> when changes are requested — detects review continuation automatically</li>
+        <li><strong class="label">Prerequisite</strong>A story file with status <code>ready-for-dev</code> must exist in <code>implementation_artifacts</code></li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <section id="workflow">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        How to Execute <em>· 10-Step Workflow</em>
+      </h2>
+
+      <!-- Load & Setup group -->
+      <div class="step-group-label" id="load-setup">Load &amp; Setup — Steps 1–4</div>
+
+      <h4 class="step-heading">
+        <span class="step-num">01</span>
+        Find Next Ready Story and Load It
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">User-provided</strong>If a story path is given, load it directly and proceed to task check.</li>
+        <li><strong class="label">Sprint-based</strong>Read the FULL <code>sprint-status.yaml</code> from start to end. Find the first entry matching <code>N-N-name</code> with status <code>ready-for-dev</code>.</li>
+        <li><strong class="label">No sprint file</strong>Scan <code>implementation_artifacts</code> for story files with <code>ready-for-dev</code> Status section.</li>
+        <li><strong class="label">If none found</strong>Offer four options: run create-story · validate existing stories · specify story path · review sprint status.</li>
+        <li><strong class="label">Task check</strong>After loading: parse all sections, identify first incomplete task <code>[ ]</code>. If no incomplete tasks, jump directly to Step 9.</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">02</span>
+        Load Project Context and Story Information
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Goal</strong>Load <code>project-context.md</code> for coding standards and project-wide patterns.</li>
+        <li><strong class="label">Dev Notes</strong>Extract architecture requirements, previous story learnings, and technical specifications from the story file's Dev Notes section. These inform all implementation decisions.</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">03</span>
+        Detect Review Continuation
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Fresh start</strong>No "Senior Developer Review" section in story file → normal implementation flow.</li>
+        <li><strong class="label">Post-review</strong>If "Senior Developer Review (AI)" section exists: extract outcome, count unchecked action items, list pending <code>[AI-Review]</code> follow-up tasks.</li>
+        <li><strong class="label">Strategy</strong>When continuing after review, prioritise <code>[AI-Review]</code> follow-up tasks before resuming regular tasks.</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">04</span>
+        Mark Story In-Progress
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">baseline_commit</strong>If story is <code>ready-for-dev</code> and no <code>baseline_commit</code> exists in frontmatter: run <code>git rev-parse HEAD</code> and write it. Written once — never overwritten on subsequent runs.</li>
+        <li><strong class="label">Sprint update</strong>Update <code>sprint-status.yaml</code>: story status <code>ready-for-dev → in-progress</code>. If already <code>in-progress</code>, resume without status change.</li>
+      </ul>
+
+      <!-- Implementation Loop group -->
+      <div class="step-loop-label" id="impl-loop">Implementation Loop — Steps 5–8 (repeats per task)</div>
+
+      <h4 class="step-heading">
+        <span class="step-num">05</span>
+        Implement Task (Red-Green-Refactor)
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Authority</strong>The current task/subtask from the story file is the authoritative implementation guide. Follow it exactly — no deviation.</li>
+        <li><strong class="label">Red</strong>Write FAILING tests first. Confirm tests fail before writing any implementation code.</li>
+        <li><strong class="label">Green</strong>Write minimal code to make tests pass. Handle error conditions and edge cases as specified in the task.</li>
+        <li><strong class="label">Refactor</strong>Improve code structure while keeping tests green. Follow architecture patterns and coding standards from Dev Notes.</li>
+        <li><strong class="label">Scope</strong>Never implement anything not mapped to a specific task/subtask. Never proceed to the next task until the current one is complete and tests pass.</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">06</span>
+        Author Comprehensive Tests
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Unit</strong>Business logic and core functionality introduced or changed by the task.</li>
+        <li><strong class="label">Integration</strong>Component interactions specified in story requirements.</li>
+        <li><strong class="label">E2E</strong>Critical user flows — only when the story requirements explicitly demand them.</li>
+        <li><strong class="label">Coverage</strong>Edge cases and error handling scenarios from story Dev Notes.</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">07</span>
+        Run Validations and Tests
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Regression</strong>Run all existing tests. If any fail: STOP and fix before continuing.</li>
+        <li><strong class="label">New tests</strong>Run new tests. If any fail: STOP and fix before continuing.</li>
+        <li><strong class="label">Quality</strong>Run linting and static analysis if configured. Validate all quantitative thresholds from ACs explicitly.</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">08</span>
+        Validate and Mark Task Complete
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Never lie</strong>A task can be marked <code>[x]</code> ONLY when: tests ACTUALLY EXIST and pass 100% · implementation matches exactly what the task specifies · all related ACs are satisfied · full regression suite passes.</li>
+        <li><strong class="label">File List</strong>Update File List with all new, modified, or deleted files after each task.</li>
+        <li><strong class="label">Loop</strong>If more incomplete tasks remain, go back to Step 5. If no tasks remain, proceed to Step 9.</li>
+      </ul>
+
+      <!-- Completion group -->
+      <div class="step-complete-label" id="completion">Completion — Steps 9–10</div>
+
+      <h4 class="step-heading">
+        <span class="step-num">09</span>
+        Story Completion and Mark for Review
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Verification</strong>Re-scan the full story: every task and subtask must be <code>[x]</code>. Run the full regression suite. Confirm File List is complete.</li>
+        <li><strong class="label">DoD validation</strong>Execute the full Definition of Done checklist (5 categories — see below). Any failure halts.</li>
+        <li><strong class="label">Status update</strong>Set story Status to <code>review</code>. Update <code>sprint-status.yaml</code>: <code>in-progress → review</code>.</li>
+      </ul>
+
+      <h4 class="step-heading">
+        <span class="step-num">10</span>
+        Completion Communication
+      </h4>
+      <ul class="step-detail">
+        <li><strong class="label">Summary</strong>Report to user: story ID, key, title, key changes, tests added, files modified, story file path, current status.</li>
+        <li><strong class="label">Skill-level</strong>Ask if user needs explanations on what was implemented and how — depth tailored to <code>{user_skill_level}</code>.</li>
+        <li><strong class="label">Next steps</strong>Suggest: review story · run <code>code-review</code> (preferably with a different LLM) · optionally run <code>bmad:tea:automate</code> for guardrail tests.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- HALT Conditions -->
+    <section id="halt-conditions">
+      <h3 class="skill-heading">
+        <span class="code-name">halt-conditions</span>
+        HALT Conditions
+      </h3>
+      <p class="lede">These are the only valid reasons for the dev agent to stop before a story is complete. Each HALT requires a specific resolution before work can continue.</p>
+
+      <div class="halt-grid">
+        <div class="halt-card">
+          <div class="hc-trigger">HALT · Step 5</div>
+          <div class="hc-condition">New dependencies required</div>
+          <div class="hc-message">"Additional dependencies need user approval" — cannot add packages beyond story specifications without explicit sign-off.</div>
+        </div>
+        <div class="halt-card">
+          <div class="hc-trigger">HALT · Step 5</div>
+          <div class="hc-condition">3 consecutive implementation failures</div>
+          <div class="hc-message">Three failed attempts on the same task without progress. Request guidance before continuing.</div>
+        </div>
+        <div class="halt-card">
+          <div class="hc-trigger">HALT · Step 5</div>
+          <div class="hc-condition">Required configuration missing</div>
+          <div class="hc-message">"Cannot proceed without necessary configuration files" — missing env vars, secrets, or infrastructure that cannot be inferred.</div>
+        </div>
+        <div class="halt-card">
+          <div class="hc-trigger">HALT · Step 7</div>
+          <div class="hc-condition">Regression tests fail</div>
+          <div class="hc-message">Existing tests broken by the current implementation. Identify the breaking change and fix it before any further progress.</div>
+        </div>
+        <div class="halt-card">
+          <div class="hc-trigger">HALT · Step 9</div>
+          <div class="hc-condition">Any task is incomplete</div>
+          <div class="hc-message">Cannot mark story for review while any task or subtask remains unchecked. Complete remaining tasks.</div>
+        </div>
+        <div class="halt-card">
+          <div class="hc-trigger">HALT · Step 9</div>
+          <div class="hc-condition">File List incomplete</div>
+          <div class="hc-message">Every new, modified, or deleted file must be listed with its repo-relative path before handoff to review.</div>
+        </div>
+        <div class="halt-card">
+          <div class="hc-trigger">HALT · Step 9</div>
+          <div class="hc-condition">DoD validation fails</div>
+          <div class="hc-message">One or more Definition of Done checklist items not satisfied. Address each failure and re-validate before marking complete.</div>
+        </div>
+        <div class="halt-card">
+          <div class="hc-trigger">HALT · Any step</div>
+          <div class="hc-condition">Story file inaccessible</div>
+          <div class="hc-message">"Cannot develop story without access to story file" — file cannot be found, read, or parsed at the required path.</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Review Continuation -->
+    <section id="review-continuation">
+      <h3 class="skill-heading">
+        <span class="code-name">review-continuation</span>
+        Review Continuation Mode
+      </h3>
+      <p>When <code>code-review</code> requests changes, it appends a "Senior Developer Review (AI)" section to the story file. Dev Story detects this at Step 3 and switches into review continuation mode.</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Review Continuation Behaviour</span>
+          <span class="data-source">SKILL.md · Step 3</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Aspect</th><th>Fresh Start</th><th>Review Continuation</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Detection</td>
+              <td>No "Senior Developer Review" section in story</td>
+              <td>"Senior Developer Review (AI)" section present</td>
+            </tr>
+            <tr>
+              <td class="key-col">Task order</td>
+              <td>Follow Tasks/Subtasks in story order</td>
+              <td>Address <code>[AI-Review]</code> follow-ups first, then continue regular tasks</td>
+            </tr>
+            <tr>
+              <td class="key-col">Marking complete</td>
+              <td>Check <code>[x]</code> in Tasks/Subtasks only</td>
+              <td>Check <code>[x]</code> in follow-up task AND find matching action item in Review section and mark it resolved</td>
+            </tr>
+            <tr>
+              <td class="key-col">Change Log</td>
+              <td>Normal implementation notes</td>
+              <td>Entry added: "Addressed code review findings — N items resolved (Date: …)"</td>
+            </tr>
+            <tr>
+              <td class="key-col">Sprint status</td>
+              <td><code>ready-for-dev → in-progress → review</code></td>
+              <td>Moves back to <code>in-progress</code>, then to <code>review</code> again on completion</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Status Transitions -->
+    <section id="status-transitions">
+      <h3 class="skill-heading">
+        <span class="code-name">status-transitions</span>
+        Status Transitions
+      </h3>
+      <p>Dev Story drives a story through two status transitions. Both are written to <code>sprint-status.yaml</code> and to the story file's Status field.</p>
+
+      <div class="status-flow">
+        <span class="sf-node sf-ready">ready-for-dev</span>
+        <span class="sf-arrow">→</span>
+        <span class="sf-label">Step 4 · start work</span>
+        <span class="sf-arrow">→</span>
+        <span class="sf-node sf-inprog">in-progress</span>
+        <span class="sf-arrow">→</span>
+        <span class="sf-label">Step 9 · DoD passed</span>
+        <span class="sf-arrow">→</span>
+        <span class="sf-node sf-review">review</span>
+      </div>
+
+      <ul class="inline-list">
+        <li><code>ready-for-dev → in-progress</code>: happens at Step 4. Also captures <code>baseline_commit</code> from git at this point.</li>
+        <li><code>in-progress → review</code>: happens at Step 9 only after all tasks complete, DoD validated, and full test suite passing.</li>
+        <li>If already <code>in-progress</code> when Dev Story starts (resuming): no status change at Step 4 — continues from where it left off.</li>
+        <li><code>sprint-status.yaml</code> <code>last_updated</code> is refreshed on every status transition.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- DoD -->
+    <section id="dod">
+      <h3 class="skill-heading">
+        <span class="code-name">dod</span>
+        Definition of Done — 5 Categories
+      </h3>
+      <p class="lede">Executed at Step 9. Every item in every category must pass before the story moves to <code>review</code>. A story with any open DoD item is not done — it is broken.</p>
+
+      <div class="dod-categories">
+        <div class="dod-cat">
+          <div class="dc-num">Category 01</div>
+          <div class="dc-title">Context &amp; Requirements</div>
+          <ul>
+            <li>Dev Notes contained all necessary technical requirements</li>
+            <li>Implementation follows all architectural requirements from Dev Notes</li>
+            <li>Technical specs (libraries, versions) implemented correctly</li>
+            <li>Previous story learnings incorporated (if applicable)</li>
+          </ul>
+        </div>
+        <div class="dod-cat">
+          <div class="dc-num">Category 02</div>
+          <div class="dc-title">Implementation Completion</div>
+          <ul>
+            <li>Every task and subtask marked <code>[x]</code></li>
+            <li>Implementation satisfies EVERY Acceptance Criterion</li>
+            <li>No ambiguous implementations — clear and unambiguous</li>
+            <li>Edge cases and error conditions addressed</li>
+            <li>Only dependencies specified in story or project-context used</li>
+          </ul>
+        </div>
+        <div class="dod-cat">
+          <div class="dc-num">Category 03</div>
+          <div class="dc-title">Testing &amp; Quality</div>
+          <ul>
+            <li>Unit tests for ALL core functionality added/updated</li>
+            <li>Integration tests for component interactions (when required)</li>
+            <li>E2E tests for critical flows (when story demands them)</li>
+            <li>ALL existing tests pass — no regressions</li>
+            <li>Linting and static checks pass (when configured)</li>
+            <li>Tests use project's testing frameworks from Dev Notes</li>
+          </ul>
+        </div>
+        <div class="dod-cat">
+          <div class="dc-num">Category 04</div>
+          <div class="dc-title">Documentation &amp; Tracking</div>
+          <ul>
+            <li>File List: every new/modified/deleted file (repo-relative paths)</li>
+            <li>Dev Agent Record: implementation notes and debug log</li>
+            <li>Change Log: clear summary of what changed and why</li>
+            <li>All <code>[AI-Review]</code> follow-ups resolved (if applicable)</li>
+            <li>Only permitted story sections were modified</li>
+          </ul>
+        </div>
+        <div class="dod-cat">
+          <div class="dc-num">Category 05</div>
+          <div class="dc-title">Final Status</div>
+          <ul>
+            <li>Story Status set to <code>review</code></li>
+            <li>Sprint status updated to <code>review</code> (when tracking active)</li>
+            <li>All quality checks and validations passed</li>
+            <li>No blocking issues or incomplete work remaining</li>
+            <li>Implementation summary prepared for user</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UX Scenarios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2255c;
+    --accent-soft:#e64980;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 180px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Mode grid ────────────────────────────────── */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .mode-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { background: var(--paper); padding: 20px 22px; }
+  .mode-card .mode-phase { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 2px 10px; display: inline-block; margin-bottom: 10px; }
+  .mode-card .mode-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .mode-card .mode-trigger { font-size: 12px; color: var(--ink-mute); font-style: italic; margin-bottom: 12px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .mode-card .mode-requires { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 6px; font-weight: 700; }
+  .mode-card ul { list-style: none; padding: 0; margin: 0 0 12px; }
+  .mode-card ul li { padding: 3px 0 3px 14px; position: relative; font-size: 12.5px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.1); }
+  .mode-card ul li:last-child { border-bottom: none; }
+  .mode-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .mode-card .mode-outputs { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); background: var(--paper-warm); border-top: 1px solid rgba(42,34,26,.15); margin-top: 10px; padding: 8px 10px; }
+  .mode-card .mode-outputs strong { color: var(--accent); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 18px 22px; margin: 16px 0 24px; overflow-x: auto; border: 1px solid var(--rule); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>WDS · Phase 3 · embeds in BMM Planning</span>
+        <span>Skill · wds-3-scenarios</span>
+        <span>Agent · Freya 🎨 (WDS Designer)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">UX Scenarios <em>· the sunshine path</em></h1>
+    <p class="subtitle">Transform the Trigger Map into concrete user-journey outlines. Each scenario is a linear "sunshine path" — the happy path through a single user goal — that exposes every page, screen, and decision point to design in Phase 4. A 9-step strictly-ordered flow with mandatory user checkpoints at scope and scenario planning.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>wds-3-scenarios</dd></div>
+      <div><dt>Menu code</dt><dd>SC</dd></div>
+      <div><dt>Agent</dt><dd>Freya (WDS Designer)</dd></div>
+      <div><dt>Phase</dt><dd>WDS Phase 3</dd></div>
+      <div><dt>Output</dt><dd>C-UX-Scenarios/00-ux-scenarios.md</dd></div>
+      <div><dt>Steps</dt><dd>9 · strictly ordered</dd></div>
+      <div><dt>Input</dt><dd>Trigger Map (required)</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#io">Inputs &amp; Outputs</a>
+      <a href="#steps">9-Step Sequence</a>
+      <a href="#scenario-contents">What a Scenario Contains</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-sunshine">Why Sunshine Paths Only?</a>
+      <a href="#why-matrix">Why the Coverage Matrix?</a>
+      <a href="#why-order">Why Strict Ordering?</a>
+      <a href="#why-per-persona">Why One Scenario per Force?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#steps">Workflow Steps</a>
+      <a href="#steps" class="toc-sub">Main Workflow · 9 steps</a>
+      <a href="#steps" class="toc-sub">Validate Mode · 5 steps</a>
+      <a href="#how-prereqs">Before Calling the Skill</a>
+      <a href="#how-prereqs" class="toc-sub">1 · WDS / BMAD Setup</a>
+      <a href="#how-prereqs" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#how-prereqs" class="toc-sub">3 · Honor the Checkpoints</a>
+      <a href="#how-prereqs" class="toc-sub">4 · Per-Step Preparation</a>
+      <a href="#applied-toolkit">Applied Toolkit</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        UX Scenarios — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>wds-3-scenarios</code></dd>
+        <dt>Menu code</dt><dd><span class="menu-codes"><code>SC</code></span> (invoked via <code>/wds-agent-freya-ux</code> → SC, or <code>/wds-3-scenarios</code>)</dd>
+        <dt>Role</dt><dd>Journey-mapping facilitator — turns the Trigger Map's psychology into linear sunshine-path outlines that name every page Phase 4 must design.</dd>
+        <dt>Agent</dt><dd>Freya 🎨, the WDS Designer; she owns Phases 3, 4, 6, 7, and 8, and replaces BMM Sally when WDS is installed.</dd>
+        <dt>Phase</dt><dd>WDS Phase 3 — embeds in BMM Planning. Reads Phase 1 and Phase 2 artifacts; hands off a brief to Phase 4 UX Design.</dd>
+      </dl>
+
+      <p>This skill takes the strategy captured in Phase 2 and renders it as concrete user journeys. A <strong>scenario is a linear "sunshine path"</strong> — the happy path through a single user goal, walked step by step — and its job is to expose every page, screen, and decision point so the next phase has a complete map of what to design. Scenarios are not page specs; they are the connective tissue between the Trigger Map's user psychology and Phase 4's detailed visual specifications.</p>
+
+      <p>Use it after the Trigger Map is complete and before any UX Design work. Multiple scenarios are normal and expected — typically one per persona driving force — and together they produce a coverage matrix that tells Freya exactly which pages need spec work in Phase 4.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Inputs & Outputs -->
+    <section id="io">
+      <h3 class="skill-heading">
+        <span class="code-name">io</span>
+        Inputs &amp; Outputs
+      </h3>
+      <p class="lede">Scenarios read the foundation laid by Phases 1 and 2, and write a scenario index plus one file per scenario.</p>
+
+      <div class="mode-grid">
+        <div class="mode-card">
+          <div class="mode-phase">Inputs</div>
+          <div class="mode-name">What Freya Reads</div>
+          <div class="mode-trigger">The Trigger Map is required — without it, Freya prompts you to create it before continuing.</div>
+          <div class="mode-requires">Reads</div>
+          <ul>
+            <li><code>A-Product-Brief/project-brief.md</code> — users, SEO, business context</li>
+            <li><code>B-Trigger-Map/trigger-map.md</code> <strong>(required)</strong></li>
+            <li><code>B-Trigger-Map/personas/</code> — all persona files</li>
+          </ul>
+        </div>
+        <div class="mode-card">
+          <div class="mode-phase">Outputs</div>
+          <div class="mode-name">What Freya Writes</div>
+          <div class="mode-trigger">A scenario index with a coverage matrix, plus one self-contained file per scenario.</div>
+          <div class="mode-requires">Writes</div>
+          <ul>
+            <li><code>C-UX-Scenarios/00-ux-scenarios.md</code> — index + coverage matrix</li>
+            <li><code>C-UX-Scenarios/NN-[scenario-name]/NN-[scenario-name].md</code> — one per scenario</li>
+          </ul>
+          <div class="mode-outputs"><strong>Handoff</strong> Phase 4 brief prepared at step 9</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- 9-Step Sequence -->
+    <section id="steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ STEPS</span>
+        Workflow Steps — <em>How the skill executes</em>
+      </h2>
+
+      <p>The skill uses step-file architecture: each step is a self-contained instruction file that is fully read and executed before the next is loaded. Two modes are available — the default creation workflow (9 steps) and a validate mode (5 steps) for reviewing existing scenarios.</p>
+
+      <!-- Main Workflow -->
+      <h3 class="skill-heading">
+        <span class="code-name">main</span>
+        Scenario Creation Workflow
+        <span class="code-tag">9 steps</span>
+      </h3>
+
+      <h4 class="step-heading">01 · Load Context</h4>
+      <p>Read all prerequisite artifacts and detect project state. Freya loads <code>config.yaml</code>, the Product Brief, the Trigger Map, and all persona files, then checks for existing scenario work. If prior work is found, she surfaces a resume / adjust / restart choice before proceeding. Ends with a project context summary for the user to verify before continuing.</p>
+
+      <h4 class="step-heading">02 · Analyze Scope <em style="font-size:0.8em;font-weight:400;color:var(--accent);font-family:'JetBrains Mono',monospace;font-style:normal;letter-spacing:0.08em;">USER CHECKPOINT</em></h4>
+      <p>Classify the site type (Presentation, Dynamic, or Mixed), build a complete page inventory, assess scale (Small / Medium / Large), and recommend a scenario format and approach mode. Presents the analysis in full and <strong>waits for explicit user approval</strong> before continuing. This is a gate — the scope set here bounds every scenario that follows.</p>
+
+      <h4 class="step-heading">03 · Build Strategic Context</h4>
+      <p>Extract strategic context from the Trigger Map by tracing complete chains from Business Goal → Persona → Driving Force → Transaction → Scenario. Answers all 7 Decision Matrix questions for each chain, assigns pages from the approved inventory to exactly one chain each, and verifies full coverage. No scenario outlining happens here — only structured planning.</p>
+
+      <h4 class="step-heading">04 · Suggest Scenarios <em style="font-size:0.8em;font-weight:400;color:var(--accent);font-family:'JetBrains Mono',monospace;font-style:normal;letter-spacing:0.08em;">USER CHECKPOINT</em></h4>
+      <p>Present the complete scenario plan — scenario names (always persona-first, e.g., "Hasse's Emergency Search"), page assignments, persona connections, user and business value, and a coverage check. <strong>Waits for explicit user approval.</strong> User may combine, add, or remove scenarios before approval. No outlines are written until this gate is passed.</p>
+
+      <h4 class="step-heading">05 · Outline Scenario <em style="font-size:0.8em;font-weight:400;color:var(--ink-mute);font-family:'JetBrains Mono',monospace;font-style:normal;letter-spacing:0.08em;">LOOPS PER SCENARIO</em></h4>
+      <p>Work through 8 strategic questions — transaction, business goal connection, persona and situation, mental state (hope + worry), device, entry point, mutual success goals, and shortest linear path — one at a time in collaborative dialogue. Alternatively, suggest mode lets Freya answer all 8 from the Trigger Map for user review. Quality gates verify the outline before the scenario file is written and step-by-step page folders are created. Loops once per scenario in priority order.</p>
+
+      <h4 class="step-heading">06 · Generate Overview</h4>
+      <p>Create <code>C-UX-Scenarios/00-ux-scenarios.md</code> — the master index file. Contains a scenario summary table, individual scenario entries with links, and the full page coverage matrix mapping every page to the scenario it serves. All links are verified before the file is considered complete.</p>
+
+      <h4 class="step-heading">07 · Quality Review</h4>
+      <p>Self-review all scenarios across four dimensions: Completeness (7 components), Quality Criteria (7 checks), Mistakes Avoided (6 checks), and Best Practices (4 checks). Minimum thresholds must be met before proceeding. Failing items are identified and fixed; a review summary with per-scenario scores is presented to the user.</p>
+
+      <h4 class="step-heading">08 · Update Design Log</h4>
+      <p>Append a Phase 3 completion entry to <code>_progress/00-design-log.md</code>, listing every artifact file created individually (no "etc." summaries), recording key decisions, and noting quality scores. Existing log entries are never overwritten — only appended.</p>
+
+      <h4 class="step-heading">09 · Handover</h4>
+      <p>Present the Phase 3 completion summary, guide the user through design intent selection for each scenario (Sketch / Discuss / Suggest / Dream Up / Later), save the chosen approach to each scenario's frontmatter, and explain what Phase 4 UX Design does with each approach. Phase 3 ends gracefully here.</p>
+
+      <hr class="section-divider" style="margin: 40px 0;">
+
+      <!-- Validate Mode -->
+      <h3 class="skill-heading">
+        <span class="code-name">validate</span>
+        Validate Mode
+        <span class="code-tag">5 steps</span>
+      </h3>
+
+      <p>Triggered by passing <code>validate</code> or <code>-v</code> when invoking the skill. Runs a structured audit of existing Phase 3 output — no scenario files are modified during validation, only read and assessed.</p>
+
+      <h4 class="step-heading">01 · Scenario Coverage</h4>
+      <p>Cross-reference every strategic context chain from the Trigger Map (Business Goal → Persona → Driving Force) against existing scenarios. Verifies that every chain is addressed by at least one scenario, that Priority 1 chains have dedicated scenarios, and that the Trigger Map Connections section in each scenario explicitly references its chain components. Reports with Critical / Warning / Pass severity levels.</p>
+
+      <h4 class="step-heading">02 · Navigation Patterns</h4>
+      <p>Verify that all scenario shortest paths follow WDS navigation conventions. Checks: page naming consistency across scenarios (same page = same name everywhere), linear flow rules (zero "if" statements, valid entry/success points, no impossible jumps or dead ends), and builds a cross-scenario page registry tracking shared pages. Navigation conflicts are identified and reported.</p>
+
+      <h4 class="step-heading">03 · Outline Completeness</h4>
+      <p>Validate all 7 required components of every scenario outline: Scenario Name &amp; ID, Core Feature, Entry Point (device + context + discovery method), Mental State (trigger + hope + worry — all visceral), Success Goals (user and business, both measurable), Shortest Path (linear, minimum viable steps, success marker), and Trigger Map Connections. Each component is scored pass / warning / fail with specific gap descriptions.</p>
+
+      <h4 class="step-heading">04 · Cross-Scenario Consistency</h4>
+      <p>Compare scenarios against each other to find contradictions, imbalances, and duplicates. Verifies: shared pages serve consistent purposes, persona coverage matches Trigger Map priorities, every business goal is addressed, no two scenarios are essentially the same path under different names, and the <code>00-ux-scenarios.md</code> index accurately reflects all scenarios and their page counts.</p>
+
+      <h4 class="step-heading">05 · SEO Keyword Alignment</h4>
+      <p>Map scenario pages against the SEO keyword strategy from Phase 1. Checks that each page has at least one primary keyword, that keywords match user intent (not forced), and that no two pages compete for the same primary keyword. If no keyword map exists, the gap is noted and the step proceeds to the final report. Compiles results from all 5 validation steps into a <code>validation-report.md</code> saved to <code>C-UX-Scenarios/</code>.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- What a Scenario Contains -->
+    <section id="scenario-contents">
+      <h3 class="skill-heading">
+        <span class="code-name">output</span>
+        What a Scenario Outline Contains
+        <span class="code-tag">per scenario</span>
+      </h3>
+      <p>Each scenario file (step 5) follows the same structure, written to <code>C-UX-Scenarios/NN-[scenario-name]/NN-[scenario-name].md</code>.</p>
+
+      <ul class="step-detail">
+        <li><strong class="label">Name &amp; ID</strong>The scenario name and its ID — the handle the coverage matrix and Phase 4 reference.</li>
+        <li><strong class="label">Target Persona</strong>The persona this journey serves, pulled directly from the Trigger Map.</li>
+        <li><strong class="label">Entry / Success</strong>The entry point the user arrives through, and the success state that ends the path.</li>
+        <li><strong class="label">Linear Journey</strong>The step-by-step user journey — a single linear path, no branches.</li>
+        <li><strong class="label">Per-Step Detail</strong>For each step: what the user <em>does</em>, what they <em>see</em>, and what they <em>feel</em>.</li>
+        <li><strong class="label">Pages Required</strong>The pages required at each step — the raw material for the coverage matrix.</li>
+        <li><strong class="label">SEO</strong>SEO considerations for the journey, inherited from the brief's keywords.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-sunshine">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why UX Scenarios? — <em>The reasoning behind each design choice</em>
+      </h2>
+
+      <h3 class="skill-heading">
+        <span class="code-name">why-sunshine-paths</span>
+        Why Sunshine Paths Only?
+      </h3>
+      <p>A scenario captures the <strong>happy path</strong> through a single user goal and nothing else. Edge cases, error states, and alternative branches are deliberately excluded here — they are handled inside Phase 4 page specs, where the page being designed is the right place to decide what happens when something goes wrong. Keeping scenarios linear keeps them readable as journeys and prevents Phase 3 from collapsing into premature interaction design. The sunshine path answers "what is this experience when it works?" — Phase 4 answers "and what about when it doesn't?"</p>
+
+      <h3 class="skill-heading" id="why-matrix">
+        <span class="code-name">why-coverage-matrix</span>
+        Why the Coverage Matrix Matters
+      </h3>
+      <p>The coverage matrix in <code>00-ux-scenarios.md</code> maps every scenario against every page it touches. This is how Freya knows which pages need spec work in Phase 4: a page that appears across several scenarios is high-priority and must satisfy multiple journeys, while a page touched once is scoped narrowly. Without the matrix, Phase 4 would have to re-derive the page inventory from scattered scenario files. The matrix turns a pile of journeys into a single planning surface.</p>
+
+      <h3 class="skill-heading" id="why-order">
+        <span class="code-name">why-strict-ordering</span>
+        Why the Strict Ordering?
+      </h3>
+      <p>The nine steps run in a fixed order, and the skill <strong>never loads multiple step files simultaneously</strong> and <strong>never skips or reorders</strong> them. This is not ceremony — the pipeline breaks otherwise. Each step's output is the next step's input: scope (step 2) bounds the scenario plan (step 4), which bounds the outlines (step 5), which feed the overview (step 6). Loading steps out of order, or several at once, lets later reasoning run on inputs that do not yet exist, producing outlines that look complete but are not anchored to an approved scope.</p>
+
+      <h3 class="skill-heading" id="why-per-persona">
+        <span class="code-name">why-one-per-force</span>
+        Why One Scenario per Driving Force?
+      </h3>
+      <p>Scenarios are scoped to a single persona driving force — the specific motivation that brings a user to the product. <strong>Multiple scenarios are normal and expected:</strong> a product that serves several personas, or one persona with several distinct goals, needs several sunshine paths. Mapping one force per scenario keeps each journey focused and makes the coverage matrix meaningful, because every scenario traces back to a real motivation captured in the Trigger Map rather than an invented use case.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW — Prerequisites
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="how-prereqs">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/wds-agent-freya-ux → SC</code>. Scenarios are only as good as the Trigger Map behind them — arrive with Phase 2 complete and the session moves fast.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · WDS / BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all WDS skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all WDS skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">BMAD + WDS installed</td><td>WDS requires BMM v6.8+ with WDS skills installed in a compatible AI coding environment (Claude Code, Cursor, Codex, etc.). Install via <code>npx bmad-method install</code> → select WDS, or ask Claude to install <code>whiteport-design-studio</code> from GitHub.</td></tr>
+            <tr><td class="key-col">Agent-first invocation</td><td>Activate Freya with <code>/wds-agent-freya-ux</code>, then select <code>SC</code>. Routing through the agent loads Freya's micro-guides and quality standards.</td></tr>
+            <tr><td class="key-col">Design log present</td><td>WDS writes state to <code>_progress/00-design-log.md</code>. Phase 3 completion is recorded here at step 8 so a later session resumes from the recorded state.</td></tr>
+            <tr><td class="key-col">Phase 2 complete</td><td>The Trigger Map and personas must already exist. Freya loads strategic context as her first action; if the Trigger Map is missing she will prompt you to create it.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to wds-3-scenarios. Having these in place keeps the session moving.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">wds-3-scenarios · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Trigger Map</td><td><strong>Required.</strong> <code>B-Trigger-Map/trigger-map.md</code> — the source of driving forces that become scenarios. No Trigger Map, no scenarios.</td></tr>
+            <tr><td class="key-col">Persona files</td><td>All files in <code>B-Trigger-Map/personas/</code> — each scenario targets a specific persona, so the full set should be present.</td></tr>
+            <tr><td class="key-col">Project brief</td><td><code>A-Product-Brief/project-brief.md</code> — supplies users, business context, and SEO keywords that scenarios inherit.</td></tr>
+            <tr><td class="key-col">Scope intuition</td><td>A rough sense of site type, page count, and scale strategy — you will approve Freya's read of this at step 2.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">checkpoints</span>
+        3 · Honor the Mandatory Checkpoints
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Two steps stop and wait for you. They are gates, not formalities — they set the scope every later step depends on.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">User Checkpoints</span>
+          <span class="data-source">wds-3-scenarios · steps 2 &amp; 4</span>
+        </div>
+        <table>
+          <thead><tr><th>Checkpoint</th><th>What you approve</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Step 2 · Scope</td><td>Site type, number of pages, and scale strategy. Get this right — it bounds every scenario that follows.</td></tr>
+            <tr><td class="key-col">Step 4 · Plan</td><td>The proposed scenario plan — which scenarios exist and which persona force each serves. Approve before any outlines are written.</td></tr>
+            <tr><td class="key-col">No auto-proceed</td><td>Freya does not pass these gates on her own. Be present to review, or the session waits.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-step</span>
+        4 · Per-Step Preparation
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">The skill loops one scenario at a time. Let each step finish before reacting.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Working the Loop</span>
+          <span class="data-source">wds-3-scenarios</span>
+        </div>
+        <table>
+          <thead><tr><th>Practice</th><th>What to do</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">One step at a time</td><td>Each step file is read and executed fully before the next loads. Let Freya finish a step before steering.</td></tr>
+            <tr><td class="key-col">Don't interrupt mid-read</td><td>Interrupting while Freya is loading a step file can desync the pipeline — wait for the step to complete.</td></tr>
+            <tr><td class="key-col">Outline loop (step 5)</td><td>Step 5 repeats once per scenario. Expect multiple passes; review each outline as it lands.</td></tr>
+            <tr><td class="key-col">Trust the order</td><td>Resist asking Freya to skip ahead to outlines or the overview — the strict sequence is load-bearing.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Critical Rules</span>
+          <span class="data-source">wds-3-scenarios · non-negotiable</span>
+        </div>
+        <table>
+          <thead><tr><th>Rule</th><th>Why it exists</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Never load multiple step files at once</td><td>Each step must be fully read and executed before the next is loaded.</td></tr>
+            <tr><td class="key-col">Never skip or reorder steps</td><td>The pipeline breaks if steps are skipped or run out of sequence.</td></tr>
+            <tr><td class="key-col">Checkpoints at steps 2 &amp; 4 are mandatory</td><td>Do not auto-proceed — scope and the scenario plan require explicit user approval.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="applied-toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Applied Toolkit</span>
+          <span class="data-source">wds-3-scenarios</span>
+        </div>
+        <table>
+          <thead><tr><th>Category</th><th>Items</th></tr></thead>
+          <tbody>
+            <tr><td class="key-col">Skill</td><td><code>wds-3-scenarios</code></td></tr>
+            <tr><td class="key-col">Agent</td><td>Freya 🎨 — WDS Designer</td></tr>
+            <tr><td class="key-col">Output</td><td><code>C-UX-Scenarios/00-ux-scenarios.md</code> + one file per scenario</td></tr>
+            <tr><td class="key-col">Methods</td><td>Sunshine-path journey mapping · Coverage Matrix · Persona-driven scenario selection</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+</body>
+</html>

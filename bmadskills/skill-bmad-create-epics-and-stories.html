@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Epics &amp; Stories — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; width: 160px; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Step detail list ─────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  /* ── Inline / checklist ───────────────────────── */
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li { padding: 6px 0 6px 24px; position: relative; font-size: 0.875rem; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.5; }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: '□'; position: absolute; left: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-mute); }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  /* ── Code block ───────────────────────────────── */
+  pre.code-block { background: var(--code-bg); color: var(--code-fg); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; padding: 18px 20px; margin: 14px 0 24px; overflow-x: auto; border: 1px solid var(--rule); }
+  pre.code-block code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+
+  /* ── Story format block ───────────────────────── */
+  .story-block { border: 2px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .story-block .story-head { background: var(--ink); color: var(--paper); padding: 8px 16px; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--highlight); font-weight: 700; }
+  .story-block pre { background: var(--paper-warm); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.7; padding: 16px 20px; overflow-x: auto; margin: 0; border: none; color: var(--ink-soft); }
+
+  /* ── Validation list ──────────────────────────── */
+  .validation-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .validation-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .validation-card { background: var(--paper); padding: 16px 18px; }
+  .validation-card .v-num { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--accent); padding: 2px 8px; display: inline-block; margin-bottom: 8px; }
+  .validation-card .v-name { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 8px; }
+  .validation-card .v-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .module-grid { grid-template-columns: 1fr; }
+    .validation-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad BMM · Phase 02/03 Planning</span>
+        <span>Skill · bmad-create-epics-and-stories</span>
+        <span>Agent · John (Product Manager)</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Epics &amp; Stories <em>· Full Guide</em></h1>
+    <p class="subtitle">Decompose PRD requirements into epics (user capabilities) and stories (INVEST units). 4-step micro-file architecture. User value first — not technical milestones. UX-DRs as first-class input.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-create-epics-and-stories</dd></div>
+      <div><dt>Input</dt><dd>PRD + Architecture (required) + UX (optional)</dd></div>
+      <div><dt>Trigger</dt><dd>"create the epics and stories list"</dd></div>
+      <div><dt>Agent</dt><dd>John (PM)</dd></div>
+      <div><dt>Architecture</dt><dd>4-step micro-file</dd></div>
+      <div><dt>AC format</dt><dd>BDD Given/When/Then</dd></div>
+      <div><dt>Output</dt><dd>epics.md</dd></div>
+      <div><dt>Resumable</dt><dd>Yes · stepsCompleted frontmatter</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#what-inputs" class="toc-sub">Inputs &amp; Output</a>
+      <a href="#what-principles">5 Core Principles</a>
+      <a href="#what-structure">Output Document Structure</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-order">Why Epics After Architecture?</a>
+      <a href="#why-user-value">Why User Value Over Tech Milestones?</a>
+      <a href="#why-ux-dr">Why UX-DRs as First-Class Input?</a>
+      <a href="#why-jit">Why JIT Entity Creation?</a>
+      <a href="#why-resume">Why stepsCompleted Frontmatter?</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#how-steps">Before Calling the Skill</a>
+      <a href="#how-steps" class="toc-sub">1 · General BMAD Setup</a>
+      <a href="#how-steps" class="toc-sub">2 · Information to Have Ready</a>
+      <a href="#how-steps" class="toc-sub">3 · Skills That Help</a>
+      <a href="#how-steps" class="toc-sub">4 · Per-Step Preparation</a>
+      <a href="#toolkit">Applied Toolkit</a>
+      <a href="#technique-descriptions" class="toc-sub">Technique Descriptions</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Epics &amp; Stories — <em>What does this Skill do?</em>
+      </h2>
+
+      <dl class="persona-block" id="what-inputs">
+        <dt>Skill code</dt><dd><code>bmad-create-epics-and-stories</code></dd>
+        <dt>Invocation</dt><dd><span class="menu-codes"><code>/bmad-agent-pm</code></span> → "Create Epics &amp; Stories"</dd>
+        <dt>Agent</dt><dd>John — Product Manager</dd>
+        <dt>Required inputs</dt><dd>PRD (<code>*prd*.md</code> or <code>*prd*/index.md</code>) · Architecture (<code>*architecture*.md</code> or <code>*architecture*/index.md</code>) — both required before the skill begins.</dd>
+        <dt>Optional input</dt><dd>UX Design — required if the product has a UI; drives UX-DR extraction. Priority: <code>DESIGN.md</code> + <code>EXPERIENCE.md</code> (bmad-ux spine pair, read together), falling back to legacy <code>*ux*.md</code> / <code>*ux*/index.md</code>.</dd>
+        <dt>Output</dt><dd><code>{planning_artifacts}/epics.md</code> — includes FR Coverage Map, all epics, all stories with BDD AC.</dd>
+        <dt>Architecture</dt><dd>4-step sequential micro-file — each step file loaded independently; state tracked via frontmatter <code>stepsCompleted: []</code>.</dd>
+      </dl>
+
+      <p>This skill turns PRD + Architecture (+ optional UX Design) into a fully decomposed <code>epics.md</code>. It extracts functional, non-functional, architecture, and UX design requirements; proposes user-value-centric epics with coverage maps; generates BDD stories with 5–7 Given/When/Then acceptance criteria; and validates the full output against 5 mandatory quality checks before closing.</p>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">Input Scan · Step 1</div>
+          <div class="card-name">Auto-Discovery</div>
+          <div class="card-body">
+            <ul>
+              <li>Searches <code>planning_artifacts/</code> first</li>
+              <li>Falls back to broader search (e.g., <code>docs/architecture/</code>)</li>
+              <li>User confirms file list + can add or exclude</li>
+              <li>All input files listed in <code>inputDocuments:</code> frontmatter</li>
+              <li>Related artifacts surfaced (scenarios, design system, prototypes)</li>
+            </ul>
+          </div>
+          <div class="card-footer">Whole doc first · sharded version second</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Requirements · Step 1</div>
+          <div class="card-name">4-Type Extraction</div>
+          <div class="card-body">
+            <ul>
+              <li>FR: functional requirements (numbered, testable)</li>
+              <li>NFR: performance / security / usability / reliability</li>
+              <li>Architecture: starter template, infra, migrations, monitoring</li>
+              <li>UX-DR: components, tokens, a11y, responsive, interactions</li>
+              <li>User confirms counts; updates until confirmed</li>
+            </ul>
+          </div>
+          <div class="card-footer">UX-DRs in separate section — not merged</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Epics · Step 2</div>
+          <div class="card-name">User Value Themes</div>
+          <div class="card-body">
+            <ul>
+              <li>FR clusters → natural user journeys</li>
+              <li>File overlap check to prevent file churn</li>
+              <li>Requirements Coverage Map (FR → Epic)</li>
+              <li>Explicit epic-to-epic dependency surfacing</li>
+              <li>Explicit user approval before Step 3</li>
+            </ul>
+          </div>
+          <div class="card-footer">Collaborative refinement with user</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Stories · Step 3</div>
+          <div class="card-name">BDD Stories</div>
+          <div class="card-body">
+            <ul>
+              <li>As a / I want / So that format</li>
+              <li>5–7 Given/When/Then AC blocks per story</li>
+              <li>Architecture specifics flow into AC (queue names, DB constraints)</li>
+              <li>UX specifics flow into AC (component names, hex codes)</li>
+              <li>Session resume via <code>stepsCompleted</code> frontmatter</li>
+            </ul>
+          </div>
+          <div class="card-footer">Single dev agent context per story</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Validation · Step 4</div>
+          <div class="card-name">5-Check Gate</div>
+          <div class="card-body">
+            <ul>
+              <li>FR coverage — every FR in at least one story</li>
+              <li>Architecture implementation — JIT entities, starter template</li>
+              <li>Story quality — single dev agent, testable AC</li>
+              <li>Epic structure — user value, no file churn</li>
+              <li>Dependency validation — epic &amp; story levels</li>
+            </ul>
+          </div>
+          <div class="card-footer">Mandatory — no step can be skipped</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- 5 Core Principles -->
+    <section id="what-principles">
+      <h3 class="skill-heading">
+        <span class="code-name">principles</span>
+        5 Core Principles
+      </h3>
+      <p class="lede">These principles are non-negotiable constraints that shape every decision from epic naming to AC depth. Violations are caught in Step 4 validation.</p>
+
+      <div class="module-grid" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));">
+        <div class="module-card">
+          <div class="card-code">Principle 01</div>
+          <div class="card-name">User Value First</div>
+          <div class="card-body">Epics enable users to accomplish something meaningful. <strong>Not</strong> technical milestones. Example failures: "Database Setup", "API Development" — both deliver zero standalone user value.</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Principle 02</div>
+          <div class="card-name">Standalone + Enables</div>
+          <div class="card-body">Each epic delivers complete functionality for its domain AND enables future epics — without requiring future epics to function. Epic 1 must be shippable independently.</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Principle 03</div>
+          <div class="card-name">No Forward Dependencies</div>
+          <div class="card-body">Story N.2 can only depend on Story N.1. No story may reference a story not yet complete. Validated explicitly in Step 4.5 at both epic and story levels.</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Principle 04</div>
+          <div class="card-name">JIT Entity Creation</div>
+          <div class="card-body">Database tables and entities are created only when a story needs them. Not upfront. Creating all 50 tables in Epic 1 Story 1 is an anti-pattern — it's a commitment before stories have validated what's needed.</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Principle 05</div>
+          <div class="card-name">Single Dev Agent Size</div>
+          <div class="card-body">Each story must be completable within one dev agent context window. Stories that span too much scope (e.g., "Build entire authentication system") must be split before approval.</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Output Document Structure -->
+    <section id="what-structure">
+      <h3 class="skill-heading">
+        <span class="code-name">structure</span>
+        Output Document Structure
+      </h3>
+      <p class="lede">The skill writes a single <code>epics.md</code> file. Every section is generated sequentially during the 4-step workflow and accumulated into the final document.</p>
+
+      <pre class="code-block"><code>epics.md
+├── Frontmatter: stepsCompleted, inputDocuments
+├── ## Overview              ← project name
+├── ## Requirements Inventory
+│   ├── ### Functional Requirements    ← FR list
+│   ├── ### Non-Functional Requirements ← NFR list
+│   ├── ### Additional Requirements    ← from Architecture doc
+│   ├── ### UX Design Requirements     ← UX-DRs (if UX doc exists)
+│   └── ### FR Coverage Map            ← FR → Epic mapping
+├── ## Epic List             ← titles + FR coverage per epic
+├── ## Epic 1: {title}
+│   ├── ### Story 1.1: {title}
+│   └── ### Story 1.2: ...
+└── ## Epic 2: {title}
+    └── ...</code></pre>
+
+      <ul class="step-detail">
+        <li><strong class="label">Frontmatter</strong><code>stepsCompleted: []</code> — updated after each step; enables exact resume from interruption without redoing work. <code>inputDocuments: []</code> — all source files listed.</li>
+        <li><strong class="label">FR Coverage Map</strong>Generated in Step 2. Every FR number mapped to the epic(s) that address it. No FR may be left unmapped.</li>
+        <li><strong class="label">Epic List</strong>One-line summary per epic: title, user outcome, FR numbers covered. Written before stories are generated.</li>
+        <li><strong class="label">UX-DRs Section</strong>Written as a separate section inside Requirements Inventory — never merged with Additional Requirements. Each UX-DR is specific enough to generate a story with testable AC.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-order">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Design Decisions — <em>Why is the skill built this way?</em>
+      </h2>
+
+      <h4 class="step-heading">Why Epics After Architecture?</h4>
+      <p>Pre-v6 antipattern: create epics and stories directly from the PRD, then architecture later. Result — stories miss technical context and require rework mid-sprint. The v6 order is fixed:</p>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th>Pre-v6 (wrong)</th>
+            <th>v6 (correct)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Order</td>
+            <td>PRD → Epics &amp; Stories → Architecture</td>
+            <td>PRD → Architecture → Epics &amp; Stories</td>
+          </tr>
+          <tr>
+            <td>Result</td>
+            <td>Stories have no tech context — rework when architecture is designed later</td>
+            <td>Stories reflect auth approach, DB schema decisions, tech patterns</td>
+          </tr>
+          <tr>
+            <td>AC quality</td>
+            <td>Vague AC with no architecture-specific constraints</td>
+            <td>AC includes queue names, encryption spec, polling intervals, DB constraints</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="why-user-value">
+      <h4 class="step-heading">Why User Value Over Technical Milestones?</h4>
+      <p>A "Database Setup" epic delivers zero user value standalone. If Epic 1 fails to ship, the product is dead with nothing users can see or test. Epics must ship something users can actually use — giving early feedback, validation, and product value at every stage.</p>
+      <ul class="inline-list">
+        <li>Epic named "Database Setup" → ❌ delivers nothing if Epic 2 slips</li>
+        <li>Epic named "User Registration &amp; Profiles" → ✅ shippable, testable, valuable on its own</li>
+        <li>Technical work still happens — it lives inside stories that deliver user-visible features, not as a standalone epic</li>
+      </ul>
+    </section>
+
+    <section id="why-ux-dr">
+      <h4 class="step-heading">Why UX-DRs as First-Class Input?</h4>
+      <p>UX requirements have the same rigor as functional requirements. Each UX-DR must be specific enough to generate a story with testable acceptance criteria. Treating UX as supplementary documentation means design work never becomes a tracked story with AC.</p>
+      <ul class="step-detail">
+        <li><strong class="label">Vague (wrong)</strong>"Create reusable components" — not actionable, cannot generate a story or testable AC.</li>
+        <li><strong class="label">Specific (right)</strong>"Implement ConfirmActions, StatusMessage, EmptyState, and FocusIndicator components" — generates a concrete story per component with AC.</li>
+        <li><strong class="label">Separate section</strong>UX-DRs live in their own <code>### UX Design Requirements</code> section — never merged into Additional Requirements — so coverage is tracked independently.</li>
+        <li><strong class="label">Coverage check</strong>After all epics are generated, the skill verifies every UX-DR is covered either in a relevant epic or a dedicated "Design System / UX Polish" epic.</li>
+      </ul>
+    </section>
+
+    <section id="why-jit">
+      <h4 class="step-heading">Why JIT Entity Creation?</h4>
+      <p>Upfront schema creation is a commitment before stories have validated what's actually needed. Creating all database tables in Epic 1 Story 1 means building against assumptions, not validated requirements. JIT keeps the schema evolving in lockstep with the stories that need each table.</p>
+      <ul class="inline-list">
+        <li>Anti-pattern: Epic 1 Story 1 creates 50 tables → story is untestable, oversized, and commits to unvalidated design</li>
+        <li>Correct: the <code>users</code> table is created in the story that implements user registration — not before</li>
+        <li>Architecture starter template (if specified) is Epic 1 Story 1 by convention — this is the one exception where setup precedes user features</li>
+      </ul>
+    </section>
+
+    <section id="why-resume">
+      <h4 class="step-heading">Why stepsCompleted Frontmatter?</h4>
+      <p>Large PRDs with many FRs and UX-DRs can exhaust session context limits before all stories are generated. The <code>stepsCompleted: []</code> frontmatter in <code>epics.md</code> enables exact resume from the interruption point — no restart, no repeated work, no lost output.</p>
+      <ul class="inline-list">
+        <li>Session interrupted after Step 2 → resume at Step 3 with epic list already confirmed</li>
+        <li>Context exhaustion mid-story generation → resume at the exact epic/story boundary</li>
+        <li>Works across usage limit resets — the file persists even when the session does not</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW — Before Calling the Skill
+         ══════════════════════════════════════════════ -->
+    <span id="how" aria-hidden="true"></span>
+    <section id="how-steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Before Calling the Skill
+      </h2>
+
+      <p class="lede">Everything to have ready before typing <code>/bmad-agent-pm → "Create Epics &amp; Stories"</code>. Epics &amp; Stories depend heavily on the quality of upstream artifacts — the more stable your PRD and UX Spec, the less rework the stories require. For the 4-step execution details, see the Applied Toolkit section below.</p>
+
+      <h3 class="skill-heading">
+        <span class="code-name">setup</span>
+        1 · General BMAD Setup
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Applies to all BMAD skills — verify before starting any session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Prerequisites</span>
+          <span class="data-source">all skills · universal</span>
+        </div>
+        <table>
+          <thead><tr><th>Requirement</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">BMAD installed</td>
+              <td>Latest version required. Verify before starting: <code>npx bmad-method --version</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Claude Code running</td>
+              <td>Open a terminal and run <code>claude</code> first. All skill invocations happen inside an active Claude Code session.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent-first invocation</td>
+              <td>Always <code>/bmad-agent-pm → select "Create Epics &amp; Stories"</code>. The agent automatically loads <code>prd.md</code>, the UX design contract (<code>DESIGN.md</code> + <code>EXPERIENCE.md</code> spine pair, or legacy <code>*ux*.md</code>), and <code>architecture.md</code> (if present) on startup.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Full context upfront</td>
+              <td>Stories must describe how new capability integrates with the existing system. Without Architecture, the agent writes stories in terms of PRD requirements rather than technical specifications.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">info</span>
+        2 · Information to Have Ready
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">Specific to bmad-create-epics-and-stories. Have these stable before starting the session.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Context Inputs</span>
+          <span class="data-source">bmad-epics-stories · preparation</span>
+        </div>
+        <table>
+          <thead><tr><th>Item</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Stable PRD</td>
+              <td>The PRD doesn't need to be perfect — but core scope must not flip. Stories that reference FR numbers become invalid if those FRs are later renamed or removed.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Stable UX Specification</td>
+              <td>Stories involving user-facing behavior need to reference the UX Spec. Unstable UX → unstable acceptance criteria → stories that need rewriting before Sprint 1.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Customer review feedback resolved</td>
+              <td>All prototype feedback should be incorporated into PRD and UX Spec before this session. Unresolved feedback discovered during story-writing creates mid-session pivots.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Architecture document</td>
+              <td>Strongly recommended for Brownfield projects. Without it, stories are written in terms of capability requirements ("implement OCR processing pipeline") instead of technical specifications ("extend the existing ProcessingQueue service"). Treat initial stories as a first draft if Architecture is not yet available.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Phase boundaries from the PRD</td>
+              <td>Decompose only the current phase unless you have capacity to maintain a larger backlog. Phase boundaries prevent the agent from writing stories for features not yet prioritized.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Team size and sprint velocity</td>
+              <td>Optional but useful — if known, the agent can size stories with useful sprint estimates. "M = fits in 1 sprint with our 4-person team" is more actionable than a raw point value.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">skills</span>
+        3 · Skills That Help This Session
+      </h3>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Facilitator Mindset</span>
+          <span class="data-source">bmad-epics-stories · session quality</span>
+        </div>
+        <table>
+          <thead><tr><th>Skill</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">FR-to-story translation</td>
+              <td>"FR-03: System processes uploaded payroll PDF via OCR pipeline" is a requirement, not a story. A story specifies who does what, under what conditions, with what acceptance criteria. Know the difference before reviewing agent output.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Sequencing awareness</td>
+              <td>Stories have dependencies. Getting the ordering wrong means a developer is blocked waiting for a prerequisite that hasn't started. Know which features are foundational and which depend on them.</td>
+            </tr>
+            <tr>
+              <td class="key-col">QA mindset for AC writing</td>
+              <td>Each story's acceptance criteria directly become the basis for QA test cases. Think "how would a tester verify this?" when reviewing AC — if you can't write a test for it, the AC is not testable enough.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Epic boundary judgment</td>
+              <td>Epics give structure to the backlog — without epic grouping, 50 flat stories are unnavigable. Know how to group related features into logical capability areas before the session starts.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="skill-heading">
+        <span class="code-name">per-step</span>
+        4 · Per-Step Preparation
+      </h3>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">The 4-step process runs sequentially. Each step builds on the previous. Having these ready prevents mid-session pivots that restart earlier steps.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Step-Level Readiness</span>
+          <span class="data-source">bmad-epics-stories · 4-step process</span>
+        </div>
+        <table>
+          <thead><tr><th>Step</th><th>What to have ready</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Step 1 · Document Discovery</td>
+              <td>Know which planning artifacts apply and where they live. The agent uses a two-pass strategy to find inputs — be ready to confirm or reject paths. Also be ready to confirm the FR count, NFR count, and UX-DR count before proceeding to Step 2.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 2 · Epic Decomposition</td>
+              <td>Know the Architecture context (if available) — this determines whether the agent writes stories in PRD-requirement terms or technical-specification terms. Know the phase boundaries so the agent decomposes only the right scope.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 3 · Story Writing</td>
+              <td>Be ready to review AC depth: 5–7 Given/When/Then scenarios per story covering the full behavior spectrum (happy path, alternative paths, error cases, edge cases). Stories that don't have testable AC need revision before Sprint 1.</td>
+            </tr>
+            <tr>
+              <td class="key-col">Step 4 · Finalize</td>
+              <td>Verify all FRs are covered by at least one story. The agent produces a Requirements Coverage Map — review it and flag any FR with no story coverage. Stories that cover FRs not in the current phase should be moved or removed.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h5>What Happens in Each Step</h5>
+      <ul class="step-detail">
+        <li><strong class="label">Step 1 · Document Discovery</strong>Agent scans all input documents and builds the Requirements Inventory: all Functional Requirements (numbered, with testable Consequences), all Non-Functional Requirements (performance / security / usability / reliability), Architecture requirements (starter template, infra, migrations, monitoring), and UX Design Requirements (components, tokens, a11y, responsive, interactions). User confirms counts; agent updates until confirmed before moving to Step 2.</li>
+        <li><strong class="label">Step 2 · Epic Decomposition</strong>FR clusters → natural user journeys → epics. Each epic is validated against three criteria: user-deliverable (can demo standalone), independent value (users benefit if only this epic ships), and reasonable scope (2–6 weeks). File overlap check prevents file churn epics. Requirements Coverage Map (FR → Epic) is produced. Epic-to-epic dependencies are surfaced. User gives explicit approval before Step 3 begins.</li>
+        <li><strong class="label">Step 3 · Story Generation</strong>For each epic in sequence: agent writes stories in <em>As a / I want / So that</em> format. Each story gets 5–7 Given/When/Then AC blocks covering happy path, alternative paths, error cases, and edge cases. Architecture specifics (queue names, DB constraints, encryption spec) and UX specifics (component names, color tokens, interaction mechanics) flow directly into AC. User reviews and confirms each story before it is appended to <code>epics.md</code>.</li>
+        <li><strong class="label">Step 4 · Finalize + Validate</strong>Five-check gate: (4.1) FR Coverage — every FR in at least one story; (4.2) Architecture implementation — JIT entity creation, starter template story present; (4.3) Story quality — single dev agent context, testable AC, no vague "system responds appropriately"; (4.4) Epic structure — user value focus, no file churn epics; (4.5) Dependency validation — forward-dependency check at both epic and story levels. All 5 must pass. Agent invokes <code>bmad-help</code> for next-steps recommendation on completion.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Applied Toolkit -->
+    <section id="toolkit">
+      <h3 class="skill-heading">
+        <span class="code-name">toolkit</span>
+        Applied Toolkit
+      </h3>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Skill Summary</span>
+          <span class="data-source">bmad-create-epics-and-stories</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col">Skill</td>
+              <td><code>bmad-create-epics-and-stories</code></td>
+            </tr>
+            <tr>
+              <td class="key-col">Agent</td>
+              <td>John — Product Manager</td>
+            </tr>
+            <tr>
+              <td class="key-col">Output</td>
+              <td><code>epics.md</code> — FR Coverage Map + all epics + all stories with BDD AC</td>
+            </tr>
+            <tr>
+              <td class="key-col">AC Format</td>
+              <td>Given/When/Then BDD (Gherkin) · 5–7 scenarios per story</td>
+            </tr>
+            <tr>
+              <td class="key-col">Frameworks</td>
+              <td>INVEST · User Value Focus · Dependency Analysis · JIT Entity Creation</td>
+            </tr>
+            <tr>
+              <td class="key-col">Collaborator</td>
+              <td>Winston (Architect) — consulted for technical context on AC</td>
+            </tr>
+            <tr>
+              <td class="key-col">MCP Tools</td>
+              <td><code>bmad-help</code> · <code>bmad-advanced-elicitation</code> · <code>bmad-party-mode</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h5>Workflow Menu Codes (by Step)</h5>
+      <ul class="step-detail">
+        <li><strong class="label">Step 1f</strong><code>[C]</code> Continue to Step 2</li>
+        <li><strong class="label">Step 2f</strong><code>[A]</code> Advanced Elicitation · <code>[P]</code> Party Mode · <code>[C]</code> Continue to Step 3</li>
+        <li><strong class="label">Step 3 (each epic)</strong>User reviews each story and confirms before it is appended to <code>epics.md</code></li>
+        <li><strong class="label">Step 4</strong><code>[C]</code> Complete Workflow — triggers <code>bmad-help</code> for next steps recommendation</li>
+      </ul>
+
+      <h5>Checklist — Before Calling the Skill Complete</h5>
+      <ul class="checklist">
+        <li>All FRs extracted, confirmed by user, and mapped to epics in Coverage Map</li>
+        <li>All NFRs extracted and listed in Requirements Inventory</li>
+        <li>Architecture requirements listed; starter template noted if present</li>
+        <li>All UX-DRs specific enough to generate stories — no vague entries</li>
+        <li>Epic list explicitly approved by user before story generation began</li>
+        <li>File overlap check performed; churn epics consolidated</li>
+        <li>Epic-to-epic dependencies surfaced and confirmed</li>
+        <li>Every story has 5–7 Given/When/Then scenarios</li>
+        <li>Architecture and UX specifics embedded in AC (not vague references)</li>
+        <li>All 5 validation checks passed (4.1 FR Coverage → 4.5 Dependency)</li>
+        <li>All UX-DRs covered in at least one epic or dedicated Design System epic</li>
+        <li><code>stepsCompleted</code> and <code>inputDocuments</code> frontmatter populated</li>
+      </ul>
+
+      <section id="technique-descriptions">
+        <h5>Technique Descriptions</h5>
+
+        <h5>Story Format — Fixed, No Deviation</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Field</th><th>Format</th></tr></thead>
+            <tbody>
+              <tr><td class="key-col">Heading</td><td><code>### Story {N}.{M}: {story_title}</code> — e.g., Story 1.3: User Registration with Email</td></tr>
+              <tr><td class="key-col">User story</td><td>As a {user_type}, I want {capability}, so that {value_benefit}.</td></tr>
+              <tr><td class="key-col">Acceptance criteria</td><td>Given / When / Then BDD format — 5–7 blocks per story covering happy path, alternatives, errors, edge cases, and any performance NFR</td></tr>
+              <tr><td class="key-col">Dependencies</td><td>Only previous stories in the same epic — Story N.2 may depend on N.1, never on a future story</td></tr>
+              <tr><td class="key-col">Specificity rule</td><td>Architecture specifics (queue names, encryption spec, DB constraints) and UX specifics (component names, color tokens, interaction mechanics) flow directly into AC — no vague "system responds appropriately"</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>AC Depth — Given/When/Then Scenarios</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Coverage Type</th><th>What It Verifies</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Happy path</td>
+                <td>The primary success flow — user does the right thing with valid data. Every story must have at least one happy path scenario.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Alternative path</td>
+                <td>Valid but non-primary flows — user selects optional features, completes the task a different way, or cancels partway through.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Error cases</td>
+                <td>System returns expected error states — invalid input, failed API call, permissions denied. The error message must be specific and actionable.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Edge cases</td>
+                <td>Boundary conditions — empty state (zero items), max size reached, concurrent access, race conditions. These are the scenarios most likely to cause bugs in production.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Performance</td>
+                <td>If there is a performance NFR relevant to this story: the AC includes a measurable threshold ("completes in under 3 seconds with 10,000 rows").</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>UX Design Requirements (UX-DRs) — First-Class Input</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Principle</th><th>Detail</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">Treatment</td>
+                <td>If a UX doc exists, it is treated as first-class input — the same rigor as FRs, NOT supplementary material. UX-DRs are extracted with the same discipline as FRs and NFRs.</td>
+              </tr>
+              <tr>
+                <td class="key-col">What to find</td>
+                <td>Interaction patterns that must be implemented exactly as specified · Component behavior that differs from the design system default · Motion and transition requirements · Empty, loading, and error state designs · Accessibility requirements specific to this feature</td>
+              </tr>
+              <tr>
+                <td class="key-col">Epic coverage requirement</td>
+                <td>Every UX-DR must be covered by at least one story's acceptance criteria. UX decisions with no story coverage will not be implemented — they become invisible gaps.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h5>File Overlap Check — Epic Boundary Validation</h5>
+        <div class="data-callout">
+          <table>
+            <thead><tr><th>Signal</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="key-col">High overlap detected</td>
+                <td>Multiple epics repeatedly target the same core files → consider merging those epics. Parallel epic development on the same files creates merge conflicts and coordination overhead in Sprint 1.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Zero overlap</td>
+                <td>Epics are well-separated — each targets a distinct area of the codebase. This is the target state for parallel development.</td>
+              </tr>
+              <tr>
+                <td class="key-col">Shared foundation files</td>
+                <td>Files touched by almost all epics (e.g., routing, auth, shared components) should be in their own foundation epic, completed before parallel epics begin.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

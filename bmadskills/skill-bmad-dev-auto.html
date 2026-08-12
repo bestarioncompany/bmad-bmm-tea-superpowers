@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Auto — Guide</title>
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --navy:       #1d3557;
+
+    /* Finding tier colors (shared with quick-dev cascade) */
+    --ig-bg:  #fee2e2; --ig-bdr: #fca5a5; --ig-fg: #7f1d1d; --ig-acc: #dc2626;
+    --bs-bg:  #fff7ed; --bs-bdr: #fed7aa; --bs-fg: #7c2d12; --bs-acc: #ea580c;
+    --pt-bg:  #f0fdf4; --pt-bdr: #86efac; --pt-fg: #14532d; --pt-acc: #16a34a;
+    --df-bg:  #eff6ff; --df-bdr: #93c5fd; --df-fg: #1e3a5f; --df-acc: #2563eb;
+    --rj-bg:  #f3f4f6; --rj-bdr: #d1d5db; --rj-fg: #374151; --rj-acc: #6b7280;
+
+    /* Status machine */
+    --st-draft:   #f3e8ff; --st-draft-fg:   #6b21a8;
+    --st-ready:   #fef3c7; --st-ready-fg:   #78350f;
+    --st-prog:    #dbeafe; --st-prog-fg:    #1e3a5f;
+    --st-review:  #fff7ed; --st-review-fg:  #9a3412;
+    --st-done:    #dcfce7; --st-done-fg:    #14532d;
+    --st-blocked: #fee2e2; --st-blocked-fg: #7f1d1d;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.65; font-size: 0.9375rem; position: relative;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .5;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "masthead masthead" "toc article";
+    max-width: 1340px; margin: 0 auto; min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ── Masthead ─────────────────────────────────── */
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  h1.title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 760px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Headings ─────────────────────────────────── */
+  h2.agent-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: var(--navy); }
+  h2.agent-heading em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.35rem; font-weight: 700; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.45; }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 22%; }
+  .compare-table th:nth-child(2) { background: var(--paper-warm); color: var(--ink-soft); width: 39%; }
+  .compare-table th:nth-child(3) { background: #fee2e2; color: #991b1b; width: 39%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Step detail ──────────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 130px; margin-right: 8px; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  /* ── HALT callout ──────────────────────────────── */
+  .scope-callout { border: 2px solid var(--navy); background: #eff6ff; padding: 16px 20px; margin: 20px 0 28px; }
+  .sc-header { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--navy); margin-bottom: 12px; }
+  .sc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1px; background: #93c5fd; border: 1px solid #93c5fd; }
+  .sc-item { background: var(--paper); padding: 12px 14px; }
+  .sc-item .sci-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--navy); margin-bottom: 4px; }
+  .sc-item .sci-value { font-size: 12.5px; color: var(--ink-soft); line-height: 1.45; }
+  .sc-item .sci-value strong { color: var(--ink); }
+
+  /* ── Step flow strip ──────────────────────────── */
+  .step-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 24px; }
+  .step-flow > * { box-shadow: 0 0 0 1px var(--rule); }
+  .sf-step { background: var(--paper); padding: 14px 14px; }
+  .sf-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--accent); margin-bottom: 6px; }
+  .sf-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 0.95rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .sf-key { font-size: 11.5px; color: var(--ink-soft); line-height: 1.4; }
+  .sf-checkpoint { margin-top: 8px; padding-top: 6px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--navy); }
+
+  /* ══ FINDING CLASSIFICATION CASCADE ══ */
+  .cascade-wrapper { border: 1px solid var(--rule); margin: 20px 0 32px; }
+  .cw-header { background: var(--ink); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .cw-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .cw-note  { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: rgba(244,237,224,.6); }
+
+  .finding-cascade { background: var(--paper); }
+
+  .fc-tier { display: grid; grid-template-columns: 200px 1fr auto; align-items: stretch; border-bottom: 1px solid rgba(42,34,26,.12); }
+  .fc-tier:last-child { border-bottom: none; }
+
+  .fct-label { padding: 16px 18px; display: flex; flex-direction: column; justify-content: center; gap: 6px; border-right: 1px solid rgba(42,34,26,.12); }
+  .fct-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  .fct-name { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; }
+  .fct-tag { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; padding: 2px 8px; display: inline-block; align-self: flex-start; border: 1px solid; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .tier-ig   .fct-label { background: var(--ig-bg); }
+  .tier-ig   .fct-name  { color: var(--ig-fg); }
+  .tier-ig   .fct-tag   { background: var(--ig-bg); color: var(--ig-fg); border-color: var(--ig-bdr); }
+  .tier-bs   .fct-label { background: var(--bs-bg); }
+  .tier-bs   .fct-name  { color: var(--bs-fg); }
+  .tier-bs   .fct-tag   { background: var(--bs-bg); color: var(--bs-fg); border-color: var(--bs-bdr); }
+  .tier-pt   .fct-label { background: var(--pt-bg); }
+  .tier-pt   .fct-name  { color: var(--pt-fg); }
+  .tier-pt   .fct-tag   { background: var(--pt-bg); color: var(--pt-fg); border-color: var(--pt-bdr); }
+  .tier-df   .fct-label { background: var(--df-bg); }
+  .tier-df   .fct-name  { color: var(--df-fg); }
+  .tier-df   .fct-tag   { background: var(--df-bg); color: var(--df-fg); border-color: var(--df-bdr); }
+  .tier-rj   .fct-label { background: var(--rj-bg); }
+  .tier-rj   .fct-name  { color: var(--rj-fg); }
+  .tier-rj   .fct-tag   { background: var(--rj-bg); color: var(--rj-fg); border-color: var(--rj-bdr); }
+
+  .fct-body { padding: 14px 18px; }
+  .fct-body .fb-cause { font-size: 12.5px; color: var(--ink); margin-bottom: 6px; }
+  .fct-body .fb-action { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+  .fct-body .fb-action code { font-size: 11px; }
+
+  .fct-action { padding: 14px 18px; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 6px; border-left: 1px solid rgba(42,34,26,.1); min-width: 160px; }
+  .fca-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); text-align: right; }
+  .fca-action { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; text-align: right; }
+  .fca-loopback { font-size: 10px; color: var(--ink-mute); text-align: right; line-height: 1.4; }
+
+  .tier-ig .fca-action { color: var(--ig-acc); }
+  .tier-bs .fca-action { color: var(--bs-acc); }
+  .tier-pt .fca-action { color: var(--pt-acc); }
+  .tier-df .fca-action { color: var(--df-acc); }
+  .tier-rj .fca-action { color: var(--rj-acc); }
+
+  .loopback-arrow { display: inline-block; margin-top: 4px; padding: 2px 8px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; border: 1px dashed; }
+  .la-ig { color: var(--ig-acc); border-color: var(--ig-bdr); background: var(--ig-bg); }
+  .la-bs { color: var(--bs-acc); border-color: var(--bs-bdr); background: var(--bs-bg); }
+
+  .cascade-footer { background: var(--paper-warm); padding: 10px 18px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: var(--ink-mute); border-top: 1px solid rgba(42,34,26,.15); }
+
+  /* ── Status machine ────────────────────────────── */
+  .status-machine { display: flex; align-items: center; gap: 0; border: 1px solid var(--rule); margin: 16px 0 24px; overflow-x: auto; }
+  .sm-node { padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 110px; border-right: 1px solid rgba(42,34,26,.15); }
+  .sm-node:last-child { border-right: none; }
+  .sm-badge { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; padding: 2px 8px; display: inline-block; align-self: flex-start; border: 1px solid; }
+  .sm-draft   { background: var(--st-draft);   color: var(--st-draft-fg);   border-color: #c4b5fd; }
+  .sm-ready   { background: var(--st-ready);   color: var(--st-ready-fg);   border-color: #fcd34d; }
+  .sm-prog    { background: var(--st-prog);    color: var(--st-prog-fg);    border-color: #93c5fd; }
+  .sm-review  { background: var(--st-review);  color: var(--st-review-fg);  border-color: #fed7aa; }
+  .sm-done    { background: var(--st-done);    color: var(--st-done-fg);    border-color: #86efac; }
+  .sm-blocked { background: var(--st-blocked); color: var(--st-blocked-fg); border-color: #fca5a5; }
+  .sm-event { font-size: 11px; font-weight: 700; color: var(--ink); margin-top: 2px; }
+  .sm-desc  { font-size: 11px; color: var(--ink-mute); line-height: 1.4; }
+
+  /* ── Colophon ─────────────────────────────────── */
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .step-flow { grid-template-columns: 1fr; }
+    .fc-tier { grid-template-columns: 1fr; }
+    .fct-action { border-left: none; border-top: 1px solid rgba(42,34,26,.1); align-items: flex-start; }
+    .fca-action, .fca-label, .fca-loopback { text-align: left; }
+    .status-machine { flex-direction: column; align-items: stretch; }
+    .sm-node { border-right: none; border-bottom: 1px solid rgba(42,34,26,.15); }
+    .sm-node:last-child { border-bottom: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad · Dev Auto</span>
+        <span>Skill · bmad-dev-auto</span>
+        <span>Unattended Loop · Invoked by Name</span>
+      </div>
+    </div>
+    <h1 class="title">Dev Auto <em>· One Unattended Implementation Loop</em></h1>
+    <p class="subtitle">Turns intent into a hardened, reviewable artifact without any human interaction mid-run. One iteration: clarify and route, plan, implement, review — then HALT with a final status. Not yet menu-chained: invoked directly by name, no row in <code>bmad-help.csv</code>/<code>module-help.csv</code>.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-dev-auto</dd></div>
+      <div><dt>Input</dt><dd>Task/change intent, or existing spec path</dd></div>
+      <div><dt>Agent</dt><dd>Dev (Amelia)</dd></div>
+      <div><dt>Steps</dt><dd>4 · Sequential · Step-file arch</dd></div>
+      <div><dt>Human interaction</dt><dd>None — HALT on any blocker</dd></div>
+      <div><dt>Review roles</dt><dd>2 adversarial subagents (parallel)</dd></div>
+      <div><dt>Output</dt><dd>spec file + bmad-dev-auto-result-*.md</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#halt-protocol">HALT Protocol</a>
+      <a href="#key-capabilities">Key Capabilities</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-unattended">Why an Unattended Loop?</a>
+      <a href="#why-compare">Dev Auto vs. Quick Dev</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#four-steps">The 4 Steps</a>
+      <a href="#finding-cascade">Finding Classification</a>
+      <a href="#spec-status">Spec Status Machine</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Dev Auto <em>· One Iteration, No Human in the Loop</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-dev-auto</code></dd>
+        <dt>Purpose</dt><dd>Runs one full iteration of an unattended development loop — clarify and route, plan, implement, review — turning a task or change intent into a hardened, reviewable artifact with zero human back-and-forth.</dd>
+        <dt>Input types</dt><dd>Free-form task/change intent · existing spec file path with recognized <code>status</code> frontmatter (resumes at the matching step) · epic story reference</dd>
+        <dt>Step architecture</dt><dd>Just-in-time step loading, same convention as Quick Dev — each step is a self-contained file, sequential, no skipping. State tracked via spec frontmatter.</dd>
+        <dt>Output</dt><dd>A spec file in <code>implementation_artifacts/</code> tracking the run, plus <code>bmad-dev-auto-result-{slug-or-timestamp}.md</code> if no spec file exists to write the result into.</dd>
+        <dt>Invocation</dt><dd>By name only. Not registered in <code>bmad-help.csv</code>/<code>module-help.csv</code> — no menu row, no chained routing yet.</dd>
+      </dl>
+
+      <p>Dev Auto is Quick Dev's unattended sibling. Where Quick Dev pauses for a human checkpoint before implementation and can hand off findings for human judgment, Dev Auto never stops to ask — every fork in the road resolves to either a deterministic action or a HALT with an explicit blocked status. This makes it suitable for loop-driven or scheduled runs where no one is watching the terminal.</p>
+    </section>
+
+    <section id="halt-protocol">
+      <h3 class="skill-heading">
+        <span class="code-name">halt-protocol</span>
+        HALT Protocol
+      </h3>
+
+      <div class="scope-callout">
+        <div class="sc-header">The only sanctioned way to end a turn</div>
+        <div class="sc-grid">
+          <div class="sc-item">
+            <div class="sci-label">Known spec file</div>
+            <div class="sci-value">If <code>{spec_file}</code> is known and exists, update its <code>status</code> in frontmatter and append the missing result details under <strong>## Auto Run Result</strong>.</div>
+          </div>
+          <div class="sc-item">
+            <div class="sci-label">No spec file yet</div>
+            <div class="sci-value">Create <code>{implementation_artifacts}/bmad-dev-auto-result-&lt;slug-or-timestamp&gt;.md</code> with frontmatter <code>status: &lt;final status&gt;</code> and a body stating status + blocking condition, if any.</div>
+          </div>
+          <div class="sc-item">
+            <div class="sci-label">Resolve on_complete</div>
+            <div class="sci-value">Run <code>resolve_customization.py --skill {skill-root} --key workflow.on_complete</code>. If non-empty, follow it as the final instruction before exiting.</div>
+          </div>
+          <div class="sc-item">
+            <div class="sci-label">Stop</div>
+            <div class="sci-value">The workflow ends here. No further steps run in this turn.</div>
+          </div>
+        </div>
+      </div>
+      <p>Every blocking condition in the workflow — unclear intent, a dirty working tree, an intent gap, a spec that fails Ready for Development, an implementation that doesn't verify, a review loop past 5 iterations — routes to this same protocol with status <code>blocked</code> and a specific blocking condition string. Nothing is left ambiguous for whoever reads the result later.</p>
+
+      <p><strong>Subagents are mandatory when instructed, and always synchronous.</strong> Every subagent call — including the two parallel reviewers in Step 4 — is invoked, awaited in the same turn, and only then does the workflow continue. Never backgrounded or detached: because this workflow runs unattended, there is no event loop left to resume a yielded turn, so a backgrounded subagent would stall the run permanently. If subagents are unavailable at all, HALT immediately with status <code>blocked</code> and blocking condition <code>no subagents</code>.</p>
+    </section>
+
+    <section id="key-capabilities">
+      <h3 class="skill-heading">
+        <span class="code-name">key-capabilities</span>
+        Key Capabilities
+      </h3>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="card-code">Capability · 01</div>
+          <div class="card-name">Spec-Aware Resume</div>
+          <div class="card-body"><ul>
+            <li>Recognizes an existing spec's <code>status</code> and jumps straight to the matching step</li>
+            <li><code>done</code> spec resets <code>review_loop_iteration</code> and starts a fresh review pass</li>
+            <li><code>blocked</code> spec HALTs immediately — never silently retried</li>
+          </ul></div>
+          <div class="card-footer">Step 1 · step-01-clarify-and-route.md</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 02</div>
+          <div class="card-name">Epic Continuity</div>
+          <div class="card-body"><ul>
+            <li>Detects epic-story intent, loads or compiles <code>epic-&lt;N&gt;-context.md</code></li>
+            <li>Carries forward the previous story's Code Map, Design Notes, and Spec Change Log</li>
+            <li>Blocks rather than guesses when continuity can't be established</li>
+          </ul></div>
+          <div class="card-footer">Step 1 · epic path</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 03</div>
+          <div class="card-name">Ready-for-Dev Gate</div>
+          <div class="card-body"><ul>
+            <li>Self-review against Actionable / Logical / Testable / Complete / Sufficient / Coherent</li>
+            <li>One repair attempt, then re-verify from disk</li>
+            <li>Still failing → HALT with the failing criteria named explicitly</li>
+          </ul></div>
+          <div class="card-footer">Step 2 · step-02-plan.md</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 04</div>
+          <div class="card-name">Verified Implementation</div>
+          <div class="card-body"><ul>
+            <li>Captures <code>baseline_revision</code> before any change</li>
+            <li>Hands the spec to a synchronous implementation subagent</li>
+            <li>Every task and acceptance criterion re-checked after the subagent returns</li>
+          </ul></div>
+          <div class="card-footer">Step 3 · step-03-implement.md</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 05</div>
+          <div class="card-name">Two-Reviewer Cascade</div>
+          <div class="card-body"><ul>
+            <li>Blind Hunter + Edge Case Hunter, launched in parallel, no prior context</li>
+            <li>5-tier triage: intent_gap → bad_spec → patch → defer → reject</li>
+            <li>Loop cap of 5 — non-convergence HALTs rather than looping forever</li>
+          </ul></div>
+          <div class="card-footer">Step 4 · step-04-review.md</div>
+        </div>
+        <div class="module-card">
+          <div class="card-code">Capability · 06</div>
+          <div class="card-name">Self-Contained Result</div>
+          <div class="card-body"><ul>
+            <li>Auto Run Result summarizes the change, files touched, findings breakdown</li>
+            <li>Judges (not counts) whether a follow-up human review pass is worth it</li>
+            <li>Commits locally on success — never pushes</li>
+          </ul></div>
+          <div class="card-footer">Step 4 · Finalize</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-unattended">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why an Unattended Loop? <em>· No One Is Watching the Terminal</em>
+      </h2>
+
+      <p class="lede">Quick Dev assumes a human is present to approve a plan and to make judgment calls on ambiguous findings. Dev Auto assumes the opposite — it may run in a queue, a scheduled job, or a loop where no one will answer a prompt for hours.</p>
+
+      <p>Every decision point that Quick Dev would surface to a human — approve the plan, judge an ambiguous review finding, decide whether to split a multi-goal request — becomes, in Dev Auto, either a deterministic rule (patch findings auto-fix, defer findings queue silently, reject findings drop silently) or an explicit HALT with a blocking condition a human can act on later. The workflow never guesses at an open question and never waits indefinitely for input that isn't coming.</p>
+
+      <p>This is also why the review layer is deliberately smaller than Quick Dev's: two reviewers (Blind Hunter, Edge Case Hunter) instead of three. Quick Dev's third reviewer, Acceptance Auditor, checks acceptance criteria against the spec — a judgment call that benefits from a human able to weigh in on genuinely ambiguous AC violations. Dev Auto keeps the two reviewers whose findings route to deterministic actions without needing that judgment.</p>
+    </section>
+
+    <section id="why-compare">
+      <h3 class="skill-heading">
+        <span class="code-name">dev-auto-vs-quick-dev</span>
+        Dev Auto vs. Quick Dev
+      </h3>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>bmad-quick-dev</th>
+            <th>bmad-dev-auto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Human checkpoint</td>
+            <td>Plan-Code-Review route halts for [A]pprove/[E]dit before implementation</td>
+            <td>None — approval gate replaced by the Ready-for-Dev self-review + one repair attempt</td>
+          </tr>
+          <tr>
+            <td>Routing</td>
+            <td>One-Shot vs. Plan-Code-Review, decided by blast radius</td>
+            <td>Single fixed 4-step flow every run — no route branching</td>
+          </tr>
+          <tr>
+            <td>Reviewers</td>
+            <td>3 subagents: Blind Hunter, Edge Case Hunter, Acceptance Auditor</td>
+            <td>2 subagents: Blind Hunter, Edge Case Hunter (no AC-judgment reviewer)</td>
+          </tr>
+          <tr>
+            <td>Ambiguous finding</td>
+            <td>Significant-but-unclear finding can HALT and ask the human</td>
+            <td>Every finding resolves to intent_gap / bad_spec / patch / defer / reject — no ask-the-human branch</td>
+          </tr>
+          <tr>
+            <td>Presentation</td>
+            <td>Step 5 generates a Suggested Review Order and opens the spec in the editor for a human</td>
+            <td>No presentation step — Finalize writes an Auto Run Result and HALTs with a terminal status</td>
+          </tr>
+          <tr>
+            <td>Menu registration</td>
+            <td>Registered in Amelia's 8-item Phase 4 menu (QD)</td>
+            <td>Invoked by name only — no row in bmad-help.csv/module-help.csv yet</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <section id="four-steps">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        The 4 Steps <em>· Clarify → Plan → Implement → Review</em>
+      </h2>
+
+      <div class="step-flow">
+        <div class="sf-step">
+          <div class="sf-num">Step 01</div>
+          <div class="sf-title">Clarify &amp; Route</div>
+          <div class="sf-key">Resolve intent from the invocation prompt. Epic-story detection loads/compiles epic context and prior-story continuity. Version-control sanity check. Derive spec slug, set <code>spec_file</code>.</div>
+          <div class="sf-checkpoint">No checkpoint — HALT on unclear intent or dirty tree</div>
+        </div>
+        <div class="sf-step">
+          <div class="sf-num">Step 02</div>
+          <div class="sf-title">Plan</div>
+          <div class="sf-key">Investigate codebase (subagents, distilled summaries only). Fill <code>spec-template.md</code>. Self-review vs. Ready for Development. Multi-goal / oversized warnings recorded, never blocking.</div>
+          <div class="sf-checkpoint">No checkpoint — HALT on unresolved intent gaps or a failed RFD gate</div>
+        </div>
+        <div class="sf-step">
+          <div class="sf-num">Step 03</div>
+          <div class="sf-title">Implement</div>
+          <div class="sf-key">Capture <code>baseline_revision</code>. Set spec <code>in-progress</code>. Hand spec to a synchronous implementation subagent. Verify every task and acceptance criterion after it returns.</div>
+          <div class="sf-checkpoint">No checkpoint — HALT if verification fails</div>
+        </div>
+        <div class="sf-step">
+          <div class="sf-num">Step 04</div>
+          <div class="sf-title">Review</div>
+          <div class="sf-key">Construct diff since baseline. Launch Blind Hunter + Edge Case Hunter in parallel, no context. Classify and cascade findings. Finalize: Auto Run Result, commit, HALT <code>done</code>.</div>
+          <div class="sf-checkpoint">Loopback gate to Step 3 (bad_spec) — no human checkpoint</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINDING CLASSIFICATION CASCADE -->
+    <section id="finding-cascade">
+      <h3 class="skill-heading">
+        <span class="code-name">finding-cascade</span>
+        Finding Classification Cascade
+        <span class="code-tag">Step 4 · review</span>
+      </h3>
+      <p>Findings from the two reviewers are deduplicated and routed in this order. The first two tiers trigger a loopback; lower tiers only matter when neither fires. Severity assigned by a reviewing subagent is disregarded — this workflow reassigns severity itself, since reviewers operate under deliberate information asymmetry (no spec, no prior context).</p>
+
+      <div class="cascade-wrapper">
+        <div class="cw-header">
+          <span class="cw-label">Finding Classification Cascade</span>
+          <span class="cw-note">Process top → bottom. First loopback tier found: lower tiers are moot.</span>
+        </div>
+        <div class="finding-cascade">
+
+          <div class="fc-tier tier-ig">
+            <div class="fct-label">
+              <div class="fct-num">Tier 1 · Highest priority</div>
+              <div class="fct-name">intent_gap</div>
+              <div class="fct-tag">This run's problem</div>
+            </div>
+            <div class="fct-body">
+              <div class="fb-cause">Caused by this change. Cannot be resolved from the spec because the captured intent itself is incomplete — do not infer intent unless there is exactly one possible reading.</div>
+              <div class="fb-action">Revert code changes. Append the triage-log entry with <code>addressed_findings: none</code>, then HALT with status <code>blocked</code> and blocking condition <code>intent gap in intent contract</code>, including every intent-gap finding.</div>
+            </div>
+            <div class="fct-action">
+              <span class="fca-label">Action</span>
+              <span class="fca-action">Revert &amp; HALT</span>
+              <div class="loopback-arrow la-ig">⏹ No loop — blocked</div>
+              <span class="fca-loopback">Human resolves intent<br>outside this run</span>
+            </div>
+          </div>
+
+          <div class="fc-tier tier-bs">
+            <div class="fct-label">
+              <div class="fct-num">Tier 2 · High priority</div>
+              <div class="fct-name">bad_spec</div>
+              <div class="fct-tag">This run's problem</div>
+            </div>
+            <div class="fct-body">
+              <div class="fb-cause">Caused by this change, including direct spec deviations. Root cause is outside <code>&lt;intent-contract&gt;</code> — the spec was unclear, not the intent.</div>
+              <div class="fb-action">Extract KEEP instructions, revert code, amend non-frozen spec sections respecting the existing Spec Change Log, append a new change-log entry. Read fully and follow <code>step-03-implement.md</code> again — this step then re-runs.</div>
+            </div>
+            <div class="fct-action">
+              <span class="fca-label">Action</span>
+              <span class="fca-action">Revert code<br>Fix spec</span>
+              <div class="loopback-arrow la-bs">↩ Loop → Step 3</div>
+              <span class="fca-loopback">Capped at 5 iterations,<br>then HALT blocked</span>
+            </div>
+          </div>
+
+          <div class="fc-tier tier-pt">
+            <div class="fct-label">
+              <div class="fct-num">Tier 3</div>
+              <div class="fct-name">patch</div>
+              <div class="fct-tag">This run's problem</div>
+            </div>
+            <div class="fct-body">
+              <div class="fb-cause">Caused by this change. Trivially fixable without human input — just part of the diff.</div>
+              <div class="fb-action">Auto-fix immediately. No loopback. Logged under <code>addressed_findings</code> in this pass's Review Triage Log entry.</div>
+            </div>
+            <div class="fct-action">
+              <span class="fca-label">Action</span>
+              <span class="fca-action">Auto-fix</span>
+              <span class="fca-loopback">No loopback.</span>
+            </div>
+          </div>
+
+          <div class="fc-tier tier-df">
+            <div class="fct-label">
+              <div class="fct-num">Tier 4</div>
+              <div class="fct-name">defer</div>
+              <div class="fct-tag">Not this run's problem</div>
+            </div>
+            <div class="fct-body">
+              <div class="fb-cause">Pre-existing issue, not caused by this run — surfaced incidentally. Real, but out of scope for this iteration.</div>
+              <div class="fb-action">Append one new entry to <code>deferred-work.md</code> (source spec, one-sentence summary, evidence). Never modify existing entries or dedupe.</div>
+            </div>
+            <div class="fct-action">
+              <span class="fca-label">Action</span>
+              <span class="fca-action">→ deferred-work.md</span>
+              <span class="fca-loopback">No loopback.</span>
+            </div>
+          </div>
+
+          <div class="fc-tier tier-rj">
+            <div class="fct-label">
+              <div class="fct-num">Tier 5 · Lowest priority</div>
+              <div class="fct-name">reject</div>
+              <div class="fct-tag">Not this run's problem</div>
+            </div>
+            <div class="fct-body">
+              <div class="fb-cause">Noise — false positive or irrelevant concern under this project's conventions.</div>
+              <div class="fb-action">Drop silently. When unsure between defer and reject, prefer reject — only defer findings you're confident are real.</div>
+            </div>
+            <div class="fct-action">
+              <span class="fca-label">Action</span>
+              <span class="fca-action">Drop silently</span>
+              <span class="fca-loopback">No trace left.</span>
+            </div>
+          </div>
+
+        </div>
+        <div class="cascade-footer">
+          Loop counter tracked in spec frontmatter as <code>review_loop_iteration</code>. Past 5, the run appends <code>addressed_findings: none</code> and HALTs with status <code>blocked</code>, blocking condition <code>review repair loop exceeded 5 iterations (non-convergence)</code> — the loopback is meant to converge, not run indefinitely.
+        </div>
+      </div>
+    </section>
+
+    <!-- Spec status machine -->
+    <section id="spec-status">
+      <h3 class="skill-heading">
+        <span class="code-name">spec-status</span>
+        Spec Status Machine
+      </h3>
+      <p>The spec file's frontmatter <code>status</code> determines which step a resumed run enters. A recognized status on the invocation's target spec is what lets Step 1 skip straight past clarify-and-route.</p>
+
+      <div class="status-machine">
+        <div class="sm-node">
+          <span class="sm-badge sm-draft">draft</span>
+          <div class="sm-event">Step 2 writes spec</div>
+          <div class="sm-desc">Planned but not yet gated. Resume → Step 2.</div>
+        </div>
+        <div class="sm-node">
+          <span class="sm-badge sm-ready">ready-for-dev</span>
+          <div class="sm-event">RFD gate passes</div>
+          <div class="sm-desc">Self-review confirmed all six criteria. Resume → Step 3.</div>
+        </div>
+        <div class="sm-node">
+          <span class="sm-badge sm-prog">in-progress</span>
+          <div class="sm-event">Step 3 begins</div>
+          <div class="sm-desc">Implementation subagent running. <code>baseline_revision</code> recorded. Resume → Step 3.</div>
+        </div>
+        <div class="sm-node">
+          <span class="sm-badge sm-review">in-review</span>
+          <div class="sm-event">Step 4 begins</div>
+          <div class="sm-desc">Reviewers running, findings being classified. Resume → Step 4.</div>
+        </div>
+        <div class="sm-node">
+          <span class="sm-badge sm-done">done</span>
+          <div class="sm-event">Finalize completes</div>
+          <div class="sm-desc">Run finished successfully. A fresh invocation on a <code>done</code> spec resets the loop counter and starts a follow-up review pass at Step 4.</div>
+        </div>
+        <div class="sm-node">
+          <span class="sm-badge sm-blocked">blocked</span>
+          <div class="sm-event">Any HALT</div>
+          <div class="sm-desc">Terminal for this run. A blocked spec supplied as input HALTs again immediately — never auto-retried.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

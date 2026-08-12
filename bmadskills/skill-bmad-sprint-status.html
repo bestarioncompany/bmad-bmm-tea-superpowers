@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprint Status — Guide</title>
+<style>
+  :root {
+    --ink:        #1a1612;
+    --ink-soft:   #4a3f35;
+    --ink-mute:   #8a7c6d;
+    --paper:      #f4ede0;
+    --paper-warm: #ebe1cf;
+    --rule:       #2a221a;
+    --accent:     #c2410c;
+    --accent-soft:#ea580c;
+    --highlight:  #facc15;
+    --navy:       #1d3557;
+
+    /* Story status colors */
+    --s-backlog:  #6b7280; --s-backlog-bg:  #f3f4f6; --s-backlog-bdr:  #d1d5db;
+    --s-ready:    #b45309; --s-ready-bg:   #fef3c7; --s-ready-bdr:   #fcd34d;
+    --s-progress: #2563eb; --s-progress-bg: #dbeafe; --s-progress-bdr: #93c5fd;
+    --s-review:   #7c3aed; --s-review-bg:  #ede9fe; --s-review-bdr:  #c4b5fd;
+    --s-done:     #16a34a; --s-done-bg:    #dcfce7; --s-done-bdr:    #86efac;
+
+    /* Priority ladder colors */
+    --p1-bg: #dbeafe; --p1-acc: #1d4ed8; --p1-head: #1e3a5f;
+    --p2-bg: #ede9fe; --p2-acc: #7c3aed; --p2-head: #4c1d95;
+    --p3-bg: #fef3c7; --p3-acc: #b45309; --p3-head: #78350f;
+    --p4-bg: #f3f4f6; --p4-acc: #4b5563; --p4-head: #1f2937;
+    --p5-bg: #dcfce7; --p5-acc: #16a34a; --p5-head: #14532d;
+    --p6-bg: #fef9c3; --p6-acc: #ca8a04; --p6-head: #713f12;
+
+    /* Mode colors */
+    --interactive-bg: #f0fdf4; --interactive-head: #14532d;
+    --data-bg: #0f172a; --data-fg: #e2f5d6; --data-acc: #4ade80;
+    --validate-bg: #eff6ff; --validate-head: #1e3a5f;
+
+    /* Risk colors */
+    --risk-warn: #fef3c7; --risk-bdr: #fcd34d; --risk-fg: #78350f;
+    --risk-err:  #fee2e2; --risk-err-bdr: #fca5a5; --risk-err-fg: #7f1d1d;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.65; font-size: 0.9375rem; position: relative;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: .5;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "masthead masthead" "toc article";
+    max-width: 1340px; margin: 0 auto; min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ── Masthead ─────────────────────────────────── */
+  header.masthead { grid-area: masthead; border-bottom: 2px solid var(--rule); padding: 28px 40px 24px; background: var(--paper-warm); }
+  .masthead-top { display: flex; justify-content: space-between; align-items: center; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-mute); margin-bottom: 14px; flex-wrap: wrap; gap: 6px; }
+  .masthead-top .left { display: flex; gap: 20px; flex-wrap: wrap; }
+  .preview-badge { background: var(--accent); color: var(--paper); padding: 2px 10px; font-weight: 700; letter-spacing: 0.12em; }
+  h1.title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+  h1.title em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+  p.subtitle { font-size: 0.96rem; color: var(--ink-soft); max-width: 760px; line-height: 1.55; margin-bottom: 18px; }
+  dl.meta-grid { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid var(--rule); border-right: none; }
+  dl.meta-grid > div { border-right: 1px solid var(--rule); padding: 8px 16px; min-width: 120px; }
+  dl.meta-grid dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); margin-bottom: 3px; }
+  dl.meta-grid dd { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; color: var(--ink); }
+
+  /* ── Sidebar ──────────────────────────────────── */
+  aside.toc { grid-area: toc; border-right: 1px solid var(--rule); padding: 32px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .toc-section-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--ink-mute); padding: 14px 24px 6px; border-bottom: 1px solid rgba(42,34,26,.12); margin-bottom: 6px; }
+  .toc-section-label:first-child { padding-top: 0; }
+  aside.toc nav a { display: block; padding: 5px 24px; font-size: 12.5px; color: var(--ink-soft); text-decoration: none; }
+  aside.toc nav a.toc-sub { padding-left: 38px; font-size: 11.5px; color: var(--ink-mute); }
+  aside.toc nav a:hover { color: var(--accent); }
+
+  /* ── Article ──────────────────────────────────── */
+  main.article { grid-area: article; padding: 48px 56px 80px; }
+
+  /* ── Headings ─────────────────────────────────── */
+  h2.agent-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px; line-height: 1.15; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h2.agent-heading .marker { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--paper); background: var(--ink); padding: 3px 10px; white-space: nowrap; flex-shrink: 0; align-self: center; }
+  h2.agent-heading .marker.why { background: var(--accent); }
+  h2.agent-heading .marker.how { background: var(--navy); }
+  h2.agent-heading em { font-style: italic; font-weight: 400; color: var(--ink-soft); }
+
+  h3.skill-heading { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.35rem; font-weight: 700; color: var(--ink); margin: 44px 0 16px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  h3.skill-heading .code-name { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 2px 10px; letter-spacing: 0.04em; white-space: nowrap; }
+  h3.skill-heading .code-tag { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--accent); color: var(--paper); padding: 2px 8px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+
+  p { margin-bottom: 14px; line-height: 1.68; }
+  p.lede { font-size: 1.05rem; color: var(--ink-soft); font-style: italic; margin-bottom: 20px; }
+  code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 0.83em; background: var(--paper-warm); border: 1px solid rgba(42,34,26,.2); padding: 1px 5px; color: var(--ink-soft); }
+  strong { font-weight: 700; color: var(--ink); }
+
+  /* ── Persona block ────────────────────────────── */
+  dl.persona-block { border: 1px solid var(--rule); background: var(--paper); margin: 0 0 28px; display: grid; grid-template-columns: 160px 1fr; }
+  dl.persona-block dt { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-mute); padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); border-right: 1px solid rgba(42,34,26,.18); background: var(--paper-warm); }
+  dl.persona-block dd { font-size: 0.875rem; padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.18); color: var(--ink-soft); line-height: 1.5; }
+  dl.persona-block dt:last-of-type, dl.persona-block dd:last-child { border-bottom: none; }
+  .menu-codes { display: flex; flex-wrap: wrap; gap: 4px; }
+  .menu-codes code { background: var(--ink); color: var(--paper); border: none; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+
+  /* ── Module grid ──────────────────────────────── */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1px; border: 1px solid var(--rule); background: var(--paper); margin: 16px 0 32px; }
+  .module-card { background: var(--paper); padding: 16px 18px; box-shadow: 0 0 0 1px var(--rule); }
+  .module-card .card-code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 6px; }
+  .module-card .card-name { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+  .module-card .card-body ul { list-style: none; padding: 0; margin: 0; }
+  .module-card .card-body li { padding: 3px 0 3px 14px; position: relative; font-size: 12px; color: var(--ink-soft); border-bottom: 1px dotted rgba(42,34,26,.12); line-height: 1.45; }
+  .module-card .card-body li:last-child { border-bottom: none; }
+  .module-card .card-body li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .module-card .card-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(42,34,26,.2); font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+
+  /* ── Step detail ──────────────────────────────── */
+  ul.step-detail { list-style: none; margin: 0 0 18px; border: 1px solid rgba(42,34,26,.15); background: var(--paper); }
+  ul.step-detail li { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.14); font-size: 0.9rem; line-height: 1.6; }
+  ul.step-detail li:last-child { border-bottom: none; }
+  ul.step-detail .label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--accent); display: inline-block; min-width: 130px; margin-right: 8px; }
+
+  /* ── Section divider ──────────────────────────── */
+  hr.section-divider { border: none; border-top: 1px solid var(--rule); margin: 56px 0; position: relative; text-align: center; }
+  hr.section-divider::after { content: '◆ ◆ ◆'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--paper); padding: 0 12px; font-size: 8px; color: var(--ink-mute); letter-spacing: 6px; }
+
+  /* ── Status dashboard ─────────────────────────── */
+  .status-dashboard { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 24px; }
+  .status-dashboard > * { box-shadow: 0 0 0 1px var(--rule); }
+  .sd-bucket { padding: 16px 14px; text-align: center; }
+  .sdb-badge { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; padding: 2px 8px; border: 1px solid; display: inline-block; margin-bottom: 8px; }
+  .sdb-count { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 2.2rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+  .sdb-label { font-size: 11px; color: var(--ink-mute); line-height: 1.3; }
+
+  .sd-backlog  { background: var(--s-backlog-bg); }
+  .sd-backlog  .sdb-badge  { background: var(--s-backlog-bg); color: var(--s-backlog); border-color: var(--s-backlog-bdr); }
+  .sd-backlog  .sdb-count  { color: var(--s-backlog); }
+
+  .sd-ready    { background: var(--s-ready-bg); }
+  .sd-ready    .sdb-badge  { background: var(--s-ready-bg); color: var(--s-ready); border-color: var(--s-ready-bdr); }
+  .sd-ready    .sdb-count  { color: var(--s-ready); }
+
+  .sd-progress { background: var(--s-progress-bg); }
+  .sd-progress .sdb-badge  { background: var(--s-progress-bg); color: var(--s-progress); border-color: var(--s-progress-bdr); }
+  .sd-progress .sdb-count  { color: var(--s-progress); }
+
+  .sd-review   { background: var(--s-review-bg); }
+  .sd-review   .sdb-badge  { background: var(--s-review-bg); color: var(--s-review); border-color: var(--s-review-bdr); }
+  .sd-review   .sdb-count  { color: var(--s-review); }
+
+  .sd-done     { background: var(--s-done-bg); }
+  .sd-done     .sdb-badge  { background: var(--s-done-bg); color: var(--s-done); border-color: var(--s-done-bdr); }
+  .sd-done     .sdb-count  { color: var(--s-done); }
+
+  /* ── Three modes grid ─────────────────────────── */
+  .modes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 24px; }
+  .modes-grid > * { box-shadow: 0 0 0 1px var(--rule); }
+  .mode-card { padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .mode-interactive { background: var(--interactive-bg); }
+  .mode-data        { background: var(--data-bg); }
+  .mode-validate    { background: var(--validate-bg); }
+  .mc-badge { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; padding: 3px 10px; display: inline-block; align-self: flex-start; }
+  .mode-interactive .mc-badge { background: #15803d; color: var(--paper); }
+  .mode-data        .mc-badge { background: #4ade80; color: #0a1f0a; }
+  .mode-validate    .mc-badge { background: var(--navy); color: var(--paper); }
+  .mc-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; }
+  .mode-interactive .mc-title { color: var(--interactive-head); }
+  .mode-data        .mc-title { color: #a7f3d0; }
+  .mode-validate    .mc-title { color: var(--validate-head); }
+  .mc-trigger { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; padding: 2px 7px; border: 1px solid; }
+  .mode-interactive .mc-trigger { color: #16a34a; border-color: #86efac; background: #f0fdf4; }
+  .mode-data        .mc-trigger { color: #4ade80; border-color: #166534; background: #0f172a; }
+  .mode-validate    .mc-trigger { color: #2563eb; border-color: #93c5fd; background: #eff6ff; }
+  .mc-desc { font-size: 12.5px; line-height: 1.5; }
+  .mode-interactive .mc-desc { color: #166534; }
+  .mode-data        .mc-desc { color: #86efac; }
+  .mode-validate    .mc-desc { color: #1e40af; }
+  .mc-output { margin-top: 4px; padding-top: 8px; border-top: 1px dashed; font-size: 11px; }
+  .mode-interactive .mc-output { border-color: rgba(21,128,61,.3); color: #15803d; }
+  .mode-data        .mc-output { border-color: rgba(74,222,128,.2); color: #4ade80; }
+  .mode-validate    .mc-output { border-color: rgba(37,99,235,.25); color: #2563eb; }
+  .mc-output code { font-size: 10.5px; }
+
+  /* ══ PRIORITY LADDER — distinctive visual ══════ */
+  .priority-wrapper { border: 1px solid var(--rule); margin: 20px 0 32px; }
+  .pw-header { background: var(--ink); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .pw-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.22em; color: var(--highlight); font-weight: 700; }
+  .pw-note  { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; color: rgba(244,237,224,.6); }
+
+  .priority-ladder { background: var(--paper); position: relative; }
+  .priority-ladder::before {
+    content: ''; position: absolute; left: 60px; top: 0; bottom: 0; width: 2px;
+    background: repeating-linear-gradient(to bottom, var(--rule) 0, var(--rule) 5px, transparent 5px, transparent 12px);
+    z-index: 0;
+  }
+
+  .pl-rung { display: grid; grid-template-columns: 120px 1fr auto; align-items: stretch; border-bottom: 1px solid rgba(42,34,26,.1); position: relative; z-index: 1; }
+  .pl-rung:last-child { border-bottom: none; }
+
+  .pl-priority { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 16px 12px; gap: 6px; }
+  .plp-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-mute); }
+  .plp-dot { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; color: var(--paper); border: 3px solid; }
+
+  .pl-body { padding: 14px 18px; }
+  .plb-condition { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); margin-bottom: 4px; }
+  .plb-title { font-family: Georgia, 'Palatino Linotype', Palatino, serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .plb-desc { font-size: 12.5px; color: var(--ink-soft); line-height: 1.45; }
+
+  .pl-action { padding: 14px 18px; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 4px; border-left: 1px solid rgba(42,34,26,.1); min-width: 180px; }
+  .pla-label { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  .pla-workflow { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 11px; font-weight: 700; text-align: right; }
+
+  /* P1 — in-progress */
+  .rung-p1 .pl-priority { background: var(--p1-bg); }
+  .rung-p1 .plp-dot     { background: var(--p1-acc); border-color: var(--p1-head); }
+  .rung-p1 .pla-workflow { color: var(--p1-acc); }
+  /* P2 — review */
+  .rung-p2 .pl-priority { background: var(--p2-bg); }
+  .rung-p2 .plp-dot     { background: var(--p2-acc); border-color: var(--p2-head); }
+  .rung-p2 .pla-workflow { color: var(--p2-acc); }
+  /* P3 — ready-for-dev */
+  .rung-p3 .pl-priority { background: var(--p3-bg); }
+  .rung-p3 .plp-dot     { background: var(--p3-acc); border-color: var(--p3-head); }
+  .rung-p3 .pla-workflow { color: var(--p3-acc); }
+  /* P4 — backlog */
+  .rung-p4 .pl-priority { background: var(--p4-bg); }
+  .rung-p4 .plp-dot     { background: var(--p4-acc); border-color: var(--p4-head); }
+  .rung-p4 .pla-workflow { color: var(--p4-acc); }
+  /* P5 — retrospective */
+  .rung-p5 .pl-priority { background: var(--p5-bg); }
+  .rung-p5 .plp-dot     { background: var(--p5-acc); border-color: var(--p5-head); }
+  .rung-p5 .pla-workflow { color: var(--p5-acc); }
+  /* P6 — done */
+  .rung-p6 .pl-priority { background: var(--p6-bg); }
+  .rung-p6 .plp-dot     { background: var(--p6-acc); border-color: var(--p6-head); font-size: 15px; }
+  .rung-p6 .pla-workflow { color: var(--p6-acc); }
+
+  /* ── Risk detection table ─────────────────────── */
+  .risk-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0 24px; border: 1px solid var(--rule); }
+  .risk-table th { text-align: left; padding: 8px 14px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.14em; background: var(--paper-warm); color: var(--accent); border-bottom: 2px solid var(--rule); }
+  .risk-table td { padding: 9px 14px; border-bottom: 1px dotted rgba(42,34,26,.15); vertical-align: top; line-height: 1.5; }
+  .risk-table tr:last-child td { border-bottom: none; }
+  .rt-type { white-space: nowrap; }
+  .rt-badge { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 9px; font-weight: 700; padding: 2px 8px; display: inline-block; border: 1px solid; text-transform: uppercase; letter-spacing: 0.1em; }
+  .rb-warn { background: var(--risk-warn); color: var(--risk-fg); border-color: var(--risk-bdr); }
+  .rb-err  { background: var(--risk-err); color: var(--risk-err-fg); border-color: var(--risk-err-bdr); }
+  .rt-trigger { font-size: 12.5px; color: var(--ink-soft); }
+  .rt-action  { font-size: 12.5px; color: var(--ink); font-weight: 600; }
+
+  /* ── Menu choices ─────────────────────────────── */
+  .menu-choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--paper); border: 1px solid var(--rule); margin: 16px 0 24px; }
+  .menu-choices > * { box-shadow: 0 0 0 1px var(--rule); }
+  .choice-card { background: var(--paper); padding: 14px 16px; }
+  .cc-num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; font-weight: 700; background: var(--ink); color: var(--paper); padding: 1px 8px; display: inline-block; margin-bottom: 8px; }
+  .cc-title { font-size: 0.9rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .cc-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.45; }
+
+  /* ── Validate output block ────────────────────── */
+  .validate-outputs { background: #0f172a; border: 1px solid #1e293b; padding: 16px 20px; margin: 16px 0 24px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.8; }
+  .vo-comment { color: #475569; }
+  .vo-key { color: #94a3b8; }
+  .vo-val-true  { color: #4ade80; font-weight: 700; }
+  .vo-val-false { color: #f87171; font-weight: 700; }
+  .vo-val-msg   { color: #fbbf24; }
+  .vo-val-err   { color: #f87171; }
+
+  /* ── Colophon ─────────────────────────────────── */
+  footer.colophon { grid-column: 1 / -1; border-top: 2px solid var(--rule); padding: 20px 40px; background: var(--paper-warm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-mute); }
+  footer.colophon strong { color: var(--accent); }
+
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "masthead" "article"; }
+    aside.toc { display: none; }
+    main.article { padding: 32px 24px 60px; }
+    .status-dashboard, .modes-grid, .menu-choices { grid-template-columns: 1fr 1fr; }
+    .pl-rung { grid-template-columns: 80px 1fr; }
+    .pl-action { display: none; }
+    .priority-ladder::before { left: 40px; }
+  }
+  @media (max-width: 600px) {
+    .status-dashboard { grid-template-columns: 1fr; }
+    .modes-grid { grid-template-columns: 1fr; }
+    .menu-choices { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <div class="left">
+        <span>BMad · Sprint Status</span>
+        <span>Skill · bmad-sprint-status</span>
+        <span>Sprint Visibility · Risk Detection · Next Action Recommendation</span>
+      </div>
+      <div class="right"><span class="preview-badge">Full Guide</span></div>
+    </div>
+    <h1 class="title">Sprint Status <em>· Visibility, Risks & Next Action</em></h1>
+    <p class="subtitle">Reads <code>sprint-status.yaml</code> — the single source of truth for Phase 4 — and produces a clear sprint snapshot: story counts by status, epic and retrospective progress, open <code>action_items</code> carried forward from past retrospectives, detected risks, and a deterministic next-action recommendation. Operates in three modes: interactive (human-facing dashboard), data (machine-readable key/value for other skills), and validate (structural file check).</p>
+    <dl class="meta-grid">
+      <div><dt>Skill code</dt><dd>bmad-sprint-status</dd></div>
+      <div><dt>Input</dt><dd>sprint-status.yaml</dd></div>
+      <div><dt>Trigger</dt><dd>"check sprint status" / "show sprint status"</dd></div>
+      <div><dt>Agent</dt><dd>Developer · visibility &amp; risk surface</dd></div>
+      <div><dt>Source of truth</dt><dd>sprint-status.yaml</dd></div>
+      <div><dt>Modes</dt><dd>interactive / data / validate</dd></div>
+      <div><dt>No time estimates</dt><dd>Status, risks, next steps only</dd></div>
+    </dl>
+  </header>
+
+  <!-- TOC -->
+  <aside class="toc">
+    <nav>
+      <div class="toc-section-label">§ WHAT</div>
+      <a href="#what-overview">Skill Overview</a>
+      <a href="#status-buckets">Story Status Buckets</a>
+      <a href="#three-modes">Three Execution Modes</a>
+
+      <div class="toc-section-label">§ WHY</div>
+      <a href="#why-visibility">Why Structured Visibility?</a>
+      <a href="#why-single-source">sprint-status.yaml as Source of Truth</a>
+
+      <div class="toc-section-label">§ HOW</div>
+      <a href="#priority-ladder">Next Action Priority Ladder</a>
+      <a href="#risk-detection">Risk Detection</a>
+      <a href="#interactive-flow">Interactive Workflow</a>
+      <a href="#menu-choices" class="toc-sub">Menu Choices</a>
+      <a href="#validate-mode">Validate Mode Output</a>
+    </nav>
+  </aside>
+
+  <!-- ARTICLE -->
+  <main class="article">
+
+    <!-- ══════════════════════════════════════════════
+         § WHAT
+         ══════════════════════════════════════════════ -->
+    <section id="what-overview">
+      <h2 class="agent-heading">
+        <span class="marker">§ WHAT</span>
+        Sprint Status <em>· Sprint Visibility at a Glance</em>
+      </h2>
+
+      <dl class="persona-block">
+        <dt>Skill code</dt><dd><code>bmad-sprint-status</code></dd>
+        <dt>Trigger phrases</dt><dd>
+          <div class="menu-codes">
+            <code>check sprint status</code>
+            <code>show sprint status</code>
+          </div>
+        </dd>
+        <dt>Agent</dt><dd>Developer providing clear, actionable sprint visibility. No time estimates — status, risks, and next steps only.</dd>
+        <dt>Source of truth</dt><dd><code>sprint-status.yaml</code> in <code>implementation_artifacts/</code>. If the file doesn't exist: exits immediately with a prompt to run sprint-planning first.</dd>
+        <dt>Three modes</dt><dd><strong>interactive</strong> — full human-facing dashboard with menu options · <strong>data</strong> — machine-readable key/value output consumed by other skills · <strong>validate</strong> — structural integrity check returning <code>is_valid</code> flag</dd>
+        <dt>No time estimates</dt><dd>The skill deliberately avoids estimates. Sprint status is about <em>what</em> is happening, not <em>when</em> it will finish. Risks are surfaced so the team can respond, not so they can predict a date.</dd>
+      </dl>
+
+      <p>Sprint Status is the dashboard read. It doesn't change anything — it reads <code>sprint-status.yaml</code>, validates it, detects risks, computes the next recommended action using a deterministic priority ladder, and presents the results. It also functions as a machine interface: other skills call it in <code>data</code> mode to get structured counts and the next workflow recommendation without displaying anything to the user.</p>
+    </section>
+
+    <section id="status-buckets">
+      <h3 class="skill-heading">
+        <span class="code-name">status-buckets</span>
+        Story Status Buckets
+      </h3>
+      <p>The skill classifies every entry in <code>development_status</code> as an epic, a retrospective, or a story — then counts stories across all five status states. Example sprint dashboard:</p>
+
+      <div class="status-dashboard">
+        <div class="sd-bucket sd-backlog">
+          <span class="sdb-badge">backlog</span>
+          <div class="sdb-count">4</div>
+          <div class="sdb-label">Planned, not yet drafted into ready state</div>
+        </div>
+        <div class="sd-bucket sd-ready">
+          <span class="sdb-badge">ready-for-dev</span>
+          <div class="sdb-count">2</div>
+          <div class="sdb-label">Spec complete, approved, waiting to start</div>
+        </div>
+        <div class="sd-bucket sd-progress">
+          <span class="sdb-badge">in-progress</span>
+          <div class="sdb-count">1</div>
+          <div class="sdb-label">Active development in this session</div>
+        </div>
+        <div class="sd-bucket sd-review">
+          <span class="sdb-badge">review</span>
+          <div class="sdb-count">1</div>
+          <div class="sdb-label">Implementation done, awaiting code review</div>
+        </div>
+        <div class="sd-bucket sd-done">
+          <span class="sdb-badge">done</span>
+          <div class="sdb-count">6</div>
+          <div class="sdb-label">Reviewed, approved, and complete</div>
+        </div>
+      </div>
+
+      <p style="font-size:12.5px; color:var(--ink-mute);">
+        <strong>Legacy status mapping</strong> — applied automatically on load: <code>drafted</code> → <code>ready-for-dev</code> · <code>contexted</code> → <code>in-progress</code>. Unknown statuses surface an interactive correction prompt before proceeding.
+      </p>
+    </section>
+
+    <section id="three-modes">
+      <h3 class="skill-heading">
+        <span class="code-name">three-modes</span>
+        Three Execution Modes
+      </h3>
+
+      <div class="modes-grid">
+        <div class="mode-card mode-interactive">
+          <span class="mc-badge">Interactive</span>
+          <div class="mc-title">Human-Facing Dashboard</div>
+          <div class="mc-trigger">mode = interactive (default)</div>
+          <div class="mc-desc">Full workflow: parse, validate, detect risks, compute recommendation, display summary, present 4-option menu. Pauses for user input at each decision point.</div>
+          <div class="mc-output">Output: formatted markdown dashboard + menu</div>
+        </div>
+        <div class="mode-card mode-data">
+          <span class="mc-badge">Data</span>
+          <div class="mc-title">Machine Interface</div>
+          <div class="mc-trigger">mode = data</div>
+          <div class="mc-desc">Skips display entirely. Parses the file, computes counts and recommendation, then returns structured key/value pairs for the calling skill to consume. Used by other BMad workflows that need sprint state programmatically.</div>
+          <div class="mc-output">Output: <code>next_workflow_id</code> <code>count_done</code> <code>risks</code> …</div>
+        </div>
+        <div class="mode-card mode-validate">
+          <span class="mc-badge">Validate</span>
+          <div class="mc-title">Structure Check</div>
+          <div class="mc-trigger">mode = validate</div>
+          <div class="mc-desc">Checks that the file exists, required metadata fields are present, <code>development_status</code> section is non-empty, and all status values are recognized. Returns a boolean result — no display, no interaction.</div>
+          <div class="mc-output">Output: <code>is_valid = true / false</code> + error + suggestion</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § WHY
+         ══════════════════════════════════════════════ -->
+    <section id="why-visibility">
+      <h2 class="agent-heading">
+        <span class="marker why">§ WHY</span>
+        Why Structured Visibility? <em>· Status Without Guesswork</em>
+      </h2>
+
+      <p class="lede">When sprint state is implicit — in the developer's head, in commit messages, in chat threads — the next right action requires reconstruction every time. Sprint Status makes that reconstruction instant and deterministic.</p>
+
+      <p>The most common sprint overhead isn't implementation — it's orientation. "What should I work on now?" "Is there something waiting on me?" "Are we still on track?" Without a structured status view, each of these questions requires the developer to reconstruct sprint state from git history, conversation context, and memory. That reconstruction takes minutes and produces answers of varying reliability.</p>
+
+      <p>Sprint Status reads a single file and answers all three questions in under a second, with the same priority logic every time. The recommendation is never ambiguous — it follows a deterministic 6-level priority ladder. The risks are detected mechanically from the file state — no human needs to remember to check them.</p>
+    </section>
+
+    <section id="why-single-source">
+      <h3 class="skill-heading">
+        <span class="code-name">single-source</span>
+        sprint-status.yaml as the Single Source of Truth
+      </h3>
+
+      <p><code>sprint-status.yaml</code> is the flat tracking file that the entire Phase 4 workflow writes to and reads from. Every status-changing skill — Sprint Planning, Create Story, Dev Story, Code Review, Retrospective, Correct Course — updates this file when stories and epics transition. Sprint Status is the only skill that <em>reads</em> it without writing.</p>
+
+      <ul class="step-detail" style="margin-top:0;">
+        <li><strong class="label">Keys — epics</strong>Entries starting with <code>epic-</code> (and not ending with <code>-retrospective</code>). Statuses: <code>backlog</code> / <code>in-progress</code> / <code>done</code>.</li>
+        <li><strong class="label">Keys — stories</strong>Everything else, e.g. <code>1-2-login-form</code>. Statuses: <code>backlog</code> / <code>ready-for-dev</code> / <code>in-progress</code> / <code>review</code> / <code>done</code>.</li>
+        <li><strong class="label">Keys — retros</strong>Entries ending with <code>-retrospective</code>. Statuses: <code>optional</code> / <code>done</code>.</li>
+        <li><strong class="label">Keys — action_items</strong>A dedicated <code>action_items</code> section, appended to by <code>bmad-retrospective</code> at the close of each epic. Sprint Status validates the section and surfaces any still-open items; Sprint Planning preserves them on regenerate rather than dropping them.</li>
+        <li><strong class="label">Stale warning</strong>If <code>last_updated</code> is more than 7 days old (or missing, falling back to <code>generated</code>), the skill warns that the file may be stale — a signal to run the relevant skill to sync state.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ══════════════════════════════════════════════
+         § HOW
+         ══════════════════════════════════════════════ -->
+    <section id="priority-ladder">
+      <h2 class="agent-heading">
+        <span class="marker how">§ HOW</span>
+        Next Action Priority Ladder <em>· Deterministic Recommendation</em>
+      </h2>
+
+      <p>The recommendation is computed once, the same way, every time. Six conditions are evaluated in priority order — the first that matches becomes the recommendation. Stories are sorted by epic number then story number (1-1 before 1-2 before 2-1) when selecting "the first" matching story.</p>
+
+      <!-- PRIORITY LADDER — distinctive visual -->
+      <div class="priority-wrapper">
+        <div class="pw-header">
+          <span class="pw-label">Next Action Priority Ladder</span>
+          <span class="pw-note">Evaluated top → bottom. First match wins. Sorting: epic num, then story num.</span>
+        </div>
+        <div class="priority-ladder">
+
+          <div class="pl-rung rung-p1">
+            <div class="pl-priority">
+              <span class="plp-num">P 1</span>
+              <div class="plp-dot">1</div>
+            </div>
+            <div class="pl-body">
+              <div class="plb-condition">Condition · Highest priority</div>
+              <div class="plb-title">Story is in-progress</div>
+              <div class="plb-desc">At least one story has status <code>in-progress</code>. Someone is actively working. Don't interrupt or start something new — recommend continuing the first active story.</div>
+            </div>
+            <div class="pl-action">
+              <span class="pla-label">Recommend</span>
+              <span class="pla-workflow">bmad-dev-story</span>
+              <span style="font-size:11px; color:var(--ink-mute);">first in-progress story</span>
+            </div>
+          </div>
+
+          <div class="pl-rung rung-p2">
+            <div class="pl-priority">
+              <span class="plp-num">P 2</span>
+              <div class="plp-dot">2</div>
+            </div>
+            <div class="pl-body">
+              <div class="plb-condition">Condition</div>
+              <div class="plb-title">Story is in review</div>
+              <div class="plb-desc">At least one story has status <code>review</code>. Implementation is done but code review hasn't run. This is a blocking state — unreviewed stories prevent the epic from progressing.</div>
+            </div>
+            <div class="pl-action">
+              <span class="pla-label">Recommend</span>
+              <span class="pla-workflow">bmad-code-review</span>
+              <span style="font-size:11px; color:var(--ink-mute);">first review story</span>
+            </div>
+          </div>
+
+          <div class="pl-rung rung-p3">
+            <div class="pl-priority">
+              <span class="plp-num">P 3</span>
+              <div class="plp-dot">3</div>
+            </div>
+            <div class="pl-body">
+              <div class="plb-condition">Condition</div>
+              <div class="plb-title">Story is ready for dev</div>
+              <div class="plb-desc">At least one story has status <code>ready-for-dev</code>. A spec has been written and approved. Time to start implementation — pick up the first ready story.</div>
+            </div>
+            <div class="pl-action">
+              <span class="pla-label">Recommend</span>
+              <span class="pla-workflow">bmad-dev-story</span>
+              <span style="font-size:11px; color:var(--ink-mute);">first ready-for-dev story</span>
+            </div>
+          </div>
+
+          <div class="pl-rung rung-p4">
+            <div class="pl-priority">
+              <span class="plp-num">P 4</span>
+              <div class="plp-dot">4</div>
+            </div>
+            <div class="pl-body">
+              <div class="plb-condition">Condition</div>
+              <div class="plb-title">Story is in backlog</div>
+              <div class="plb-desc">At least one story has status <code>backlog</code>. No stories are ready to implement yet. The next step is to draft a story — write the spec and get user approval before development begins.</div>
+            </div>
+            <div class="pl-action">
+              <span class="pla-label">Recommend</span>
+              <span class="pla-workflow">bmad-create-story</span>
+              <span style="font-size:11px; color:var(--ink-mute);">next backlog story</span>
+            </div>
+          </div>
+
+          <div class="pl-rung rung-p5">
+            <div class="pl-priority">
+              <span class="plp-num">P 5</span>
+              <div class="plp-dot">5</div>
+            </div>
+            <div class="pl-body">
+              <div class="plb-condition">Condition</div>
+              <div class="plb-title">Retrospective is pending</div>
+              <div class="plb-desc">All implementation items are done, but at least one retrospective has status <code>optional</code>. Epic is complete — run the retrospective to capture learnings before moving to the next epic.</div>
+            </div>
+            <div class="pl-action">
+              <span class="pla-label">Recommend</span>
+              <span class="pla-workflow">bmad-retrospective</span>
+              <span style="font-size:11px; color:var(--ink-mute);">pending retro</span>
+            </div>
+          </div>
+
+          <div class="pl-rung rung-p6">
+            <div class="pl-priority">
+              <span class="plp-num">P 6</span>
+              <div class="plp-dot">★</div>
+            </div>
+            <div class="pl-body">
+              <div class="plb-condition">Condition · Terminal</div>
+              <div class="plb-title">All implementation items done</div>
+              <div class="plb-desc">Every story is done, every epic is done, every retrospective is done or not applicable. The sprint is complete. Nothing left to recommend — congratulate the team.</div>
+            </div>
+            <div class="pl-action">
+              <span class="pla-label">Outcome</span>
+              <span class="pla-workflow" style="color:var(--p6-acc);">Sprint complete!</span>
+              <span style="font-size:11px; color:var(--ink-mute);">Congratulate the user</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Risk detection -->
+    <section id="risk-detection">
+      <h3 class="skill-heading">
+        <span class="code-name">risk-detection</span>
+        Risk Detection
+      </h3>
+      <p>Six risk conditions are checked mechanically while parsing the file. Detected risks are appended to the dashboard output. They don't block the recommendation — they inform the user of issues that need attention alongside the next action.</p>
+
+      <table class="risk-table">
+        <thead>
+          <tr>
+            <th style="width:120px;">Severity</th>
+            <th style="width:260px;">Trigger condition</th>
+            <th>Risk message / recommended action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rt-type"><span class="rt-badge rb-warn">warn</span></td>
+            <td class="rt-trigger">Story has status <code>review</code></td>
+            <td class="rt-action">Suggests running <code>bmad-code-review</code> — a review-blocked story is unresolved work that prevents epic progress</td>
+          </tr>
+          <tr>
+            <td class="rt-type"><span class="rt-badge rb-warn">warn</span></td>
+            <td class="rt-trigger">Story is <code>in-progress</code> and no stories are <code>ready-for-dev</code></td>
+            <td class="rt-action">Recommend staying focused on the active story — no queue to pull from, multi-tasking would create context overhead</td>
+          </tr>
+          <tr>
+            <td class="rt-type"><span class="rt-badge rb-warn">warn</span></td>
+            <td class="rt-trigger">All epics are <code>backlog</code> and no stories are <code>ready-for-dev</code></td>
+            <td class="rt-action">Prompt <code>bmad-create-story</code> — nothing is ready to implement, planning is the blocking item</td>
+          </tr>
+          <tr>
+            <td class="rt-type"><span class="rt-badge rb-warn">warn</span></td>
+            <td class="rt-trigger"><code>last_updated</code> is more than 7 days old (or missing)</td>
+            <td class="rt-action">"sprint-status.yaml may be stale" — the file hasn't been updated recently; status counts may not reflect current reality</td>
+          </tr>
+          <tr>
+            <td class="rt-type"><span class="rt-badge rb-warn">warn</span></td>
+            <td class="rt-trigger">One or more entries in <code>action_items</code> are still open from a prior epic's retrospective</td>
+            <td class="rt-action">Lists the open items with owner — a signal to close them out before the next epic starts, not just log new ones</td>
+          </tr>
+          <tr>
+            <td class="rt-type"><span class="rt-badge rb-err">error</span></td>
+            <td class="rt-trigger">Story key's epic number doesn't match any existing epic (e.g., story <code>5-1-…</code> but no <code>epic-5</code>)</td>
+            <td class="rt-action">"Orphaned story detected" — a story without a parent epic suggests a file corruption or a manual edit gone wrong</td>
+          </tr>
+          <tr>
+            <td class="rt-type"><span class="rt-badge rb-err">error</span></td>
+            <td class="rt-trigger">Epic is <code>in-progress</code> but has no associated stories in the file</td>
+            <td class="rt-action">"In-progress epic has no stories" — an active epic with no stories suggests missing story entries or a planning gap</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Interactive workflow -->
+    <section id="interactive-flow">
+      <h3 class="skill-heading">
+        <span class="code-name">interactive-steps</span>
+        Interactive Mode — Step by Step
+      </h3>
+
+      <ul class="step-detail">
+        <li><strong class="label">Step 0 · Mode</strong>Determine execution mode from caller. Default: <code>interactive</code>. Jump to Step 20 for data mode, Step 30 for validate mode.</li>
+        <li><strong class="label">Step 1 · Locate file</strong>Try <code>sprint-status.yaml</code>. If missing: exit with prompt to run sprint-planning. If found: continue.</li>
+        <li><strong class="label">Step 2 · Parse &amp; validate</strong>Read full file. Classify entries as epics / retrospectives / stories. Count statuses. Map legacy values. Validate all statuses — prompt for corrections if any are unrecognized. Detect all 6 risks.</li>
+        <li><strong class="label">Step 3 · Select recommendation</strong>Evaluate priority ladder (P1–P6). Store <code>next_story_id</code>, <code>next_workflow_id</code>, <code>next_agent</code>.</li>
+        <li><strong class="label">Step 4 · Display</strong>Output: project + tracking info, story counts by status, epic counts, open <code>action_items</code> carried forward from prior retrospectives, next recommendation command, and any detected risks.</li>
+        <li><strong class="label">Step 5 · Menu</strong>Present 4 choices and wait for user input. See menu options below.</li>
+      </ul>
+    </section>
+
+    <section id="menu-choices">
+      <h3 class="skill-heading">
+        <span class="code-name">menu-choices</span>
+        Interactive Menu — 4 Options
+      </h3>
+
+      <div class="menu-choices">
+        <div class="choice-card">
+          <span class="cc-num">[1]</span>
+          <div class="cc-title">Run Recommendation</div>
+          <div class="cc-desc">Outputs the exact command to run the recommended workflow, with the <code>story_key</code> pre-filled if the workflow targets a specific story.</div>
+        </div>
+        <div class="choice-card">
+          <span class="cc-num">[2]</span>
+          <div class="cc-title">Stories by Status</div>
+          <div class="cc-desc">Shows all story keys grouped: In Progress, Review, Ready for Dev, Backlog, Done. Useful for reviewing the full picture before deciding on next steps.</div>
+        </div>
+        <div class="choice-card">
+          <span class="cc-num">[3]</span>
+          <div class="cc-title">Raw YAML</div>
+          <div class="cc-desc">Displays the full contents of <code>sprint-status.yaml</code>. For when the parsed view isn't enough and the user needs to see the exact file state.</div>
+        </div>
+        <div class="choice-card">
+          <span class="cc-num">[4]</span>
+          <div class="cc-title">Exit</div>
+          <div class="cc-desc">Exits cleanly. Runs <code>workflow.on_complete</code> if configured (e.g., posting to Slack, syncing to a tracker). Then terminates.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Validate mode output -->
+    <section id="validate-mode">
+      <h3 class="skill-heading">
+        <span class="code-name">validate-output</span>
+        Validate Mode — Structured Output
+      </h3>
+      <p>Returns machine-readable key/value results. Called by other skills before relying on <code>sprint-status.yaml</code> data. Three outcomes:</p>
+
+      <div class="validate-outputs">
+        <div class="vo-comment"># Outcome A — file is valid</div>
+        <div><span class="vo-key">is_valid</span> = <span class="vo-val-true">true</span></div>
+        <div><span class="vo-key">message</span> = <span class="vo-val-msg">"sprint-status.yaml valid: metadata complete, all statuses recognized"</span></div>
+        <br>
+        <div class="vo-comment"># Outcome B — file missing</div>
+        <div><span class="vo-key">is_valid</span> = <span class="vo-val-false">false</span></div>
+        <div><span class="vo-key">error</span> = <span class="vo-val-err">"sprint-status.yaml missing"</span></div>
+        <div><span class="vo-key">suggestion</span> = <span class="vo-val-msg">"Run sprint-planning to create it"</span></div>
+        <br>
+        <div class="vo-comment"># Outcome C — invalid status values</div>
+        <div><span class="vo-key">is_valid</span> = <span class="vo-val-false">false</span></div>
+        <div><span class="vo-key">error</span> = <span class="vo-val-err">"Invalid status values: [key: 'value', ...]"</span></div>
+        <div><span class="vo-key">suggestion</span> = <span class="vo-val-msg">"Fix invalid statuses in sprint-status.yaml"</span></div>
+      </div>
+
+      <p style="font-size:12.5px; color:var(--ink-mute);">Required metadata fields checked: <code>generated</code> · <code>project</code> · <code>project_key</code> · <code>tracking_system</code> · <code>story_location</code>. <code>last_updated</code> is optional for backward compatibility.</p>
+    </section>
+
+  </main>
+
+</div>
+
+</body>
+</html>

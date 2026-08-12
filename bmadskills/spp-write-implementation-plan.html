@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,700&family=JetBrains+Mono:wght@400;500;700&family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <title>Write Implementation Plan — Guide</title>
+  <style>
+    :root {
+      --background: #ffffff;
+      --foreground: #09090b;
+      --muted: #f4f4f5;
+      --muted-foreground: #71717a;
+      --border: #e4e4e7;
+      --card: #ffffff;
+      --accent: #18181b;
+      --accent-foreground: #fafafa;
+      --success: #166534;
+      --warning: #854d0e;
+      --danger: #991b1b;
+      --radius: 8px;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --sidebar: 288px;
+      --toc: 220px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--foreground);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14.5px;
+      line-height: 1.65;
+    }
+    a { color: inherit; text-decoration: none; }
+    code, pre, .mono { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr) var(--toc);
+    }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-right: 1px solid var(--border);
+      background: #fafafa;
+      padding: 20px 14px 28px;
+    }
+    .brand {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      padding: 0 8px 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: var(--foreground);
+      color: var(--background);
+      font-weight: 800;
+      letter-spacing: 0;
+      font-size: 13px;
+    }
+    .brand-title {
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand-sub {
+      color: var(--muted-foreground);
+      font-size: 11.5px;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-group { margin: 18px 0; display: grid; gap: 3px; }
+    .nav-heading {
+      padding: 0 8px 7px;
+      font-size: 11px;
+      font-weight: 760;
+      color: var(--foreground);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .nav-link {
+      width: 100%;
+      min-width: 0;
+      height: 36px;
+      display: block;
+      border-radius: 7px;
+      padding: 0 9px;
+      color: #3f3f46;
+      font-size: 12.5px;
+      line-height: 36px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-link:hover, .nav-link.active { background: #f0f0f1; color: var(--foreground); }
+    .main { min-width: 0; padding: 0 44px 80px; }
+    .content { width: min(980px, 100%); margin: 0 auto; }
+    .topbar {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 42px;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .breadcrumb {
+      min-width: 0;
+      color: var(--muted-foreground);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .breadcrumb strong { color: var(--foreground); font-weight: 650; }
+    .button {
+      height: 36px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--background);
+      color: var(--foreground);
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+      box-shadow: var(--shadow);
+    }
+    .button.primary { background: var(--foreground); color: var(--background); border-color: var(--foreground); }
+    .hero { padding-bottom: 30px; border-bottom: 1px solid var(--border); margin-bottom: 34px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: #fafafa;
+      color: var(--muted-foreground);
+      font-size: 12px;
+      margin-bottom: 18px;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--foreground); flex: 0 0 auto; }
+    h1 { margin: 0; max-width: 100%; font-size: 50px; line-height: 1.04; letter-spacing: 0; font-weight: 820; overflow-wrap: break-word; word-break: break-word; }
+    h2 { margin: 0 0 12px; font-size: 29px; line-height: 1.18; letter-spacing: 0; }
+    h3 { margin: 26px 0 10px; font-size: 20px; line-height: 1.28; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: #3f3f46; }
+    ul { margin: 10px 0 0; padding-left: 19px; color: #3f3f46; }
+    li + li { margin-top: 6px; }
+    section { scroll-margin-top: 88px; padding: 28px 0; border-bottom: 1px solid var(--border); }
+    section:last-child { border-bottom: 0; }
+    .lead { margin-top: 18px; max-width: 780px; color: #3f3f46; font-size: 17px; line-height: 1.75; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .card, .metric-card, .callout, .visual-panel, .step-card, .rule-card, .process-node, .layer-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+    .card, .metric-card, .rule-card { padding: 18px; }
+    .metric-k { color: var(--muted-foreground); font-size: 12px; font-weight: 650; text-transform: uppercase; letter-spacing: 0.08em; }
+    .metric-v { margin-top: 12px; font-size: 19px; line-height: 1.28; font-weight: 740; letter-spacing: 0; overflow-wrap: anywhere; }
+    .card-title, .rule-title { font-weight: 740; margin-bottom: 7px; letter-spacing: 0; color: var(--foreground); }
+    .card-desc, .rule-desc { color: var(--muted-foreground); font-size: 13.5px; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fafafa;
+      color: #3f3f46;
+      font-size: 12px;
+      font-weight: 560;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+    .badge.dark { background: var(--foreground); border-color: var(--foreground); color: var(--background); }
+    .callout { display: grid; grid-template-columns: 5px 1fr; overflow: hidden; margin: 18px 0; }
+    .callout::before { content: ""; background: var(--foreground); }
+    .callout.warning::before { background: var(--warning); }
+    .callout-body { padding: 15px 16px; background: #fafafa; }
+    .callout-title { font-weight: 740; margin-bottom: 5px; }
+    .visual-panel { padding: 20px; margin: 18px 0; overflow: hidden; background: #fff; }
+    .process-diagram {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1.08fr) 24px minmax(0, 1.08fr) 24px minmax(0, 1.08fr) 24px minmax(0, 1fr);
+      align-items: stretch;
+      gap: 0;
+    }
+    .process-arrow {
+      display: grid;
+      place-items: center;
+      color: var(--foreground);
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .process-node {
+      min-width: 0;
+      min-height: 112px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      background: #ffffff;
+    }
+    .process-node.muted { background: #f4f4f5; }
+    .process-node.dark { background: var(--foreground); border-color: var(--foreground); color: var(--background); }
+    .process-k {
+      color: var(--muted-foreground);
+      font: 700 11px "JetBrains Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .process-node.dark .process-k { color: #d4d4d8; }
+    .process-title {
+      color: var(--foreground);
+      font-size: 13.5px;
+      line-height: 1.3;
+      font-weight: 740;
+      overflow-wrap: anywhere;
+    }
+    .process-node.dark .process-title { color: var(--background); }
+    .process-sub { color: var(--muted-foreground); font-size: 12px; line-height: 1.35; overflow-wrap: anywhere; }
+    .process-node.dark .process-sub { color: #d4d4d8; }
+    .diagram-note { margin: 12px 0 0; color: var(--muted-foreground); font-size: 12.5px; }
+    .layer-map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .layer-box { padding: 16px; min-width: 0; }
+    .layer-title { font-weight: 760; margin-bottom: 8px; }
+    .layer-items { display: grid; gap: 8px; }
+    .layer-item {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #fafafa;
+      padding: 9px 10px;
+      font-size: 12.5px;
+      color: #3f3f46;
+      overflow-wrap: anywhere;
+    }
+    .steps { display: grid; gap: 12px; margin-top: 16px; }
+    .step-card { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 14px; padding: 15px; }
+    .step-num {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: var(--foreground);
+      color: var(--background);
+      font: 700 13px "JetBrains Mono", monospace;
+    }
+    .step-title { font-weight: 730; letter-spacing: 0; }
+    .step-desc { color: #3f3f46; font-size: 13.8px; margin-top: 4px; }
+    .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: var(--radius); margin: 16px 0 22px; }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; background: var(--background); font-size: 13.5px; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { background: #fafafa; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+    td code, p code, li code {
+      background: #f6f6f7;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-size: 0.88em;
+      color: var(--foreground);
+    }
+    pre { margin: 14px 0 0; padding: 16px; overflow: auto; background: #0a0a0b; color: #f4f4f5; border-radius: var(--radius); font-size: 12.5px; line-height: 1.65; }
+    .compact-list { margin: 10px 0 0; padding-left: 18px; }
+    .compact-list li { color: #3f3f46; font-size: 13.5px; }
+    .prompt-card {
+      border-radius: var(--radius);
+      background: var(--foreground);
+      color: var(--background);
+      padding: 16px;
+      margin-top: 14px;
+      box-shadow: var(--shadow);
+    }
+    .prompt-card .prompt-label {
+      color: #d4d4d8;
+      font-size: 11px;
+      font-weight: 760;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 7px;
+    }
+    .prompt-card p { color: #f4f4f5; margin: 0; font-size: 13.5px; }
+    .artifact-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+    .code-panel {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #0a0a0b;
+      box-shadow: var(--shadow);
+    }
+    .code-panel-title {
+      padding: 10px 14px;
+      color: #f4f4f5;
+      border-bottom: 1px solid #27272a;
+      font-size: 12px;
+      font-weight: 740;
+    }
+    .code-panel pre { margin: 0; border-radius: 0; box-shadow: none; }
+    .knowledge-flow { display: grid; grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr) 24px minmax(0, 1fr) 24px minmax(0, 1fr); gap: 0; align-items: stretch; margin: 18px 0; }
+    .flow-card {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #ffffff;
+      padding: 15px;
+      box-shadow: var(--shadow);
+    }
+    .flow-card.dark { background: var(--foreground); border-color: var(--foreground); color: var(--background); }
+    .flow-card.muted { background: #f4f4f5; }
+    .flow-k { color: var(--muted-foreground); font: 700 11px "JetBrains Mono", monospace; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .flow-card.dark .flow-k { color: #d4d4d8; }
+    .flow-title { font-weight: 760; line-height: 1.3; margin-bottom: 8px; overflow-wrap: anywhere; }
+    .flow-card.dark .flow-title { color: var(--background); }
+    .flow-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .flow-chip { border: 1px solid var(--border); border-radius: 999px; padding: 2px 7px; background: #fafafa; color: #3f3f46; font-size: 11.5px; overflow-wrap: anywhere; }
+    .flow-card.dark .flow-chip { border-color: #3f3f46; background: #27272a; color: #f4f4f5; }
+    .flow-arrow { display: grid; place-items: center; color: var(--foreground); font-weight: 800; }
+    .step-rail { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 16px 0; }
+    .step-rail-card { border: 1px solid var(--border); border-radius: var(--radius); background: #fff; padding: 12px; min-width: 0; box-shadow: var(--shadow); }
+    .step-rail-num { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 6px; background: var(--foreground); color: var(--background); font: 700 11px "JetBrains Mono", monospace; margin-bottom: 9px; }
+    .step-rail-title { font-size: 12.6px; line-height: 1.35; font-weight: 730; overflow-wrap: anywhere; }
+    .toolkit-note { margin-bottom: 14px; }
+    .toolkit-defs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 14px 0 4px; }
+    .toolkit-def { border: 1px solid var(--border); border-radius: var(--radius); background: #fafafa; padding: 12px; min-width: 0; }
+    .toolkit-def strong { display: block; margin-bottom: 4px; font-size: 12.5px; }
+    .toolkit-def span { color: var(--muted-foreground); font-size: 12px; line-height: 1.45; }
+    .toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      border-left: 1px solid var(--border);
+      padding: 84px 18px 24px;
+      background: #ffffff;
+    }
+    .toc-title { font-size: 12px; font-weight: 740; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+    .toc a { display: block; color: var(--muted-foreground); font-size: 13px; padding: 6px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .toc a:hover { color: var(--foreground); }
+    @media (max-width: 1180px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar, .toc { position: static; height: auto; border: 0; }
+      .sidebar { border-bottom: 1px solid var(--border); }
+      .toc { display: none; }
+      .main { padding: 0 22px 64px; }
+      .topbar { position: static; }
+      .nav-link { max-width: 100%; }
+    }
+    @media (max-width: 860px) {
+      h1 { font-size: 36px; }
+      h2 { font-size: 25px; }
+      .grid-2, .grid-3, .layer-map, .artifact-layout, .knowledge-flow, .toolkit-defs { grid-template-columns: 1fr; }
+      .process-diagram { grid-template-columns: 1fr; gap: 10px; }
+      .process-arrow, .flow-arrow { display: none; }
+    }
+    @media (max-width: 520px) {
+      .main { padding: 0 16px 56px; }
+      .topbar { align-items: flex-start; flex-direction: column; height: auto; padding: 14px 0; }
+      .step-card { grid-template-columns: 1fr; }
+      h1 { font-size: 26px; line-height: 1.12; }
+    }
+  </style>
+  <style>
+    .profile-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .profile-card, .mode-card, .workflow-stage, .check-card, .example-card { border: 1px solid var(--border); border-radius: var(--radius); background: #ffffff; box-shadow: var(--shadow); min-width: 0; }
+    .profile-card { padding: 14px; }
+    .profile-k, .example-k { color: var(--muted-foreground); font-size: 11px; font-weight: 760; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .profile-v { color: var(--foreground); font-weight: 690; line-height: 1.45; overflow-wrap: anywhere; }
+    .mode-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .mode-card { padding: 15px; background: #fafafa; }
+    .mode-title { font-weight: 760; margin-bottom: 10px; }
+    .workflow-map { display: grid; gap: 12px; margin-top: 16px; }
+    .workflow-stage { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 14px; padding: 15px; }
+    .workflow-index { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 7px; background: var(--foreground); color: var(--background); font: 700 13px "JetBrains Mono", monospace; }
+    .workflow-body h3 { margin: 0 0 12px; font-size: 18px; }
+    .workflow-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .workflow-grid div { border: 1px solid var(--border); border-radius: 7px; background: #fafafa; padding: 10px; min-width: 0; }
+    .workflow-grid span { display: block; color: var(--muted-foreground); font-size: 11px; font-weight: 760; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+    .workflow-grid p { margin: 0; font-size: 13.2px; line-height: 1.55; overflow-wrap: anywhere; }
+    .check-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .check-card { padding: 15px; }
+    .check-title { font-weight: 760; margin-bottom: 8px; }
+    .example-grid { display: grid; grid-template-columns: 0.9fr 1.15fr 1.15fr; gap: 12px; }
+    .example-card { padding: 16px; background: #fafafa; }
+    .example-card.good { background: #f7fdf8; border-color: #bbf7d0; }
+    .example-card.bad { background: #fff7f7; border-color: #fecaca; }
+    .example-card p { margin: 0; font-size: 13.5px; line-height: 1.65; }
+    @media (max-width: 1180px) { .profile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 860px) { .profile-grid, .mode-grid, .workflow-grid, .check-grid, .example-grid { grid-template-columns: 1fr; } .workflow-stage { grid-template-columns: 1fr; } }
+    /* BMAD TEA visual alignment override */
+    :root {
+      --ink: #1a1612;
+      --ink-soft: #4a3f35;
+      --ink-mute: #8a7c6d;
+      --paper: #f4ede0;
+      --paper-warm: #ebe1cf;
+      --rule: #2a221a;
+      --accent: #c2410c;
+      --accent-soft: #ea580c;
+      --highlight: #facc15;
+      --code-bg: #1a1612;
+      --code-fg: #d7cec2;
+      --background: var(--paper);
+      --foreground: var(--ink);
+      --muted: var(--paper-warm);
+      --muted-foreground: var(--ink-mute);
+      --border: var(--rule);
+      --card: var(--paper);
+      --accent-foreground: var(--paper);
+      --success: #166534;
+      --warning: #854d0e;
+      --danger: #991b1b;
+      --radius: 0;
+      --shadow: none;
+      --sidebar: 300px;
+      --toc: 0px;
+    }
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 0.9375rem;
+      line-height: 1.65;
+      padding: 0;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: .5;
+    }
+    code, pre, .mono,
+    .brand-title, .brand-sub, .nav-heading, .nav-link,
+    .breadcrumb, .button, .eyebrow, .metric-k, .process-k,
+    .step-num, .step-k, .profile-k, .mode-title, .flow-k,
+    .rule-k, .example-k, .toolkit-def strong, th, .toc-title, .badge {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .shell {
+      max-width: 1340px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      grid-template-areas: 'sidebar main';
+      border: 0;
+      box-shadow: none;
+      background: transparent;
+      position: relative;
+      z-index: 1;
+    }
+    .sidebar {
+      grid-area: sidebar;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 1px solid var(--rule);
+      background: transparent;
+      padding: 32px 0;
+    }
+    .brand {
+      display: grid;
+      grid-template-columns: 44px minmax(0,1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 0 24px 20px;
+      margin: 0 0 12px;
+      border-bottom: 2px solid var(--rule);
+    }
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--ink);
+      border-radius: 0;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      font-style: italic;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .brand-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--ink);
+    }
+    .brand-sub {
+      margin-top: 2px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--ink-mute);
+    }
+    .nav-group { margin: 18px 0 22px; display: grid; gap: 2px; }
+    .nav-heading {
+      padding: 13px 24px 7px;
+      border-top: 1px solid rgba(42,34,26,.16);
+      margin: 0 20px 7px;
+      font-size: 8.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: var(--ink-mute);
+    }
+    .nav-link {
+      width: calc(100% - 32px);
+      min-height: 30px;
+      height: 30px;
+      display: block;
+      position: relative;
+      border: 0;
+      border-left: 2px solid transparent;
+      border-radius: 0;
+      margin: 0 16px;
+      padding: 6px 10px 6px 12px;
+      color: var(--ink-soft);
+      background: transparent;
+      font-size: 11.2px;
+      line-height: 18px;
+      text-transform: none;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nav-link:hover {
+      background: rgba(194,65,12,.06);
+      border-left-color: rgba(194,65,12,.45);
+      color: var(--ink);
+    }
+    .nav-link.active {
+      background: rgba(194,65,12,.09);
+      border-left-color: var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .toc { display: none; }
+    .main { grid-area: main; min-width: 0; padding: 0; }
+    .content { width: 100%; margin: 0; }
+    .topbar {
+      position: static;
+      height: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0;
+      padding: 28px 40px 14px;
+      border-bottom: 0;
+      background: var(--paper-warm);
+      backdrop-filter: none;
+    }
+    .breadcrumb {
+      min-width: 0;
+      color: var(--ink-mute);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+    }
+    .breadcrumb strong { color: var(--ink); font-weight: 700; }
+    .button {
+      height: auto;
+      min-height: 30px;
+      padding: 6px 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid var(--rule);
+      border-radius: 0;
+      background: var(--paper);
+      color: var(--ink);
+      box-shadow: none;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .button.primary, .button:hover {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+    .hero {
+      padding: 10px 40px 28px;
+      margin: 0;
+      border-bottom: 2px solid var(--rule);
+      background: var(--paper-warm);
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0;
+      margin-bottom: 14px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--ink-mute);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 0;
+      transform: rotate(45deg);
+      background: var(--accent);
+      flex: 0 0 auto;
+    }
+    h1, h2, h3,
+    .metric-v, .card-title, .rule-title,
+    .process-title, .flow-title, .workflow-body h3 {
+      font-family: 'Fraunces', serif;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+    h1 {
+      max-width: 760px;
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 4vw, 2.9rem);
+      line-height: 1.1;
+      font-weight: 700;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+    h2 {
+      margin: 0 0 20px;
+      padding: 0;
+      border: 0;
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      line-height: 1.15;
+      font-weight: 700;
+    }
+    h3 {
+      margin: 28px 0 12px;
+      font-size: 1.35rem;
+      line-height: 1.22;
+      font-weight: 600;
+    }
+    p { margin-bottom: 14px; color: var(--ink-soft); line-height: 1.68; }
+    .lead {
+      margin: 0 0 18px;
+      max-width: 760px;
+      color: var(--ink-soft);
+      font-size: 0.96rem;
+      line-height: 1.55;
+    }
+    .content > section {
+      padding: 44px 56px;
+      border-bottom: 1px solid var(--rule);
+      scroll-margin-top: 24px;
+    }
+    .content > section:last-child { border-bottom: 0; }
+    .hero .grid-3 {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 !important;
+      border: 1px solid var(--rule);
+      border-right: 0;
+      margin-top: 18px !important;
+      background: transparent;
+    }
+    .hero .metric-card {
+      min-width: 150px;
+      flex: 1 1 170px;
+      padding: 8px 16px;
+      border: 0;
+      border-right: 1px solid var(--rule);
+      background: var(--paper);
+    }
+    .metric-k, .process-k, .profile-k, .flow-k, .example-k, th, .toc-title {
+      color: var(--ink-mute);
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+    .metric-v {
+      margin-top: 3px;
+      color: var(--ink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.35;
+    }
+    .grid-2, .grid-3, .profile-grid, .mode-grid, .check-grid, .example-grid, .toolkit-defs {
+      gap: 1px;
+      border: 1px solid var(--rule);
+      background: var(--rule);
+    }
+    .grid-2 > *, .grid-3 > *, .profile-grid > *, .mode-grid > *, .check-grid > *, .example-grid > *, .toolkit-defs > * {
+      border: 0 !important;
+    }
+    .card, .metric-card, .callout, .visual-panel, .step-card, .rule-card,
+    .process-node, .layer-box, .profile-card, .mode-card, .workflow-stage,
+    .check-card, .example-card, .flow-card, .step-rail-card, .toolkit-def,
+    .code-panel, .table-wrap {
+      border: 1px solid var(--rule);
+      border-radius: 0;
+      box-shadow: none;
+      background: var(--paper);
+    }
+    .card, .metric-card, .rule-card, .profile-card, .mode-card, .check-card, .example-card, .flow-card {
+      padding: 16px 18px;
+    }
+    .card-title, .rule-title, .callout-title, .mode-title, .check-title {
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .card-desc, .rule-desc, ul, .compact-list li, .process-sub, .flow-card p, .toolkit-note {
+      color: var(--ink-soft);
+    }
+    .badge {
+      min-height: 0;
+      padding: 2px 7px;
+      border-radius: 0;
+      border: 1px solid rgba(42,34,26,.25);
+      background: var(--paper-warm);
+      color: var(--ink-soft);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .badge.dark, .process-node.dark, .flow-card.dark {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--paper);
+    }
+    .process-node.dark .process-title,
+    .flow-card.dark .flow-title { color: var(--paper); }
+    .process-node.dark .process-sub,
+    .process-node.dark .process-k,
+    .flow-card.dark .flow-k,
+    .flow-card.dark p { color: rgba(244,237,224,.75); }
+    .callout {
+      display: grid;
+      grid-template-columns: 9px 1fr;
+      overflow: hidden;
+      margin: 24px 0 34px;
+      background: linear-gradient(90deg, rgba(191,74,28,.16), var(--paper-warm) 38%);
+      border: 2px solid var(--accent);
+      box-shadow: 0 14px 28px rgba(42,34,26,.13);
+    }
+    .callout::before, .prompt-card { background: var(--accent); }
+    .callout-body {
+      padding: 20px 22px;
+      background: linear-gradient(135deg, rgba(255,255,255,.42), var(--paper-warm));
+    }
+    .callout-title {
+      display: inline-flex;
+      width: max-content;
+      max-width: 100%;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 10px;
+      padding: 5px 9px;
+      background: var(--accent);
+      color: var(--paper);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .10em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+    .callout-title::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      background: var(--paper);
+      display: inline-block;
+    }
+    .callout-body p {
+      margin: 0;
+      color: var(--ink);
+      font-size: 1.02rem;
+      font-weight: 520;
+      line-height: 1.55;
+    }
+    .visual-panel { padding: 20px; margin: 18px 0; background: var(--paper); }
+    .process-node.muted, .flow-card.muted, .mode-card, .example-card, .layer-item, th {
+      background: var(--paper-warm);
+    }
+    .process-title { font-size: 1rem; font-weight: 600; line-height: 1.3; }
+    .process-arrow, .flow-arrow { color: var(--accent); }
+    .step-num, .workflow-index, .step-rail-num {
+      border-radius: 0;
+      background: var(--ink);
+      color: var(--paper);
+      font-weight: 700;
+    }
+    .step-title, .step-rail-title, .profile-v { color: var(--ink); font-weight: 700; }
+    .step-desc { color: var(--ink-soft); }
+    table { background: var(--paper); color: var(--ink); border-collapse: collapse; }
+    th, td { border-color: rgba(42,34,26,.18); }
+    th {
+      color: var(--accent);
+      background: var(--paper-warm);
+      font-size: 9.5px;
+      letter-spacing: 0.15em;
+    }
+    td { color: var(--ink-soft); }
+    code, td code, p code, li code {
+      background: var(--paper-warm);
+      border: 1px solid rgba(42,34,26,.2);
+      border-radius: 1px;
+      color: var(--ink-soft);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.83em;
+      padding: 1px 5px;
+    }
+    pre, .code-panel { background: var(--code-bg); color: var(--code-fg); }
+    pre code,
+    .code-panel code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      color: var(--code-fg);
+      font-size: inherit;
+      border-radius: 0;
+    }
+    .prompt-card code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      color: var(--paper);
+      font-size: inherit;
+      border-radius: 0;
+    }
+    .code-panel-title { color: var(--code-fg); border-bottom-color: rgba(244,237,224,.18); }
+    .prompt-card {
+      border-radius: 0;
+      color: var(--paper);
+      padding: 16px;
+      margin-top: 14px;
+    }
+    .prompt-card .prompt-label, .prompt-card p { color: var(--paper); }
+    .flow-chip {
+      border-radius: 0;
+      background: var(--paper-warm);
+      border-color: rgba(42,34,26,.25);
+      color: var(--ink-soft);
+    }
+    .flow-card.dark .flow-chip {
+      background: rgba(244,237,224,.1);
+      border-color: rgba(244,237,224,.22);
+      color: var(--paper);
+    }
+    .example-card.good, .example-card.bad {
+      background: var(--paper);
+      border-color: var(--rule);
+    }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; grid-template-areas: 'sidebar' 'main'; }
+      .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); }
+      .main { padding: 0; }
+      .content > section { padding: 32px 24px; }
+      .topbar { padding: 22px 24px 10px; }
+      .hero { padding: 10px 24px 26px; }
+      .mode-grid, .grid-2, .grid-3, .profile-grid, .workflow-grid, .check-grid, .example-grid, .layer-map, .artifact-layout, .knowledge-flow, .toolkit-defs { grid-template-columns: 1fr; }
+      .process-diagram { grid-template-columns: 1fr; gap: 10px; }
+      .process-arrow, .flow-arrow { display: none; }
+    }
+    @media (max-width: 520px) {
+      .topbar { align-items: flex-start; flex-direction: column; }
+      h1 { font-size: 2rem; }
+      .step-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">SP</div>
+        <div>
+          <div class="brand-title">Superpowers Playbook</div>
+          <div class="brand-sub">BMAD Phase 4 execution docs</div>
+        </div>
+      </div>
+      <div class="nav-group">
+        <div class="nav-heading">Overview</div>
+        <a class="nav-link" href="spp_docs.html" title="SPP Docs Overview">SPP Docs Overview</a>      </div>
+      <div class="nav-group">
+        <div class="nav-heading">SPP Cards</div>
+        <a class="nav-link" href="spp-brainstorming-spec.html" title="04 · SP-A - Brainstorming &amp; Spec">04 · SP-A - Brainstorming &amp; Spec</a>
+        <a class="nav-link" href="spp-handoff-workspace-isolation.html" title="04 · SP-B - Handoff &amp; Workspace Isolation">04 · SP-B - Handoff &amp; Workspace Isolation</a>
+        <a class="nav-link active" href="spp-write-implementation-plan.html" title="04 · SP-C - Write Implementation Plan">04 · SP-C - Write Implementation Plan</a>
+        <a class="nav-link" href="spp-subagent-driven-execution.html" title="04 · SP-D - Subagent-Driven Execution">04 · SP-D - Subagent-Driven Execution</a>
+        <a class="nav-link" href="spp-tdd-implementation-gate.html" title="04 · SP-E - TDD Implementation Gate">04 · SP-E - TDD Implementation Gate</a>
+        <a class="nav-link" href="spp-systematic-debugging.html" title="04 · SP-F - Systematic Debugging">04 · SP-F - Systematic Debugging</a>
+        <a class="nav-link" href="spp-code-review-feedback.html" title="04 · SP-G - Code Review &amp; Feedback Reception">04 · SP-G - Code Review &amp; Feedback Reception</a>
+        <a class="nav-link" href="spp-verification-before-completion.html" title="04 · SP-H - Verification Before Completion">04 · SP-H - Verification Before Completion</a>
+        <a class="nav-link" href="spp-finish-development-branch.html" title="04 · SP-I - Finish Development Branch">04 · SP-I - Finish Development Branch</a>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="content">
+        <div class="topbar">
+          <div class="breadcrumb">SPP / <strong>Write Implementation Plan</strong></div>
+          <a class="button" href="spp_docs.html#workflow-write-implementation-plan">Overview</a>
+        </div>
+
+        <header class="hero" id="overview">
+          <div class="eyebrow"><span class="dot"></span>04 · SP-C - Phase 04 - Superpowers</div>
+          <h1>Write Implementation Plan</h1>
+          <p class="lead">Convert the approved spec and test design into a sequenced implementation plan.</p>
+          <div class="grid-3" style="margin-top:28px;">
+            <div class="metric-card"><div class="metric-k">Run by</div><div class="metric-v">Controller</div></div>
+            <div class="metric-card"><div class="metric-k">Input</div><div class="metric-v">{story_key}.md, approved spec.md, test-design-epic-{N}.md, baseline notes</div></div>
+            <div class="metric-card"><div class="metric-k">Output</div><div class="metric-v">implementation-plan.md</div></div>
+          </div>
+        </header>
+
+        <section id="skill-profile">
+          <h2>Skill Profile</h2>
+          <div class="profile-grid">
+            <div class="profile-card"><div class="profile-k">Skill / procedure</div><div class="profile-v">superpowers:writing-plans</div></div>
+            <div class="profile-card"><div class="profile-k">Trigger</div><div class="profile-v">Use when an approved spec needs more than one meaningful implementation step.</div></div>
+            <div class="profile-card"><div class="profile-k">Terminal state</div><div class="profile-v">Executable plan with exact files, interfaces, test commands, expected output, and execution option.</div></div>
+            <div class="profile-card"><div class="profile-k">Owner</div><div class="profile-v">Controller writes and self-reviews the plan.</div></div>
+          </div>
+          <div class="callout"><div class="callout-body"><div class="callout-title">No Placeholders</div><p>No placeholders, no hidden context, and no vague tasks such as add validation or write tests.</p></div></div>
+        </section>
+
+        <section id="core-principles">
+          <h2>SPP Core Principles</h2>
+          <p>These principles apply to every SPP card. They are the enterprise guardrails that keep Superpowers from becoming another loose checklist.</p>
+          <div class="grid-2">
+            <div class="rule-card"><div class="rule-title">1. Skill routing is mandatory</div><ul class="compact-list"><li>If a Superpowers skill may apply, route to it before acting.</li><li>Do not rationalize with too simple, already know this, or just this once.</li><li>Use direct skill names when combining with BMAD or TEA so one driver owns the step.</li></ul></div>
+            <div class="rule-card"><div class="rule-title">2. Design precedes code</div><ul class="compact-list"><li>Creative implementation starts with story/context review, one-question clarification, 2-3 approach comparison, and explicit approval.</li><li>The approved spec is written to a durable file before planning.</li><li>No scaffolding, production code, or implementation skill runs before design approval.</li></ul></div>
+            <div class="rule-card"><div class="rule-title">3. Plans are execution contracts</div><ul class="compact-list"><li>Implementation plans contain exact files, interfaces, commands, expected outputs, and no placeholders.</li><li>Tasks are independently testable slices, not broad todo items.</li><li>SPP plans encode RED-GREEN-REFACTOR steps so downstream workers do not improvise test strategy.</li></ul></div>
+            <div class="rule-card"><div class="rule-title">4. TDD is an iron law</div><ul class="compact-list"><li>No production behavior without a failing test observed first.</li><li>If implementation code was written before the failing test, delete it and restart from the test.</li><li>GREEN means minimal code only; refactor happens after tests pass and stays behavior-neutral.</li></ul></div>
+            <div class="rule-card"><div class="rule-title">5. Debug root cause first</div><ul class="compact-list"><li>No fixes before reproducing, reading errors, checking recent changes, tracing data flow, and forming a testable hypothesis.</li><li>One hypothesis, one minimal change, one verification loop.</li><li>After repeated failed fixes, stop and question the architecture rather than stacking patches.</li></ul></div>
+            <div class="rule-card"><div class="rule-title">6. Review early, receive skeptically</div><ul class="compact-list"><li>Each task is reviewed for spec compliance and code quality before the next task compounds mistakes.</li><li>Critical and Important findings block progress until fixed or technically escalated.</li><li>External review feedback is evaluated against the codebase before implementation; push back with evidence when it is wrong.</li></ul></div>
+            <div class="rule-card"><div class="rule-title">7. Evidence beats claims</div><ul class="compact-list"><li>No completion claim without fresh command output and exit-code evidence from this run.</li><li>Previous runs, agent reports, visual inspection, or partial checks are not enough.</li><li>Final status must reconcile tests, requirements, baseline comparison, review closure, and remaining diff.</li></ul></div>
+            <div class="rule-card"><div class="rule-title">8. Artifacts survive memory</div><ul class="compact-list"><li>Specs, plans, task briefs, reports, review packages, ledgers, and verification summaries carry state across sessions.</li><li>Scratch execution evidence belongs in self-ignored SPP space such as <code>.superpowers/sdd/</code> when used.</li><li>BMAD story/status and TEA evidence artifacts remain the governance layer around SPP execution.</li></ul></div>
+          </div>
+          <div class="callout"><div class="callout-body"><div class="callout-title">BMAD + TEA integration rule</div><p>BMAD owns product context, story status, and sprint governance. TEA owns test architecture and release evidence. SPP owns engineering execution discipline for the selected story. Do not let two methodologies drive the same step at the same time.</p></div></div>
+        </section>
+        <section id="activation">
+          <h2>Activation & Modes</h2>
+          <p>Use this section as the start/stop boundary. If a required condition is false, route to the owning BMAD, TEA, or SPP artifact instead of guessing.</p>
+          <div class="mode-grid">
+            <div class="mode-card"><div class="mode-title">Use when</div><ul class="compact-list"><li>An approved spec exists and implementation requires more than one meaningful task.</li><li>Subagents or future sessions need enough context to execute without chat memory.</li><li>The team needs exact files, interfaces, commands, and expected evidence before code starts.</li></ul></div>
+            <div class="mode-card"><div class="mode-title">Do not use when</div><ul class="compact-list"><li>The spec is still being negotiated.</li><li>The task is a one-line mechanical change with explicit user instruction to implement directly.</li><li>A plan would duplicate an existing approved implementation plan.</li></ul></div>
+            <div class="mode-card"><div class="mode-title">Before you run</div><ul class="compact-list"><li>Load the BMAD story file, approved spec, TEA Test Design, ATDD checklist, baseline notes, and relevant repo patterns.</li><li>Verify the plan scope matches the story acceptance criteria, approved spec, and ATDD handoff.</li><li>Identify files likely to be created or modified and the responsibility of each file.</li><li>Know the test runner and the smallest useful verification command for each task.</li></ul></div>
+          </div>
+        </section>
+        <section id="quickstart">
+          <h2>Quick Start</h2>
+          <p>Use this section when you need to run the card correctly without already knowing the Superpowers convention.</p>
+          <div class="grid-3">
+            <div class="card">
+              <div class="card-title">Use when</div>
+              <ul class="compact-list"><li>An approved spec exists and implementation requires more than one meaningful task.</li><li>Subagents or future sessions need enough context to execute without chat memory.</li><li>The team needs exact files, interfaces, commands, and expected evidence before code starts.</li></ul>
+            </div>
+            <div class="card">
+              <div class="card-title">Do not use when</div>
+              <ul class="compact-list"><li>The spec is still being negotiated.</li><li>The task is a one-line mechanical change with explicit user instruction to implement directly.</li><li>A plan would duplicate an existing approved implementation plan.</li></ul>
+            </div>
+            <div class="card">
+              <div class="card-title">Before you run</div>
+              <ul class="compact-list"><li>Load the BMAD story file, approved spec, TEA Test Design, ATDD checklist, baseline notes, and relevant repo patterns.</li><li>Verify the plan scope matches the story acceptance criteria, approved spec, and ATDD handoff.</li><li>Identify files likely to be created or modified and the responsibility of each file.</li><li>Know the test runner and the smallest useful verification command for each task.</li></ul>
+            </div>
+          </div>
+          <div class="prompt-card">
+            <div class="prompt-label">Starter prompt</div>
+            <p>Create a Superpowers implementation plan for this approved BMAD/SPP spec. Include exact file paths, task interfaces, failing tests, commands with expected output, no placeholders, and a handoff to subagent-driven-development or executing-plans.</p>
+          </div>
+        </section>
+
+        <section id="what">
+          <h2>What</h2>
+          <p>The plan decomposes the approved spec into task-sized steps, files likely to change, verification commands, dependencies, and rollback notes.</p>
+          <div class="visual-panel" aria-label="Write Implementation Plan workflow diagram">
+      <div class="process-diagram">
+        <div class="process-node muted" title="approved spec.md">
+          <div class="process-k">Input</div>
+          <div class="process-title">approved spec.md</div>
+          <div class="process-sub">{story_key}.md · test-design-epic-{N}.md · ATDD checklist · baseline notes</div>
+        </div><div class="process-arrow" aria-hidden="true">→</div>
+        <div class="process-node " title="Load source artifacts">
+          <div class="process-k">Step 1</div>
+          <div class="process-title">Load source artifacts</div>
+          <div class="process-sub">Read the approved spec, TEA test design, ATDD checklist, baseline notes, ...</div>
+        </div><div class="process-arrow" aria-hidden="true">→</div>
+        <div class="process-node " title="Slice implementation tasks">
+          <div class="process-k">Step 2</div>
+          <div class="process-title">Slice implementation tasks</div>
+          <div class="process-sub">Break work into ordered, reviewable tasks with clear acce...</div>
+        </div><div class="process-arrow" aria-hidden="true">→</div>
+        <div class="process-node " title="Map tests to tasks">
+          <div class="process-k">Step 3</div>
+          <div class="process-title">Map tests to tasks</div>
+          <div class="process-sub">Attach ATDD and automation expectations to the task seque...</div>
+        </div><div class="process-arrow" aria-hidden="true">→</div>
+        <div class="process-node dark" title="implementation-plan.md">
+          <div class="process-k">Output</div>
+          <div class="process-title">implementation-plan.md</div>
+          <div class="process-sub"></div>
+        </div>
+      </div>
+      <p class="diagram-note">This diagram shows only the main flow to keep the page readable; the full 6 detailed steps are in the How section below.</p>
+    </div>
+        </section>
+
+        <section id="why">
+          <h2>Why</h2>
+          <p>Subagents perform best with explicit task boundaries and a shared execution ledger. The plan reduces coordination drift.</p>
+          <div class="callout"><div class="callout-body"><div class="callout-title">Integration rule</div><p>BMAD owns product, architecture, sprint, and story context. TEA owns test architecture and release evidence. SPP owns execution behavior for the selected story implementation slice.</p></div></div>
+        </section>
+
+        <section id="knowledge-base">
+          <h2>Knowledge Base</h2>
+          <p>This is the operating context for the card. It separates source-of-truth inputs, procedures, evidence, and the next consumer so a new worker can continue without chat memory.</p>
+          <div class="knowledge-flow" aria-label="Write Implementation Plan knowledge flow">
+            <div class="flow-card muted">
+          <div class="flow-k">Input</div>
+          <div class="flow-title">Read before acting</div>
+          <div class="flow-list"><span class="flow-chip">{story_key}.md</span><span class="flow-chip">approved spec.md</span><span class="flow-chip">test-design-epic-{N}.md</span><span class="flow-chip">baseline notes</span></div>
+        </div>
+            <div class="flow-arrow" aria-hidden="true">-&gt;</div>
+            <div class="flow-card ">
+          <div class="flow-k">Procedure</div>
+          <div class="flow-title">writing-plans</div>
+          <div class="flow-list"><span class="flow-chip">writing-plans</span><span class="flow-chip">File responsibility map</span><span class="flow-chip">Task right-sizing</span><span class="flow-chip">TDD step design</span><span class="flow-chip">Dependency ordering</span></div>
+        </div>
+            <div class="flow-arrow" aria-hidden="true">-&gt;</div>
+            <div class="flow-card ">
+          <div class="flow-k">Evidence</div>
+          <div class="flow-title">Write durable artifacts</div>
+          <div class="flow-list"><span class="flow-chip">docs/superpowers/plans/YYYY-MM-DD--plan.md</span><span class="flow-chip">implementation-plan.md</span></div>
+        </div>
+            <div class="flow-arrow" aria-hidden="true">-&gt;</div>
+            <div class="flow-card dark">
+          <div class="flow-k">Next</div>
+          <div class="flow-title">SP-D Subagent-Driven Execution consumes this plan and the ATDD checklist.</div>
+          <div class="flow-list"><span class="flow-chip">implementation plan path</span><span class="flow-chip">global constraints</span><span class="flow-chip">file map</span><span class="flow-chip">per-task interfaces</span><span class="flow-chip">execution handoff choice</span></div>
+        </div>
+          </div>
+          <div class="grid-2">
+            <div class="rule-card"><div class="rule-title">Trusted inputs</div><ul class="compact-list"><li>{story_key}.md</li><li>approved spec.md</li><li>test-design-epic-{N}.md</li><li>ATDD checklist</li><li>baseline notes</li></ul></div>
+            <div class="rule-card"><div class="rule-title">Evidence oracle</div><ul class="compact-list"><li>implementation plan path</li><li>global constraints</li><li>file map</li><li>per-task interfaces</li><li>execution handoff choice</li></ul></div>
+            <div class="rule-card"><div class="rule-title">Procedures and methods</div><ul class="compact-list"><li>writing-plans</li><li>File responsibility map</li><li>Task right-sizing</li><li>TDD step design</li><li>Dependency ordering</li><li>Plan self-review</li></ul></div>
+            <div class="rule-card"><div class="rule-title">Execution aids</div><ul class="compact-list"><li>repo search</li><li>test command discovery</li></ul></div>
+          </div>
+          <div class="callout"><div class="callout-body"><div class="callout-title">Integration rule</div><p>BMAD owns product, architecture, sprint, and story context. TEA owns test architecture and release evidence. SPP owns the execution discipline for this story implementation slice.</p></div></div>
+        </section>
+
+        <section id="how">
+          <h2>Workflow Steps (6 Steps)</h2>
+          <p>Run writing-plans after spec approval and baseline capture. Keep tasks small enough to review independently.</p>
+          <div class="workflow-map">
+        <article class="workflow-stage">
+          <div class="workflow-index">01</div>
+          <div class="workflow-body">
+            <h3>Load source artifacts</h3>
+            <div class="workflow-grid">
+              <div><span>Action</span><p>Read the BMAD story file, approved spec, TEA test design, baseline notes, and relevant repo patterns.</p></div>
+              <div><span>Why it matters</span><p>The plan must align product behavior, test strategy, and code reality.</p></div>
+              <div><span>How to do it</span><p>Summarize only the context needed by implementers.</p></div>
+            </div>
+            <div class="badge-row"><span class="badge">context</span></div>
+          </div>
+        </article>
+        <article class="workflow-stage">
+          <div class="workflow-index">02</div>
+          <div class="workflow-body">
+            <h3>Slice implementation tasks</h3>
+            <div class="workflow-grid">
+              <div><span>Action</span><p>Break work into ordered, reviewable tasks with clear acceptance signals.</p></div>
+              <div><span>Why it matters</span><p>Large tasks hide risk and make review less effective.</p></div>
+              <div><span>How to do it</span><p>Each task should have files, behavior, tests, and completion criteria.</p></div>
+            </div>
+            <div class="badge-row"><span class="badge">task slicing</span></div>
+          </div>
+        </article>
+        <article class="workflow-stage">
+          <div class="workflow-index">03</div>
+          <div class="workflow-body">
+            <h3>Map tests to tasks</h3>
+            <div class="workflow-grid">
+              <div><span>Action</span><p>Attach ATDD and automation expectations to the task sequence.</p></div>
+              <div><span>Why it matters</span><p>Tests should guide implementation instead of arriving at the end.</p></div>
+              <div><span>How to do it</span><p>Note failing tests to create, tests to extend, and verification commands.</p></div>
+            </div>
+            <div class="badge-row"><span class="badge">tests</span></div>
+          </div>
+        </article>
+        <article class="workflow-stage">
+          <div class="workflow-index">04</div>
+          <div class="workflow-body">
+            <h3>Plan dependencies and rollback</h3>
+            <div class="workflow-grid">
+              <div><span>Action</span><p>Identify sequencing constraints, migrations, flags, and rollback points.</p></div>
+              <div><span>Why it matters</span><p>Explicit dependency handling prevents partial delivery states.</p></div>
+              <div><span>How to do it</span><p>Put high-risk or unknown-heavy work early.</p></div>
+            </div>
+            <div class="badge-row"><span class="badge">dependency</span></div>
+          </div>
+        </article>
+        <article class="workflow-stage">
+          <div class="workflow-index">05</div>
+          <div class="workflow-body">
+            <h3>Write execution ledger</h3>
+            <div class="workflow-grid">
+              <div><span>Action</span><p>Prepare progress tracking for task status, decisions, and review findings.</p></div>
+              <div><span>Why it matters</span><p>A ledger lets subagents resume without rereading the whole session.</p></div>
+              <div><span>How to do it</span><p>Use an append-only progress file or plan checklist.</p></div>
+            </div>
+            <div class="badge-row"><span class="badge">ledger</span></div>
+          </div>
+        </article>
+        <article class="workflow-stage">
+          <div class="workflow-index">06</div>
+          <div class="workflow-body">
+            <h3>Review plan readiness</h3>
+            <div class="workflow-grid">
+              <div><span>Action</span><p>Check that tasks are actionable, testable, and aligned with the approved spec.</p></div>
+              <div><span>Why it matters</span><p>A weak plan creates noisy subagent work.</p></div>
+              <div><span>How to do it</span><p>Escalate back to story/spec/ATDD before execution if acceptance signals are still vague.</p></div>
+            </div>
+            <div class="badge-row"><span class="badge">readiness</span></div>
+          </div>
+        </article>
+      </div>
+        </section>
+
+        <section id="rules">
+          <h2>Rules and Evidence</h2>
+          <div class="grid-2">
+        <div class="rule-card">
+          <div class="rule-title">Operating rules</div>
+          <ul><li>Start from the BMAD story file, approved spec, baseline notes, and BMAD/TEA artifacts rather than chat memory.</li><li>Map every task back to story acceptance criteria or explicit spec decisions.</li><li>Map file responsibilities before slicing tasks; each file should have one clear responsibility unless the repo pattern says otherwise.</li><li>Every task needs exact file paths, interfaces consumed and produced, concrete test code or commands, expected output, and no placeholders.</li><li>Keep steps bite-sized enough for task-level TDD and review; each task should end with an independently testable deliverable.</li><li>Self-review for story/spec coverage, placeholder language, type consistency, and missing requirements before execution handoff.</li></ul>
+        </div>
+        <div class="rule-card">
+          <div class="rule-title">Failure modes to catch</div>
+          <ul><li>Plan says &#39;add validation&#39; or &#39;write tests&#39; without concrete code or commands.</li><li>Later tasks refer to names, types, or helpers never defined by earlier tasks.</li><li>A subagent cannot execute its task without hidden context from the planning chat.</li></ul>
+        </div>
+      </div>
+      <div class="rule-card" style="margin-top:14px;">
+        <div class="rule-title">Evidence expected before handoff</div>
+        <div class="badge-row"><span class="badge dark">implementation plan path</span><span class="badge dark">global constraints</span><span class="badge dark">file map</span><span class="badge dark">per-task interfaces</span><span class="badge dark">execution handoff choice</span></div>
+      </div>
+        </section>
+
+        <section id="outputs">
+          <h2>Output Documents</h2>
+          <p>Every output should be specific enough that a later agent can continue from the file system and command evidence alone.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Artifact</th><th>Required contents</th><th>Consumed by</th></tr></thead>
+              <tbody><tr><td><code>implementation-plan.md</code></td><td>The formal output this card promises to the next workflow.</td><td>SP-D Subagent-Driven Execution with the ATDD checklist.</td></tr><tr><td><code>docs/superpowers/plans/YYYY-MM-DD--plan.md, implementation-plan.md</code></td><td>Durable files/evidence used to reconstruct decisions without chat memory.</td><td>Future implementer, reviewer, verifier, or BMAD/TEA workflow.</td></tr><tr><td><code>Evidence checklist</code></td><td>implementation plan path; global constraints; file map; per-task interfaces; execution handoff choice</td><td>Handoff and final verification.</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+        <section id="artifact">
+          <h2>Artifact Template</h2>
+          <p>This is the minimum written output shape that keeps the next BMAD, SPP, or TEA step independent from chat memory.</p>
+          <div class="artifact-layout">
+            <div class="code-panel">
+              <div class="code-panel-title">Implementation plan skeleton</div>
+              <pre><code># &lt;Feature Name&gt; Implementation Plan
+
+&gt; For agentic workers: REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans.
+
+**Goal:** &lt;one sentence&gt;
+**Architecture:** &lt;2-3 sentences&gt;
+**Tech Stack:** &lt;libraries/tools&gt;
+
+## Global Constraints
+- &lt;copied exact constraint from spec&gt;
+
+## File Structure
+| File | Action | Responsibility |
+| --- | --- | --- |
+
+## Task 1: &lt;component&gt;
+**Files:**
+- Create/Modify/Test: &lt;exact path&gt;
+
+**Interfaces:**
+- Consumes: &lt;signature/data&gt;
+- Produces: &lt;signature/data&gt;
+
+- [ ] Step 1: Write failing test
+- [ ] Step 2: Run and confirm red
+- [ ] Step 3: Implement minimal green
+- [ ] Step 4: Run and confirm green
+- [ ] Step 5: Commit</code></pre>
+            </div>
+            <div class="rule-card">
+              <div class="rule-title">Done checklist</div>
+              <ul class="compact-list"><li>No placeholder language such as TBD, TODO, add validation, or write tests for this.</li><li>Every task has files, interfaces, test steps, commands, expected output, and completion criteria.</li><li>The plan covers every spec requirement or explicitly calls out a gap.</li><li>Task boundaries are small enough for TDD plus review.</li></ul>
+              <div class="rule-title" style="margin-top:16px;">Next workflow</div>
+              <p class="rule-desc">SP-D Subagent-Driven Execution with the ATDD checklist.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="toolkit">
+          <h2>Toolkit</h2>
+          <p class="toolkit-note">Toolkit means the operating kit for this card. It is not a random tool list: skills are procedures, methods are decision rules, artifacts are durable evidence, and execution aids are commands or capabilities that help produce evidence. Execution aids are not automatically MCP tools.</p>
+      <div class="toolkit-defs">
+        <div class="toolkit-def"><strong>Skills</strong><span>Official or local procedures to invoke or follow.</span></div>
+        <div class="toolkit-def"><strong>Methods</strong><span>Decision rules and review gates used inside the card.</span></div>
+        <div class="toolkit-def"><strong>Artifacts</strong><span>Files, reports, summaries, or evidence that survive beyond chat.</span></div>
+        <div class="toolkit-def"><strong>Execution aids</strong><span>Repo search, test runners, git commands, or subagent capabilities.</span></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Category</th><th>Applied in this card</th></tr></thead>
+          <tbody><tr><td><strong>Skills</strong></td><td><code>writing-plans</code></td></tr>
+          <tr><td><strong>Methods</strong></td><td><code>File responsibility map</code> <code>Task right-sizing</code> <code>TDD step design</code> <code>Dependency ordering</code> <code>Plan self-review</code></td></tr>
+          <tr><td><strong>Artifacts</strong></td><td><code>docs/superpowers/plans/YYYY-MM-DD--plan.md</code> <code>implementation-plan.md</code></td></tr>
+          <tr><td><strong>Execution aids</strong></td><td><code>repo search</code> <code>test command discovery</code></td></tr></tbody>
+        </table>
+      </div>
+        </section>
+
+        <section id="quality-gates">
+          <h2>Quality Gates & Checklist</h2>
+          <p>This gate is intentionally concrete. If a required item is false, the card should not hand off as complete.</p>
+          <div class="check-grid">
+            <div class="check-card"><div class="check-title">Operating rules</div><ul class="compact-list"><li>Start from the BMAD story file, approved spec, baseline notes, and BMAD/TEA artifacts rather than chat memory.</li><li>Map every task back to story acceptance criteria or explicit spec decisions.</li><li>Map file responsibilities before slicing tasks; each file should have one clear responsibility unless the repo pattern says otherwise.</li><li>Every task needs exact file paths, interfaces consumed and produced, concrete test code or commands, expected output, and no placeholders.</li><li>Keep steps bite-sized enough for task-level TDD and review; each task should end with an independently testable deliverable.</li><li>Self-review for story/spec coverage, placeholder language, type consistency, and missing requirements before execution handoff.</li></ul></div>
+            <div class="check-card"><div class="check-title">Done checklist</div><ul class="compact-list"><li>No placeholder language such as TBD, TODO, add validation, or write tests for this.</li><li>Every task has files, interfaces, test steps, commands, expected output, and completion criteria.</li><li>The plan covers every spec requirement or explicitly calls out a gap.</li><li>Task boundaries are small enough for TDD plus review.</li></ul></div>
+            <div class="check-card"><div class="check-title">Failure modes to catch</div><ul class="compact-list"><li>Plan says &#39;add validation&#39; or &#39;write tests&#39; without concrete code or commands.</li><li>Later tasks refer to names, types, or helpers never defined by earlier tasks.</li><li>A subagent cannot execute its task without hidden context from the planning chat.</li></ul></div>
+          </div>
+        </section>
+        <section id="example">
+          <h2>Applied Example</h2>
+          <div class="example-grid">
+            <div class="example-card"><div class="example-k">Scenario</div><p>The approved spec adds passwordless login with API, UI, storage, and test changes.</p></div>
+            <div class="example-card good"><div class="example-k">Correct use</div><p>Create tasks for schema, token service, API route, email adapter, UI form, and tests; each task has exact files, interfaces, red/green commands, and expected output.</p></div>
+            <div class="example-card bad"><div class="example-k">Common failure</div><p>Write a plan that says implement auth flow, add validation, and write tests without paths, code, commands, or task boundaries.</p></div>
+          </div>
+        </section>
+        <section id="troubleshooting">
+          <h2>Troubleshooting</h2>
+          <div class="grid-2">
+            <div class="rule-card"><div class="rule-title">Signals that this card is going wrong</div><ul class="compact-list"><li>Plan says &#39;add validation&#39; or &#39;write tests&#39; without concrete code or commands.</li><li>Later tasks refer to names, types, or helpers never defined by earlier tasks.</li><li>A subagent cannot execute its task without hidden context from the planning chat.</li></ul></div>
+            <div class="rule-card"><div class="rule-title">Recovery moves</div><ul class="compact-list"><li>If a required input is missing, route to the previous BMAD, SPP, or TEA artifact instead of filling the gap from memory.</li><li>If evidence is stale or second-hand, rerun the smallest command or checklist that proves the claim.</li><li>If scope expands during execution, split the work and update the spec or plan before continuing.</li><li>If review or verification contradicts the plan, fix the artifact trail first so the next worker sees the same truth.</li><li>Use the terminal state as the exit test: Executable plan with exact files, interfaces, test commands, expected output, and execution option.</li></ul></div>
+          </div>
+        </section>
+
+        <section id="handoff">
+          <h2>Handoff Contract</h2>
+          <div class="grid-2">
+            <div class="card"><div class="card-title">Entry criteria</div><div class="card-desc">The card starts only when story, spec, test design, and workspace evidence exist.</div><div class="badge-row"><span class="badge">{story_key}.md</span><span class="badge">approved spec.md</span><span class="badge">test-design-epic-{N}.md</span><span class="badge">baseline notes</span></div></div>
+            <div class="card"><div class="card-title">Exit criteria</div><div class="card-desc">The card is complete when outputs are written, linked, and usable by the next workflow without relying on chat memory.</div><div class="badge-row"><span class="badge dark">implementation-plan.md</span></div></div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <aside class="toc" aria-label="On this page">
+      <div class="toc-title">On this page</div>
+      <a href="#overview">Overview</a>
+      <a href="#skill-profile">Skill Profile</a>
+      <a href="#core-principles">Core Principles</a>
+      <a href="#activation">Activation</a>
+      <a href="#quickstart">Quick Start</a>
+      <a href="#what">What</a>
+      <a href="#why">Why</a>
+      <a href="#knowledge-base">Knowledge</a>
+      <a href="#how">Workflow</a>
+      <a href="#rules">Rules</a>
+      <a href="#outputs">Outputs</a>
+      <a href="#artifact">Template</a>
+      <a href="#toolkit">Toolkit</a>
+      <a href="#quality-gates">Checklist</a>
+      <a href="#example">Example</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+      <a href="#handoff">Handoff</a>
+    </aside>
+  </div>
+</body>
+</html>
