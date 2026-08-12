@@ -1,0 +1,2970 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Superpowers Playbook · BMAD Method v6.10.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FFFFFF;
+    --paper-deep: #F5F5F5;
+    --ink: #141414;
+    --ink-soft: #3D3A35;
+    --ink-mute: #8A8478;
+    --rule: #1A1A1A;
+    --rule-soft: rgba(20,20,20,0.15);
+    --accent: #B8471E;
+    --accent-tint: rgba(184,71,30,0.08);
+    --label-new: #2E7D32;
+    --label-new-tint: rgba(46,125,50,0.08);
+    --label-updated: #1D5DA6;
+    --label-updated-tint: rgba(29,93,166,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  .label-new {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    background: var(--label-new-tint);
+    color: var(--label-new);
+    font-weight: 700;
+  }
+  .label-updated {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    background: var(--label-updated-tint);
+    color: var(--label-updated);
+    font-weight: 700;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    padding: 32px 16px 80px;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(184,71,30,0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 90%, rgba(20,20,20,0.03) 0%, transparent 50%);
+  }
+
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 56px 56px 72px;
+    position: relative;
+    box-shadow: 0 40px 80px -40px rgba(20,20,20,0.25);
+  }
+
+  .page::before {
+    content: "";
+    position: absolute; inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+  }
+  .page > * { position: relative; z-index: 1; }
+
+  /* MASTHEAD — logo left, version stamp right */
+  .masthead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding-bottom: 28px;
+    border-bottom: 2px solid var(--rule);
+  }
+  .masthead-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .logo-mark {
+    width: 56px; height: 56px;
+    border: 2px solid var(--ink);
+    display: grid; place-items: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 600; font-size: 28px;
+    font-style: italic;
+    background: var(--ink); color: var(--paper);
+    font-variation-settings: 'SOFT' 100;
+    flex-shrink: 0;
+  }
+  .logo-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft); line-height: 1.5;
+  }
+  .logo-text strong { color: var(--ink); font-weight: 600; display: block; font-size: 13px; }
+
+  /* HERO — simplified */
+  .hero {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: clamp(52px, 8vw, 108px);
+    line-height: 0.92; letter-spacing: -0.02em;
+    font-variation-settings: 'SOFT' 30, 'opsz' 144;
+  }
+  .hero h1 em {
+    font-style: italic; color: var(--accent);
+    font-variation-settings: 'SOFT' 100, 'opsz' 144, 'WONK' 1;
+  }
+  .hero h1 .v {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.25em; vertical-align: super;
+    letter-spacing: 0; color: var(--ink-soft);
+    font-weight: 400; margin-left: 10px;
+  }
+  .hero .variant-label {
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .hero .kicker {
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 700; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .hero .hint {
+    margin-top: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--accent);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .hero .hint::before { content: "▸"; font-size: 12px; }
+
+  @media (max-width: 900px) {
+    .wds-agents-grid { grid-template-columns: 1fr; }
+    .wds-phases { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* STATS — 4 columns */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 28px 0;
+    border-bottom: 2px solid var(--rule);
+  }
+  .stat { padding: 8px 24px; border-right: 1px solid var(--rule-soft); }
+  .stat:first-child { padding-left: 0; }
+  .stat:last-child { border-right: none; padding-right: 0; }
+  .stat .num {
+    font-family: 'Fraunces', serif;
+    font-size: 56px; font-weight: 300;
+    line-height: 1; letter-spacing: -0.03em;
+    font-variation-settings: 'SOFT' 50, 'opsz' 144;
+  }
+  .stat .num sup {
+    font-size: 0.4em; color: var(--accent);
+    font-weight: 500; vertical-align: super;
+    margin-left: 2px;
+  }
+  .stat .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--ink-soft);
+    margin-top: 12px;
+    white-space: nowrap;
+  }
+
+  /* ============================================
+     COLLAPSIBLE SECTION TEMPLATE
+     ============================================ */
+  .sec-head {
+    cursor: pointer;
+    user-select: none;
+  }
+  .sec-head:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+  .sec-chev {
+    width: 14px; height: 14px;
+    color: var(--accent);
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+  .sec-collapsed .sec-chev { transform: rotate(-90deg); }
+  .sec-body {
+    overflow: hidden;
+    max-height: 20000px;
+    transition: max-height 0.45s ease, opacity 0.3s ease;
+    opacity: 1;
+  }
+  .sec-collapsed > .sec-body {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  /* CAST OF SPECIALISTS */
+  .cast-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 28px;
+    margin: 56px 0 24px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .cast-head-left { display: flex; align-items: baseline; gap: 20px; }
+  .cast-head .roman {
+    font-family: 'Fraunces', serif;
+    font-size: 28px; font-style: italic;
+    color: var(--accent);
+    font-variation-settings: 'SOFT' 100, 'WONK' 1;
+    letter-spacing: -0.02em;
+  }
+  .cast-head .title {
+    font-family: 'Fraunces', serif;
+    font-size: 36px; font-weight: 400;
+    letter-spacing: -0.015em;
+    font-variation-settings: 'SOFT' 30, 'opsz' 96;
+    display: inline-flex; align-items: center; gap: 14px;
+  }
+  .cast-head .sub {
+    font-size: 13px; color: var(--ink-soft);
+    margin-top: 4px; font-weight: 400;
+  }
+  .cast-head .right {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--ink-mute);
+    text-align: right;
+  }
+  .cast-head .right strong { color: var(--ink); }
+
+  .cast {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+  .agent {
+    background: var(--paper);
+    padding: 22px 20px 20px;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    display: flex; flex-direction: column;
+    position: relative;
+    min-height: 180px;
+  }
+  .agent-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .agent-idx {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.08em;
+    color: var(--ink-mute);
+  }
+  .agent-avatar {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--accent);
+    display: grid; place-items: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 500; font-size: 18px;
+    font-style: italic;
+    color: var(--accent);
+    background: var(--paper);
+    font-variation-settings: 'SOFT' 100;
+  }
+  .agent-role {
+    font-family: 'Fraunces', serif;
+    font-size: 22px; font-weight: 500;
+    letter-spacing: -0.01em; line-height: 1.1;
+    font-variation-settings: 'SOFT' 30, 'opsz' 36;
+    margin-bottom: 2px;
+  }
+  .agent-alias {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 10px;
+  }
+  .agent-duty {
+    font-size: 12px; line-height: 1.5;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  .agent-owns {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px dotted rgba(20,20,20,0.25);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .agent-owns .ref {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    font-weight: 500;
+    padding: 2px 6px;
+    background: var(--accent-tint);
+    border: 1px solid rgba(184,71,30,0.25);
+  }
+
+  /* AGENT PROFILE BUTTON — opens agent profile modal */
+  .agent-profile-btn {
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--rule-soft);
+    padding: 6px 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    align-self: flex-start;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .agent-profile-btn::before {
+    content: "▣";
+    color: var(--accent);
+    font-size: 10px;
+    line-height: 1;
+  }
+  .agent-profile-btn:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+    background: rgba(20,20,20,0.04);
+  }
+  .agent-profile-btn .chev {
+    width: 8px; height: 8px;
+    color: var(--accent);
+    transition: transform 0.3s ease;
+  }
+  .agent-profile-btn.is-open {
+    color: var(--paper);
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+
+  /* CHANGELOG FAB — fixed compact corner button (not the inline agent-profile-btn) */
+  .changelog-fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 900;
+    width: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: var(--paper);
+    border: 1px solid var(--rule-soft);
+    padding: 8px 12px;
+    box-shadow: 0 2px 10px rgba(20,20,20,0.18);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .changelog-fab::before {
+    content: "▣";
+    color: var(--accent);
+    font-size: 10px;
+    line-height: 1;
+  }
+  .changelog-fab:hover {
+    color: var(--ink);
+    border-color: var(--accent);
+    background: rgba(20,20,20,0.04);
+  }
+
+  /* AGENT PROFILE MODAL — fullscreen overlay (similar to step-detail.is-open) */
+  .agent-profile {
+    display: none;
+  }
+  .agent-profile.is-open {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: rgba(20, 20, 20, 0.78);
+    padding: 3vh 20px;
+    overflow-y: auto;
+    animation: stepDetailBackdrop 0.22s ease;
+    backdrop-filter: blur(2px);
+  }
+  .agent-profile-inner {
+    width: 100%;
+    max-width: min(1400px, 96vw);
+    animation: stepDetailPanel 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .agent-profile-content {
+    background: var(--paper);
+    border: 1px solid rgba(20,20,20,0.18);
+    border-left: 4px solid var(--accent);
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.4),
+      0 10px 30px rgba(0,0,0,0.2);
+    padding: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Agent modal header */
+  .ap-header {
+    padding: 26px 64px 22px 30px;
+    border-bottom: 1px solid var(--rule-soft);
+    background: var(--paper-deep);
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 22px;
+    align-items: center;
+  }
+  .ap-avatar {
+    width: 64px; height: 64px;
+    border: 2px solid var(--accent);
+    display: grid; place-items: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 500; font-size: 32px;
+    font-style: italic;
+    color: var(--accent);
+    background: var(--paper);
+    font-variation-settings: 'SOFT' 100;
+  }
+  .ap-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ap-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .ap-name {
+    font-family: 'Fraunces', serif;
+    font-size: 36px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    line-height: 1;
+    font-variation-settings: 'SOFT' 30, 'opsz' 48;
+  }
+  .ap-name .ap-persona-name {
+    font-style: italic;
+    color: var(--accent);
+    margin-right: 8px;
+  }
+  .ap-tagline {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* Agent modal body — sections */
+  .ap-body {
+    padding: 0;
+    overflow-y: auto;
+    max-height: calc(94vh - 200px);
+  }
+  .ap-section {
+    padding: 26px 30px 22px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .ap-section:last-child { border-bottom: none; }
+  .ap-section-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 0;
+    cursor: pointer;
+    user-select: none;
+    padding: 4px 0 4px;
+  }
+  .ap-section-head:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .ap-section-chev {
+    width: 13px; height: 13px;
+    color: var(--accent);
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: transform 0.28s ease;
+  }
+  .ap-section-collapsed .ap-section-chev { transform: rotate(-90deg); }
+  .ap-section-body {
+    overflow: hidden;
+    max-height: 20000px;
+    opacity: 1;
+    transition: max-height 0.4s ease, opacity 0.25s ease;
+    padding-top: 16px;
+  }
+  .ap-section-collapsed > .ap-section-body {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+  }
+  .ap-section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .ap-section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    font-variation-settings: 'SOFT' 30, 'opsz' 24;
+  }
+  .ap-section-desc {
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    line-height: 1.55;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  /* Agent modal — TABLE */
+  .ap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .ap-table th, .ap-table td {
+    text-align: left;
+    padding: 9px 12px;
+    vertical-align: top;
+    border-bottom: 1px dotted rgba(20,20,20,0.12);
+  }
+  .ap-table tr:last-child td { border-bottom: none; }
+  .ap-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 600;
+    border-bottom: 2px solid var(--ink);
+    background: var(--paper-deep);
+    white-space: nowrap;
+  }
+  .ap-table td.mono,
+  .ap-table th.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+  }
+  .ap-table td code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+  .ap-table td strong { color: var(--ink); font-weight: 500; }
+  .ap-table td em { font-style: italic; color: var(--ink); }
+  .ap-table td .accent { color: var(--accent); font-weight: 500; }
+  .ap-table td .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    padding: 1px 6px;
+    background: var(--accent-tint);
+    color: var(--accent);
+    border: 1px solid rgba(184,71,30,0.25);
+    margin-right: 4px;
+    display: inline-block;
+    margin-bottom: 2px;
+  }
+  .ap-table td .tag.neutral {
+    background: rgba(20,20,20,0.05);
+    color: var(--ink-soft);
+    border-color: rgba(20,20,20,0.15);
+  }
+  .ap-table .row-id {
+    color: var(--accent);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Agent modal — 2-column grid for principles, persona traits */
+  .ap-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .ap-card {
+    padding: 14px 16px;
+    background: var(--paper-deep);
+    border-left: 2px solid var(--accent);
+  }
+  .ap-card-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 7px;
+  }
+  .ap-card-body {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  .ap-card-body strong { color: var(--ink); font-weight: 500; }
+  .ap-card-body em { font-style: italic; color: var(--ink); }
+  .ap-card-body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+
+  /* Agent modal — FLOW DIAGRAM (activation lifecycle) */
+  .ap-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ap-flow-step {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 14px;
+    align-items: start;
+    padding: 10px 12px;
+    background: var(--paper-deep);
+    border-left: 2px solid var(--rule-soft);
+    transition: border-color 0.2s ease;
+  }
+  .ap-flow-step:hover {
+    border-left-color: var(--accent);
+  }
+  .ap-flow-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.4;
+    text-align: center;
+  }
+  .ap-flow-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ap-flow-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .ap-flow-desc {
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .ap-flow-desc code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 4px;
+    color: var(--ink);
+  }
+  .ap-flow-desc strong { color: var(--ink); font-weight: 500; }
+
+  /* Agent modal — HANDOFF diagram (in → agent → out) */
+  .ap-handoff {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 0;
+  }
+  .ap-handoff-box {
+    padding: 16px 18px;
+    background: var(--paper-deep);
+    border: 1px solid var(--rule-soft);
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .ap-handoff-box.center {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .ap-handoff-box.center .ap-hf-title { color: var(--paper); }
+  .ap-handoff-box.center .ap-hf-list { color: rgba(242,237,227,0.85); }
+  .ap-hf-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .ap-handoff-box.center .ap-hf-label { color: var(--accent); }
+  .ap-hf-title {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 6px;
+    font-style: italic;
+    font-variation-settings: 'SOFT' 30, 'opsz' 24;
+  }
+  .ap-hf-list {
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .ap-hf-list code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 4px;
+    color: var(--ink);
+  }
+  .ap-handoff-box.center .ap-hf-list code {
+    background: rgba(242,237,227,0.12);
+    color: var(--paper);
+  }
+  .ap-arrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    color: var(--accent);
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* Agent modal — bullets list within section */
+  .ap-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ap-bullets > li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    padding: 10px 12px;
+    background: var(--paper-deep);
+    border-left: 2px solid var(--rule-soft);
+    transition: border-color 0.2s ease;
+  }
+  .ap-bullets > li:hover {
+    border-left-color: var(--accent);
+  }
+  .ap-bullets > li::before {
+    content: "■";
+    color: var(--accent);
+    font-size: 9px;
+    flex: 0 0 14px;
+    text-align: center;
+    line-height: 1;
+    margin-top: 8px;
+  }
+  .ap-bullets > li > * {
+    min-width: 0;
+  }
+  .ap-bullets > li strong {
+    color: var(--ink);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 3px;
+    font-size: 13px;
+  }
+  .ap-bullets > li em { font-style: italic; color: var(--ink); }
+  .ap-bullets > li code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+
+  /* Agent modal hint footer (re-uses .modal-hint from step-detail) */
+  .agent-profile .modal-hint {
+    padding: 11px 28px;
+    border-top: 1px solid var(--rule-soft);
+    background: var(--paper-deep);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    text-align: center;
+  }
+  .agent-profile .modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    border: 1px solid var(--rule-soft);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: var(--ink-soft);
+    padding: 0;
+    line-height: 1;
+    z-index: 2;
+  }
+  .agent-profile .modal-close:hover {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* Mobile responsive for agent profile */
+  @media (max-width: 900px) {
+    .ap-grid-2 { grid-template-columns: 1fr; }
+    .ap-handoff {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .ap-arrow {
+      transform: rotate(90deg);
+    }
+    .ap-header {
+      grid-template-columns: 1fr;
+      gap: 14px;
+      padding: 22px 56px 18px 20px;
+    }
+    .ap-avatar { width: 52px; height: 52px; font-size: 26px; }
+    .ap-name { font-size: 28px; }
+    .ap-section { padding: 20px 18px; }
+    .ap-table { font-size: 11.5px; }
+    .ap-table th, .ap-table td { padding: 7px 8px; }
+  }
+
+  /* PHASE SECTION HEADERS */
+  .section-head {
+    display: grid;
+    grid-template-columns: 80px 1fr auto auto;
+    align-items: baseline;
+    gap: 24px;
+    margin: 56px 0 24px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .phase-num {
+    font-family: 'Fraunces', serif;
+    font-size: 72px; font-weight: 300;
+    line-height: 1; color: var(--accent);
+    font-style: italic; letter-spacing: -0.04em;
+    font-variation-settings: 'SOFT' 100, 'opsz' 144, 'WONK' 1;
+  }
+  .phase-title {
+    font-family: 'Fraunces', serif;
+    font-size: 36px; font-weight: 400;
+    letter-spacing: -0.015em;
+    font-variation-settings: 'SOFT' 30, 'opsz' 96;
+  }
+  .phase-sub {
+    font-size: 13px; color: var(--ink-soft);
+    margin-top: 6px; font-weight: 400;
+  }
+  .phase-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--ink);
+    padding: 6px 10px; border: 1px solid var(--ink);
+    white-space: nowrap;
+  }
+  .phase-tag.optional { color: var(--ink-mute); border-color: var(--ink-mute); }
+  .phase-tag.required { background: var(--ink); color: var(--paper); }
+
+  /* WORKFLOW GRID */
+  .workflows {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+  .workflows.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .phase04-workflows { align-items: stretch; grid-auto-rows: 1fr; }
+  .phase04-workflows > .wf { height: 100%; box-sizing: border-box; }
+  .workflows > div { min-width: 0; }
+
+  .wf {
+    background: var(--paper);
+    padding: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    min-height: 140px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* WF HEADER — always visible */
+  .wf-header {
+    padding: 22px 20px 14px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .wf-header:hover { background: rgba(184,71,30,0.03); }
+  .wf-header:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+  .wf-head-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .wf-id {
+    font-family: 'Fraunces', serif;
+    font-size: 10px; letter-spacing: 0.08em;
+    color: var(--ink-mute);
+  }
+  .wf-collapse-btn {
+    background: none; border: none;
+    padding: 4px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .wf-collapse-btn .chev {
+    width: 10px; height: 10px;
+    color: var(--accent);
+    transition: transform 0.3s ease;
+  }
+  .wf.is-collapsed .wf-collapse-btn .chev { transform: rotate(-90deg); }
+  .wf-name {
+    font-family: 'Fraunces', serif;
+    font-size: 18px; font-weight: 400;
+    line-height: 1.2; letter-spacing: -0.01em;
+    font-variation-settings: 'SOFT' 40, 'opsz' 36;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  /* WF BODY — collapsible */
+  .wf-body {
+    overflow: hidden;
+    max-height: 8000px;
+    transition: max-height 0.45s ease, opacity 0.3s;
+    opacity: 1;
+  }
+  .wf.is-collapsed .wf-body {
+    max-height: 0;
+    opacity: 0;
+  }
+  .wf-body-inner {
+    padding: 0 20px 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wf-purpose {
+    font-size: 12.5px; line-height: 1.5;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+
+  /* AGENT CHIP */
+  .wf-agent {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 4px 9px 4px 8px;
+    background: var(--accent-tint);
+    border-left: 2px solid var(--accent);
+    margin-bottom: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .wf-agent .label { color: var(--ink-mute); font-weight: 400; }
+  .wf-agent .who { color: var(--ink); font-weight: 600; }
+
+  
+  /* STEPS BUTTON */
+  .wf-steps {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em;
+    font-weight: 500; text-transform: uppercase;
+    color: var(--accent);
+    background: var(--paper);
+    border: 1px solid var(--accent);
+    padding: 6px 10px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: space-between;
+    gap: 6px;
+    transition: all 0.2s ease;
+    align-self: flex-start;
+    margin-bottom: 0;
+  }
+  .wf-steps:hover { background: var(--accent); color: var(--paper); }
+  .wf-steps:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .wf-steps .chev { width: 8px; height: 8px; transition: transform 0.3s ease; }
+  .wf.steps-open .wf-steps { background: var(--accent); color: var(--paper); }
+  .wf.steps-open .wf-steps .chev { transform: rotate(180deg); }
+
+  /* EXPANDABLE STEPS LIST */
+  .wf-steps-list {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                margin 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .wf-steps-list > .steps-inner { overflow: hidden; min-height: 0; }
+  .wf.steps-open .wf-steps-list { grid-template-rows: 1fr; margin-top: 14px; }
+
+  .steps-ol {
+    list-style: none;
+    padding: 14px 0 8px;
+    border-top: 1px dotted rgba(20,20,20,0.3);
+    border-bottom: 1px dotted rgba(20,20,20,0.3);
+  }
+  .steps-ol li {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 10px;
+    padding: 10px 0;
+  }
+  .steps-ol li + li { border-top: 1px dotted rgba(20,20,20,0.1); }
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    color: var(--accent);
+    padding-top: 3px;
+    letter-spacing: 0.03em;
+  }
+  .step-body { min-width: 0; }
+  .step-t {
+    font-family: 'Fraunces', serif;
+    font-size: 13.5px; line-height: 1.25;
+    color: var(--ink);
+    margin-bottom: 3px;
+    font-variation-settings: 'SOFT' 40, 'opsz' 24;
+    font-weight: 500;
+  }
+  .step-t .opt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--ink-mute);
+    font-weight: 400; margin-left: 6px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    vertical-align: middle;
+  }
+  .step-d { font-size: 11.5px; line-height: 1.5; color: var(--ink-soft); }
+
+  /* STEP TECHNIQUE TAGS */
+  .step-tags {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .step-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    color: var(--ink-soft);
+    background: rgba(20,20,20,0.05);
+    border: 1px solid rgba(20,20,20,0.15);
+    text-transform: lowercase;
+    white-space: nowrap;
+  }
+
+  /* STEP DETAIL — WHAT / WHY / HOW expandable */
+  .step-detail-btn {
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    background: transparent;
+    border: 1px dashed rgba(20,20,20,0.25);
+    padding: 3px 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+  }
+  .step-detail-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    border-style: solid;
+    background: var(--accent-tint);
+  }
+  .step-detail-btn .chev {
+    width: 7px; height: 7px;
+    transition: transform 0.3s ease;
+  }
+  .step-detail-btn.is-open {
+    color: var(--accent);
+    border-color: var(--accent);
+    border-style: solid;
+    background: var(--accent-tint);
+  }
+  .step-detail-btn.is-open .chev { transform: rotate(180deg); }
+
+  /* ============================================================
+     UNIFIED WORKFLOW TOGGLE BUTTONS — what·why·how / N steps / toolkit
+     ============================================================ */
+  .wf-detail-btn, .wf-steps, .wf-stack-toggle {
+    margin: 0 0 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--rule-soft);
+    padding: 7px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 230px;
+    max-width: 100%;
+    transition: all 0.2s ease;
+    align-self: flex-start;
+  }
+  .wf-detail-btn::before, .wf-steps::before, .wf-stack-toggle::before {
+    content: "◆";
+    color: var(--accent);
+    font-size: 9px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .wf-detail-btn:hover, .wf-steps:hover, .wf-stack-toggle:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+    background: rgba(20,20,20,0.04);
+  }
+  .wf-detail-btn:focus-visible, .wf-steps:focus-visible, .wf-stack-toggle:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .wf-detail-btn .chev, .wf-steps .chev, .wf-stack-toggle .chev {
+    width: 9px; height: 9px;
+    color: var(--accent);
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+  /* unified OPEN state for all three */
+  .wf-detail-btn.is-open,
+  .wf.steps-open .wf-steps,
+  .wf-stack:not(.is-collapsed) .wf-stack-toggle {
+    color: var(--accent);
+    background: var(--accent-tint);
+    border-color: var(--accent);
+  }
+  .wf-detail-btn.is-open .chev,
+  .wf.steps-open .wf-steps .chev,
+  .wf-stack:not(.is-collapsed) .wf-stack-toggle .chev { transform: rotate(180deg); }
+
+  /* WORKFLOW DETAIL MODAL — fullscreen overlay, identical pattern to step-detail.is-open */
+  .wf-detail {
+    display: none;
+  }
+  .wf-detail.is-open {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: rgba(20, 20, 20, 0.78);
+    padding: 3vh 20px;
+    overflow-y: auto;
+    animation: stepDetailBackdrop 0.22s ease;
+    backdrop-filter: blur(2px);
+  }
+  .wf-detail.is-open > .wf-detail-inner {
+    width: 100%;
+    max-width: min(1400px, 96vw);
+    animation: stepDetailPanel 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .wf-detail-content {
+    background: var(--paper);
+    border: 1px solid rgba(20,20,20,0.18);
+    border-left: 4px solid var(--accent);
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.4),
+      0 10px 30px rgba(0,0,0,0.2);
+    padding: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  /* Modal header for workflow */
+  .wf-detail-content .modal-header {
+    padding: 22px 64px 18px 28px;
+    border-bottom: 1px solid var(--rule-soft);
+    background: var(--paper-deep);
+    position: relative;
+  }
+  .wf-detail-content .modal-header .ms-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .wf-detail-content .modal-header .ms-title {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.1;
+    font-variation-settings: 'SOFT' 30, 'opsz' 36;
+  }
+  .wf-detail-content .modal-header .ms-desc {
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    line-height: 1.55;
+    font-style: italic;
+  }
+  .wf-detail-content .modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    border: 1px solid var(--rule-soft);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: var(--ink-soft);
+    padding: 0;
+    line-height: 1;
+    z-index: 2;
+  }
+  .wf-detail-content .modal-close:hover {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  /* Use full-width single-column layout for workflow modal (WHAT/WHY/HOW stacked) */
+  .wf-detail-content .modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .wf-detail-content .modal-body > .sd-row {
+    padding: 28px 36px 32px 36px;
+    border-bottom: 1px solid var(--rule-soft);
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
+    gap: 0;
+    align-items: stretch;
+    margin: 0;
+    background: transparent;
+  }
+  .wf-detail-content .modal-body > .sd-row:last-child { border-bottom: none; }
+  .wf-detail-content .sd-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 0 0 10px 0;
+    margin-bottom: 18px;
+    border-bottom: 2px solid currentColor;
+    align-self: flex-start;
+    display: inline-block;
+    width: auto;
+  }
+  .wf-detail-content .sd-label.what {
+    color: #1A1A1A;
+    border-bottom-color: #1A1A1A;
+  }
+  .wf-detail-content .sd-label.why {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .wf-detail-content .sd-label.how {
+    color: #5B5346;
+    border-bottom-color: #5B5346;
+  }
+  .wf-detail-content .sd-text {
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    max-width: 100%;
+  }
+  .wf-detail-content .sd-text p { margin: 0 0 12px 0; }
+  .wf-detail-content .sd-text p:last-child { margin-bottom: 0; }
+  .wf-detail-content .sd-text strong { color: var(--ink); font-weight: 500; }
+  .wf-detail-content .sd-text em { font-style: italic; color: var(--ink); }
+  .wf-detail-content .sd-text code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+
+  /* Inline tables inside WHAT/WHY/HOW sections */
+  .wf-detail-content .inline-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 16px 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .wf-detail-content .inline-table th,
+  .wf-detail-content .inline-table td {
+    text-align: left;
+    padding: 9px 12px;
+    vertical-align: top;
+    border-bottom: 1px dotted rgba(20,20,20,0.12);
+  }
+  .wf-detail-content .inline-table tr:last-child td { border-bottom: none; }
+  .wf-detail-content .inline-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    font-weight: 600;
+    border-bottom: 2px solid var(--ink);
+    background: var(--paper-deep);
+    white-space: nowrap;
+  }
+  .wf-detail-content .inline-table td.mono,
+  .wf-detail-content .inline-table th.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+  }
+  .wf-detail-content .inline-table td code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+  .wf-detail-content .inline-table td strong { color: var(--ink); font-weight: 500; }
+  .wf-detail-content .inline-table td .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    padding: 1px 6px;
+    background: var(--accent-tint);
+    color: var(--accent);
+    border: 1px solid rgba(184,71,30,0.25);
+    display: inline-block;
+  }
+  .wf-detail-content .inline-table .row-id {
+    color: var(--accent);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Inline flow (sequence diagram) inside WHAT/WHY/HOW */
+  .wf-detail-content .inline-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 14px 0 16px 0;
+  }
+  .wf-detail-content .inline-flow-step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 14px;
+    align-items: start;
+    padding: 10px 14px;
+    background: var(--paper-deep);
+    border-left: 2px solid var(--rule-soft);
+    transition: border-color 0.2s ease;
+  }
+  .wf-detail-content .inline-flow-step:hover {
+    border-left-color: var(--accent);
+  }
+  .wf-detail-content .inline-flow-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.5;
+    text-align: center;
+  }
+  .wf-detail-content .inline-flow-body {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  .wf-detail-content .inline-flow-body strong { color: var(--ink); font-weight: 500; }
+  .wf-detail-content .inline-flow-body em { font-style: italic; color: var(--ink); }
+  .wf-detail-content .inline-flow-body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+
+  /* Horizontal flow arrow row (for sequence) */
+  .wf-detail-content .horizontal-flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 16px 0;
+    flex-wrap: wrap;
+  }
+  .wf-detail-content .hf-box {
+    padding: 10px 14px;
+    background: var(--paper-deep);
+    border: 1px solid var(--rule-soft);
+    border-left: 2px solid var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    min-width: 80px;
+    text-align: center;
+  }
+  .wf-detail-content .hf-arrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .wf-detail-content .modal-hint {
+    padding: 11px 28px;
+    border-top: 1px solid var(--rule-soft);
+    background: var(--paper-deep);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    text-align: center;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 700px) {
+    .wf-detail.is-open { padding: 2vh 12px; }
+    .wf-detail-content .modal-body > .sd-row {
+      padding: 22px 20px 24px 20px;
+    }
+    .wf-detail-content .modal-header { padding: 18px 50px 14px 18px; }
+    .wf-detail-content .modal-header .ms-title { font-size: 22px; }
+    .wf-detail-content .inline-table {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+
+  .step-detail {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                margin 0.35s ease;
+    margin-top: 0;
+  }
+  .step-detail > .step-detail-inner { overflow: hidden; min-height: 0; }
+
+  /* MODAL MODE — step-detail expands to fullscreen overlay when open */
+  .step-detail.is-open {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: rgba(20, 20, 20, 0.78);
+    padding: 3vh 20px;
+    grid-template-rows: none;
+    margin: 0;
+    overflow-y: auto;
+    animation: stepDetailBackdrop 0.22s ease;
+    backdrop-filter: blur(2px);
+  }
+  @keyframes stepDetailBackdrop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .step-detail.is-open > .step-detail-inner {
+    overflow: visible;
+    min-height: 0;
+    width: 100%;
+    max-width: min(1400px, 96vw);
+    animation: stepDetailPanel 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes stepDetailPanel {
+    from { transform: translateY(16px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .step-detail.is-open .step-detail-inner-content {
+    background: var(--paper);
+    border: 1px solid rgba(20,20,20,0.18);
+    border-left: 4px solid var(--accent);
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.4),
+      0 10px 30px rgba(0,0,0,0.2);
+    padding: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-height: 0;
+  }
+
+  /* Modal header — injected by JS */
+  .modal-header {
+    margin: 0;
+    padding: 22px 56px 18px 28px;
+    border-bottom: 1px solid var(--rule-soft);
+    background: var(--paper-deep);
+    position: relative;
+  }
+  .modal-header .ms-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .modal-header .ms-title {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.1;
+    font-variation-settings: 'SOFT' 30, 'opsz' 36;
+  }
+  .modal-header .ms-desc {
+    font-size: 12.5px;
+    color: var(--ink-mute);
+    line-height: 1.55;
+    font-style: italic;
+  }
+  .modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    border: 1px solid var(--rule-soft);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: var(--ink-soft);
+    padding: 0;
+    line-height: 1;
+    z-index: 2;
+  }
+  .modal-close:hover {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .modal-close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .modal-hint {
+    padding: 11px 28px;
+    border-top: 1px solid var(--rule-soft);
+    background: var(--paper-deep);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    text-align: center;
+  }
+  .modal-hint kbd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    padding: 1px 5px;
+    background: var(--paper);
+    border: 1px solid var(--rule-soft);
+    color: var(--ink);
+    margin: 0 2px;
+  }
+
+  /* Lock body scroll when modal open */
+  body.modal-open {
+    overflow: hidden;
+  }
+
+  /* ============================================================
+     MODAL — 3-COLUMN TABLE LAYOUT (WHAT / WHY / HOW side-by-side)
+     ============================================================ */
+  .step-detail.is-open .step-detail-inner-content > :where(.sd-row, .sd-row + .sd-row) {
+    /* reset old vertical row styles inside modal */
+  }
+  /* Wrap the 3 sd-rows in a grid via parent */
+  .step-detail.is-open .step-detail-inner-content {
+    /* will use a flex column: header | 3-col grid | hint */
+  }
+  /* The 3 sd-rows become 3 columns of a grid container */
+  .step-detail.is-open .sd-row {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
+    gap: 0;
+    align-items: stretch;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+    background: transparent;
+  }
+  .step-detail.is-open .sd-row + .sd-row {
+    padding-top: 0;
+    border-top: none;
+  }
+  /* This is the actual 3-column grid container injected by JS around the sd-rows */
+  .modal-body {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr 1fr;
+    gap: 0;
+    padding: 0;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .modal-body > .sd-row {
+    padding: 22px 24px 26px 24px;
+    border-right: 1px solid var(--rule-soft);
+    min-width: 0;
+  }
+  .modal-body > .sd-row:last-child { border-right: none; }
+
+  /* Column headers within each column */
+  .step-detail.is-open .sd-label {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    font-weight: 700;
+    text-align: left;
+    padding: 0 0 10px 0;
+    margin-bottom: 12px;
+    border-bottom: 2px solid currentColor;
+    align-self: flex-start;
+    display: inline-block;
+    width: auto;
+  }
+  .step-detail.is-open .sd-label.what {
+    color: #1A1A1A;
+    border-bottom-color: #1A1A1A;
+  }
+  .step-detail.is-open .sd-label.why {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .step-detail.is-open .sd-label.how {
+    color: #5B5346;
+    border-bottom-color: #5B5346;
+  }
+
+  /* Body text inside each column */
+  .step-detail.is-open .sd-text {
+    font-size: 12.5px;
+    line-height: 1.62;
+    color: var(--ink-soft);
+  }
+  .step-detail.is-open .sd-li-body {
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  .step-detail.is-open .sd-li-marker {
+    font-size: 10px;
+  }
+  .step-detail.is-open .sd-sublist > li {
+    font-size: 11.5px;
+    line-height: 1.55;
+  }
+  .step-detail.is-open .sd-list {
+    margin-top: 6px;
+    gap: 6px;
+  }
+  .step-detail.is-open .sd-list > li {
+    grid-template-columns: 20px 1fr;
+    gap: 10px;
+  }
+  .step-detail.is-open .sd-sublist {
+    padding: 4px 0 1px 11px;
+    margin: 6px 0 2px 0;
+    gap: 3px;
+  }
+
+  /* Tablet: 2 cols (WHAT spans full row, WHY+HOW side-by-side); or single col */
+  @media (max-width: 1100px) {
+    .modal-body {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 700px) {
+    .step-detail.is-open {
+      padding: 2vh 12px;
+    }
+    .modal-body {
+      grid-template-columns: 1fr;
+    }
+    .modal-body > .sd-row {
+      padding: 18px 18px 20px 18px;
+      border-right: none;
+      border-bottom: 1px solid var(--rule-soft);
+    }
+    .modal-body > .sd-row:last-child { border-bottom: none; }
+    .modal-header { padding: 18px 50px 14px 18px; }
+    .modal-header .ms-title { font-size: 22px; }
+    .modal-hint { padding: 10px 18px; }
+  }
+
+  /* INLINE (non-modal) — keep original style */
+  .step-detail-inner-content {
+    background: rgba(184,71,30,0.04);
+    border-left: 2px solid var(--accent);
+    padding: 12px 14px;
+    display: grid;
+    gap: 9px;
+  }
+  /* In INLINE mode, .modal-body acts as transparent passthrough so sd-rows stay vertical */
+  .step-detail:not(.is-open) .modal-body {
+    display: grid;
+    gap: 9px;
+  }
+  .step-detail:not(.is-open) .modal-header,
+  .step-detail:not(.is-open) .modal-hint,
+  .step-detail:not(.is-open) .modal-close {
+    display: none;
+  }
+  .sd-row {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .sd-row + .sd-row {
+    border-top: 1px dotted rgba(20,20,20,0.12);
+    padding-top: 9px;
+  }
+  .sd-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-align: left;
+  }
+  .sd-label.what { color: #1A1A1A; }
+  .sd-label.why  { color: var(--accent); }
+  .sd-label.how  { color: #5B5346; }
+  .sd-text {
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .sd-text strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .sd-text em { font-style: italic; color: var(--ink); }
+  .sd-text code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 4px;
+    color: var(--ink);
+  }
+  .sd-text > p { margin: 0; }
+  .sd-text > p + p,
+  .sd-text > p + .sd-list,
+  .sd-text > .sd-list + p { margin-top: 7px; }
+
+  /* STRUCTURED LISTS inside sd-text (steps + bullets) */
+  .sd-list {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .sd-list + .sd-list { margin-top: 8px; }
+  .sd-list > li {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 9px;
+    align-items: start;
+    line-height: 1.55;
+  }
+  .sd-li-marker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--accent);
+    text-align: right;
+    padding-top: 3px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    user-select: none;
+    line-height: 1.55;
+  }
+  .sd-list--steps .sd-li-marker::after { content: "."; }
+  .sd-list--bullets .sd-li-marker {
+    text-align: center;
+    font-weight: 700;
+    font-size: 11px;
+    padding-top: 1px;
+  }
+  .sd-li-body {
+    color: var(--ink-soft);
+    font-size: 11.5px;
+    display: block;
+    min-width: 0;
+  }
+  .sd-li-body strong { color: var(--ink); font-weight: 500; }
+  .sd-li-body em { font-style: italic; color: var(--ink); }
+  .sd-li-body code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 4px;
+    color: var(--ink);
+  }
+
+  /* SUB-LIST inside a list item — grouped visually via left border, no leading marker */
+  .sd-sublist {
+    list-style: none;
+    padding: 4px 0 1px 10px;
+    margin: 6px 0 2px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    border-left: 2px solid var(--rule-soft);
+  }
+  .sd-sublist > li {
+    display: block;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--ink-mute);
+  }
+  .sd-sublist > li::before {
+    content: none;
+  }
+  .sd-sublist > li code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 4px;
+    color: var(--ink);
+  }
+  .sd-sublist > li strong { color: var(--ink); font-weight: 500; }
+  .sd-sublist > li em { font-style: italic; color: var(--ink); }
+
+
+
+
+  /* WF I/O — inputs and output */
+  .wf-io {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px dotted rgba(20,20,20,0.2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+  }
+  .wf-io-row {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 10px;
+    padding: 5px 0;
+    align-items: baseline;
+  }
+  .wf-io-row + .wf-io-row { border-top: 1px dotted rgba(20,20,20,0.1); }
+  .wf-io-label {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .wf-io-files {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .wf-io-file { color: var(--ink); }
+  .wf-io-file.opt {
+    color: var(--ink-mute);
+    font-style: italic;
+  }
+  .wf-io-file.opt::after {
+    content: " · optional";
+    font-size: 8.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-style: normal;
+    margin-left: 2px;
+  }
+
+  /* FLOW DIAGRAM */
+  .flow-row {
+    margin: 28px 0 16px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+  }
+  .flow-step {
+    background: var(--paper-deep);
+    padding: 14px 12px;
+    text-align: center;
+    position: relative;
+  }
+  .flow-step.accent { background: var(--accent); color: var(--paper); }
+  .flow-step::after {
+    content: "▸";
+    position: absolute; right: -10px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink); font-size: 14px; z-index: 2;
+  }
+  .flow-step:last-child::after { display: none; }
+  .flow-step .n {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.15em;
+    text-transform: uppercase; opacity: 0.7;
+  }
+  .flow-step .who {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 3px;
+    opacity: 0.65;
+  }
+  .flow-step .l {
+    font-family: 'Fraunces', serif;
+    font-size: 15px; margin-top: 4px;
+    font-variation-settings: 'SOFT' 40;
+  }
+
+  /* QUICK DEV */
+  .quickflow {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 32px 36px;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 32px;
+  }
+
+  /* QUICK DEV IO */
+
+  /* FOOTER */
+  .footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 2px solid var(--rule);
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.08em;
+    color: var(--ink-soft); line-height: 1.8;
+  }
+  .footer h4 {
+    font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .footer .legend-item { display: flex; gap: 10px; align-items: center; margin-bottom: 4px; }
+  .footer .dot { width: 10px; height: 10px; border: 1px solid var(--ink); display: inline-block; }
+  .footer .dot.fill { background: var(--ink); }
+  .footer .dot.accent { background: var(--accent); border-color: var(--accent); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .page { padding: 32px 24px 56px; }
+    .masthead { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat { padding: 16px; border-right: 1px solid var(--rule-soft); border-bottom: 1px solid var(--rule-soft); }
+    .stat:nth-child(2n) { border-right: none; padding-right: 16px; }
+    .stat:first-child { padding-left: 16px; }
+    .stat:last-child { padding-right: 16px; }
+    .stat:nth-last-child(-n+2) { border-bottom: none; }
+    .cast { grid-template-columns: 1fr; }
+    .cast-head { grid-template-columns: 1fr; gap: 8px; }
+    .cast-head .right { text-align: left; }
+    .workflows, .workflows.cols-2 { grid-template-columns: 1fr; }
+    .section-head { grid-template-columns: 1fr; gap: 12px; }
+    .phase-num { font-size: 54px; }
+    .phase-title { font-size: 28px; }
+    .flow-row { grid-template-columns: 1fr 1fr; }
+    .flow-step::after { display: none; }
+    .quickflow { grid-template-columns: 1fr; gap: 16px; text-align: left; }
+    .footer { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    body { padding: 0; background: white; }
+    .page { border: none; box-shadow: none; padding: 20px; }
+    .sec-body { max-height: none !important; opacity: 1 !important; }
+    .wf-body { max-height: none !important; opacity: 1 !important; }
+    .wf-steps-list { grid-template-rows: 1fr !important; }
+  }
+
+  /* ============================================================
+     WORKFLOW TECH STACK — BMAD toolkit applied to each workflow
+     ============================================================ */
+  .wf-stack {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .wf-stack-body {
+    align-self: stretch;
+    overflow: hidden;
+    max-height: 1200px;
+    opacity: 1;
+    transition: max-height 0.4s ease, opacity 0.25s ease, padding 0.4s ease;
+    padding: 12px 14px;
+    background: var(--accent-tint);
+    border: 1px solid rgba(184,71,30,0.22);
+    border-left: 2px solid var(--accent);
+  }
+  .wf-stack.is-collapsed > .wf-stack-body {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+  }
+  .wf-stack-row {
+    display: grid;
+    grid-template-columns: 104px 1fr;
+    gap: 10px;
+    padding: 5px 0;
+    align-items: start;
+  }
+  .wf-stack-row + .wf-stack-row { border-top: 1px dotted rgba(184,71,30,0.18); }
+  .wf-stack-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    padding-top: 3px;
+  }
+  .wf-stack-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .wf-stack-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.02em;
+    padding: 2px 7px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid rgba(20,20,20,0.18);
+    white-space: nowrap;
+  }
+  .wf-stack-chip.skill { border-color: rgba(184,71,30,0.45); color: var(--accent); font-weight: 600; }
+  .wf-stack-chip.method { background: var(--paper); }
+  .wf-stack-chip.fmt { background: rgba(20,20,20,0.05); color: var(--ink-soft); }
+  .wf-stack-chip.tool { border-style: dashed; color: var(--ink-soft); }
+
+  /* ============================================================
+     SKILL DETAIL CARDS — skill detail cards (replaces the two-column table)
+     ============================================================ */
+  .skill-cards { display: flex; flex-direction: column; gap: 14px; }
+  .skill-card {
+    border: 1px solid var(--rule-soft);
+    border-left: 2px solid var(--accent);
+    background: var(--paper-deep);
+    padding: 15px 16px;
+  }
+  .skill-card-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 3px;
+  }
+  .skill-card-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+  }
+  .skill-card-type {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border: 1px solid var(--rule-soft);
+    color: var(--ink-mute);
+  }
+  .skill-card-type.workflow { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .skill-card-type.conversational { border-color: var(--accent); color: var(--accent); }
+  .skill-card-type.cross { background: var(--accent-tint); color: var(--accent); border-color: rgba(184,71,30,0.35); }
+  .skill-card-type.mcp { border-style: dashed; color: var(--ink-soft); }
+  .skill-card-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    background: var(--accent);
+    color: var(--paper);
+  }
+  .skill-card-path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-mute);
+    margin: 2px 0 11px;
+    word-break: break-all;
+  }
+  .skill-card-grid {
+    display: grid;
+    grid-template-columns: 78px 1fr;
+    gap: 7px 12px;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+  .skill-card-k {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    padding-top: 2px;
+  }
+  .skill-card-v { color: var(--ink-soft); }
+  .skill-card-v strong { color: var(--ink); font-weight: 500; }
+  .skill-card-v em { font-style: italic; color: var(--ink); }
+  .skill-card-v code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+  .skill-card-v .io-arrow { color: var(--accent); font-weight: 700; padding: 0 5px; }
+  .skill-card-v .mini-chip {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    padding: 1px 6px;
+    margin: 1px 2px 1px 0;
+    background: var(--paper);
+    border: 1px solid rgba(20,20,20,0.16);
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .skill-canonical-note {
+    font-size: 11.5px;
+    font-style: italic;
+    color: var(--ink-mute);
+    margin: 4px 0 12px;
+    padding: 8px 12px;
+    border-left: 2px solid var(--rule-soft);
+    background: rgba(20,20,20,0.02);
+    line-height: 1.5;
+  }
+  .skill-canonical-note strong { color: var(--ink-soft); font-style: normal; font-weight: 600; }
+  .skill-canonical-note code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    background: rgba(20,20,20,0.06);
+    padding: 1px 4px;
+    font-style: normal;
+  }
+
+  @media (max-width: 700px) {
+    .wf-stack-row { grid-template-columns: 1fr; gap: 4px; }
+    .skill-card-grid { grid-template-columns: 1fr; gap: 2px 0; }
+    .skill-card-k { padding-top: 8px; }
+    .wf-detail-btn, .wf-steps, .wf-stack-toggle { min-width: 0; width: 100%; }
+  }
+  @media print {
+    .wf-stack, .skill-card { break-inside: avoid; }
+    .wf-stack.is-collapsed > .wf-stack-body {
+      max-height: none !important; opacity: 1 !important;
+      padding-top: 12px !important; padding-bottom: 12px !important;
+      border-top-width: 1px !important;
+    }
+    .wf-stack-toggle .chev { transform: none !important; }
+  }
+
+  /* ====== ECO SKILLS CARD (used in TEA section III) ====== */
+  .eco-skills-card {
+    margin: 32px 0 16px;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+  }
+
+  .eco-skills-card .skills-header {
+    padding: 12px 18px;
+    background: var(--paper-warm);
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .eco-skills-card .skills-header .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .eco-skills-card .skills-header .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+  }
+
+  .eco-skills-card .phase-label {
+    padding: 9px 18px 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    font-weight: 700;
+    border-top: 1px dashed var(--rule);
+    background: var(--paper-warm);
+  }
+
+  .eco-skills-card .phase-label:first-of-type {
+    border-top: none;
+  }
+
+  .eco-skills-card table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .eco-skills-card td {
+    padding: 8px 18px;
+    border-bottom: 1px dotted rgba(26,22,18,0.18);
+    vertical-align: top;
+    line-height: 1.45;
+  }
+
+  .eco-skills-card tr:last-child td { border-bottom: none; }
+
+  .eco-skills-card td.skill-cell {
+    width: 32%;
+  }
+
+  .eco-skills-card td.skill-cell .skill-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .eco-skills-card td.skill-cell .skill-menu {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--paper);
+    background: var(--ink);
+    padding: 1px 5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-left: 4px;
+    display: inline-block;
+    transform: translateY(-1px);
+  }
+  /* DOCUMENT CONTROL */
+  .document-control {
+    margin: 28px 0 0;
+    padding: 24px 0 0;
+    border-top: 1px solid var(--rule);
+  }
+  .document-control-title {
+    margin: 0 0 14px;
+    font-family: 'Fraunces', serif;
+    font-size: clamp(22px, 3.2vw, 38px);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .document-control-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px;
+  }
+  .document-control-table th,
+  .document-control-table td {
+    padding: 9px 10px;
+    border: 1px solid var(--rule-soft);
+    text-align: left;
+    vertical-align: top;
+  }
+  .document-control-table th {
+    background: var(--accent);
+    color: var(--paper);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+  @media (max-width: 720px) {
+    .document-control { overflow-x: auto; }
+    .document-control-table { min-width: 700px; }
+  }
+</style>
+<script>
+(function () {
+  if (window.__workflowEmbedResizeInstalled) return;
+  window.__workflowEmbedResizeInstalled = true;
+
+  function fileName(value) {
+    return String(value || '').split('/').pop().split('?')[0].split('#')[0];
+  }
+
+  function resizeWorkflowFrame(src, height) {
+    const target = fileName(src);
+    const nextHeight = Math.max(48, Math.ceil(Number(height) || 0));
+    if (!target || !nextHeight) return;
+    document.querySelectorAll('iframe[src]').forEach(function (frame) {
+      if (fileName(frame.getAttribute('src')) === target) {
+        frame.style.height = nextHeight + 'px';
+      }
+    });
+  }
+
+  function requestMeasure(frame) {
+    try {
+      if (frame.contentWindow) {
+        frame.contentWindow.postMessage({ type: 'workflow-embed-measure-request' }, '*');
+      }
+    } catch (error) {}
+  }
+
+  function wireWorkflowFrame(frame) {
+    if (frame.__workflowResizeWired) return;
+    frame.__workflowResizeWired = true;
+    frame.addEventListener('load', function () {
+      [0, 80, 250, 1000, 2000].forEach(function (delay) {
+        setTimeout(function () { requestMeasure(frame); }, delay);
+      });
+    });
+    [0, 500, 1500].forEach(function (delay) {
+      setTimeout(function () { requestMeasure(frame); }, delay);
+    });
+  }
+
+  function wireWorkflowFrames() {
+    document.querySelectorAll('iframe[src]').forEach(function (frame) {
+      const name = fileName(frame.getAttribute('src'));
+      if (name === 'skill-bmad-tea-workflow.html' || name === 'skill-bmad-tea-spp-workflow.html') {
+        wireWorkflowFrame(frame);
+      }
+    });
+  }
+
+  window.addEventListener('message', function (event) {
+    const data = event.data || {};
+    if (data.type !== 'workflow-embed-resize') return;
+    resizeWorkflowFrame(data.src, data.height);
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wireWorkflowFrames);
+  } else {
+    wireWorkflowFrames();
+  }
+  window.addEventListener('load', wireWorkflowFrames);
+})();
+</script>
+</head>
+<body>
+  <article class="page">
+
+    <!-- MASTHEAD — logo left, version stamp right -->
+    <header class="masthead">
+      <div class="masthead-left">
+        <div class="logo-mark">B</div>
+        <div class="logo-text">
+          <strong>BMAD METHOD</strong>
+          Breakthrough Method for AI-Driven Agile Development
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO — Superpowers Playbook standalone -->
+    <section class="hero">
+      <h1>Superpowers <em>Playbook</em><span class="v">SPP</span></h1>
+      <div class="variant-label">EXECUTION ADD-ON · BMAD PHASE 4</div>
+      <div class="hint">Click section heading to collapse / expand · click "steps" to see step details</div>
+      <div class="kicker"><a href="./bmad-bmm-v610-WITH_TEA-SUPERPOWER.html" style="color:inherit;">&larr; Back to BMM + TEA + Superpowers</a></div>
+    </section>
+
+    <section id="bmad-spp" class="phase-section" style="border-top: 3px solid var(--ink); margin-bottom: 48px;">
+      <div class="section-head sec-head" role="button" tabindex="0" aria-expanded="true" style="background: var(--ink); color: #fff;">
+        <div class="phase-num" style="color:#fff; border-color:rgba(255,255,255,0.3);">SP</div>
+        <div>
+          <div class="phase-title" style="color:#fff;">Superpowers</div>
+          <div class="phase-sub" style="color:rgba(255,255,255,0.7);">Superpowers Playbook · Execution Add-on · Controller Discipline</div>
+        </div>
+        <div class="phase-tag" style="background:rgba(255,255,255,0.15); color:#fff; border-color:rgba(255,255,255,0.3);">Add-on</div>
+        <svg class="sec-chev" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#fff;"><path d="M3 5.5l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg>
+      </div>
+
+      <div class="sec-body" style="padding: 32px 0 0;">
+
+        <div class="hero" style="margin-bottom:0;">
+          <h1 style="font-size:clamp(28px,4vw,48px);">Superpowers <em>Playbook</em><span class="v">SPP</span></h1>
+          <div class="hint">Execution module · Add-on for BMAD Phase 4 · Spec to verified branch</div>
+        </div>
+
+        <div class="stats" style="margin-bottom:40px;">
+          <div class="stat"><div class="num">8</div><div class="label">Phase 4 Cards</div></div>
+          <div class="stat"><div class="num">6</div><div class="label">Core Gates</div></div>
+          <div class="stat"><div class="num">1</div><div class="label">Clean Workspace</div></div>
+          <div class="stat"><div class="num">TDD</div><div class="label">Implementation Loop</div></div>
+          <div class="stat"><div class="num">SP-I</div><div class="label">Finish Doc</div></div>
+        </div>
+
+        <div class="cast-head" style="margin-top:0;">
+          <div class="cast-head-left">
+            <span class="roman">I</span>
+            <div>
+              <div class="title">What is Superpowers?</div>
+              <div class="sub">Superpowers Playbook — disciplined execution layer for implementation</div>
+            </div>
+          </div>
+          <div class="right">Add-on Module<br/><strong>Phase 4 Execution</strong></div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px;">
+          <div>
+            <p style="font-size:14px; line-height:1.65; color:var(--ink-soft); margin-bottom:16px;">
+              <strong style="color:var(--ink);">Superpowers</strong> is an execution add-on for Phase 4. BMAD keeps product context, sprint governance, and the delivery ledger. TEA keeps test architecture and release evidence. SPP owns the coding loop: approved spec, clean workspace, exact plan, small implementation slices, TDD, review, and verification. Branch finish remains a document-guided prompt path, not a Phase 4 card.
+            </p>
+            <p style="font-size:14px; line-height:1.65; color:var(--ink-soft);">
+              SPP does not replace BMAD or TEA. It gives the implementation driver a stricter operating system so each handoff is durable, each claim has evidence, and each worker can continue from files rather than chat memory.
+            </p>
+          </div>
+          <div>
+            <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+              <thead>
+                <tr style="border-bottom:2px solid var(--rule);">
+                  <th style="text-align:left; padding:8px 12px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft);">Comparison Dimension</th>
+                  <th style="text-align:left; padding:8px 12px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft);">BMAD Core</th>
+                  <th style="text-align:left; padding:8px 12px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent);">Superpowers</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:8px 12px; color:var(--ink-soft);">Installation</td><td style="padding:8px 12px;">Core workflow map</td><td style="padding:8px 12px; color:var(--accent);">Separate execution docs</td></tr>
+                <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:8px 12px; color:var(--ink-soft);">Primary role</td><td style="padding:8px 12px;">Sprint planning and status</td><td style="padding:8px 12px; color:var(--accent);">Implementation discipline</td></tr>
+                <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:8px 12px; color:var(--ink-soft);">Entry artifact</td><td style="padding:8px 12px;">Story or epic</td><td style="padding:8px 12px; color:var(--accent);">Approved spec + implementation plan</td></tr>
+                <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:8px 12px; color:var(--ink-soft);">Execution model</td><td style="padding:8px 12px;">Developer-led story work</td><td style="padding:8px 12px; color:var(--accent);">Subagent slices + task review</td></tr>
+                <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:8px 12px; color:var(--ink-soft);">Quality gate</td><td style="padding:8px 12px;">Done status + review</td><td style="padding:8px 12px; color:var(--accent);">Fresh verification evidence before completion</td></tr>
+                <tr><td style="padding:8px 12px; color:var(--ink-soft);">Finish path</td><td style="padding:8px 12px;">Status update and retrospective</td><td style="padding:8px 12px; color:var(--accent);">Document-guided branch package, PR/merge choice, cleanup</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SPP CORE PRINCIPLES -->
+        <div class="cast-head" style="margin-top:0;">
+          <div class="cast-head-left">
+            <span class="roman" style="font-size:20px;">II</span>
+            <div>
+              <div class="title" style="font-size:24px;">8 Core Principles</div>
+              <div class="sub">SPP decisions follow these enterprise execution guardrails</div>
+            </div>
+          </div>
+          <div class="right">Source<br/><strong>spp_docs.html + spp-*.html</strong></div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(2,1fr); gap:0; border-top:1px solid var(--rule); border-left:1px solid var(--rule); margin-bottom:40px;">
+          <div style="padding:18px 20px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); display:flex; gap:14px; align-items:flex-start;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; flex-shrink:0; padding-top:2px;">01</span><div style="font-size:13px; line-height:1.55; color:var(--ink-soft);"><strong style="color:var(--ink);">Skill routing is mandatory</strong> &mdash; Route to the relevant Superpowers skill before acting. Do not rationalize with too simple, already know this, or just this once. When BMAD/TEA are present, name the active driver explicitly.</div></div>
+          <div style="padding:18px 20px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); display:flex; gap:14px; align-items:flex-start;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; flex-shrink:0; padding-top:2px;">02</span><div style="font-size:13px; line-height:1.55; color:var(--ink-soft);"><strong style="color:var(--ink);">Design precedes code</strong> &mdash; Clarify one question at a time and compare meaningful approaches. Write the approved spec as a durable artifact before planning. No implementation code or scaffolding before approval.</div></div>
+          <div style="padding:18px 20px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); display:flex; gap:14px; align-items:flex-start;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; flex-shrink:0; padding-top:2px;">03</span><div style="font-size:13px; line-height:1.55; color:var(--ink-soft);"><strong style="color:var(--ink);">Plans are execution contracts</strong> &mdash; Plans include exact files, interfaces, commands, expected output, and no placeholders. Tasks are small enough to test and review independently. RED-GREEN-REFACTOR is embedded in the plan.</div></div>
+          <div style="padding:18px 20px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); display:flex; gap:14px; align-items:flex-start;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; flex-shrink:0; padding-top:2px;">04</span><div style="font-size:13px; line-height:1.55; color:var(--ink-soft);"><strong style="color:var(--ink);">TDD is an iron law</strong> &mdash; No production behavior without a failing test observed first. Code written before the failing test is deleted and restarted. GREEN means minimal implementation; refactor only after green.</div></div>
+          <div style="padding:18px 20px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); display:flex; gap:14px; align-items:flex-start;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; flex-shrink:0; padding-top:2px;">05</span><div style="font-size:13px; line-height:1.55; color:var(--ink-soft);"><strong style="color:var(--ink);">Debug root cause first</strong> &mdash; Reproduce, read errors, check recent changes, trace data flow, then hypothesize. Test one hypothesis with the smallest useful change. After repeated failed fixes, question architecture instead of stacking patches.</div></div>
+          <div style="padding:18px 20px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); display:flex; gap:14px; align-items:flex-start;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; flex-shrink:0; padding-top:2px;">06</span><div style="font-size:13px; line-height:1.55; color:var(--ink-soft);"><strong style="color:var(--ink);">Review early, receive skeptically</strong> &mdash; Task review checks both spec compliance and code quality. Critical/Important findings block forward progress. External review feedback is verified against the codebase before implementation.</div></div>
+          <div style="padding:18px 20px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); display:flex; gap:14px; align-items:flex-start;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; flex-shrink:0; padding-top:2px;">07</span><div style="font-size:13px; line-height:1.55; color:var(--ink-soft);"><strong style="color:var(--ink);">Evidence beats claims</strong> &mdash; No completion claim without fresh command output and exit-code evidence. Previous runs, agent reports, and partial checks are not completion evidence. Final status reconciles tests, requirements, baseline, review closure, and diff.</div></div>
+          <div style="padding:18px 20px; border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); display:flex; gap:14px; align-items:flex-start;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); font-weight:600; flex-shrink:0; padding-top:2px;">08</span><div style="font-size:13px; line-height:1.55; color:var(--ink-soft);"><strong style="color:var(--ink);">Artifacts survive memory</strong> &mdash; Specs, plans, task briefs, reports, review packages, ledgers, and verification summaries carry state across sessions. Scratch SPP evidence belongs in self-ignored SPP space such as <code>.superpowers/sdd/</code> when used. BMAD story/status and TEA evidence remain the governance wrapper around SPP execution.</div></div>
+        </div>
+
+        <div class="cast-head">
+          <div class="cast-head-left">
+            <span class="roman">III</span>
+            <div>
+              <div class="title">SPP Execution Chain</div>
+              <div class="sub">Eight Phase 4 cards plus one finish document</div>
+            </div>
+          </div>
+          <div class="right">Workflow Map<br/><strong>Phase 4 + Documents</strong></div>
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; font-size:12.5px; margin-bottom:40px;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--rule);">
+              <th style="text-align:left; padding:10px 14px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); width:90px;">Code</th>
+              <th style="text-align:left; padding:10px 14px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); width:240px;">Card</th>
+              <th style="text-align:left; padding:10px 14px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft);">Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:10px 14px; font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--accent);">SP-A</td><td style="padding:10px 14px;"><a href="bmadskills/spp-brainstorming-spec.html" target="_blank" rel="noopener noreferrer" style="color:var(--ink);">Brainstorming &amp; Spec</a></td><td style="padding:10px 14px; color:var(--ink-soft);">Turn the ready BMAD story into an approved design spec before implementation planning.</td></tr>
+            <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:10px 14px; font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--accent);">SP-B</td><td style="padding:10px 14px;"><a href="bmadskills/spp-handoff-workspace-isolation.html" target="_blank" rel="noopener noreferrer" style="color:var(--ink);">Handoff &amp; Workspace Isolation</a></td><td style="padding:10px 14px; color:var(--ink-soft);">Create or detect a clean workspace and record baseline evidence.</td></tr>
+            <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:10px 14px; font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--accent);">SP-C</td><td style="padding:10px 14px;"><a href="bmadskills/spp-write-implementation-plan.html" target="_blank" rel="noopener noreferrer" style="color:var(--ink);">Write Implementation Plan</a></td><td style="padding:10px 14px; color:var(--ink-soft);">Convert the story file, approved spec, and test design into exact files, tasks, interfaces, test commands, and handoff rules.</td></tr>
+            <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:10px 14px; font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--accent);">SP-D</td><td style="padding:10px 14px;"><a href="bmadskills/spp-subagent-driven-execution.html" target="_blank" rel="noopener noreferrer" style="color:var(--ink);">Subagent-Driven Execution</a></td><td style="padding:10px 14px; color:var(--ink-soft);">Run focused implementation slices with fresh workers and per-task review.</td></tr>
+            <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:10px 14px; font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--accent);">SP-E</td><td style="padding:10px 14px;"><a href="bmadskills/spp-tdd-implementation-gate.html" target="_blank" rel="noopener noreferrer" style="color:var(--ink);">TDD Implementation Gate</a></td><td style="padding:10px 14px; color:var(--ink-soft);">Protect each slice with red-green-refactor discipline and meaningful tests.</td></tr>
+            <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:10px 14px; font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--accent);">SP-F</td><td style="padding:10px 14px;"><a href="bmadskills/spp-systematic-debugging.html" target="_blank" rel="noopener noreferrer" style="color:var(--ink);">Systematic Debugging</a></td><td style="padding:10px 14px; color:var(--ink-soft);">Stop guessing when tests or behavior fail; isolate evidence before changing code.</td></tr>
+            <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:10px 14px; font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--accent);">SP-G</td><td style="padding:10px 14px;"><a href="bmadskills/spp-code-review-feedback.html" target="_blank" rel="noopener noreferrer" style="color:var(--ink);">Code Review &amp; Feedback Reception</a></td><td style="padding:10px 14px; color:var(--ink-soft);">Review against spec, tests, architecture, maintainability, and received feedback.</td></tr>
+            <tr style="border-bottom:1px solid var(--rule-soft);"><td style="padding:10px 14px; font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--accent);">SP-H</td><td style="padding:10px 14px;"><a href="bmadskills/spp-verification-before-completion.html" target="_blank" rel="noopener noreferrer" style="color:var(--ink);">Verification Before Completion</a></td><td style="padding:10px 14px; color:var(--ink-soft);">Require fresh evidence for every completion claim before closing the branch.</td></tr>
+            <tr><td style="padding:10px 14px; font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--accent);">SP-I</td><td style="padding:10px 14px;"><a href="bmadskills/spp-finish-development-branch.html" target="_blank" rel="noopener noreferrer" style="color:var(--ink);">Finish Development Branch</a></td><td style="padding:10px 14px; color:var(--ink-soft);">Document-guided branch package and user choice; not modeled as a Phase 4 card.</td></tr>
+          </tbody>
+        </table>
+
+      </div>
+    </section>
+
+<script>
+  // ========== Agent profile section collapse (delegated) ==========
+  document.addEventListener('click', e => {
+    const head = e.target.closest('.ap-section-head');
+    if (!head) return;
+    const section = head.parentElement;
+    const collapsed = section.classList.toggle('ap-section-collapsed');
+    head.setAttribute('aria-expanded', String(!collapsed));
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const head = e.target.closest('.ap-section-head');
+    if (!head) return;
+    e.preventDefault();
+    const section = head.parentElement;
+    const collapsed = section.classList.toggle('ap-section-collapsed');
+    head.setAttribute('aria-expanded', String(!collapsed));
+  });
+
+  // ========== Workflow tech-stack collapse (delegated) ==========
+  function toggleWfStack(btn) {
+    const stack = btn.closest('.wf-stack');
+    if (!stack) return;
+    const collapsed = stack.classList.toggle('is-collapsed');
+    btn.setAttribute('aria-expanded', String(!collapsed));
+  }
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.wf-stack-toggle');
+    if (btn) {
+      e.stopPropagation();
+      const wf = btn.closest('.wf');
+      const detailBtn = wf ? wf.querySelector('.wf-detail-btn[data-href]') : null;
+      if (detailBtn) { window.open(detailBtn.dataset.href + '#toolkit', '_blank'); return; }
+      toggleWfStack(btn);
+    }
+  });
+
+  // ========== Section-level collapse (Agent Team, Phases) ==========
+  document.querySelectorAll('.sec-head').forEach(head => {
+    const toggle = () => {
+      const section = head.parentElement;
+      const collapsed = section.classList.toggle('sec-collapsed');
+      head.setAttribute('aria-expanded', String(!collapsed));
+    };
+    head.addEventListener('click', toggle);
+    head.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  });
+
+  // ========== Workflow card collapse ==========
+  document.querySelectorAll('.wf-header').forEach(head => {
+    const toggle = () => {
+      const wf = head.parentElement;
+      const collapsed = wf.classList.toggle('is-collapsed');
+      head.setAttribute('aria-expanded', String(!collapsed));
+    };
+    head.addEventListener('click', toggle);
+    head.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  });
+
+  // ========== Steps list toggle (inside workflow) ==========
+  document.querySelectorAll('.wf-steps').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const card = btn.closest('.wf');
+      const detailBtn = card ? card.querySelector('.wf-detail-btn[data-href]') : null;
+      if (detailBtn) {
+        window.open(detailBtn.dataset.href + '#how', '_blank');
+        return;
+      }
+      const isOpen = card.classList.toggle('steps-open');
+      btn.setAttribute('aria-expanded', String(isOpen));
+    });
+  });
+
+  
+  // ========== Step detail (WHAT / WHY / HOW) — MODAL OVERLAY ==========
+  let activeStepDetail = null;
+  let activeStepBtn = null;
+  let escListener = null;
+  let backdropListener = null;
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  function openStepModal(detail, btn) {
+    // Close any other open modal first
+    if (activeStepDetail && activeStepDetail !== detail) {
+      closeStepModal();
+    }
+
+    // Build context for modal header from surrounding DOM
+    const stepLi = btn.closest('li');
+    const stepNum = stepLi?.querySelector('.step-num')?.textContent.trim() || '';
+    const stepTitle = stepLi?.querySelector('.step-t')?.textContent.trim() || '';
+    const stepDesc = stepLi?.querySelector('.step-d')?.textContent.trim() || '';
+    const wfCard = btn.closest('.wf-card');
+    const wfId = wfCard?.querySelector('.wf-id')?.textContent.trim() || '';
+    const wfName = wfCard?.querySelector('.wf-name')?.textContent.trim() || '';
+
+    const innerContent = detail.querySelector('.step-detail-inner-content');
+    if (!innerContent) return;
+
+    // Inject header (if not present)
+    if (!innerContent.querySelector('.modal-header')) {
+      const header = document.createElement('div');
+      header.className = 'modal-header';
+      const wfLabel = wfId && wfName ? `${escapeHtml(wfId)} · ${escapeHtml(wfName)} · Step ${escapeHtml(stepNum)}` : `Step ${escapeHtml(stepNum)}`;
+      header.innerHTML =
+        `<div class="ms-id">${wfLabel}</div>` +
+        `<div class="ms-title">${escapeHtml(stepTitle)}</div>` +
+        (stepDesc ? `<div class="ms-desc">${escapeHtml(stepDesc)}</div>` : '');
+
+      // Close button inside header (absolute positioned)
+      const close = document.createElement('button');
+      close.className = 'modal-close';
+      close.type = 'button';
+      close.setAttribute('aria-label', 'Close');
+      close.innerHTML = '×';
+      close.addEventListener('click', e => {
+        e.stopPropagation();
+        closeStepModal();
+      });
+      header.appendChild(close);
+
+      innerContent.insertBefore(header, innerContent.firstChild);
+    }
+
+    // Wrap 3 sd-rows in .modal-body grid (if not already wrapped)
+    if (!innerContent.querySelector('.modal-body')) {
+      const rows = Array.from(innerContent.querySelectorAll(':scope > .sd-row'));
+      if (rows.length > 0) {
+        const body = document.createElement('div');
+        body.className = 'modal-body';
+        // Insert body before the first row
+        innerContent.insertBefore(body, rows[0]);
+        // Move all rows into body in original order
+        rows.forEach(row => body.appendChild(row));
+      }
+    }
+
+    // Inject footer hint (if not present)
+    if (!innerContent.querySelector('.modal-hint')) {
+      const hint = document.createElement('div');
+      hint.className = 'modal-hint';
+      hint.innerHTML = 'Press <kbd>ESC</kbd> or click outside to close';
+      innerContent.appendChild(hint);
+    }
+
+    // Open modal
+    detail.classList.add('is-open');
+    btn.classList.add('is-open');
+    btn.setAttribute('aria-expanded', 'true');
+    const label = btn.querySelector('.label-text');
+    if (label) label.textContent = 'hide detail';
+    document.body.classList.add('modal-open');
+
+    activeStepDetail = detail;
+    activeStepBtn = btn;
+
+    // Backdrop click handler — close only if clicking on the .step-detail itself (not children)
+    backdropListener = (e) => {
+      if (e.target === detail) closeStepModal();
+    };
+    detail.addEventListener('click', backdropListener);
+
+    // ESC key handler
+    escListener = (e) => {
+      if (e.key === 'Escape') closeStepModal();
+    };
+    document.addEventListener('keydown', escListener);
+  }
+
+  function closeStepModal() {
+    if (!activeStepDetail) return;
+    const detail = activeStepDetail;
+    const btn = activeStepBtn;
+
+    detail.classList.remove('is-open');
+    if (btn) {
+      btn.classList.remove('is-open');
+      btn.setAttribute('aria-expanded', 'false');
+      const label = btn.querySelector('.label-text');
+      if (label) label.textContent = 'what · why · how';
+    }
+    document.body.classList.remove('modal-open');
+
+    if (backdropListener) {
+      detail.removeEventListener('click', backdropListener);
+      backdropListener = null;
+    }
+    if (escListener) {
+      document.removeEventListener('keydown', escListener);
+      escListener = null;
+    }
+
+    activeStepDetail = null;
+    activeStepBtn = null;
+  }
+
+  document.querySelectorAll('.step-detail-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const wf = btn.closest('.wf');
+      const detailBtn = wf ? wf.querySelector('.wf-detail-btn[data-href]') : null;
+      if (detailBtn) {
+        window.open(detailBtn.dataset.href + '#how', '_blank');
+        return;
+      }
+      const detail = btn.nextElementSibling;
+      if (!detail || !detail.classList.contains('step-detail')) return;
+      const isOpen = detail.classList.contains('is-open');
+      if (isOpen) closeStepModal();
+      else openStepModal(detail, btn);
+    });
+  });
+
+  // ========== Agent profile modal ==========
+  let activeAgentModal = null;
+  let activeAgentBtn = null;
+  let agentEscListener = null;
+  let agentBackdropListener = null;
+
+  function openAgentProfile(modal, btn) {
+    if (activeAgentModal && activeAgentModal !== modal) closeAgentProfile();
+    modal.classList.add('is-open');
+    btn.classList.add('is-open');
+    btn.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('modal-open');
+    activeAgentModal = modal;
+    activeAgentBtn = btn;
+    // backdrop
+    agentBackdropListener = e => { if (e.target === modal) closeAgentProfile(); };
+    modal.addEventListener('click', agentBackdropListener);
+    // ESC
+    agentEscListener = e => { if (e.key === 'Escape') closeAgentProfile(); };
+    document.addEventListener('keydown', agentEscListener);
+    // wire close button
+    const closeBtn = modal.querySelector('.modal-close');
+    if (closeBtn && !closeBtn.dataset.wired) {
+      closeBtn.dataset.wired = '1';
+      closeBtn.addEventListener('click', e => { e.stopPropagation(); closeAgentProfile(); });
+    }
+  }
+  function closeAgentProfile() {
+    if (!activeAgentModal) return;
+    activeAgentModal.classList.remove('is-open');
+    if (activeAgentBtn) {
+      activeAgentBtn.classList.remove('is-open');
+      activeAgentBtn.setAttribute('aria-expanded', 'false');
+    }
+    document.body.classList.remove('modal-open');
+    if (agentBackdropListener) {
+      activeAgentModal.removeEventListener('click', agentBackdropListener);
+      agentBackdropListener = null;
+    }
+    if (agentEscListener) {
+      document.removeEventListener('keydown', agentEscListener);
+      agentEscListener = null;
+    }
+    activeAgentModal = null;
+    activeAgentBtn = null;
+  }
+  document.querySelectorAll('.agent-profile-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const modalId = btn.dataset.target;
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      const isOpen = modal.classList.contains('is-open');
+      if (isOpen) closeAgentProfile();
+      else openAgentProfile(modal, btn);
+    });
+  });
+
+  // ========== Workflow-level detail modal ==========
+  let activeWfModal = null;
+  let activeWfBtn = null;
+  let wfEscListener = null;
+  let wfBackdropListener = null;
+
+  function openWfDetail(modal, btn) {
+    if (activeWfModal && activeWfModal !== modal) closeWfDetail();
+    modal.classList.add('is-open');
+    btn.classList.add('is-open');
+    btn.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('modal-open');
+    activeWfModal = modal;
+    activeWfBtn = btn;
+    // backdrop click
+    wfBackdropListener = e => { if (e.target === modal) closeWfDetail(); };
+    modal.addEventListener('click', wfBackdropListener);
+    // ESC
+    wfEscListener = e => { if (e.key === 'Escape') closeWfDetail(); };
+    document.addEventListener('keydown', wfEscListener);
+    // wire close button (once)
+    const closeBtn = modal.querySelector('.modal-close');
+    if (closeBtn && !closeBtn.dataset.wired) {
+      closeBtn.dataset.wired = '1';
+      closeBtn.addEventListener('click', e => { e.stopPropagation(); closeWfDetail(); });
+    }
+  }
+  function closeWfDetail() {
+    if (!activeWfModal) return;
+    activeWfModal.classList.remove('is-open');
+    if (activeWfBtn) {
+      activeWfBtn.classList.remove('is-open');
+      activeWfBtn.setAttribute('aria-expanded', 'false');
+    }
+    document.body.classList.remove('modal-open');
+    if (wfBackdropListener) {
+      activeWfModal.removeEventListener('click', wfBackdropListener);
+      wfBackdropListener = null;
+    }
+    if (wfEscListener) {
+      document.removeEventListener('keydown', wfEscListener);
+      wfEscListener = null;
+    }
+    activeWfModal = null;
+    activeWfBtn = null;
+  }
+  document.querySelectorAll('.wf-detail-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (btn.dataset.href) {
+        window.open(btn.dataset.href, '_blank');
+        return;
+      }
+      const modalId = btn.dataset.target;
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      const isOpen = modal.classList.contains('is-open');
+      if (isOpen) closeWfDetail();
+      else openWfDetail(modal, btn);
+    });
+  });
+
+</script>
+
+  </article>
+</body>
+</html>
